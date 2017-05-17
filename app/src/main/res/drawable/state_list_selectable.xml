@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" android:exitFadeDuration="@android:integer/config_mediumAnimTime">
+
+    <item android:state_checked="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/selector_white_pressed" />
+            <corners android:radius="@dimen/selectable_rounded_rect_corner_radius" />
+        </shape>
+    </item>
+
+    <item android:drawable="@color/selector_normal" android:state_checked="false" />
+    <item android:drawable="@color/selector_normal" />
+</selector>

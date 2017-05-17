@@ -1,0 +1,46 @@
+<resources>
+
+    <style name="ListProgress" parent="@style/Widget.AppCompat.ProgressBar">
+        <item name="android:layout_width">70dp</item>
+        <item name="android:layout_height">70dp</item>
+    </style>
+
+    <style name="RadioButton">
+        <item name="colorControlHighlight">@color/colorAccentSecondary</item>
+        <item name="colorButtonNormal">@color/colorAccentSecondary</item>
+        <item name="android:background">@drawable/state_list_selectable</item>
+        <item name="android:button">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+    </style>
+
+    <style name="MaterialProgress" parent="@style/Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminate">true</item>
+        <item name="android:layout_height">@dimen/progress_bar_size</item>
+        <item name="android:layout_width">@dimen/progress_bar_size</item>
+    </style>
+
+    <style name="ButtonAppTheme" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+
+    <style name="MyTitleText">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">5dip</item>
+    </style>
+
+</resources>

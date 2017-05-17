@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MaterialProgressBar">
+        <attr name="color" />
+        <attr name="stroke_width" format="dimension" />
+        <attr name="min_sweep_angle" format="integer" />
+        <attr name="max_sweep_angle" format="integer" />
+        <attr name="sweep_speed" format="float" />
+        <attr name="rotation_speed" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="CompatTextView">
+        <attr name="compoundDrawableWidth" format="dimension"/>
+        <attr name="compoundDrawableHeight" format="dimension"/>
+        <attr name="drawableStart" format="reference"/>
+        <attr name="drawableTop" format="reference"/>
+        <attr name="drawableEnd" format="reference"/>
+        <attr name="drawableBottom" format="reference"/>
+    </declare-styleable>
+</resources>

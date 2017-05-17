@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "274399993168",
+    "firebase_url": "https://acrypto-ef41d.firebaseio.com",
+    "project_id": "acrypto-ef41d",
+    "storage_bucket": "acrypto-ef41d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274399993168:android:85f90f14b01026e4",
+        "android_client_info": {
+          "package_name": "dev.dworks.apps.acrypto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274399993168-g81pptgqup3cuhi20n6fi81ui71ek4pl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABS_98DdsUHkw2rUwdDjeIV_7xAArJ2zc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

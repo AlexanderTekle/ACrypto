@@ -1,0 +1,24 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="account"
+        android:title="Account">
+        <ListPreference
+            android:defaultValue="@string/default_currency"
+            android:entries="@array/currency_names"
+            android:entryValues="@array/currency_names"
+            android:key="currency"
+            android:persistent="true"
+            android:summary="%s"
+            android:title="@string/pref_currency_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="about"
+        android:title="About">
+        <Preference
+            android:key="build_version"
+            android:title="@string/pref_title_build_version" />
+    </PreferenceCategory>
+
+
+</PreferenceScreen>
