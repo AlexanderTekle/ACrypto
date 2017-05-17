@@ -3,6 +3,7 @@ package dev.dworks.apps.acrypto;
 import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.support.v7.app.AppCompatDelegate;
 
 import com.google.gson.Gson;
 
@@ -18,6 +19,10 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 public class App extends Application {
 	public static final String TAG = "ACrypto";
+
+	static {
+		AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+	}
 
 	public static String APP_VERSION;
     public static int APP_VERSION_CODE;

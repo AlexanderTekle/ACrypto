@@ -104,6 +104,7 @@ public class HomeFragment extends ActionBarFragment
     private boolean retry = false;
     private double currentValue;
     private TextView mCurrencyChange;
+    private View mControls;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -147,6 +148,7 @@ public class HomeFragment extends ActionBarFragment
 
     private void initControls(View view) {
 
+        mControls = view.findViewById(R.id.controls);
         mValue = (MoneyTextView) view.findViewById(R.id.value);
         mTime = (TextView) view.findViewById(R.id.time);
 
@@ -367,7 +369,26 @@ public class HomeFragment extends ActionBarFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        setEmptyData(true);
+        if (!Utils.isNetConnected(getActivity())) {
+            setEmptyData("No Internet");
+            mControls.setVisibility(View.INVISIBLE);
+            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    loadData();
+                }
+            });
+        }
+        else{
+            setEmptyData("Something went wrong!");
+            mControls.setVisibility(View.INVISIBLE);
+            Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    loadData();
+                }
+            });
+        }
     }
 
     @Override
@@ -376,9 +397,10 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void loadData(Prices response) {
+        mControls.setVisibility(View.VISIBLE);
         if(null == response) {
             retry = false;
-            setEmptyData(false);
+            setEmptyData("No data available");
             return;
         }
         else if(!response.isValidResponse()){
@@ -387,7 +409,7 @@ public class HomeFragment extends ActionBarFragment
                 loadData();
             } else {
                 retry = false;
-                setEmptyData(false);
+                setEmptyData("No data available");
             }
             return;
         }
@@ -395,9 +417,9 @@ public class HomeFragment extends ActionBarFragment
         showData(response);
     }
 
-    private void setEmptyData(boolean noNetwork){
+    private void setEmptyData(String message){
         mChartProgress.setVisibility(View.GONE);
-        mChart.setNoDataText(noNetwork ? "Could fetch data! check your network" : "No data available");
+        mChart.setNoDataText(message);
         mChart.clear();
         mChart.invalidate();
     }

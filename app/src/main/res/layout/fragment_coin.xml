@@ -15,14 +15,14 @@
 
         <dev.dworks.apps.acrypto.view.MaterialProgressBar
             style="@style/ListProgress"
-            app:color="@color/colorAccentSecondary" />
+            app:color="@color/colorAccent" />
 
         <TextView
             android:id="@+id/loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="4dip"
-            android:singleLine="true"
+            android:maxLines="1"
             android:text="@string/loading"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:visibility="gone" />

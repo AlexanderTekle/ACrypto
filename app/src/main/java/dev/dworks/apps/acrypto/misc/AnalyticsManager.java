@@ -31,10 +31,6 @@ public class AnalyticsManager {
     private static FirebaseAnalytics mFirebaseAnalytics;
     private final static String TAG = LogUtils.makeLogTag(AnalyticsManager.class);
 
-    public static String FILE_TYPE = "file_type";
-    public static String FILE_COUNT = "file_count";
-    public static String FILE_MOVE = "file_move";
-
     private static boolean canSend() {
         return sAppContext != null && mFirebaseAnalytics != null
                 && !BuildConfig.DEBUG ;

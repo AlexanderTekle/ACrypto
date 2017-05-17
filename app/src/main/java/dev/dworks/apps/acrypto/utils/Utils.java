@@ -133,26 +133,6 @@ public class Utils {
         log(null, s);
     }
 
-    public static boolean hasFroyo() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
-    }
-
-    public static boolean hasGingerbread() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
-    }
-
-    public static boolean hasHoneycomb() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
-
-    public static boolean hasHoneycombMR1() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
-    }
-
-    public static boolean hasIceCreamSandwich() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-    }
-
     public static boolean hasJellyBean() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
     }
@@ -397,8 +377,6 @@ public class Utils {
           //      context.getResources(), R.drawable.abc_ic_ab_back_material));
         CustomTabsIntent customTabsIntent = builder.build();
         customTabsIntent.intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        customTabsIntent.intent.putExtra(Intent.EXTRA_REFERRER,
-                Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
         customTabsIntent.launchUrl(context, Uri.parse(url));
     }
 

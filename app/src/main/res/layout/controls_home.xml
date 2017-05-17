@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/controls"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     tools:showIn="@layout/fragment_home">
 
 
@@ -94,15 +98,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|right"
-                app:symbol="$"
-                app:symbolGravity="start|top"
-                app:symbolTextSize="16sp"
                 app:amount="0"
+                app:baseTextColor="@android:color/white"
                 app:baseTextSize="25sp"
                 app:decimalDigitsTextSize="25sp"
                 app:decimalSeparator="."
                 app:includeDecimalSeparator="true"
-                app:baseTextColor="@android:color/white" />
+                app:symbol="$"
+                app:symbolGravity="start|top"
+                app:symbolTextSize="16sp" />
 
             <TextView
                 android:id="@+id/time"
@@ -133,15 +137,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|left"
-                app:symbol="$"
-                app:symbolGravity="start|top"
-                app:symbolTextSize="16sp"
                 app:amount="0"
+                app:baseTextColor="@android:color/white"
                 app:baseTextSize="25sp"
                 app:decimalDigitsTextSize="25sp"
                 app:decimalSeparator="."
                 app:includeDecimalSeparator="true"
-                app:baseTextColor="@android:color/white" />
+                app:symbol="$"
+                app:symbolGravity="start|top"
+                app:symbolTextSize="16sp" />
 
             <TextView
                 android:id="@+id/timeDuration"
@@ -229,4 +233,4 @@
             android:layout_weight="1"
             android:background="@drawable/rectangle_white" />
     </LinearLayout>
-</merge>
+</LinearLayout>

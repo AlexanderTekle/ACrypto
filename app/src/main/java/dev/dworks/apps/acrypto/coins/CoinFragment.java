@@ -8,9 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -22,11 +19,11 @@ import java.util.ArrayList;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.Coins;
-import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
-import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.BASE_URL;
 
@@ -38,7 +35,7 @@ public class CoinFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
         Response.Listener<Coins>, Response.ErrorListener{
 
-    private static final String TAG = "Feed";
+    private static final String TAG = "Coins";
     private Utils.OnFragmentInteractionListener mListener;
     private CoinAdapter mAdapter;
     private Coins mCoins;
@@ -150,7 +147,6 @@ public class CoinFragment extends RecyclerFragment
             setEmptyText("No Data");
         }
         setListShown(true);
-        //Utils.showIndicativeMessage(getActivity(), false);
     }
 
     @Override
@@ -189,28 +185,6 @@ public class CoinFragment extends RecyclerFragment
         } else {
             fetchDataTask();
         }
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //inflater.inflate(R.menu.recommended, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-/*        switch (item.getItemId()){
-            case R.id.action_change_location:
-                ActivityUtils.showLocationActivity(getActivity(), mCurrentLocation);
-                AnalyticsManager.sendEvent(TAG, "Location Change", AnalyticsManager.ACTION_CLICK);
-                break;
-
-            case R.id.action_search_item:
-                ActivityUtils.showSearchItemActivity(getActivity(), mCurrentLocation);
-                AnalyticsManager.sendEvent(TAG, "Search Item", AnalyticsManager.ACTION_CLICK);
-                break;
-        }*/
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
