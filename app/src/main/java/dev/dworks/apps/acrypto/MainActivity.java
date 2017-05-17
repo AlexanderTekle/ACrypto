@@ -89,12 +89,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -102,7 +98,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         currentPositionId = item.getItemId();
@@ -114,23 +109,23 @@ public class MainActivity extends AppCompatActivity
                 item.setChecked(true);
                 drawer.closeDrawers();
                 HomeFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("open_home");
+                AnalyticsManager.logEvent("View Home");
                 return true;
             case R.id.nav_coins:
 
                 item.setChecked(true);
                 drawer.closeDrawers();
                 CoinFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("open_coins");
+                AnalyticsManager.logEvent("View Coins");
                 return true;
             case R.id.nav_settings:
                 startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS);
-                AnalyticsManager.logEvent("open_settings");
+                AnalyticsManager.logEvent("View Settings");
                 return true;
 
             case R.id.nav_about:
                 startActivity(new Intent(this, AboutActivity.class));
-                AnalyticsManager.logEvent("open_about");
+                AnalyticsManager.logEvent("View About");
                 return true;
 
         }

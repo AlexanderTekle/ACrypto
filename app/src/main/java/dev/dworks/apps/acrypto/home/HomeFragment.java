@@ -46,6 +46,7 @@ import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.entity.Prices;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
@@ -103,7 +104,6 @@ public class HomeFragment extends ActionBarFragment
     private TextView mTimeDuration;
     private boolean retry = false;
     private double currentValue;
-    private TextView mCurrencyChange;
     private View mControls;
 
     public static void show(FragmentManager fm) {
@@ -137,6 +137,7 @@ public class HomeFragment extends ActionBarFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         initControls(view);
+        AnalyticsManager.setCurrentScreen(getActivity(), TAG);
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -462,6 +463,7 @@ public class HomeFragment extends ActionBarFragment
         switch (item.getItemId()){
             case R.id.action_refresh:
                 loadData();
+                AnalyticsManager.logEvent("Price Refreshed "+currentCurrencyName);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -506,6 +508,7 @@ public class HomeFragment extends ActionBarFragment
         Prices.Price price = (Prices.Price) e.getData();
         setPriceValue(mValue, price.close);
         setDateTimeValue(mTime, getMillisFromTimestamp(price.time));
+        AnalyticsManager.logEvent("Price Highlighted "+currentCurrencyName);
     }
 
     @Override
@@ -524,21 +527,27 @@ public class HomeFragment extends ActionBarFragment
             switch (checkedId) {
                 case R.id.timeseries_minute:
                     currentTimeseries = TIMESERIES_MINUTE;
+                    AnalyticsManager.logEvent("Price Filter Minute "+currentCurrencyName);
                     break;
                 case R.id.timeseries_hour:
                     currentTimeseries = TIMESERIES_HOUR;
+                    AnalyticsManager.logEvent("Price Filtered Hour "+currentCurrencyName);
                     break;
                 case R.id.timeseries_day:
                     currentTimeseries = TIMESERIES_DAY;
+                    AnalyticsManager.logEvent("Price Filtered Day "+currentCurrencyName);
                     break;
                 case R.id.timeseries_week:
                     currentTimeseries = TIMESERIES_WEEK;
+                    AnalyticsManager.logEvent("Price Filtered Week "+currentCurrencyName);
                     break;
                 case R.id.timeseries_month:
                     currentTimeseries = TIMESERIES_MONTH;
+                    AnalyticsManager.logEvent("Price Filtered Month "+currentCurrencyName);
                     break;
                 case R.id.timeseries_year:
                     currentTimeseries = TIMESERIES_YEAR;
+                    AnalyticsManager.logEvent("Price Filtered Year "+currentCurrencyName);
                     break;
             }
         }
@@ -547,23 +556,28 @@ public class HomeFragment extends ActionBarFragment
                 case R.id.currency_btc:
                     currentCurrencyFrom = "BTC";
                     currentCurrencyName = "Bitcoin";
+                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
                 case R.id.currency_eth:
                     currentCurrencyFrom = "ETH";
                     currentCurrencyName = "Ethereum";
+                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
                 case R.id.currency_ltc:
                     currentCurrencyFrom = "LTC";
                     currentCurrencyName = "Litecoin";
+                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
                 case R.id.currency_xrp:
                     currentCurrencyFrom = "XRP";
                     currentCurrencyName = "Ripple";
+                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
 
                 case R.id.currency_dash:
                     currentCurrencyFrom = "DASH";
                     currentCurrencyName = "Dash";
+                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
             }
         }

@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.common.AppCompatPreferenceActivity;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
@@ -27,6 +28,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        AnalyticsManager.setCurrentScreen(this, TAG);
     }
 
     @Override

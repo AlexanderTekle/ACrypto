@@ -49,7 +49,7 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(null);
-
+		AnalyticsManager.setCurrentScreen(this, TAG);
 		initControls();
 	}
 
@@ -106,16 +106,17 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 				break;*/
 			case R.id.action_feedback:
 				openFeedback(this);
+				AnalyticsManager.logEvent("Open Feedback");
 				break;
 			case R.id.action_rate:
 				openPlaystore(this);
-				AnalyticsManager.logEvent("app_rate");
+				AnalyticsManager.logEvent("Open Rating");
 				break;
 			case R.id.action_support:
 				Intent intentMarketAll = new Intent("android.intent.action.VIEW");
 				intentMarketAll.setData(Utils.getAppStoreUri());
 				startActivity(intentMarketAll);
-				AnalyticsManager.logEvent("app_love");
+				AnalyticsManager.logEvent("Open Love");
 				break;
 			case R.id.action_share:
 
@@ -127,7 +128,7 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 						.setType("text/plain")
 						.setChooserTitle("Share ACrypto")
 						.startChooser();
-				AnalyticsManager.logEvent("app_share");
+				AnalyticsManager.logEvent("Open Share");
 				break;
 		}
 	}

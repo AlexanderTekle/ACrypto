@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.Coins;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
@@ -90,6 +91,7 @@ public class CoinFragment extends RecyclerFragment
         super.onViewCreated(view, savedInstanceState);
         setLayoutManager(new LinearLayoutManager(view.getContext()));
         setHasFixedSize(true);
+        AnalyticsManager.setCurrentScreen(getActivity(), TAG);
     }
 
     private void fetchDataTask() {
@@ -197,8 +199,8 @@ public class CoinFragment extends RecyclerFragment
     public void onItemClick(View view, int position) {
         Coins.Coin item = mAdapter.getItem(position);
         String url = BASE_URL + item.url;
-
         Utils.openCustomTabUrl(getActivity(), url);
+        AnalyticsManager.logEvent("View Coin Details");
     }
 
     @Override

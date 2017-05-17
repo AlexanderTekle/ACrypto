@@ -3,13 +3,16 @@ package dev.dworks.apps.acrypto.settings;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_CURRENCY;
 
 
-public class GeneralPreferenceFragment extends PreferenceFragment {
+public class GeneralPreferenceFragment extends PreferenceFragment
+        implements Preference.OnPreferenceClickListener, Preference.OnPreferenceChangeListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -17,45 +20,20 @@ public class GeneralPreferenceFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_general);
         findPreference(SettingsActivity.KEY_BUILD_VERSION).setSummary(App.APP_VERSION);
 
-/*        findPreference(SettingsActivity.KEY_LOGOUT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                showLogoutDialog();
-                return true;
-            }
-        });*/
+        Preference preferenceCurrency = findPreference(KEY_CURRENCY);
+        preferenceCurrency.setOnPreferenceClickListener(this);
+        preferenceCurrency.setOnPreferenceChangeListener(this);
     }
 
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
-            preference.setSummary(stringValue);
-            return true;
-        }
-    };
-
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getBoolean(preference.getKey(), false));
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        AnalyticsManager.logEvent("Settings Currency Viewed");
+        return false;
     }
 
-/*    private void showLogoutDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_Dialog)
-                .setTitle("Logout")
-                .setMessage("Want to logout from shifoo app ?")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        getActivity().setResult(MainActivity.LOGOUT);
-                        getActivity().finish();
-                    }
-                })
-                .setNegativeButton("Cancel", null);
-        DialogFragment.showThemedDialog(builder);
-    }*/
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        AnalyticsManager.logEvent("Currency Changed "+ newValue.toString());
+        return true;
+    }
 }
