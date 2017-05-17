@@ -198,7 +198,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
 
             name.setText(item.coinName);
             String url = BASE_URL + item.imageUrl;
-            imageView.setImageUrl(url, VolleyPlusHelper.with().getImageLoader());
+            imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
             String symbol = item.name;
             if(coinSymbols.coins.containsKey(item.name)){
                 symbol = coinSymbols.coins.get(item.name);
