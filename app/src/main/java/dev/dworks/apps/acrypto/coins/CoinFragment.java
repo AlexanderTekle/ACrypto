@@ -200,7 +200,9 @@ public class CoinFragment extends RecyclerFragment
         Coins.Coin item = mAdapter.getItem(position);
         String url = BASE_URL + item.url;
         Utils.openCustomTabUrl(getActivity(), url);
-        AnalyticsManager.logEvent("View Coin Details");
+        Bundle bundle = new Bundle();
+        bundle.putString("currency", item.name);
+        AnalyticsManager.logEvent("view_coin_details", bundle);
     }
 
     @Override

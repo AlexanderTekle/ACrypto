@@ -109,23 +109,23 @@ public class MainActivity extends AppCompatActivity
                 item.setChecked(true);
                 drawer.closeDrawers();
                 HomeFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("View Home");
+                AnalyticsManager.logEvent("view_home");
                 return true;
             case R.id.nav_coins:
 
                 item.setChecked(true);
                 drawer.closeDrawers();
                 CoinFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("View Coins");
+                AnalyticsManager.logEvent("view_coins");
                 return true;
             case R.id.nav_settings:
                 startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS);
-                AnalyticsManager.logEvent("View Settings");
+                AnalyticsManager.logEvent("view_settings");
                 return true;
 
             case R.id.nav_about:
                 startActivity(new Intent(this, AboutActivity.class));
-                AnalyticsManager.logEvent("View About");
+                AnalyticsManager.logEvent("view_about");
                 return true;
 
         }

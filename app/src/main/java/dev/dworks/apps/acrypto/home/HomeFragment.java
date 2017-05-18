@@ -20,12 +20,14 @@ import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -52,6 +54,7 @@ import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
+import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
@@ -105,6 +108,7 @@ public class HomeFragment extends ActionBarFragment
     private boolean retry = false;
     private double currentValue;
     private View mControls;
+    private TextView mLastUpdate;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -155,6 +159,7 @@ public class HomeFragment extends ActionBarFragment
 
         mValueChange = (MoneyTextView) view.findViewById(R.id.valueChange);
         mTimeDuration = (TextView) view.findViewById(R.id.timeDuration);
+        mLastUpdate = (TextView) view.findViewById(R.id.lastupdated);
 
         mValue.setSymbol(getCurrentCurrencyToSymbol());
         mValueChange.setSymbol(getCurrentCurrencyToSymbol());
@@ -261,10 +266,9 @@ public class HomeFragment extends ActionBarFragment
                 "",
                 this,
                 this);
+        request.setShouldCache(true);
         VolleyPlusHelper.with().updateToRequestQueue(request, "Home");
-
         loadPriceData();
-        loadDifferenceData();
     }
 
     private void loadPriceData() {
@@ -395,6 +399,7 @@ public class HomeFragment extends ActionBarFragment
     @Override
     public void onResponse(Prices response) {
         loadData(response);
+        //showLastUpdate();
     }
 
     private void loadData(Prices response) {
@@ -462,8 +467,11 @@ public class HomeFragment extends ActionBarFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
+                removeUrlCache();
                 loadData();
-                AnalyticsManager.logEvent("Price Refreshed "+currentCurrencyName);
+                Bundle bundle = new Bundle();
+                bundle.putString("currency", currentCurrencyName);
+                AnalyticsManager.logEvent("price_refreshed", bundle);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -472,6 +480,7 @@ public class HomeFragment extends ActionBarFragment
     private void showData(Prices response) {
 
         ArrayList<Entry> entries = new ArrayList<>();
+        ArrayList<BarEntry> barEntries = new ArrayList<>();
         for (Prices.Price price : response.price){
             Entry entry = new Entry((float) getMillisFromTimestamp(price.time), (float) price.close);
             entry.setData(price);
@@ -508,7 +517,9 @@ public class HomeFragment extends ActionBarFragment
         Prices.Price price = (Prices.Price) e.getData();
         setPriceValue(mValue, price.close);
         setDateTimeValue(mTime, getMillisFromTimestamp(price.time));
-        AnalyticsManager.logEvent("Price Highlighted "+currentCurrencyName);
+        Bundle bundle = new Bundle();
+        bundle.putString("currency", currentCurrencyName);
+        AnalyticsManager.logEvent("price_highlighted", bundle);
     }
 
     @Override
@@ -520,66 +531,73 @@ public class HomeFragment extends ActionBarFragment
         return timestamp*1000L;
     }
 
+    private double getMidPoint(Prices.Price price){
+        return (price.high + price.low) / 2;
+    }
+
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
 
         if(group.getId() == R.id.timeseries) {
+            String type = "day";
             switch (checkedId) {
                 case R.id.timeseries_minute:
                     currentTimeseries = TIMESERIES_MINUTE;
-                    AnalyticsManager.logEvent("Price Filter Minute "+currentCurrencyName);
+                    type = "minute";
                     break;
                 case R.id.timeseries_hour:
                     currentTimeseries = TIMESERIES_HOUR;
-                    AnalyticsManager.logEvent("Price Filtered Hour "+currentCurrencyName);
+                    type = "hour";
                     break;
                 case R.id.timeseries_day:
                     currentTimeseries = TIMESERIES_DAY;
-                    AnalyticsManager.logEvent("Price Filtered Day "+currentCurrencyName);
+                    type = "day";
                     break;
                 case R.id.timeseries_week:
                     currentTimeseries = TIMESERIES_WEEK;
-                    AnalyticsManager.logEvent("Price Filtered Week "+currentCurrencyName);
+                    type = "week";
                     break;
                 case R.id.timeseries_month:
                     currentTimeseries = TIMESERIES_MONTH;
-                    AnalyticsManager.logEvent("Price Filtered Month "+currentCurrencyName);
+                    type = "month";
                     break;
                 case R.id.timeseries_year:
                     currentTimeseries = TIMESERIES_YEAR;
-                    AnalyticsManager.logEvent("Price Filtered Year "+currentCurrencyName);
+                    type = "year";
                     break;
             }
+            Bundle bundle = new Bundle();
+            bundle.putString("type", type);
+            bundle.putString("currency", currentCurrencyName);
+            AnalyticsManager.logEvent("price_filter", bundle);
         }
         if(group.getId() == R.id.currencies) {
             switch (checkedId) {
                 case R.id.currency_btc:
                     currentCurrencyFrom = "BTC";
                     currentCurrencyName = "Bitcoin";
-                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
                 case R.id.currency_eth:
                     currentCurrencyFrom = "ETH";
                     currentCurrencyName = "Ethereum";
-                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
                 case R.id.currency_ltc:
                     currentCurrencyFrom = "LTC";
                     currentCurrencyName = "Litecoin";
-                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
                 case R.id.currency_xrp:
                     currentCurrencyFrom = "XRP";
                     currentCurrencyName = "Ripple";
-                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
 
                 case R.id.currency_dash:
                     currentCurrencyFrom = "DASH";
                     currentCurrencyName = "Dash";
-                    AnalyticsManager.logEvent("Coin Filtered "+currentCurrencyName);
                     break;
             }
+            Bundle bundle = new Bundle();
+            bundle.putString("currency", currentCurrencyName);
+            AnalyticsManager.logEvent("coin_filtered", bundle);
         }
         loadData();
     }
@@ -615,7 +633,7 @@ public class HomeFragment extends ActionBarFragment
             case TIMESERIES_MINUTE:
                 url = UrlManager.with(UrlConstant.HISTORY_MINUTE_URL)
                         .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "20")
+                        .setParam("limit", "10")
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_TIME;
                 changeTimestamp = getTimestamp(0, 0, 1);
@@ -677,5 +695,23 @@ public class HomeFragment extends ActionBarFragment
         }
 
         return url;
+    }
+
+    private void showLastUpdate(){
+        Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
+        Cache.Entry entry = cache.get(getUrl());
+        if(null != entry) {
+            long lastUpdated = entry.serverDate;
+            mLastUpdate.setVisibility(0 == lastUpdated ? View.GONE : View.VISIBLE);
+            mLastUpdate.setText("Last updated:" + TimeUtils.getFormattedDateTime(lastUpdated));
+        } else {
+            mLastUpdate.setVisibility(View.VISIBLE);
+            mLastUpdate.setText("Last updated:" + TimeUtils.getFormattedDateTime(Utils.getCurrentTimeInMillis()));
+        }
+    }
+
+    private void removeUrlCache(){
+        Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
+        cache.remove(getUrl());
     }
 }

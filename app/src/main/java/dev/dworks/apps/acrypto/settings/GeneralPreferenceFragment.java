@@ -27,13 +27,15 @@ public class GeneralPreferenceFragment extends PreferenceFragment
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        AnalyticsManager.logEvent("Settings Currency Viewed");
+        AnalyticsManager.logEvent("settings_currency_viewed");
         return false;
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        AnalyticsManager.logEvent("Currency Changed "+ newValue.toString());
+        Bundle bundle = new Bundle();
+        bundle.putString("currency", newValue.toString());
+        AnalyticsManager.logEvent("currency_changed", bundle);
         return true;
     }
 }

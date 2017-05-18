@@ -58,7 +58,8 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 		int accentColor = ColorUtils.getTextColorForBackground(ContextCompat.getColor(this, R.color.colorPrimary));
 		TextView logo = (TextView)findViewById(R.id.logo);
 		logo.setTextColor(accentColor);
-		String header = logo.getText() + " v" + BuildConfig.VERSION_NAME;
+		String header = logo.getText() + " v" + BuildConfig.VERSION_NAME
+				+ (BuildConfig.DEBUG ? " Debug" : "");
 		logo.setText(header);
 
 		TextView action_rate = (TextView)findViewById(R.id.action_rate);
@@ -106,17 +107,17 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 				break;*/
 			case R.id.action_feedback:
 				openFeedback(this);
-				AnalyticsManager.logEvent("Open Feedback");
+				AnalyticsManager.logEvent("open_feedback");
 				break;
 			case R.id.action_rate:
 				openPlaystore(this);
-				AnalyticsManager.logEvent("Open Rating");
+				AnalyticsManager.logEvent("open_rating");
 				break;
 			case R.id.action_support:
 				Intent intentMarketAll = new Intent("android.intent.action.VIEW");
 				intentMarketAll.setData(Utils.getAppStoreUri());
 				startActivity(intentMarketAll);
-				AnalyticsManager.logEvent("Open Love");
+				AnalyticsManager.logEvent("open_love");
 				break;
 			case R.id.action_share:
 
@@ -128,7 +129,7 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 						.setType("text/plain")
 						.setChooserTitle("Share ACrypto")
 						.startChooser();
-				AnalyticsManager.logEvent("Open Share");
+				AnalyticsManager.logEvent("open_share");
 				break;
 		}
 	}

@@ -84,7 +84,7 @@ public class GsonRequest<T> extends BaseRequest<T> {
                     response.data, HttpHeaderParser.parseCharset(response.headers));
             Cache.Entry entry;
             if(shouldCache()){
-                entry = HttpHeaderParser.parseIgnoreCacheHeaders(response, 60 * 60 * 1000, 24 * 60 * 60 * 1000);
+                entry = HttpHeaderParser.parseIgnoreCacheHeaders(response, 5 * 60 * 1000, 24 * 60 * 60 * 1000);
             } else {
                 entry = HttpHeaderParser.parseCacheHeaders(response);
             }

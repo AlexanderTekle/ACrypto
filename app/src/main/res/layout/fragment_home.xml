@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginTop="?actionBarSize"
     android:background="@color/colorPrimaryDark">
 
@@ -27,6 +28,7 @@
                     android:id="@+id/linechart"
                     android:layout_width="match_parent"
                     android:layout_height="250dp" />
+
             </LinearLayout>
 
             <dev.dworks.apps.acrypto.view.MaterialProgressBar
@@ -35,6 +37,17 @@
                 android:layout_gravity="center"
                 android:visibility="gone" />
         </FrameLayout>
+
+        <TextView
+            android:id="@+id/lastupdated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|right"
+            android:layout_margin="10dp"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="5/3/17 2:45 PM" />
 
     </LinearLayout>
 
