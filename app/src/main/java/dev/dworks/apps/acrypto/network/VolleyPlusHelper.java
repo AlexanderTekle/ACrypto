@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.RequestTickle;
@@ -145,6 +146,10 @@ public class VolleyPlusHelper {
         }
     }
 
+    public NetworkResponse startTickle(Request request){
+        getRequestTickle().add(request);
+        return getRequestTickle().start();
+    }
     public static boolean hasMoreHeap(){
         return Runtime.getRuntime().maxMemory() > 20971520;
     }

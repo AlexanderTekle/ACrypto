@@ -48,16 +48,21 @@
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         tools:text="Coin Name" />
 
-                    <TextView
-                        android:id="@+id/cost"
+                    <org.fabiomsr.moneytextview.MoneyTextView
+                        android:id="@+id/price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_weight="0"
-                        android:fontFamily="sans-serif-light"
                         android:paddingRight="10dp"
-                        android:textAppearance="?android:attr/textAppearanceMedium"
-                        tools:text="Ƀ" />
+                        app:amount="0"
+                        app:baseTextColor="@color/accent_green"
+                        app:baseTextSize="20sp"
+                        app:decimalDigitsTextSize="20sp"
+                        app:decimalSeparator="."
+                        app:includeDecimalSeparator="true"
+                        app:symbol="$"
+                        app:symbolGravity="start|top"
+                        app:symbolTextSize="14sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -75,17 +80,6 @@
                         android:paddingRight="5dp"
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         tools:text="Algo" />
-
-                    <TextView
-                        android:id="@+id/proof"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_weight="0"
-                        android:fontFamily="sans-serif-light"
-                        android:gravity="center_vertical"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        tools:text="" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
