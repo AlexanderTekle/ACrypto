@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import dev.dworks.apps.acrypto.App;
+
 public class PreferenceUtils {
 
     public static Boolean getBooleanPrefs(Context ctx, String key) {
@@ -32,6 +34,10 @@ public class PreferenceUtils {
 
 	public static long getLongPrefs(Context ctx, String key, int defaultValue) {
 		return PreferenceManager.getDefaultSharedPreferences(ctx).getLong(key, defaultValue);
+	}
+
+	public static void set(final String key, final Object value) {
+		set(PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext()), key, value);
 	}
 
 	public static void set(final Context context, final String key, final Object value) {

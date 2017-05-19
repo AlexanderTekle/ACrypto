@@ -34,24 +34,4 @@
     <string name="pref_currency_description">your currency</string>
     <string name="default_currency">USD</string>
 
-
-    <string-array name="currency_names">
-        <item>USD</item>
-        <item>EUR</item>
-        <item>GBP</item>
-        <item>CAD</item>
-        <item>PLN</item>
-        <item>AUD</item>
-        <item>CNY</item>
-        <item>RUB</item>
-        <item>HKD</item>
-        <item>NZD</item>
-        <item>JPY</item>
-        <item>SGD</item>
-        <item>KRW</item>
-        <item>INR</item>
-        <item>PHP</item>
-        <item>MXN</item>
-    </string-array>
-
 </resources>

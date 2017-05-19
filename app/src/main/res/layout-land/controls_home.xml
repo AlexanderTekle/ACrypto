@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:minWidth="150dp"
+            android:minWidth="160dp"
             android:orientation="vertical"
             android:paddingLeft="10dp"
             android:paddingRight="10dp">
@@ -63,6 +63,7 @@
             android:gravity="center"
             android:minWidth="150dp"
             android:orientation="vertical"
+            android:visibility="gone"
             android:paddingLeft="10dp"
             android:paddingRight="10dp">
 
@@ -103,66 +104,36 @@
             android:orientation="vertical"
             android:paddingLeft="10dp">
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:gravity="center"
+                android:background="@android:color/white"
                 android:orientation="horizontal">
 
-                <RadioGroup
-                    android:id="@+id/currencies"
-                    android:layout_width="wrap_content"
+                <com.jaredrummler.materialspinner.Spinner
+                    android:id="@+id/currencyFromSpinner"
+                    android:layout_width="120dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:orientation="horizontal">
+                    android:theme="@style/spinnerStyle"
+                    android:layout_marginLeft="5dp"
+                    app:ms_dropdown_max_height="300dp" />
 
-                    <RadioButton
-                        android:id="@+id/currency_btc"
-                        style="@style/RadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"
-                        android:text="BTC" />
+                <com.jaredrummler.materialspinner.Spinner
+                    android:id="@+id/currencyToSpinner"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:theme="@style/spinnerStyle"
+                    android:layout_marginLeft="5dp"
+                    app:ms_dropdown_max_height="300dp" />
 
-
-                    <RadioButton
-                        android:id="@+id/currency_eth"
-                        style="@style/RadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ETH" />
-
-                    <RadioButton
-                        android:id="@+id/currency_ltc"
-                        style="@style/RadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="LTC" />
-
-
-                    <RadioButton
-                        android:id="@+id/currency_xrp"
-                        style="@style/RadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="XRP" />
-
-                    <RadioButton
-                        android:id="@+id/currency_dash"
-                        style="@style/RadioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="DASH" />
-
-                </RadioGroup>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/rectangle_white" />
+                <com.jaredrummler.materialspinner.Spinner
+                    android:id="@+id/exchangeSpinner"
+                    android:layout_width="160dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:theme="@style/spinnerStyle"
+                    app:ms_dropdown_max_height="300dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -171,7 +142,12 @@
                 android:layout_marginTop="10dp"
                 android:gravity="center"
                 android:orientation="horizontal">
-
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/rectangle_white" />
                 <RadioGroup
                     android:id="@+id/timeseries"
                     android:layout_width="wrap_content"

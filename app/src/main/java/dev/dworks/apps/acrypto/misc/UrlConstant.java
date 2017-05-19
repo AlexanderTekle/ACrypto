@@ -14,4 +14,5 @@ public class UrlConstant {
     public static final String HISTORY_PRICE_URL = BASE_API_URL + "/data/price";
     public static final String HISTORY_PRICE_HISTORICAL_URL = BASE_API_URL + "/data/pricehistorical";
     public static final String COINLIST_URL = BASE_URL + "/api/data/coinlist";
+    public static final String EXCHANGELIST_URL = BASE_API_URL + "/data/top/exchanges";
 }

@@ -28,6 +28,7 @@ public class GsonRequest<T> extends BaseRequest<T> {
     private final Map<String, String> params;
     private final Listener<T> listener;
     private final String auth;
+    private int cacheMinutes = 60;
 
     public GsonRequest(String url, Class<T> clazz, String auth,
                        Listener<T> listener, ErrorListener errorListener) {
@@ -84,7 +85,7 @@ public class GsonRequest<T> extends BaseRequest<T> {
                     response.data, HttpHeaderParser.parseCharset(response.headers));
             Cache.Entry entry;
             if(shouldCache()){
-                entry = HttpHeaderParser.parseIgnoreCacheHeaders(response, 5 * 60 * 1000, 24 * 60 * 60 * 1000);
+                entry = HttpHeaderParser.parseIgnoreCacheHeaders(response, cacheMinutes * 60 * 1000, 24 * 60 * 60 * 1000);
             } else {
                 entry = HttpHeaderParser.parseCacheHeaders(response);
             }
@@ -94,5 +95,10 @@ public class GsonRequest<T> extends BaseRequest<T> {
         } catch (JsonSyntaxException e) {
             return Response.error(new ParseError(e));
         }
+    }
+
+    public GsonRequest setCacheMinutes(int cacheMinutes) {
+        this.cacheMinutes = cacheMinutes;
+        return this;
     }
 }

@@ -2,235 +2,205 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/controls"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     tools:showIn="@layout/fragment_home">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
+        android:layout_marginBottom="20dp"
+        android:background="@android:color/white"
         android:orientation="horizontal">
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/rectangle_white" />
-
-        <RadioGroup
-            android:id="@+id/currencies"
-            android:layout_width="wrap_content"
+        <com.jaredrummler.materialspinner.Spinner
+            android:id="@+id/currencyFromSpinner"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:orientation="horizontal">
+            android:layout_marginLeft="5dp"
+            android:maxLines="1"
+            android:theme="@style/spinnerStyle"
+            app:ms_dropdown_max_height="300dp" />
 
-            <RadioButton
-                android:id="@+id/currency_btc"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="BTC" />
-
-
-            <RadioButton
-                android:id="@+id/currency_eth"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ETH" />
-
-            <RadioButton
-                android:id="@+id/currency_ltc"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="LTC" />
+        <com.jaredrummler.materialspinner.Spinner
+            android:id="@+id/currencyToSpinner"
+            android:layout_width="100dp"
+            android:maxLines="1"
+            android:layout_height="wrap_content"
+            android:theme="@style/spinnerStyle"
+            app:ms_dropdown_max_height="300dp" />
 
 
-            <RadioButton
-                android:id="@+id/currency_xrp"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="XRP" />
-
-            <RadioButton
-                android:id="@+id/currency_dash"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="DASH" />
-
-        </RadioGroup>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginLeft="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/rectangle_white" />
+        <com.jaredrummler.materialspinner.Spinner
+            android:id="@+id/exchangeSpinner"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:maxLines="1"
+            android:theme="@style/spinnerStyle"
+            app:ms_dropdown_max_height="300dp" />
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:gravity="center"
-            android:orientation="vertical"
-            android:paddingRight="20dp">
-
-            <org.fabiomsr.moneytextview.MoneyTextView
-                android:id="@+id/value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|right"
-                app:amount="0"
-                app:baseTextColor="@android:color/white"
-                app:baseTextSize="25sp"
-                app:decimalDigitsTextSize="25sp"
-                app:decimalSeparator="."
-                app:includeDecimalSeparator="true"
-                app:symbol="$"
-                app:symbolGravity="start|top"
-                app:symbolTextSize="16sp" />
-
-            <TextView
-                android:id="@+id/time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|right"
-                android:layout_marginTop="5dp"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                tools:text="5/3/17 2:45 PM" />
-        </LinearLayout>
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@drawable/rectangle_white" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingLeft="20dp">
-
-            <org.fabiomsr.moneytextview.MoneyTextView
-                android:id="@+id/valueChange"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|left"
-                app:amount="0"
-                app:baseTextColor="@android:color/white"
-                app:baseTextSize="25sp"
-                app:decimalDigitsTextSize="25sp"
-                app:decimalSeparator="."
-                app:includeDecimalSeparator="true"
-                app:symbol="$"
-                app:symbolGravity="start|top"
-                app:symbolTextSize="16sp" />
-
-            <TextView
-                android:id="@+id/timeDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|left"
-                android:layout_marginTop="5dp"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                tools:text="since last week" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/rectangle_white" />
-
-        <RadioGroup
-            android:id="@+id/timeseries"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:orientation="horizontal">
 
-            <RadioButton
-                android:id="@+id/timeseries_minute"
-                style="@style/RadioButton"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingRight="20dp">
+
+                <org.fabiomsr.moneytextview.MoneyTextView
+                    android:id="@+id/value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|right"
+                    app:amount="0"
+                    app:baseTextColor="@android:color/white"
+                    app:baseTextSize="25sp"
+                    app:decimalDigitsTextSize="25sp"
+                    app:decimalSeparator="."
+                    app:includeDecimalSeparator="true"
+                    app:symbol="$"
+                    app:symbolGravity="start|top"
+                    app:symbolTextSize="16sp" />
+
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|right"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    tools:text="5/3/17 2:45 PM" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/rectangle_white" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingLeft="20dp">
+
+                <org.fabiomsr.moneytextview.MoneyTextView
+                    android:id="@+id/valueChange"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center|left"
+                    app:amount="0"
+                    app:baseTextColor="@android:color/white"
+                    app:baseTextSize="25sp"
+                    app:decimalDigitsTextSize="25sp"
+                    app:decimalSeparator="."
+                    app:includeDecimalSeparator="true"
+                    app:symbol="$"
+                    app:symbolGravity="start|top"
+                    app:symbolTextSize="16sp" />
+
+                <TextView
+                    android:id="@+id/timeDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|left"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    tools:text="since last week" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/rectangle_white" />
+
+            <RadioGroup
+                android:id="@+id/timeseries"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1M" />
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/timeseries_minute"
+                    style="@style/RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1M" />
 
 
-            <RadioButton
-                android:id="@+id/timeseries_hour"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1H" />
+                <RadioButton
+                    android:id="@+id/timeseries_hour"
+                    style="@style/RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1H" />
 
-            <RadioButton
-                android:id="@+id/timeseries_day"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="1D" />
+                <RadioButton
+                    android:id="@+id/timeseries_day"
+                    style="@style/RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="1D" />
 
-            <RadioButton
-                android:id="@+id/timeseries_week"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1W" />
+                <RadioButton
+                    android:id="@+id/timeseries_week"
+                    style="@style/RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1W" />
 
-            <RadioButton
-                android:id="@+id/timeseries_month"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="30D" />
+                <RadioButton
+                    android:id="@+id/timeseries_month"
+                    style="@style/RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="30D" />
 
-            <RadioButton
-                android:id="@+id/timeseries_year"
-                style="@style/RadioButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1Y" />
+                <RadioButton
+                    android:id="@+id/timeseries_year"
+                    style="@style/RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1Y" />
 
-        </RadioGroup>
+            </RadioGroup>
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginLeft="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/rectangle_white" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/rectangle_white" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

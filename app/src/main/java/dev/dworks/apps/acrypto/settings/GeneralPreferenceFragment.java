@@ -8,7 +8,7 @@ import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_CURRENCY;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_CURRENCY_TO;
 
 
 public class GeneralPreferenceFragment extends PreferenceFragment
@@ -20,7 +20,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
         addPreferencesFromResource(R.xml.pref_general);
         findPreference(SettingsActivity.KEY_BUILD_VERSION).setSummary(App.APP_VERSION);
 
-        Preference preferenceCurrency = findPreference(KEY_CURRENCY);
+        Preference preferenceCurrency = findPreference(KEY_CURRENCY_TO);
         preferenceCurrency.setOnPreferenceClickListener(this);
         preferenceCurrency.setOnPreferenceChangeListener(this);
     }

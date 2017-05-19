@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.ActionBar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.android.volley.Cache;
@@ -36,18 +38,23 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.jaredrummler.materialspinner.Spinner;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Currency;
+import java.util.List;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
+import dev.dworks.apps.acrypto.entity.Exchanges;
 import dev.dworks.apps.acrypto.entity.Prices;
+import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
@@ -57,6 +64,9 @@ import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
+import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
@@ -94,9 +104,6 @@ public class HomeFragment extends ActionBarFragment
     private int currentTimestamp = TIMESTAMP_DAYS;
     private int currentTimeseries = TIMESERIES_DAY;
     private long changeTimestamp = 0;
-    private String currentCurrencyFrom = "BTC";
-    private String currentCurrencyTo = "USD";
-    private String currentCurrencyName = "Bitcoin";
     private String timeDifference = "Since";
 
     private LineChart mChart;
@@ -109,6 +116,9 @@ public class HomeFragment extends ActionBarFragment
     private double currentValue;
     private View mControls;
     private TextView mLastUpdate;
+    private Spinner mCurrencyToSpinner;
+    private Spinner mExchangeSpinner;
+    private Spinner mCurrencyFromSpinner;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -161,6 +171,12 @@ public class HomeFragment extends ActionBarFragment
         mTimeDuration = (TextView) view.findViewById(R.id.timeDuration);
         mLastUpdate = (TextView) view.findViewById(R.id.lastupdated);
 
+        mCurrencyFromSpinner = (Spinner) view.findViewById(R.id.currencyFromSpinner);
+        mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
+        mExchangeSpinner = (Spinner) view.findViewById(R.id.exchangeSpinner);
+
+        setSpinners();
+
         mValue.setSymbol(getCurrentCurrencyToSymbol());
         mValueChange.setSymbol(getCurrentCurrencyToSymbol());
         mValue.setDecimalFormat(getMoneyFormat(false));
@@ -169,12 +185,81 @@ public class HomeFragment extends ActionBarFragment
         RadioGroup mTimeseries = (RadioGroup) view.findViewById(R.id.timeseries);
         mTimeseries.setOnCheckedChangeListener(this);
 
-        RadioGroup mCurrencies = (RadioGroup) view.findViewById(R.id.currencies);
-        mCurrencies.setOnCheckedChangeListener(this);
-
         mChartProgress = (ProgressBar) view.findViewById(R.id.chartprogress);
         mChart = (LineChart) view.findViewById(R.id.linechart);
         initLineChart();
+    }
+
+    private void setSpinners() {
+
+        setCurrencyToSpinner();
+        setCurrencyFromSpinner();
+        setMarketSpinner();
+
+    }
+
+    private void setCurrencyToSpinner() {
+        List<String> coinNames = Arrays.asList(getResources().getStringArray(R.array.coin_symbols));
+        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
+        mCurrencyFromSpinner.setItems(coinNames);
+        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+
+            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
+                SettingsActivity.setCurrencyFrom(item);
+                reloadCurrencyFrom();
+                loadData(true);
+                Bundle bundle = new Bundle();
+                bundle.putString("currency", getCurrentCurrencyName());
+                AnalyticsManager.logEvent("coin_filtered", bundle);
+            }
+        });
+    }
+
+    private void reloadCurrencyFrom(){
+        mCurrencyToSpinner.setItems(getCurrencyToList());
+        setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
+    }
+
+    private void setCurrencyFromSpinner() {
+        mCurrencyToSpinner.getPopupWindow().setWidth(300);
+        reloadCurrencyFrom();
+        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+
+            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
+                SettingsActivity.setCurrencyTo(item);
+                loadData(true);
+                Bundle bundle = new Bundle();
+                bundle.putString("currency", getCurrentCurrencyName());
+                AnalyticsManager.logEvent("currency_filtered", bundle);
+            }
+        });
+    }
+
+    private void setMarketSpinner() {
+        mExchangeSpinner.setText(SettingsActivity.getExchange());
+        mExchangeSpinner.getPopupWindow().setWidth(500);
+        mExchangeSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Exchanges.Exchange>() {
+
+            @Override
+            public void onItemSelected(Spinner var1, int var2, long var3, Exchanges.Exchange exchange) {
+                SettingsActivity.setExchange(exchange.exchange);
+                loadData(false);
+                Bundle bundle = new Bundle();
+                bundle.putString("currency", getCurrentCurrencyName());
+                AnalyticsManager.logEvent("exchange_filtered", bundle);
+            }
+        });
+    }
+
+    private ArrayList<String> getCurrencyToList() {
+        List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_names));
+        ArrayList<String> currencies = new ArrayList<>(currencyNames);
+
+        if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
+            currencies.add(CURRENCY_FROM_DEFAULT);
+        }
+        return currencies;
     }
 
     private void initLineChart() {
@@ -210,54 +295,14 @@ public class HomeFragment extends ActionBarFragment
             }
         });
 
-        mChart.setOnChartGestureListener(new OnChartGestureListener() {
-            @Override
-            public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-
-            }
-
-            @Override
-            public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-                // un-highlight values after the gesture is finished and no single-tap
-                if (lastPerformedGesture != ChartTouchListener.ChartGesture.SINGLE_TAP) {
-                    mChart.highlightValue(null); // or highlightTouch(null) for callback to onNothingSelected(...)
-                    setDefaultValues();
-                }
-            }
-
-            @Override
-            public void onChartLongPressed(MotionEvent me) {
-
-            }
-
-            @Override
-            public void onChartDoubleTapped(MotionEvent me) {
-
-            }
-
-            @Override
-            public void onChartSingleTapped(MotionEvent me) {
-
-            }
-
-            @Override
-            public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
-
-            }
-
-            @Override
-            public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
-
-            }
-
-            @Override
-            public void onChartTranslate(MotionEvent me, float dX, float dY) {
-
-            }
-        });
+        mChart.setOnChartGestureListener(mOnChartGestureListener);
     }
 
     private void loadData() {
+        loadData(true);
+    }
+
+    private void loadData(boolean refreshAll) {
         String url = getUrl();
         mChartProgress.setVisibility(View.VISIBLE);
         mChart.highlightValue(null);
@@ -266,16 +311,53 @@ public class HomeFragment extends ActionBarFragment
                 "",
                 this,
                 this);
+        request.setCacheMinutes(5);
         request.setShouldCache(true);
         VolleyPlusHelper.with().updateToRequestQueue(request, "Home");
         loadPriceData();
+        if(refreshAll) {
+            loadExchangeData();
+        }
+    }
+
+    private void loadExchangeData() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("fsym", getCurrentCurrencyFrom());
+        params.put("tsym", getCurrentCurrencyTo());
+        params.put("limit", String.valueOf(30));
+
+        String url = UrlManager.with(UrlConstant.EXCHANGELIST_URL)
+                .setDefaultParams(params).getUrl();
+
+        GsonRequest<Exchanges> request = new GsonRequest<>(url,
+                Exchanges.class,
+                "",
+                new Response.Listener<Exchanges>() {
+                    @Override
+                    public void onResponse(Exchanges prices) {
+                        mExchangeSpinner.setItems(prices.getAllData());
+                        //mExchangeSpinner.setText(SettingsActivity.getExchange());
+                        setSpinnerValue(mExchangeSpinner, SettingsActivity.getExchange());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+
+                    }
+                });
+        request.setShouldCache(true);
+        VolleyPlusHelper.with().updateToRequestQueue(request, "exchange");
     }
 
     private void loadPriceData() {
         ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("fsym", currentCurrencyFrom);
+        params.put("fsym", getCurrentCurrencyFrom());
         params.put("tsyms", getCurrentCurrencyTo());
-
+        final String exchange = getCurrentExchange();
+        if(!TextUtils.isEmpty(exchange) && !exchange.equals(ALL_EXCHANGES)) {
+            params.put("e", exchange);
+        }
         String url = UrlManager.with(UrlConstant.HISTORY_PRICE_URL)
                 .setDefaultParams(params).getUrl();
 
@@ -308,7 +390,7 @@ public class HomeFragment extends ActionBarFragment
 
     private void loadDifferenceData() {
         ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("fsym", currentCurrencyFrom);
+        params.put("fsym", getCurrentCurrencyFrom());
         params.put("tsyms", getCurrentCurrencyTo());
         params.put("ts", String.valueOf(changeTimestamp));
 
@@ -322,7 +404,7 @@ public class HomeFragment extends ActionBarFragment
                         double value = 0L;
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            JSONObject currencyFrom = jsonObject.getJSONObject(currentCurrencyFrom);
+                            JSONObject currencyFrom = jsonObject.getJSONObject(getCurrentCurrencyFrom());
                             value = currencyFrom.getDouble(getCurrentCurrencyTo());
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -345,21 +427,45 @@ public class HomeFragment extends ActionBarFragment
 
     public void setDefaultValues(){
         setPriceValue(mValue, currentValue);
-        mTime.setText(currentCurrencyName + " Price");
+        mTime.setText(getCurrentCurrencyName() + " Price");
         //setDateTimeValue(mTime, getCurrentTimeInMillis());
     }
 
     public static String getCurrentCurrencyTo(){
-        return SettingsActivity.getCurrency();
+        return SettingsActivity.getCurrencyTo();
+    }
+
+    public static String getCurrentCurrencyFrom(){
+        return SettingsActivity.getCurrencyFrom();
+    }
+
+    public static String getCurrentCurrencyName(){
+        return getCurrentCurrencyFrom() + "/" + getCurrentCurrencyTo();
     }
 
     public static String getCurrentCurrencyToSymbol(){
+        final String currencyTo = getCurrentCurrencyTo();
+        final Symbols symbols = App.getInstance().getSymbols();
+        String currencyToSymbol = "";
         try {
-            return App.getInstance().getCoinSymbols().currencies.get(getCurrentCurrencyTo());
+            currencyToSymbol = symbols.currencies.get(currencyTo);
+            if(TextUtils.isEmpty(currencyToSymbol)) {
+                currencyToSymbol = symbols.coins.get(currencyTo);
+            }
         } catch (Exception e){
-            Currency currency = Currency.getInstance(getCurrentCurrencyTo());
-            return currency.getSymbol();
+            Currency currency = Currency.getInstance(currencyTo);
+            currencyToSymbol = currency.getSymbol();
+        } finally {
+            if(TextUtils.isEmpty(currencyToSymbol)){
+                currencyToSymbol = "";
+            }
         }
+        return currencyToSymbol;
+    }
+
+
+    private String getCurrentExchange() {
+        return SettingsActivity.getExchange();
     }
 
     public void setDifferenceColor(int color){
@@ -390,7 +496,7 @@ public class HomeFragment extends ActionBarFragment
             Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    loadData();
+                    loadData(false);
                 }
             });
         }
@@ -412,7 +518,7 @@ public class HomeFragment extends ActionBarFragment
         else if(!response.isValidResponse()){
             if(response.type == 1 && !retry){
                 retry = true;
-                loadData();
+                loadData(false);
             } else {
                 retry = false;
                 setEmptyData("No data available");
@@ -468,9 +574,9 @@ public class HomeFragment extends ActionBarFragment
         switch (item.getItemId()){
             case R.id.action_refresh:
                 removeUrlCache();
-                loadData();
+                loadData(false);
                 Bundle bundle = new Bundle();
-                bundle.putString("currency", currentCurrencyName);
+                bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("price_refreshed", bundle);
                 break;
         }
@@ -518,7 +624,7 @@ public class HomeFragment extends ActionBarFragment
         setPriceValue(mValue, price.close);
         setDateTimeValue(mTime, getMillisFromTimestamp(price.time));
         Bundle bundle = new Bundle();
-        bundle.putString("currency", currentCurrencyName);
+        bundle.putString("currency", getCurrentCurrencyName());
         AnalyticsManager.logEvent("price_highlighted", bundle);
     }
 
@@ -537,69 +643,38 @@ public class HomeFragment extends ActionBarFragment
 
     @Override
     public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
-
-        if(group.getId() == R.id.timeseries) {
-            String type = "day";
-            switch (checkedId) {
-                case R.id.timeseries_minute:
-                    currentTimeseries = TIMESERIES_MINUTE;
-                    type = "minute";
-                    break;
-                case R.id.timeseries_hour:
-                    currentTimeseries = TIMESERIES_HOUR;
-                    type = "hour";
-                    break;
-                case R.id.timeseries_day:
-                    currentTimeseries = TIMESERIES_DAY;
-                    type = "day";
-                    break;
-                case R.id.timeseries_week:
-                    currentTimeseries = TIMESERIES_WEEK;
-                    type = "week";
-                    break;
-                case R.id.timeseries_month:
-                    currentTimeseries = TIMESERIES_MONTH;
-                    type = "month";
-                    break;
-                case R.id.timeseries_year:
-                    currentTimeseries = TIMESERIES_YEAR;
-                    type = "year";
-                    break;
-            }
-            Bundle bundle = new Bundle();
-            bundle.putString("type", type);
-            bundle.putString("currency", currentCurrencyName);
-            AnalyticsManager.logEvent("price_filter", bundle);
+        String type = "day";
+        switch (checkedId) {
+            case R.id.timeseries_minute:
+                currentTimeseries = TIMESERIES_MINUTE;
+                type = "minute";
+                break;
+            case R.id.timeseries_hour:
+                currentTimeseries = TIMESERIES_HOUR;
+                type = "hour";
+                break;
+            case R.id.timeseries_day:
+                currentTimeseries = TIMESERIES_DAY;
+                type = "day";
+                break;
+            case R.id.timeseries_week:
+                currentTimeseries = TIMESERIES_WEEK;
+                type = "week";
+                break;
+            case R.id.timeseries_month:
+                currentTimeseries = TIMESERIES_MONTH;
+                type = "month";
+                break;
+            case R.id.timeseries_year:
+                currentTimeseries = TIMESERIES_YEAR;
+                type = "year";
+                break;
         }
-        if(group.getId() == R.id.currencies) {
-            switch (checkedId) {
-                case R.id.currency_btc:
-                    currentCurrencyFrom = "BTC";
-                    currentCurrencyName = "Bitcoin";
-                    break;
-                case R.id.currency_eth:
-                    currentCurrencyFrom = "ETH";
-                    currentCurrencyName = "Ethereum";
-                    break;
-                case R.id.currency_ltc:
-                    currentCurrencyFrom = "LTC";
-                    currentCurrencyName = "Litecoin";
-                    break;
-                case R.id.currency_xrp:
-                    currentCurrencyFrom = "XRP";
-                    currentCurrencyName = "Ripple";
-                    break;
-
-                case R.id.currency_dash:
-                    currentCurrencyFrom = "DASH";
-                    currentCurrencyName = "Dash";
-                    break;
-            }
-            Bundle bundle = new Bundle();
-            bundle.putString("currency", currentCurrencyName);
-            AnalyticsManager.logEvent("coin_filtered", bundle);
-        }
-        loadData();
+        Bundle bundle = new Bundle();
+        bundle.putString("type", type);
+        bundle.putString("currency", getCurrentCurrencyName());
+        AnalyticsManager.logEvent("price_filter", bundle);
+        loadData(false);
     }
 
     public String getDateTime(long value){
@@ -618,14 +693,18 @@ public class HomeFragment extends ActionBarFragment
 
     public ArrayMap<String, String> getDefaultParams(){
         ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("fsym", currentCurrencyFrom);
+        params.put("fsym", getCurrentCurrencyFrom());
         params.put("tsym", getCurrentCurrencyTo());
         params.put("limit", "24");
         params.put("aggregate", "1");
-        //params.put("e", "Coinbase");
+        final String exchange = getCurrentExchange();
+        if(!TextUtils.isEmpty(exchange) && !exchange.equals(ALL_EXCHANGES)) {
+            params.put("e", exchange);
+        }
         params.put("tryConversion", retry ? "true" : "false");
         return params;
     }
+
 
     public String getUrl(){
         String url = "https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=24&aggregate=3&e=Coinbase";
@@ -697,6 +776,52 @@ public class HomeFragment extends ActionBarFragment
         return url;
     }
 
+    OnChartGestureListener mOnChartGestureListener = new OnChartGestureListener() {
+        @Override
+        public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+
+        }
+
+        @Override
+        public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
+            // un-highlight values after the gesture is finished and no single-tap
+            if (lastPerformedGesture != ChartTouchListener.ChartGesture.SINGLE_TAP) {
+                mChart.highlightValue(null); // or highlightTouch(null) for callback to onNothingSelected(...)
+                setDefaultValues();
+            }
+        }
+
+        @Override
+        public void onChartLongPressed(MotionEvent me) {
+
+        }
+
+        @Override
+        public void onChartDoubleTapped(MotionEvent me) {
+
+        }
+
+        @Override
+        public void onChartSingleTapped(MotionEvent me) {
+
+        }
+
+        @Override
+        public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {
+
+        }
+
+        @Override
+        public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+
+        }
+
+        @Override
+        public void onChartTranslate(MotionEvent me, float dX, float dY) {
+
+        }
+    };
+
     private void showLastUpdate(){
         Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
         Cache.Entry entry = cache.get(getUrl());
@@ -713,5 +838,40 @@ public class HomeFragment extends ActionBarFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
         cache.remove(getUrl());
+    }
+
+
+    public static void setSpinnerValue(Spinner spinner, String value) {
+        int index = 0;
+        if (value.compareTo(CURRENCY_FROM_DEFAULT) == 0
+                || value.compareTo(CURRENCY_FROM_DEFAULT) == 0
+                || value.compareTo(ALL_EXCHANGES) == 0) {
+            spinner.setSelectedIndex(index);
+            return;
+        }
+        SpinnerAdapter adapter = spinner.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equals(value)) {
+                index = i;
+                break; // terminate loop
+            }
+        }
+        spinner.setSelectedIndex(index + 1);
+    }
+
+    public static void setSpinnerToValue(Spinner spinner, String value) {
+        int index = 0;
+        if (value.compareTo(CURRENCY_TO_DEFAULT) == 0) {
+            spinner.setSelectedIndex(index);
+            return;
+        }
+        SpinnerAdapter adapter = spinner.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equals(value)) {
+                index = i;
+                break; // terminate loop
+            }
+        }
+        spinner.setSelectedIndex(index + 1);
     }
 }

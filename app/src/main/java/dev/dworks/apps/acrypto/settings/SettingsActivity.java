@@ -8,12 +8,20 @@ import android.view.MenuItem;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.common.AppCompatPreferenceActivity;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.utils.PreferenceUtils;
+
+import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static final String TAG = "Settings";
+    public static final String CURRENCY_FROM_DEFAULT = "BTC";
+    public static final String CURRENCY_TO_DEFAULT = "USD";
+
     public static final String KEY_BUILD_VERSION = "build_version";
-    public static final String KEY_CURRENCY = "currency";
+    public static final String KEY_CURRENCY_TO = "currency";
+    public static final String KEY_CURRENCY_FROM = "currency_from";
+    public static final String KEY_EXCHANGE = "exchange";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +48,39 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static String getCurrency() {
+    public static String getCurrencyFrom() {
         return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
-                .getString(KEY_CURRENCY, "USD");
+                .getString(KEY_CURRENCY_FROM, CURRENCY_FROM_DEFAULT);
+    }
+
+    public static void setCurrencyFrom(String currency) {
+        PreferenceUtils.set(KEY_CURRENCY_FROM, currency);
+    }
+
+
+    public static String getCurrencyTo() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(getCurrencyToKey(), CURRENCY_TO_DEFAULT);
+    }
+
+    public static void setCurrencyTo(String currency) {
+        PreferenceUtils.set(getCurrencyToKey(), currency);
+    }
+
+    public static void setExchange(String exchange) {
+        PreferenceUtils.set(getCurrencyExchangeKey(), exchange);
+    }
+
+    public static String getExchange(){
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(getCurrencyExchangeKey(), ALL_EXCHANGES);
+    }
+
+    private static String getCurrencyExchangeKey(){
+        return KEY_EXCHANGE + "_" + getCurrencyFrom() + "_" + getCurrencyTo();
+    }
+
+    private static String getCurrencyToKey(){
+        return KEY_CURRENCY_TO + "_" + getCurrencyFrom();
     }
 }

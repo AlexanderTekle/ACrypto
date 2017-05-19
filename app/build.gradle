@@ -57,6 +57,7 @@ dependencies {
     compile 'cat.ereza:customactivityoncrash:+'
     compile 'com.github.PhilJay:MPAndroidChart:+'
     compile 'org.fabiomsr:moneytextview:+'
+    compile 'com.jaredrummler:material-spinner:+'
     testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'

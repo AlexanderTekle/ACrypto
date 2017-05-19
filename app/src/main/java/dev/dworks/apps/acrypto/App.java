@@ -63,7 +63,7 @@ public class App extends Application {
 		symbols = gson.fromJson(symbolsString, Symbols.class);
 	}
 
-	public Symbols getCoinSymbols(){
+	public Symbols getSymbols(){
 		return symbols;
 	}
 
