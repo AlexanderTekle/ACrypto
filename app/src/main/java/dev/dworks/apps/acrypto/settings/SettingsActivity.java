@@ -19,7 +19,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String CURRENCY_TO_DEFAULT = "USD";
 
     public static final String KEY_BUILD_VERSION = "build_version";
-    public static final String KEY_CURRENCY_TO = "currency";
+    public static final String KEY_USER_CURRENCY = "user_currency";
+    public static final String KEY_CURRENCY_TO = "currency_to";
     public static final String KEY_CURRENCY_FROM = "currency_from";
     public static final String KEY_EXCHANGE = "exchange";
 
@@ -48,6 +49,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    public static String getUserCurrencyFrom() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(KEY_USER_CURRENCY, CURRENCY_TO_DEFAULT);
+    }
+
+    public static void setUserCurrencyFrom(String currency) {
+        PreferenceUtils.set(KEY_USER_CURRENCY, currency);
+    }
+
     public static String getCurrencyFrom() {
         return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
                 .getString(KEY_CURRENCY_FROM, CURRENCY_FROM_DEFAULT);
@@ -60,7 +71,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static String getCurrencyTo() {
         return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
-                .getString(getCurrencyToKey(), CURRENCY_TO_DEFAULT);
+                .getString(getCurrencyToKey(), getUserCurrencyFrom());
     }
 
     public static void setCurrencyTo(String currency) {

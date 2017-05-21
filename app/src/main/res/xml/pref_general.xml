@@ -7,7 +7,7 @@
             android:defaultValue="@string/default_currency"
             android:entries="@array/currency_names"
             android:entryValues="@array/currency_names"
-            android:key="currency_to"
+            android:key="user_currency"
             android:persistent="true"
             android:summary="%s"
             android:title="@string/pref_currency_title" />

@@ -158,6 +158,7 @@ public class HomeFragment extends ActionBarFragment
     @Override
     public void onResume() {
         super.onResume();
+        reloadCurrencyFrom();
         loadData();
     }
 
