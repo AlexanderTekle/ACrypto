@@ -731,8 +731,8 @@ public class HomeFragment extends ActionBarFragment
             case TIMESERIES_DAY:
                 url = UrlManager.with(UrlConstant.HISTORY_MINUTE_URL)
                         .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "288")
-                        .setParam("aggregate", "5").getUrl();
+                        .setParam("limit", "144")
+                        .setParam("aggregate", "10").getUrl();
                 currentTimestamp = TIMESTAMP_TIME;
                 changeTimestamp = getTimestamp(1);
                 timeDifference = "since yesterday";
@@ -749,8 +749,8 @@ public class HomeFragment extends ActionBarFragment
             case TIMESERIES_MONTH:
                 url = UrlManager.with(UrlConstant.HISTORY_HOUR_URL)
                         .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "240")
-                        .setParam("aggregate", "3").getUrl();
+                        .setParam("limit", "120")
+                        .setParam("aggregate", "6").getUrl();
                 currentTimestamp = TIMESTAMP_DATE;
                 changeTimestamp = getTimestamp(30);
                 timeDifference = "since last month";
