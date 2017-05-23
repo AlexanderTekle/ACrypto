@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity
         Utils.OnFragmentInteractionListener {
 
     private static final int SETTINGS = 47;
+    private static final String TAG = "Main";
     private int currentPositionId;
 
     @Override
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity
         currentPositionId = item.getItemId();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+        AnalyticsManager.setCurrentScreen(this, TAG);
         switch (item.getItemId()) {
             case R.id.nav_home:
 

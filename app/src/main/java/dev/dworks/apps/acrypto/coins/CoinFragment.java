@@ -93,6 +93,11 @@ public class CoinFragment extends RecyclerFragment
         super.onViewCreated(view, savedInstanceState);
         setLayoutManager(new LinearLayoutManager(view.getContext()));
         setHasFixedSize(true);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
     }
 

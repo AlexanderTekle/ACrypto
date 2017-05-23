@@ -151,13 +151,13 @@ public class HomeFragment extends ActionBarFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         initControls(view);
-        AnalyticsManager.setCurrentScreen(getActivity(), TAG);
         super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        AnalyticsManager.setCurrentScreen(getActivity(), TAG);
         reloadCurrencyFrom();
         loadData();
     }

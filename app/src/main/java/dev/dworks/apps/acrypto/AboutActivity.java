@@ -49,7 +49,6 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setTitle(null);
-		AnalyticsManager.setCurrentScreen(this, TAG);
 		initControls();
 	}
 
@@ -71,6 +70,12 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 		action_support.setOnClickListener(this);
 		action_share.setOnClickListener(this);
 		action_feedback.setOnClickListener(this);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		AnalyticsManager.setCurrentScreen(this, TAG);
 	}
 
 	@Override

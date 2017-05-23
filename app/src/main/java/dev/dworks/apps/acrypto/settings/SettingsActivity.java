@@ -37,6 +37,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         AnalyticsManager.setCurrentScreen(this, TAG);
     }
 

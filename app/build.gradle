@@ -7,7 +7,7 @@ android {
         applicationId "dev.dworks.apps.acrypto"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 6
+        versionCode 7
         versionName "0.3"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
