@@ -254,8 +254,7 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private ArrayList<String> getCurrencyToList() {
-        List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_names));
-        ArrayList<String> currencies = new ArrayList<>(currencyNames);
+        ArrayList<String> currencies = new ArrayList<>(App.getInstance().getCurrencyToList());
 
         if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
             currencies.add(CURRENCY_FROM_DEFAULT);
@@ -735,7 +734,7 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("aggregate", "10").getUrl();
                 currentTimestamp = TIMESTAMP_TIME;
                 changeTimestamp = getTimestamp(1);
-                timeDifference = "since yesterday";
+                timeDifference = "yesterday";
                 break;
             case TIMESERIES_WEEK:
                 url = UrlManager.with(UrlConstant.HISTORY_HOUR_URL)
@@ -744,7 +743,7 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_DAYS;
                 changeTimestamp = getTimestamp(7);
-                timeDifference = "since last week";
+                timeDifference = "last week";
                 break;
             case TIMESERIES_MONTH:
                 url = UrlManager.with(UrlConstant.HISTORY_HOUR_URL)
@@ -753,7 +752,7 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("aggregate", "6").getUrl();
                 currentTimestamp = TIMESTAMP_DATE;
                 changeTimestamp = getTimestamp(30);
-                timeDifference = "since last month";
+                timeDifference = "last month";
                 break;
             case TIMESERIES_YEAR:
                 url = UrlManager.with(UrlConstant.HISTORY_DAY_URL)
@@ -762,7 +761,7 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_MONTH;
                 changeTimestamp = getTimestamp(365);
-                timeDifference = "since last year";
+                timeDifference = "last year";
                 break;
             case TIMESERIES_ALL:
                 url = UrlManager.with(UrlConstant.HISTORY_DAY_URL)

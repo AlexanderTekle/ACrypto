@@ -57,7 +57,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static String getUserCurrencyFrom() {
         return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
-                .getString(KEY_USER_CURRENCY, CURRENCY_TO_DEFAULT);
+                .getString(KEY_USER_CURRENCY, App.getInstance().getLocaleCurrency());
     }
 
     public static void setUserCurrencyFrom(String currency) {

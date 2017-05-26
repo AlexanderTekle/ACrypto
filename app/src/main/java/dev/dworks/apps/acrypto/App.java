@@ -5,13 +5,20 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.v7.app.AppCompatDelegate;
 
+import com.google.firebase.perf.FirebasePerformance;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Currency;
+import java.util.List;
 import java.util.Locale;
 
 import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.utils.Utils;
+
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -29,6 +36,8 @@ public class App extends Application {
 	private static App sInstance;
 	private Locale current;
 	private Symbols symbols;
+	private ArrayList<String> currencies;
+	private String defaultCurrencyCode;
 
 	@Override
 	public void onCreate() {
@@ -43,6 +52,7 @@ public class App extends Application {
 
 		if(!BuildConfig.DEBUG) {
 			AnalyticsManager.intialize(getApplicationContext());
+			FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
 		}
 
     	try {
@@ -69,7 +79,7 @@ public class App extends Application {
 
 	public Locale getLocale() {
 		if(current == null){
-			current = Locale.US;
+			current = getResources().getConfiguration().locale;
 		}
 		return current;
 	}
@@ -82,5 +92,29 @@ public class App extends Application {
 	public void onLowMemory() {
 		Runtime.getRuntime().gc(); 
 		super.onLowMemory();
+	}
+
+	public ArrayList<String> getCurrencyToList() {
+		if(currencies == null){
+			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_names));
+			currencies = new ArrayList<>(currencyNames);
+		}
+
+		return currencies;
+	}
+
+	public String getLocaleCurrency(){
+		if(defaultCurrencyCode == null){
+			defaultCurrencyCode = CURRENCY_TO_DEFAULT;
+			try {
+				Currency currency = Currency.getInstance(App.getInstance().getLocale());
+				String defaultCode = currency.getCurrencyCode();
+				if(App.getInstance().getCurrencyToList().indexOf(defaultCurrencyCode) != -1){
+					defaultCurrencyCode = defaultCode;
+				}
+
+			} catch (Exception e) { }
+		}
+		return defaultCurrencyCode;
 	}
 }

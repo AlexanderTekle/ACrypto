@@ -4,7 +4,6 @@
         android:key="account"
         android:title="Account">
         <ListPreference
-            android:defaultValue="@string/default_currency"
             android:entries="@array/currency_names"
             android:entryValues="@array/currency_names"
             android:key="user_currency"
