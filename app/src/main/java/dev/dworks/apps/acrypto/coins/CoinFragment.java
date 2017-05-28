@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import com.android.volley.error.VolleyError;
 
 import java.util.ArrayList;
 
+import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.Coins;
@@ -28,6 +28,7 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.BASE_URL;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -35,7 +36,6 @@ import static dev.dworks.apps.acrypto.misc.UrlConstant.BASE_URL;
 
 public class CoinFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
-        RecyclerView.RecyclerListener,
         Response.Listener<Coins>, Response.ErrorListener{
 
     private static final String TAG = "Coins";
@@ -104,7 +104,10 @@ public class CoinFragment extends RecyclerFragment
     private void fetchDataTask() {
         setEmptyText("");
         setListShown(false);
-        String url = UrlManager.with(UrlConstant.COINLIST_URL).getUrl();
+        String url = UrlManager.with(UrlConstant.COINLIST_URL)
+                .setParam("limit", "60")
+                .setParam("symbol", CURRENCY_TO_DEFAULT)
+                .getUrl();
 
         GsonRequest<Coins> request = new GsonRequest<>(
                 url,
@@ -114,6 +117,7 @@ public class CoinFragment extends RecyclerFragment
                 this);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).addToRequestQueue(request, TAG);
+
     }
 
     @Override
@@ -145,11 +149,21 @@ public class CoinFragment extends RecyclerFragment
     }
 
     private void loadData(Coins coins) {
+        // TODO this is not something i'm proud of
+        ArrayList<String> ignoreList = new ArrayList<>();
+        for (String coin : coins.data) {
+            for (String key : App.getInstance().getSymbols().ignore) {
+                if(coin.contains(key)){
+                    ignoreList.add(coin);
+                }
+            }
+        }
+        coins.data.removeAll(ignoreList);
         mCoins = coins;
-        mAdapter.setBaseImageUrl(mCoins.baseImageUrl);
+        mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.clear();
         if(null != mCoins) {
-            mAdapter.setData(new ArrayList<Coins.Coin>(mCoins.data.values()));
+            mAdapter.setData(mCoins.data);
         }
         setEmptyText("");
         if(null == mCoins || mCoins.response.isEmpty()){
@@ -189,7 +203,6 @@ public class CoinFragment extends RecyclerFragment
         }
         setListAdapter(mAdapter);
 
-        getListView().setRecyclerListener(this);
         if (null != mCoins) {
             loadData(mCoins);
         } else {
@@ -205,11 +218,11 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onItemClick(View view, int position) {
-        Coins.Coin item = mAdapter.getItem(position);
-        String url = BASE_URL + item.url;
+        Coins.Coin item = Coins.getCoin(mAdapter.getItem(position));
+        String url = BASE_URL + "/coins/" + item.fromSym + "/overview/" + CURRENCY_TO_DEFAULT;
         Utils.openCustomTabUrl(getActivity(), url);
         Bundle bundle = new Bundle();
-        bundle.putString("currency", item.name);
+        bundle.putString("currency", item.fromSym);
         AnalyticsManager.logEvent("view_coin_details", bundle);
     }
 
@@ -221,17 +234,5 @@ public class CoinFragment extends RecyclerFragment
     @Override
     public void onItemViewClick(View view, int position) {
 
-    }
-
-    @Override
-    public void onViewRecycled(RecyclerView.ViewHolder holder) {
-        final View price = holder.itemView.findViewById(R.id.price);
-        if (price != null) {
-            final CoinAdapter.PriceFetchAsyncTask oldTask = (CoinAdapter.PriceFetchAsyncTask) price.getTag();
-            if (oldTask != null) {
-                oldTask.preempt();
-                price.setTag(null);
-            }
-        }
     }
 }

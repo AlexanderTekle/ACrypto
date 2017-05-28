@@ -15,6 +15,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.IntDef;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
@@ -31,17 +32,27 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Response;
+import com.android.volley.request.StringRequest;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Type;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +62,9 @@ import java.util.TimeZone;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
+import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -434,8 +448,25 @@ public class Utils {
         return colorRes;
     }
 
+    public static int getPercentDifferenceColor(double value){
+        int colorRes = R.color.accent_black;
+        if(value > 0){
+            colorRes = R.color.accent_teal;
+        }
+        else if(value < 0){
+            colorRes = R.color.accent_red;
+        }
+        return colorRes;
+    }
+
+    public static void setNumberValue(MoneyTextView textView, double value, String symbol){
+        textView.setDecimalFormat(new RoundedNumberFormat());
+        textView.setAmount((float) Math.abs(value));
+        textView.setSymbol(symbol);
+    }
+
     public static void setPriceValue(MoneyTextView textView, double value, String symbol){
-        textView.setDecimalFormat(getMoneyFormat(Math.abs((int)value) == 0));
+        textView.setDecimalFormat(getMoneyFormat(value));
         textView.setAmount((float) Math.abs(value));
         textView.setSymbol(symbol);
     }
@@ -446,6 +477,13 @@ public class Utils {
 
     public static DecimalFormat getMoneyFormat(boolean high){
         String precisionFormat = high ? "###,##0.######" : "###,##0.##";
+        DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
+        decimalFormat.setDecimalSeparatorAlwaysShown(false);
+        return decimalFormat;
+    }
+
+    public static DecimalFormat getMoneyFormat(double value){
+        String precisionFormat = Math.abs((int)value) == 0 ? "###,##0.######" : "###,##0.##";
         DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
         decimalFormat.setDecimalSeparatorAlwaysShown(false);
         return decimalFormat;
@@ -493,6 +531,41 @@ public class Utils {
         vectorDrawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         vectorDrawable.draw(canvas);
         return bitmap;
+    }
+
+    public static void generateJson(final Context context) {
+
+        StringRequest request2 = new StringRequest(
+                "https://api.coinmarketcap.com/v1/ticker/",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String s) {
+                        Type coinType = new TypeToken<ArrayList<CoinDetails.CoinDetail>>() {}.getType();
+                        ArrayList<CoinDetails.CoinDetail> array = new Gson().fromJson(s, coinType);
+                        CoinDetails sample = new CoinDetails();
+                        for (CoinDetails.CoinDetail coin : array){
+                            sample.coins.put(coin.symbol, new CoinDetails.CoinDetail(coin.id, coin.name));
+                        }
+                        String values = new Gson().toJson(sample);
+                        try {
+                            File root = new File(Environment.getExternalStorageDirectory(), "Notes");
+                            if (!root.exists()) {
+                                root.mkdirs();
+                            }
+                            File gpxfile = new File(root, "coins.txt");
+                            FileWriter writer = new FileWriter(gpxfile);
+                            writer.append(values);
+                            writer.flush();
+                            writer.close();
+                            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                null);
+
+        VolleyPlusHelper.with(context).addToRequestQueue(request2);
     }
 
 }

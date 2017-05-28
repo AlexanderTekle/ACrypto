@@ -32,5 +32,17 @@
     "AFN": "؋",
     "PHP": "₱",
     "MXN": "MX$"
-  }
+  },
+
+  "ignore": [
+    "EUR",
+    "GBP",
+    "AUD",
+    "CRPC",
+    "EDR2",
+    "MIU",
+    "XON",
+    "ZBCN",
+    "USDT"
+  ]
 }

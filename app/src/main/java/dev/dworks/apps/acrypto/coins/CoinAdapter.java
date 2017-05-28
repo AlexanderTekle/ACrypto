@@ -1,12 +1,8 @@
 package dev.dworks.apps.acrypto.coins;
 
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.CancellationSignal;
-import android.support.v4.util.ArrayMap;
-import android.support.v7.util.SortedList;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.util.SortedListAdapterCallback;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,30 +10,23 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.request.StringRequest;
-import com.android.volley.toolbox.VolleyTickle;
-
 import org.fabiomsr.moneytextview.MoneyTextView;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
-import dev.dworks.apps.acrypto.entity.Coins.Coin;
+import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.entity.Symbols;
-import dev.dworks.apps.acrypto.misc.ProviderExecutor;
-import dev.dworks.apps.acrypto.misc.UrlConstant;
-import dev.dworks.apps.acrypto.misc.UrlManager;
+import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
-import static dev.dworks.apps.acrypto.misc.UrlConstant.BASE_URL;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
+import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -46,37 +35,16 @@ import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> implements Filterable{
 
     private final Symbols coinSymbols;
-    SortedList<Coin> mData;
-    ArrayList<Coin> mOrigData;
+    ArrayList<String> mData;
+    ArrayList<String> mOrigData;
 
     final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
     private String mBaseImageUrl;
-    private ArrayMap<String, Double> mPrices = new ArrayMap<String, Double>();
 
     public CoinAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
-        mData = new SortedList<Coin>(Coin.class, new SortedListAdapterCallback<Coin>(this) {
-            @Override
-            public int compare(Coin o1, Coin o2) {
-                if (Integer.valueOf(o1.sortOrder) < Integer.valueOf(o2.sortOrder)) {
-                    return -1;
-                } else if (Integer.valueOf(o1.sortOrder) > Integer.valueOf(o2.sortOrder)) {
-                    return 1;
-                }
-                return 0;
-            }
-
-            @Override
-            public boolean areContentsTheSame(Coin oldItem, Coin newItem) {
-                return false;
-            }
-
-            @Override
-            public boolean areItemsTheSame(Coin item1, Coin item2) {
-                return false;
-            }
-        });
+        mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
         coinSymbols = App.getInstance().getSymbols();
     }
@@ -86,8 +54,8 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
         return this;
     }
 
-    public void setData(ArrayList<Coin> contents){
-        this.mData.addAll(contents);
+    public void setData(ArrayList<String> contents){
+        this.mData = contents;
         this.mOrigData = contents;
     }
 
@@ -131,7 +99,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             @Override
             protected FilterResults performFiltering(CharSequence prefix) {
                 FilterResults results = new FilterResults();
-                ArrayList<Coin> filteredList = new ArrayList<>();
+                ArrayList<String> filteredList = new ArrayList<>();
                 if (null == prefix || prefix.length() == 0) {
                     filteredList.addAll(mOrigData);
                 } else {
@@ -139,7 +107,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
                     final int count = mOrigData.size();
 
                     for (int i = 0; i < count; i++) {
-                        final Coin value = mOrigData.get(i);
+                        final String value = mOrigData.get(i);
                         final String valueText = value.toString().toLowerCase();
 
                         // First match against the whole, non-splitted value
@@ -165,7 +133,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.count > 0) {
                     mData.clear();
-                    mData.addAll((ArrayList<Coin>) results.values);
+                    mData.addAll((ArrayList<String>) results.values);
                 } else {
                     mData.clear();
                 }
@@ -175,7 +143,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
         };
     }
 
-    public Coin getItem(int position){
+    public String getItem(int position){
         return mData.get(position);
     }
 
@@ -189,8 +157,9 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
      */
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private final TextView name;
+        private final TextView change;
         private final ImageView imageView;
-        private final TextView algorithm;
+        private final MoneyTextView volume;
         private final MoneyTextView price;
         private int mPosition;
 
@@ -203,31 +172,33 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
                 }
             });
             name = (TextView) v.findViewById(R.id.name);
+            change = (TextView) v.findViewById(R.id.change);
             imageView = (ImageView) v.findViewById(R.id.image);
-            algorithm = (TextView) v.findViewById(R.id.algorithm);
+            volume = (MoneyTextView) v.findViewById(R.id.volume);
+            volume.setDecimalFormat(new RoundedNumberFormat());
             price = (MoneyTextView) v.findViewById(R.id.price);
             price.setDecimalFormat(getMoneyFormat(true));
         }
 
         public void setData(int position){
             mPosition = position;
-            Coin item = mData.get(position);
+            Coins.Coin item = Coins.getCoin(mData.get(position));
+            String url = "";
+            try {
+                final CoinDetails.CoinDetail coinDetail = getCoin(item.fromSym);
+                name.setText(coinDetail.name);
+                url = getCoinUrl(coinDetail);
 
-            name.setText(item.coinName);
-            String url = BASE_URL + item.imageUrl;
-            imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
-            algorithm.setText(item.algorithm);
-
-            Double priceValue = mPrices.containsKey(item.name) ? mPrices.get(item.name) : -1;
-            price.setVisibility(View.INVISIBLE);
-            if (priceValue != -1) {
-                Utils.setPriceValue(price, priceValue, "$");
-                price.setVisibility(View.VISIBLE);
-            } else {
-                final PriceFetchAsyncTask task = new PriceFetchAsyncTask(price, item.name, "USD");
-                price.setTag(task);
-                ProviderExecutor.forAuthority("CC").execute(task);
+            } catch (Exception e){
+                name.setText(item.fromSym);
+                Log.i("WhatDoYouKnow", item.fromSym);
             }
+
+            imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
+
+            Utils.setNumberValue(volume, Double.parseDouble(item.volume24To), "$");
+            Utils.setPriceValue(price, Double.parseDouble(item.price), "$");
+            setDifference(item);
         }
 
         @Override
@@ -236,68 +207,21 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
                 onItemClickListener.onItemViewClick(v, mPosition);
             }
         }
-    }
 
-    public class PriceFetchAsyncTask extends AsyncTask<Uri, Void, Double> implements ProviderExecutor.Preemptable {
-        private final MoneyTextView mPriceView;
-        private final String mCurrencyFrom;
-        private final String mCurrencyTo;
-        private final CancellationSignal mSignal;
-
-        public PriceFetchAsyncTask(MoneyTextView sizeView, String currencyFrom, String currencyTo) {
-            mPriceView = sizeView;
-            mCurrencyFrom = currencyFrom;
-            mCurrencyTo = currencyTo;
-            mSignal = new CancellationSignal();
+        private CoinDetails.CoinDetail getCoin(String symbol){
+            return App.getInstance().getCoinDetails().coins.get(symbol);
         }
 
-        @Override
-        public void preempt() {
-            cancel(false);
-            mSignal.cancel();
+        private String getCoinUrl(CoinDetails.CoinDetail coinDetail){
+            return mBaseImageUrl + coinDetail.id + ".png";
         }
 
-        @Override
-        protected Double doInBackground(Uri... params) {
-            if (isCancelled())
-                return null;
-
-            return loadPriceData();
-        }
-
-        private double loadPriceData() {
-            double currentValue = 0L;
-            ArrayMap<String, String> params = new ArrayMap<>();
-            params.put("fsym", mCurrencyFrom);
-            params.put("tsyms", mCurrencyTo);
-            String url = UrlManager.with(UrlConstant.HISTORY_PRICE_URL)
-                    .setDefaultParams(params).getUrl();
-
-            StringRequest request = new StringRequest(url, null,null);
-            NetworkResponse response = VolleyPlusHelper.with().startTickle(request);
-            if (response.statusCode == 200 || response.statusCode == 201) {
-                String data = VolleyTickle.parseResponse(response);
-                try {
-                    JSONObject jsonObject = new JSONObject(data);
-                    currentValue = jsonObject.getDouble(mCurrencyTo);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            return currentValue;
-        }
-
-        @Override
-        protected void onPostExecute(Double result) {
-            if (isCancelled()) {
-                result = null;
-            }
-            if (mPriceView.getTag() == this && result != null) {
-                mPriceView.setTag(null);
-                Utils.setPriceValue(mPriceView, result, "$");
-                mPriceView.setVisibility(View.VISIBLE);
-                mPrices.put(mCurrencyFrom, result);
-            }
+        private void setDifference(Coins.Coin item){
+            double currentPrice = Double.parseDouble(item.price);
+            double prevPrice = Double.parseDouble(item.openHour);
+            Double difference = ((currentPrice - prevPrice) / prevPrice) * 100;
+            change.setText(String.format("%.2f", Math.abs(difference)) + "%");
+            change.setTextColor(ContextCompat.getColor(change.getContext(), getPercentDifferenceColor(difference)));
         }
     }
 }

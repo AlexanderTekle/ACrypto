@@ -16,7 +16,7 @@ public class UrlManager {
 
     private final String mBaseUrl;
     private String mUrl;
-    private ArrayMap<String, String> mParams;
+    private ArrayMap<String, String> mParams = new ArrayMap<>();
 
     public UrlManager(String url) {
         this.mBaseUrl = url;
@@ -34,7 +34,7 @@ public class UrlManager {
     }
 
     public ArrayMap<String, String> getParams(){
-        return (mParams == null) ? new ArrayMap<String, String>() : mParams;
+        return mParams;
     }
 
     public UrlManager setParam(String key, String value){
