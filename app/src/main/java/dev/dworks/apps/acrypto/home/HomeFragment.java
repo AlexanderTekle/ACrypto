@@ -480,6 +480,9 @@ public class HomeFragment extends ActionBarFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
+        if(!Utils.isActivityAlive(getActivity())){
+            return;
+        }
         if (!Utils.isNetConnected(getActivity())) {
             setEmptyData("No Internet");
             mControls.setVisibility(View.INVISIBLE);
