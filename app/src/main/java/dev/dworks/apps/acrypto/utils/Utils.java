@@ -425,11 +425,10 @@ public class Utils {
 
     public static int getValueDifferenceColor(double value){
         int colorRes = R.color.accent_white;
-        double absValue = Math.abs(value);
-        if(absValue > 0.00){
+        if(value > 0){
             colorRes = R.color.accent_teal;
         }
-        else if(absValue < 0){
+        else if(value < 0){
             colorRes = R.color.accent_red;
         }
         return colorRes;
