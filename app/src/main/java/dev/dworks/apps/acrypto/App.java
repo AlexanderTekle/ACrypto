@@ -14,6 +14,7 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 
+import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.utils.Utils;
@@ -44,11 +45,14 @@ public class App extends Application {
 		super.onCreate();
 		sInstance = this;
 
-/*		CustomActivityOnCrash.setLaunchErrorActivityWhenInBackground(false);
-		CustomActivityOnCrash.setRestartActivityClass(MainActivity.class);
-		CustomActivityOnCrash.setShowErrorDetails(false);
-		CustomActivityOnCrash.setErrorActivityClass(ErrorActivity.class);
-		CustomActivityOnCrash.install(this);*/
+		CaocConfig.Builder.create()
+				.backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT)
+				.showErrorDetails(false)
+				.showRestartButton(true)
+				.trackActivities(true)
+				.errorDrawable(R.drawable.ic_bug)
+				.errorActivity(ErrorActivity.class)
+				.apply();
 
 		if(!BuildConfig.DEBUG) {
 			AnalyticsManager.intialize(getApplicationContext());

@@ -16,9 +16,7 @@
 
 package dev.dworks.apps.acrypto;
 
-import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +26,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
+import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.common.DialogFragment;
 
 /**
@@ -48,30 +47,36 @@ public final class ErrorActivity extends AppCompatActivity {
         //It is recommended that you follow this logic if implementing a custom error activity.
         Button restartButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_restart_button);
 
-        final Class<? extends Activity> restartActivityClass = CustomActivityOnCrash.getRestartActivityClassFromIntent(getIntent());
+        final CaocConfig config = CustomActivityOnCrash.getConfigFromIntent(getIntent());;
 
-        if (restartActivityClass != null) {
+        restartButton.setText(R.string.customactivityoncrash_error_activity_restart_app);
+        restartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CustomActivityOnCrash.restartApplication(ErrorActivity.this, config);
+            }
+        });
+
+        if (config.isShowRestartButton() && config.getRestartActivityClass() != null) {
             restartButton.setText(R.string.customactivityoncrash_error_activity_restart_app);
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(ErrorActivity.this, restartActivityClass);
-                    finish();
-                    startActivity(intent);
+                    CustomActivityOnCrash.restartApplication(ErrorActivity.this, config);
                 }
             });
         } else {
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    finish();
+                    CustomActivityOnCrash.closeApplication(ErrorActivity.this, config);
                 }
             });
         }
 
         Button moreInfoButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_more_info_button);
 
-        if (CustomActivityOnCrash.isShowErrorDetailsFromIntent(getIntent())) {
+        if (config.isShowErrorDetails()) {
 
             moreInfoButton.setOnClickListener(new View.OnClickListener() {
                 @Override
