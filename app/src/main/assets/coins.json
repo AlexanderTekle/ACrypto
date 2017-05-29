@@ -329,8 +329,8 @@
       "name": "BitBay"
     },
     "BCC": {
-      "id": "bitconnect",
-      "name": "BitConnect"
+      "id": "bitcoin",
+      "name": "Bitcoin Core"
     },
     "BCF": {
       "id": "bitcoinfast",

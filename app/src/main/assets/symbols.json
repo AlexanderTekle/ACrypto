@@ -43,6 +43,17 @@
     "MIU",
     "XON",
     "ZBCN",
-    "USDT"
+    "USDT",
+    "ECN",
+    "EL",
+    "UNY",
+    "MSCN",
+    "PUT",
+    "DCM",
+    "EST",
+    "ALT",
+    "IBC",
+    "ARC",
+    "XOT"
   ]
 }

@@ -203,8 +203,8 @@ public class CoinFragment extends RecyclerFragment
         super.onActivityCreated(savedInstanceState);
         ActionBar actionBar = getActionBarActivity().getSupportActionBar();
         if(null != actionBar) {
-            actionBar.setTitle("Coins");
-            actionBar.setSubtitle(null);
+            actionBar.setTitle(TAG);
+            actionBar.setSubtitle("Top 40 coins");
         }
 
         if(null == mAdapter) {
@@ -228,7 +228,8 @@ public class CoinFragment extends RecyclerFragment
     @Override
     public void onItemClick(View view, int position) {
         Coins.Coin item = Coins.getCoin(mAdapter.getItem(position));
-        String url = BASE_URL + "/coins/" + item.fromSym + "/overview/" + CURRENCY_TO_DEFAULT;
+        String url = BASE_URL + "/coins/" + item.fromSym.toLowerCase()
+                + "/overview/" + CURRENCY_TO_DEFAULT.toLowerCase();
         Utils.openCustomTabUrl(getActivity(), url);
         Bundle bundle = new Bundle();
         bundle.putString("currency", item.fromSym);

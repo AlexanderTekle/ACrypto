@@ -58,4 +58,12 @@
         <item name="android:background">@drawable/abc_spinner_mtrl_am_alpha</item>
     </style>
 
+    <style name="ToolbarTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="ToolbarSubTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textSize">12sp</item>
+    </style>
+
 </resources>

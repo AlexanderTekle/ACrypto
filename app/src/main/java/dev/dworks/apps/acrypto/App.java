@@ -20,6 +20,7 @@ import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.utils.Utils;
 
+import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 
 /**
@@ -60,6 +61,7 @@ public class App extends Application {
 
 		if(!BuildConfig.DEBUG) {
 			AnalyticsManager.intialize(getApplicationContext());
+			setProperty("NativeCurrency", getLocaleCurrency());
 			FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
 		}
 
