@@ -38,4 +38,6 @@
     <string name="pref_currency_description">your currency</string>
     <string name="default_currency">USD</string>
 
+    <string name="error_google_sign_in">Can\'t sign in using Google</string>
+
 </resources>

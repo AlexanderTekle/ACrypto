@@ -17,4 +17,10 @@
         <attr name="drawableEnd" format="reference"/>
         <attr name="drawableBottom" format="reference"/>
     </declare-styleable>
+
+    <declare-styleable name="BezelImageView">
+        <attr name="maskDrawable" format="reference" />
+        <attr name="borderDrawable" format="reference" />
+        <attr name="desaturateOnPress" format="boolean" />
+    </declare-styleable>
 </resources>

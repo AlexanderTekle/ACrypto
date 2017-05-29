@@ -68,7 +68,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:padding="5dp"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/accent_teal"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     tools:text="10%" />

@@ -58,12 +58,38 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal">
+
+                        <ImageView
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/circular_background_amber"
+                            android:contentDescription="@null"
+                            android:padding="30dp"
+                            app:srcCompat="@drawable/ic_bug" />
+
+                        <TextView
+                            android:id="@+id/icon"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="$"
+                            android:textStyle="bold"
+                            android:textSize="25sp"
+                            android:textColor="?android:attr/textColorPrimaryInverse" />
+                    </FrameLayout>
+
                     <TextView
                         android:id="@android:id/summary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:ellipsize="end"
+                        android:paddingLeft="10dp"
                         android:text="@string/artbitrage_message"
                         android:textAlignment="viewStart"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"

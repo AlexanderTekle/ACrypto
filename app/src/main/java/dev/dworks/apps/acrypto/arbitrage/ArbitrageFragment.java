@@ -120,6 +120,7 @@ public class ArbitrageFragment extends ActionBarFragment
     private TextView mDifferencePercentage;
     private View mArbitrageLayout;
     private TextView mArbitrageSummary;
+    private TextView mIcon;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -191,6 +192,8 @@ public class ArbitrageFragment extends ActionBarFragment
 
         mArbitrageLayout = view.findViewById(R.id.arbitrage_layout);
         mArbitrageSummary = (TextView) view.findViewById(android.R.id.summary);
+        mIcon = (TextView) view.findViewById(R.id.icon);
+
         initLineChart();
     }
 
@@ -365,6 +368,7 @@ public class ArbitrageFragment extends ActionBarFragment
     }
 
     public void setDefaultValues(){
+        mIcon.setText(getCurrentCurrencyOneSymbol());
         setPriceValue(mValueOne, currentValueOne);
         setPriceValue(mValueTwo, currentValueTwo);
         mTimeOne.setText(getCurrentCurrencyOneName() + " Price");

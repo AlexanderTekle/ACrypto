@@ -13,14 +13,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseUser;
 
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
-import dev.dworks.apps.acrypto.misc.AuthenticationHelper;
+import dev.dworks.apps.acrypto.misc.FirebaseHelper;
+import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.BezelImageView;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -33,6 +38,10 @@ public class MainActivity extends AppCompatActivity
     private static final int SETTINGS = 47;
     private static final String TAG = "Main";
     private int currentPositionId;
+    private TextView mName;
+    private TextView mEmail;
+    private View mheaderLayout;
+    private BezelImageView mPicture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +51,14 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             HomeFragment.show(getSupportFragmentManager());
         }
-        AuthenticationHelper.signInAnonymously();
+        FirebaseHelper.signInAnonymously();
         initControls();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        updateUserDetails();
     }
 
     private void initControls() {
@@ -70,6 +85,33 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         currentPositionId = R.id.nav_home;
         navigationView.setCheckedItem(currentPositionId);
+
+        View header = navigationView.getHeaderView(0);
+        mName = (TextView) header.findViewById(R.id.name);
+        mEmail = (TextView) header.findViewById(R.id.email);
+        mPicture = (BezelImageView) header.findViewById(R.id.picture);
+        mPicture.setImageResource(R.drawable.ic_person);
+
+        mheaderLayout = header.findViewById(R.id.headerLayout);
+        mheaderLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(!FirebaseHelper.isLoggedIn()) {
+                    Intent login = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(login);
+                }
+            }
+        });
+    }
+
+    private void updateUserDetails() {
+        FirebaseUser user = FirebaseHelper.getCurrentUser();
+        if(FirebaseHelper.isLoggedIn()){
+            mName.setText(user.getDisplayName());
+            mEmail.setText(user.getEmail());
+            mPicture.setImageUrl(user.getPhotoUrl().toString(), VolleyPlusHelper.with(this).getImageLoader());
+        }
     }
 
     @Override
