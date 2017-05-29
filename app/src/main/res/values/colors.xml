@@ -48,4 +48,7 @@
 
     <color name="divider_light">#97dddddd</color>
     <color name="defaultThemeColor">#808080</color>
+
+    <color name="item_doc_grid_protect_background">#88000000</color>
+    <color name="item_doc_grid_protect_background_light">#0a000000</color>
 </resources>

@@ -23,4 +23,6 @@
     <dimen name="second_keyline_default">72dp</dimen>
     <dimen name="toolbar_h_padding">4dp</dimen>
     <dimen name="side_navigation_width">304dp</dimen>
+
+    <dimen name="root_icon_size">24dp</dimen>
 </resources>
