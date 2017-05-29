@@ -17,10 +17,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String TAG = "Settings";
     public static final String CURRENCY_FROM_DEFAULT = "BTC";
     public static final String CURRENCY_TO_DEFAULT = "USD";
+    public static final String CURRENCY_ONE_DEFAULT = "USD";
+    public static final String CURRENCY_TWO_DEFAULT = "INR";
 
     public static final String KEY_BUILD_VERSION = "build_version";
     public static final String KEY_USER_CURRENCY = "user_currency";
     public static final String KEY_CURRENCY_TO = "currency_to";
+    public static final String KEY_CURRENCY_ONE = "currency_one";
+    public static final String KEY_CURRENCY_TWO = "currency_two";
     public static final String KEY_CURRENCY_FROM = "currency_from";
     public static final String KEY_EXCHANGE = "exchange";
 
@@ -73,14 +77,31 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         PreferenceUtils.set(KEY_CURRENCY_FROM, currency);
     }
 
-
     public static String getCurrencyTo() {
         return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
                 .getString(getCurrencyToKey(), getUserCurrencyFrom());
     }
 
+    public static String getCurrencyOne() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(getCurrencyOneKey(), CURRENCY_ONE_DEFAULT);
+    }
+
+    public static String getCurrencyTwo() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(getCurrencyTwoKey(), CURRENCY_TWO_DEFAULT);
+    }
+
     public static void setCurrencyTo(String currency) {
         PreferenceUtils.set(getCurrencyToKey(), currency);
+    }
+
+    public static void setCurrencyOne(String currency) {
+        PreferenceUtils.set(getCurrencyOneKey(), currency);
+    }
+
+    public static void setCurrencyTwo(String currency) {
+        PreferenceUtils.set(getCurrencyTwoKey(), currency);
     }
 
     public static void setExchange(String exchange) {
@@ -98,5 +119,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static String getCurrencyToKey(){
         return KEY_CURRENCY_TO + "_" + getCurrencyFrom();
+    }
+
+    private static String getCurrencyOneKey(){
+        return KEY_CURRENCY_ONE + "_" + getCurrencyFrom();
+    }
+
+    private static String getCurrencyTwoKey(){
+        return KEY_CURRENCY_TWO + "_" + getCurrencyFrom();
     }
 }

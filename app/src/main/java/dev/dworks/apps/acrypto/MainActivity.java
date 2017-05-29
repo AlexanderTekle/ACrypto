@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -120,6 +121,15 @@ public class MainActivity extends AppCompatActivity
                 CoinFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_coins");
                 return true;
+
+            case R.id.nav_arbitrage:
+
+                item.setChecked(true);
+                drawer.closeDrawers();
+                ArbitrageFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_arbitrage");
+                return true;
+
             case R.id.nav_settings:
                 startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS);
                 AnalyticsManager.logEvent("view_settings");

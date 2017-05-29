@@ -40,6 +40,8 @@ public class App extends Application {
 	private Symbols symbols;
 	private CoinDetails coinDetails;
 	private ArrayList<String> currencies;
+	private ArrayList<String> currenciesOne;
+	private ArrayList<String> currenciesTWo;
 	private String defaultCurrencyCode;
 
 	@Override
@@ -118,6 +120,24 @@ public class App extends Application {
 		}
 
 		return currencies;
+	}
+
+	public ArrayList<String> getCurrencyOneList() {
+		if(currenciesOne == null){
+			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_one));
+			currenciesOne = new ArrayList<>(currencyNames);
+		}
+
+		return currenciesOne;
+	}
+
+	public ArrayList<String> getCurrencyTwoList() {
+		if(currenciesTWo == null){
+			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_two));
+			currenciesTWo = new ArrayList<>(currencyNames);
+		}
+
+		return currenciesTWo;
 	}
 
 	public String getLocaleCurrency(){

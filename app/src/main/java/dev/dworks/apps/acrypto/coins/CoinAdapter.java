@@ -25,6 +25,7 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
+import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentage;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 
@@ -220,7 +221,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             double currentPrice = Double.parseDouble(item.price);
             double prevPrice = Double.parseDouble(item.openHour);
             Double difference = ((currentPrice - prevPrice) / prevPrice) * 100;
-            change.setText(String.format("%.2f", Math.abs(difference)) + "%");
+            change.setText(getDisplayPercentage(difference));
             change.setTextColor(ContextCompat.getColor(change.getContext(), getPercentDifferenceColor(difference)));
         }
     }

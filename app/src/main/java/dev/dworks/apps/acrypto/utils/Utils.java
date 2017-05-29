@@ -568,4 +568,13 @@ public class Utils {
         VolleyPlusHelper.with(context).addToRequestQueue(request2);
     }
 
+    public static String getDisplayPercentage(double value){
+        return String.format("%.2f", Math.abs(value)) + "% " + (value > 0 ? "↑" : "↓");
+    }
+
+    public static String getDisplayPercentage(double valueOne, double valueTwo){
+        double value = ((valueTwo - valueOne)/valueOne) * 100;
+        return String.valueOf(Math.round(Math.abs(value))) +  "% " + (value > 0 ? "▲" : "▼");
+    }
+
 }
