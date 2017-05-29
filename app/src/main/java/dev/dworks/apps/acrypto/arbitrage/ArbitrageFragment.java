@@ -541,7 +541,7 @@ public class ArbitrageFragment extends ActionBarFragment
                 fetchData(false);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyOneName());
-                AnalyticsManager.logEvent("price_refreshed", bundle);
+                AnalyticsManager.logEvent("arbitrage_refreshed", bundle);
                 break;
         }
         return super.onOptionsItemSelected(item);

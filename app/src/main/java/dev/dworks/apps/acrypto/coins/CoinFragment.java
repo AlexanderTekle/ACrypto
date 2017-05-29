@@ -8,9 +8,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 
@@ -104,10 +108,7 @@ public class CoinFragment extends RecyclerFragment
     private void fetchDataTask() {
         setEmptyText("");
         setListShown(false);
-        String url = UrlManager.with(UrlConstant.COINLIST_URL)
-                .setParam("limit", "60")
-                .setParam("symbol", CURRENCY_TO_DEFAULT)
-                .getUrl();
+        String url = getUrl();
 
         GsonRequest<Coins> request = new GsonRequest<>(
                 url,
@@ -115,9 +116,17 @@ public class CoinFragment extends RecyclerFragment
                 "",
                 this,
                 this);
+        request.setCacheMinutes(5);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).addToRequestQueue(request, TAG);
 
+    }
+
+    private String getUrl() {
+        return UrlManager.with(UrlConstant.COINLIST_URL)
+                .setParam("limit", "60")
+                .setParam("symbol", CURRENCY_TO_DEFAULT)
+                .getUrl();
     }
 
     @Override
@@ -235,4 +244,29 @@ public class CoinFragment extends RecyclerFragment
     public void onItemViewClick(View view, int position) {
 
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.home, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_refresh:
+                removeUrlCache();
+                fetchDataTask();
+                Bundle bundle = new Bundle();
+                AnalyticsManager.logEvent("coins_refreshed", bundle);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void removeUrlCache(){
+        Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
+        cache.remove(getUrl());
+    }
+
 }
