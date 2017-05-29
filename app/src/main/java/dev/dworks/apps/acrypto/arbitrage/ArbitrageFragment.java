@@ -315,8 +315,8 @@ public class ArbitrageFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        //request.setCacheMinutes(15);
-        //request.setShouldCache(true);
+        request.setCacheMinutes(1);
+        request.setShouldCache(true);
         VolleyPlusHelper.with().updateToRequestQueue(request, TAG + "One");
 
         GsonRequest<Prices> request2 = new GsonRequest<>(getUrl(true),
@@ -335,8 +335,8 @@ public class ArbitrageFragment extends ActionBarFragment
                         mChartProgress.setVisibility(View.GONE);
                     }
                 });
-        //request2.setCacheMinutes(15);
-        //request2.setShouldCache(true);
+        request2.setCacheMinutes(1);
+        request2.setShouldCache(true);
         VolleyPlusHelper.with().updateToRequestQueue(request2, TAG + "Two");
     }
 
@@ -470,16 +470,15 @@ public class ArbitrageFragment extends ActionBarFragment
     }
 
     private void loadData() {
-        if(null == mPriceTwo || mConversionRate == 0){
-            return;
-        }
-        mControls.setVisibility(View.VISIBLE);
-        if(null == mPriceOne) {
+        if(null == mPriceOne && null == mPriceTwo && mConversionRate == 0) {
             retry = false;
             setEmptyData("No data available");
             return;
         }
-        else if(!mPriceOne.isValidResponse()){
+        if(null == mPriceOne || null == mPriceTwo || mConversionRate == 0){
+            return;
+        }
+        if(!mPriceOne.isValidResponse()){
             if(mPriceOne.type == 1 && !retry){
                 retry = true;
                 fetchData(false);
@@ -489,6 +488,8 @@ public class ArbitrageFragment extends ActionBarFragment
             }
             return;
         }
+        mControls.setVisibility(View.VISIBLE);
+        mArbitrageLayout.setVisibility(View.VISIBLE);
         mChartProgress.setVisibility(View.GONE);
         showData();
     }
@@ -498,6 +499,7 @@ public class ArbitrageFragment extends ActionBarFragment
         mChart.setNoDataText(message);
         mChart.clear();
         mChart.invalidate();
+        mArbitrageLayout.setVisibility(View.GONE);
     }
 
     @Override
@@ -554,22 +556,22 @@ public class ArbitrageFragment extends ActionBarFragment
         Prices.Price lastPriceOne = new Prices.Price();
         Prices.Price lastPriceTwo = new Prices.Price();
         for (Prices.Price price : mPriceOne.price){
-            Entry entry = new Entry((float) getMillisFromTimestamp(price.time), (float) price.close);
+            Entry entry = new Entry((float) getMillisFromTimestamp(price.time), (float) price.getClose());
             entry.setData(price);
             entriesOne.add(entry);
             lastPriceOne = price;
         }
 
         for (Prices.Price price : mPriceTwo.price){
-            price.close = price.close * mConversionRate;
-            Entry entry = new Entry((float) getMillisFromTimestamp(price.time), (float) price.close);
+            price.conversion = mConversionRate;
+            Entry entry = new Entry((float) getMillisFromTimestamp(price.time), (float) price.getClose());
             entry.setData(price);
             entriesTwo.add(entry);
             lastPriceTwo = price;
         }
 
-        currentValueOne = Double.valueOf(lastPriceOne.close);
-        currentValueTwo = Double.valueOf(lastPriceTwo.close);
+        currentValueOne = Double.valueOf(lastPriceOne.getClose());
+        currentValueTwo = Double.valueOf(lastPriceTwo.getClose());
 
         setDefaultValues();
 
@@ -621,8 +623,8 @@ public class ArbitrageFragment extends ActionBarFragment
         Prices.Price price = (Prices.Price) e.getData();
         int index = h.getDataSetIndex();
         int dataIndex = index == 1 ? mPriceOne.price.indexOf(price) : mPriceTwo.price.indexOf(price);
-        double priceOne = mPriceOne.price.get(dataIndex).close;
-        double priceTwo = mPriceTwo.price.get(dataIndex).close;
+        double priceOne = mPriceOne.price.get(dataIndex).getClose();
+        double priceTwo = mPriceTwo.price.get(dataIndex).getClose();
         setPriceValue(mValueOne, priceOne);
         setPriceValue(mValueTwo, priceTwo);
         setDateTimeValue(mTimeOne, getMillisFromTimestamp(price.time));

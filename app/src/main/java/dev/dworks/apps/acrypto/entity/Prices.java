@@ -34,5 +34,10 @@ public class Prices extends BaseEntity {
         public double open;
         public double volumefrom;
         public double volumeto;
+        public double conversion = 1;
+
+        public double getClose() {
+            return close * conversion;
+        }
     }
 }

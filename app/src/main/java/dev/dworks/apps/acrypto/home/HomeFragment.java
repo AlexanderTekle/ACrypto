@@ -114,6 +114,7 @@ public class HomeFragment extends ActionBarFragment
     private TextView mTimeDuration;
     private boolean retry = false;
     private double currentValue;
+    private double diffValue;
     private View mControls;
     private TextView mLastUpdate;
     private Spinner mCurrencyToSpinner;
@@ -159,7 +160,7 @@ public class HomeFragment extends ActionBarFragment
         super.onResume();
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
         reloadCurrencyFrom();
-        loadData();
+        fetchData();
     }
 
     private void initControls(View view) {
@@ -192,11 +193,9 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void setSpinners() {
-
         setCurrencyToSpinner();
         setCurrencyFromSpinner();
         setMarketSpinner();
-
     }
 
     private void setCurrencyToSpinner() {
@@ -209,7 +208,7 @@ public class HomeFragment extends ActionBarFragment
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
                 SettingsActivity.setCurrencyFrom(item);
                 reloadCurrencyFrom();
-                loadData(true);
+                fetchData(true);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("coin_filtered", bundle);
@@ -229,7 +228,7 @@ public class HomeFragment extends ActionBarFragment
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
                 SettingsActivity.setCurrencyTo(item);
-                loadData(true);
+                fetchData(true);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("currency_filtered", bundle);
@@ -245,7 +244,7 @@ public class HomeFragment extends ActionBarFragment
             @Override
             public void onItemSelected(Spinner var1, int var2, long var3, Exchanges.Exchange exchange) {
                 SettingsActivity.setExchange(exchange.exchange);
-                loadData(false);
+                fetchData(false);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("exchange_filtered", bundle);
@@ -298,14 +297,15 @@ public class HomeFragment extends ActionBarFragment
         mChart.setOnChartGestureListener(mOnChartGestureListener);
     }
 
-    private void loadData() {
-        loadData(true);
+    private void fetchData() {
+        fetchData(true);
     }
 
-    private void loadData(boolean refreshAll) {
+    private void fetchData(boolean refreshAll) {
         String url = getUrl();
         mChartProgress.setVisibility(View.VISIBLE);
         mChart.highlightValue(null);
+        diffValue = -1;
         GsonRequest<Prices> request = new GsonRequest<>(url,
                 Prices.class,
                 "",
@@ -314,13 +314,13 @@ public class HomeFragment extends ActionBarFragment
         request.setCacheMinutes(5);
         request.setShouldCache(true);
         VolleyPlusHelper.with().updateToRequestQueue(request, "Home");
-        loadPriceData();
+        fetchDifferenceData();
         if(refreshAll) {
-            loadExchangeData();
+            fetchExchangeData();
         }
     }
 
-    private void loadExchangeData() {
+    private void fetchExchangeData() {
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("fsym", getCurrentCurrencyFrom());
         params.put("tsym", getCurrentCurrencyTo());
@@ -350,45 +350,7 @@ public class HomeFragment extends ActionBarFragment
         VolleyPlusHelper.with().updateToRequestQueue(request, "exchange");
     }
 
-    private void loadPriceData() {
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("fsym", getCurrentCurrencyFrom());
-        params.put("tsyms", getCurrentCurrencyTo());
-        final String exchange = getCurrentExchange();
-        if(!TextUtils.isEmpty(exchange) && !exchange.equals(ALL_EXCHANGES)) {
-            params.put("e", exchange);
-        }
-        String url = UrlManager.with(UrlConstant.HISTORY_PRICE_URL)
-                .setDefaultParams(params).getUrl();
-
-        StringRequest request = new StringRequest(url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        currentValue = 0L;
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            currentValue = jsonObject.getDouble(getCurrentCurrencyTo());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        setDefaultValues();
-                        loadDifferenceData();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        setPriceValue(mValue, 0);
-                        mTime.setText("");
-                        setPriceValue(mValueChange, 0);
-                        mTimeDuration.setText("");
-                    }
-                });
-        VolleyPlusHelper.with().updateToRequestQueue(request, "value");
-    }
-
-    private void loadDifferenceData() {
+    private void fetchDifferenceData() {
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("fsym", getCurrentCurrencyFrom());
         params.put("tsyms", getCurrentCurrencyTo());
@@ -401,18 +363,14 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        double value = 0L;
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             JSONObject currencyFrom = jsonObject.getJSONObject(getCurrentCurrencyFrom());
-                            value = currencyFrom.getDouble(getCurrentCurrencyTo());
+                            diffValue = currencyFrom.getDouble(getCurrentCurrencyTo());
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        double difference = currentValue - value;
-                        setPriceValue(mValueChange, difference);
-                        setDifferenceColor(getColor(HomeFragment.this, getValueDifferenceColor(difference)));
-                        mTimeDuration.setText("Since " +  timeDifference);
+                        setDefaultValues();
                     }
                 },
                 new Response.ErrorListener() {
@@ -428,7 +386,12 @@ public class HomeFragment extends ActionBarFragment
     public void setDefaultValues(){
         setPriceValue(mValue, currentValue);
         mTime.setText(getCurrentCurrencyName() + " Price");
-        //setDateTimeValue(mTime, getCurrentTimeInMillis());
+        if(diffValue != -1) {
+            double difference = currentValue - diffValue;
+            setPriceValue(mValueChange, difference);
+            setDifferenceColor(getColor(HomeFragment.this, getValueDifferenceColor(difference)));
+            mTimeDuration.setText("Since " + timeDifference);
+        }
     }
 
     public static String getCurrentCurrencyTo(){
@@ -489,7 +452,7 @@ public class HomeFragment extends ActionBarFragment
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    loadData();
+                    fetchData();
                 }
             });
         }
@@ -499,7 +462,7 @@ public class HomeFragment extends ActionBarFragment
             Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    loadData(false);
+                    fetchData(false);
                 }
             });
         }
@@ -513,6 +476,7 @@ public class HomeFragment extends ActionBarFragment
 
     private void loadData(Prices response) {
         mControls.setVisibility(View.VISIBLE);
+        mChartProgress.setVisibility(View.GONE);
         if(null == response) {
             retry = false;
             setEmptyData("No data available");
@@ -521,14 +485,13 @@ public class HomeFragment extends ActionBarFragment
         else if(!response.isValidResponse()){
             if(response.type == 1 && !retry){
                 retry = true;
-                loadData(false);
+                fetchData(false);
             } else {
                 retry = false;
                 setEmptyData("No data available");
             }
             return;
         }
-        mChartProgress.setVisibility(View.GONE);
         showData(response);
     }
 
@@ -577,7 +540,7 @@ public class HomeFragment extends ActionBarFragment
         switch (item.getItemId()){
             case R.id.action_refresh:
                 removeUrlCache();
-                loadData(false);
+                fetchData(false);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("price_refreshed", bundle);
@@ -590,11 +553,16 @@ public class HomeFragment extends ActionBarFragment
 
         ArrayList<Entry> entries = new ArrayList<>();
         ArrayList<BarEntry> barEntries = new ArrayList<>();
+        Prices.Price lastPrice = new Prices.Price();
         for (Prices.Price price : response.price){
             Entry entry = new Entry((float) getMillisFromTimestamp(price.time), (float) price.close);
             entry.setData(price);
             entries.add(entry);
+            lastPrice = price;
         }
+
+        currentValue = Double.valueOf(lastPrice.close);
+        setDefaultValues();
 
         LineDataSet set1 = new LineDataSet(entries, "Time");
         set1.setFillAlpha(110);
@@ -677,7 +645,7 @@ public class HomeFragment extends ActionBarFragment
         bundle.putString("type", type);
         bundle.putString("currency", getCurrentCurrencyName());
         AnalyticsManager.logEvent("price_filter", bundle);
-        loadData(false);
+        fetchData(false);
     }
 
     public String getDateTime(long value){
