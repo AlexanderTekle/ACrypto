@@ -15,7 +15,15 @@
         <item>KRW</item>
         <item>INR</item>
         <item>PHP</item>
+        <item>BRL</item>
+        <item>IDR</item>
+        <item>ZAR</item>
+        <item>ILS</item>
+        <item>DKK</item>
+        <item>MYR</item>
         <item>MXN</item>
+        <item>AED</item>
+        <item>SEK</item>
     </string-array>
 
     <string-array name="coin_symbols">
@@ -56,12 +64,23 @@
         <item>SGD</item>
         <item>JPY</item>
         <item>MXN</item>
+        <item>ILS</item>
+        <item>DKK</item>
+        <item>AED</item>
+        <item>SEK</item>
     </string-array>
 
     <string-array name="currency_two">
         <item>INR</item>
         <item>KRW</item>
         <item>PHP</item>
+        <item>IDR</item>
+        <item>BRL</item>
+        <item>ZAR</item>
+        <item>MYR</item>
+        <item>NZD</item>
+        <item>SGD</item>
+        <item>MXN</item>
     </string-array>
 
 </resources>

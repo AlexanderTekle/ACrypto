@@ -219,19 +219,23 @@ public class ArbitrageFragment extends ActionBarFragment
         });
     }
 
+    private void reloadCurrencyTwo(){
+        mCurrencyTwoSpinner.setItems(getCurrencyTwoList());
+        setSpinnerToValue(mCurrencyTwoSpinner, getCurrentCurrencyTwo());
+    }
+
     private void setCurrencyToSpinner() {
         mCurrencyOneSpinner.getPopupWindow().setWidth(300);
         mCurrencyTwoSpinner.getPopupWindow().setWidth(300);
 
         mCurrencyOneSpinner.setItems(getCurrencyOneList());
         setSpinnerToValue(mCurrencyOneSpinner, getCurrentCurrencyOne());
-        mCurrencyTwoSpinner.setItems(getCurrencyTwoList());
-        setSpinnerToValue(mCurrencyTwoSpinner, getCurrentCurrencyTwo());
-
+        reloadCurrencyTwo();
         mCurrencyOneSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
                 SettingsActivity.setCurrencyOne(item);
+                reloadCurrencyTwo();
                 fetchData(true);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyOneName());
@@ -262,7 +266,12 @@ public class ArbitrageFragment extends ActionBarFragment
     }
 
     private ArrayList<String> getCurrencyTwoList() {
-        return App.getInstance().getCurrencyTwoList();
+        ArrayList<String> currencies = new ArrayList<>(App.getInstance().getCurrencyTwoList());
+
+        if(!currencies.equals(getCurrentCurrencyOne())){
+            currencies.remove(getCurrentCurrencyOne());
+        }
+        return currencies;
     }
 
     private void initLineChart() {

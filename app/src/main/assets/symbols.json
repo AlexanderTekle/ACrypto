@@ -25,13 +25,19 @@
     "HKD": "H$",
     "NZD": "NZ$",
     "JPY": "¥",
+    "AED": "د.إ",
     "SGD": "S$",
     "KRW": "₩",
     "INR": "₹",
-    "AED": "د.إ",
-    "AFN": "؋",
+    "IDR": "Rp",
+    "BRL": "R$",
     "PHP": "₱",
-    "MXN": "MX$"
+    "MXN": "MX$",
+    "ZAR": "R",
+    "ILS": "₪",
+    "DKK": "kr",
+    "MYR": "RM",
+    "SEK": "Kr"
   },
 
   "ignore": [

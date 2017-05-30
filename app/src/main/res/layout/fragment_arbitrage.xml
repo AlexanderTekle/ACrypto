@@ -79,7 +79,7 @@
                             android:layout_gravity="center"
                             android:text="$"
                             android:textStyle="bold"
-                            android:textSize="25sp"
+                            android:textSize="20sp"
                             android:textColor="?android:attr/textColorPrimaryInverse" />
                     </FrameLayout>
 
