@@ -26,8 +26,8 @@
         <com.jaredrummler.materialspinner.Spinner
             android:id="@+id/currencyToSpinner"
             android:layout_width="100dp"
-            android:maxLines="1"
             android:layout_height="wrap_content"
+            android:maxLines="1"
             android:theme="@style/spinnerStyle"
             app:ms_dropdown_max_height="300dp" />
 
@@ -101,20 +101,37 @@
                 android:orientation="vertical"
                 android:paddingLeft="20dp">
 
-                <org.fabiomsr.moneytextview.MoneyTextView
-                    android:id="@+id/valueChange"
-                    android:layout_width="wrap_content"
+                <FrameLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center|left"
-                    app:amount="0"
-                    app:baseTextColor="@android:color/white"
-                    app:baseTextSize="22sp"
-                    app:decimalDigitsTextSize="22sp"
-                    app:decimalSeparator="."
-                    app:includeDecimalSeparator="true"
-                    app:symbol="$"
-                    app:symbolGravity="start|top"
-                    app:symbolTextSize="16sp" />
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <org.fabiomsr.moneytextview.MoneyTextView
+                        android:id="@+id/valueChange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|left"
+                        app:amount="0"
+                        app:baseTextColor="@android:color/white"
+                        app:baseTextSize="22sp"
+                        app:decimalDigitsTextSize="22sp"
+                        app:decimalSeparator="."
+                        app:includeDecimalSeparator="true"
+                        app:symbol="$"
+                        app:symbolGravity="start|top"
+                        android:visibility="visible"
+                        app:symbolTextSize="16sp" />
+                    <TextView
+                        android:id="@+id/volume"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|left"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp"
+                        android:visibility="gone"
+                        tools:text="234" />
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/timeDuration"

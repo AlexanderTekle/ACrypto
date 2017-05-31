@@ -26,9 +26,12 @@ import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -120,6 +123,9 @@ public class HomeFragment extends ActionBarFragment
     private Spinner mCurrencyToSpinner;
     private Spinner mExchangeSpinner;
     private Spinner mCurrencyFromSpinner;
+    private BarChart mBarChart;
+    private Prices mPrice;
+    private TextView mVolume;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -172,6 +178,7 @@ public class HomeFragment extends ActionBarFragment
         mValueChange = (MoneyTextView) view.findViewById(R.id.valueChange);
         mTimeDuration = (TextView) view.findViewById(R.id.timeDuration);
         mLastUpdate = (TextView) view.findViewById(R.id.lastupdated);
+        mVolume = (TextView) view.findViewById(R.id.volume);
 
         mCurrencyFromSpinner = (Spinner) view.findViewById(R.id.currencyFromSpinner);
         mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
@@ -189,7 +196,9 @@ public class HomeFragment extends ActionBarFragment
 
         mChartProgress = (ProgressBar) view.findViewById(R.id.chartprogress);
         mChart = (LineChart) view.findViewById(R.id.linechart);
+        mBarChart = (BarChart) view.findViewById(R.id.barchart);
         initLineChart();
+        initBarChart();
     }
 
     private void setSpinners() {
@@ -297,6 +306,42 @@ public class HomeFragment extends ActionBarFragment
         mChart.setOnChartGestureListener(mOnChartGestureListener);
     }
 
+    private void initBarChart() {
+
+        mBarChart.setOnChartValueSelectedListener(this);
+        mBarChart.setDrawGridBackground(false);
+        mBarChart.setNoDataText("");
+        mBarChart.setTouchEnabled(true);
+        mBarChart.setDragEnabled(true);
+        mBarChart.setScaleEnabled(false);
+
+        mBarChart.setPinchZoom(false);
+        mBarChart.getDescription().setEnabled(false);
+
+        mBarChart.getLegend().setEnabled(false);
+
+        mBarChart.getAxisLeft().setEnabled(false);
+        mBarChart.getAxisLeft().setSpaceTop(40);
+        mBarChart.getAxisLeft().setSpaceBottom(40);
+        mBarChart.getAxisLeft().setAxisMinimum(0);
+
+        mBarChart.getAxisRight().setEnabled(false);
+
+        mBarChart.getXAxis().setEnabled(false);
+        mBarChart.getXAxis().setDrawGridLines(false);
+
+        mBarChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        mBarChart.getXAxis().setTextColor(Color.WHITE);
+        mBarChart.getXAxis().setAvoidFirstLastClipping(false);
+/*        mBarChart.getXAxis().setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return getDateTime(getMillisFromTimestamp(getPrice().price.get((int) value).time));
+            }
+        });*/
+        mBarChart.setOnChartGestureListener(mOnChartGestureListener);
+    }
+
     private void fetchData() {
         fetchData(true);
     }
@@ -391,6 +436,8 @@ public class HomeFragment extends ActionBarFragment
             setPriceValue(mValueChange, difference);
             setDifferenceColor(getColor(HomeFragment.this, getValueDifferenceColor(difference)));
             mTimeDuration.setText("Since " + timeDifference);
+            mValueChange.setVisibility(View.VISIBLE);
+            mVolume.setVisibility(View.GONE);
         }
     }
 
@@ -470,8 +517,13 @@ public class HomeFragment extends ActionBarFragment
 
     @Override
     public void onResponse(Prices response) {
+        mPrice = response;
         loadData(response);
         //showLastUpdate();
+    }
+
+    public synchronized Prices getPrice() {
+        return mPrice;
     }
 
     private void loadData(Prices response) {
@@ -554,17 +606,24 @@ public class HomeFragment extends ActionBarFragment
         ArrayList<Entry> entries = new ArrayList<>();
         ArrayList<BarEntry> barEntries = new ArrayList<>();
         Prices.Price lastPrice = new Prices.Price();
+        int i = 0;
         for (Prices.Price price : response.price){
             Entry entry = new Entry((float) getMillisFromTimestamp(price.time), (float) price.close);
             entry.setData(price);
             entries.add(entry);
             lastPrice = price;
+
+            BarEntry barEntry = new BarEntry(i,
+                    (float) price.volumefrom, price);
+            barEntries.add(barEntry);
+            i++;
         }
 
+        //Price Chart
         currentValue = Double.valueOf(lastPrice.close);
         setDefaultValues();
 
-        LineDataSet set1 = new LineDataSet(entries, "Time");
+        LineDataSet set1 = new LineDataSet(entries, "Price");
         set1.setFillAlpha(110);
 
         set1.setLineWidth(1.75f);
@@ -587,6 +646,21 @@ public class HomeFragment extends ActionBarFragment
         mChart.setData(data);
         mChart.setViewPortOffsets(0, 0, 0, 50);
         mChart.animateX(500);
+
+
+        //Volume Chart
+        BarDataSet set2 = new BarDataSet(barEntries, "Volume");
+        set2.setDrawValues(false);
+        set2.setHighLightColor(getColor(this, R.color.colorAccent));
+        set2.setDrawValues(false);
+
+        BarData barData = new BarData(set2);
+        barData.setValueTextSize(10f);
+        barData.setBarWidth(0.9f);
+
+        mBarChart.setData(barData);
+        mBarChart.setViewPortOffsets(0, 0, 0, 50);
+        mBarChart.animateX(500);
     }
 
     @Override
@@ -594,6 +668,10 @@ public class HomeFragment extends ActionBarFragment
         Prices.Price price = (Prices.Price) e.getData();
         setPriceValue(mValue, price.close);
         setDateTimeValue(mTime, getMillisFromTimestamp(price.time));
+        mVolume.setText(String.format("%.2f", price.volumefrom));
+        mTimeDuration.setText("Volume");
+        mVolume.setVisibility(View.VISIBLE);
+        mValueChange.setVisibility(View.GONE);
         Bundle bundle = new Bundle();
         bundle.putString("currency", getCurrentCurrencyName());
         AnalyticsManager.logEvent("price_highlighted", bundle);
@@ -757,7 +835,8 @@ public class HomeFragment extends ActionBarFragment
         public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
             // un-highlight values after the gesture is finished and no single-tap
             if (lastPerformedGesture != ChartTouchListener.ChartGesture.SINGLE_TAP) {
-                mChart.highlightValue(null); // or highlightTouch(null) for callback to onNothingSelected(...)
+                mChart.highlightValue(null);
+                mBarChart.highlightValue(null);
                 setDefaultValues();
             }
         }
