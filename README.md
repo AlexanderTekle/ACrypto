@@ -5,19 +5,42 @@ Acrypto - Another crypto currency tracker
 
 ![AnExplorer](/header.jpg)
 
-Acrypto is another crypto currency tracker. 
+Acrypto is another crypto currency bitcoin ticker 
 
-It is Simple, Fast and Efficient way to track all your crypto currencies on Google Play Store. It supports the following coins Bitcoin (BTC), Litecoin (LTC), Ethereum (ETH), Ripple (XRP), DigitalCash (DASH)
+Acrypto is a Bitcoin / Altcoin price checker using which you can track the latest prices , monitor and check prices from more than 50 bitcoin, ethereum and other altcoin exchanges and markets in top currencies around the world. You can use this app for bitcoin mining, buy coins for trading and investing. A bitcoin price ticker which is simple and elegant with material design
 
 Features
 ============
-★ Track prices in multiple currencies like USD, GBP, EUR, INR etc
+★ Interactive price charts to view prices of all cryptocurrencies easily with your fingers 
 
-★ Filter historical prices by everym minute, every hour, daily, weekly, monthly and yearly
+★ Filter historical prices by every minute, every hour, daily, weekly, monthly and yearly
 
-★ See list of all Altcoins available
+★ Track prices in multiple currencies like USD, GBP, EUR, AUD, INR, JPY, CNY etc
 
-Feedback is greatly appreciated. Any issues please report through mail only to hakr@dworks.in
+★ Track not just bitcoins but all other coins as this is also an Altcoins price tracker
+
+★ See list of all digital currency coins available and their details
+
+★ View all details of coins like Dash, Ripple which use blockchain, their market cap, volume etc
+
+★ Shows prices from top popular exchanges like unocoin, coinbase, kraken, BTC China, poloniex, BTC-e, Bitfinex, ANX etc across the world
+
+★ Native currency of your choice, you can always change it back
+
+★ Auto Refresh every 5 minutes and manual refresh to get the latest bitcoin prices for your preferred currency
+
+★ Automatically displays currency/ coins value less than zero up to 6 decimals 
+
+★ Consumes least amount of data to fetch prices of all coins and their trends
+
+Supported Bitcoins / Altcoins are 
+Bitcoin (BTC), Litecoin (LTC), Ethereum (ETH), Ripple (XRP), DigitalCash (DASH), Ethereum Classic (ETC), Monero (XMR), NXT, Dogecoin (DOGE), Steem (STEEM), ZCash (ZEC)
+
+Supported Exchanges are
+Poloniex, Okcoin, Localbitcoins, Lakebtc, Kraken, Coindesk, Coinbase, Bitbay, Gocelery, Unocoin, Bit2c, GDAX, Bitcoin Indonesia, SatoshiTango, Bitcoin.co.id, Bitcoin.de, Bitcurex, Bitex, Bitfinex, bitFlyer Lightning, Bitkonan, Bitmarket.pl, Bitonic, Bitstamp, bitstar, Bitx, Bl3p, BTC China, BTC-e, Bitmex, Canadianbitcoins, Cex.io, Clevercoin, CoinBR, Coinfloor, FoxBit, Gemini, Hitbtc, Huobi, Bitcashout, Igot, ItBit, Paymium, Quadrigacx Quoine, Therocktrading, Zyado
+
+Supported Currencies
+USD, EUR, GBP, CAD, PLN, AUD, CNY, RUB, HKD, NZD, INR, JPY, SGD, KRW, PHP, MXN
 
 
 Developed By
