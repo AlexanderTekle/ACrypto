@@ -49,14 +49,14 @@ public class VolleyPlusHelper {
     }
 
     public static VolleyPlusHelper with() {
-        if(null != mVolleyPlusHelper) {
+        if(null == mVolleyPlusHelper) {
             mVolleyPlusHelper = new VolleyPlusHelper(App.getInstance().getApplicationContext());
         }
         return mVolleyPlusHelper;
     }
 
     public static VolleyPlusHelper with(Context context) {
-        if(null != mVolleyPlusHelper) {
+        if(null == mVolleyPlusHelper) {
             mVolleyPlusHelper = new VolleyPlusHelper(context);
         }
         return mVolleyPlusHelper;

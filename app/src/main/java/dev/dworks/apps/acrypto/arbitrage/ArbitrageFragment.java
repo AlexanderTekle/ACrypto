@@ -211,6 +211,7 @@ public class ArbitrageFragment extends ActionBarFragment
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
                 SettingsActivity.setCurrencyFrom(item);
+                reloadCurrencyTwo();
                 fetchData(true);
                 Bundle bundle = new Bundle();
                 bundle.putString("coin", getCurrentCurrencyFrom());
@@ -268,6 +269,12 @@ public class ArbitrageFragment extends ActionBarFragment
     }
 
     private ArrayList<String> getCurrencyTwoList() {
+        if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
+            ArrayList<String> currencies = new ArrayList<>();
+            currencies.add("INR");
+            currencies.add("KRW");
+            return currencies;
+        }
         ArrayList<String> currencies = new ArrayList<>(App.getInstance().getCurrencyTwoList());
 
         if(!currencies.equals(getCurrentCurrencyOne())){
@@ -636,20 +643,24 @@ public class ArbitrageFragment extends ActionBarFragment
 
     @Override
     public void onValueSelected(Entry e, Highlight h) {
-        Prices.Price price = (Prices.Price) e.getData();
-        int index = h.getDataSetIndex();
-        int dataIndex = index == 1 ? mPriceOne.price.indexOf(price) : mPriceTwo.price.indexOf(price);
-        double priceOne = mPriceOne.price.get(dataIndex).getClose();
-        double priceTwo = mPriceTwo.price.get(dataIndex).getClose();
-        setPriceValue(mValueOne, priceOne);
-        setPriceValue(mValueTwo, priceTwo);
-        setDateTimeValue(mTimeOne, getMillisFromTimestamp(price.time));
-        setDateTimeValue(mTimeTwo, getMillisFromTimestamp(price.time));
-        mDifferencePercentage.setText(getDisplayPercentage(priceOne, priceTwo));
-        Bundle bundle = new Bundle();
-        bundle.putString("coin", getCurrentCurrencyFrom());
-        bundle.putString("currency", getCurrentCurrencyOneTwoName());
-        AnalyticsManager.logEvent("price_highlighted", bundle);
+        try {
+            Prices.Price price = (Prices.Price) e.getData();
+            int index = h.getDataSetIndex();
+            int dataIndex = index == 1 ? mPriceOne.price.indexOf(price) : mPriceTwo.price.indexOf(price);
+            double priceOne = mPriceOne.price.get(dataIndex).getClose();
+            double priceTwo = mPriceTwo.price.get(dataIndex).getClose();
+            setPriceValue(mValueOne, priceOne);
+            setPriceValue(mValueTwo, priceTwo);
+            setDateTimeValue(mTimeOne, getMillisFromTimestamp(price.time));
+            setDateTimeValue(mTimeTwo, getMillisFromTimestamp(price.time));
+            mDifferencePercentage.setText(getDisplayPercentage(priceOne, priceTwo));
+            Bundle bundle = new Bundle();
+            bundle.putString("coin", getCurrentCurrencyFrom());
+            bundle.putString("currency", getCurrentCurrencyOneTwoName());
+            AnalyticsManager.logEvent("price_highlighted", bundle);
+        } catch (Exception ex){
+            setDefaultValues();
+        }
     }
 
     @Override
