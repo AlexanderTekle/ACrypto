@@ -37,7 +37,8 @@
     "ILS": "₪",
     "DKK": "kr",
     "MYR": "RM",
-    "SEK": "Kr"
+    "SEK": "Kr",
+    "CHF": "Fr"
   },
 
   "ignore": [

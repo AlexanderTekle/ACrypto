@@ -24,6 +24,7 @@
         <item>MXN</item>
         <item>AED</item>
         <item>SEK</item>
+        <item>CHF</item>
     </string-array>
 
     <string-array name="coin_symbols">
@@ -43,6 +44,7 @@
         <item>XEM</item>
         <item>XLM</item>
         <item>ZEC</item>
+        <item>PIVX</item>
     </string-array>
 
     <string-array name="coin_arbitrage">
@@ -68,6 +70,7 @@
         <item>DKK</item>
         <item>AED</item>
         <item>SEK</item>
+        <item>CHF</item>
     </string-array>
 
     <string-array name="currency_two">
