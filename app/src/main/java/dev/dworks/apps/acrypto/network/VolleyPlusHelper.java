@@ -32,6 +32,7 @@ public class VolleyPlusHelper {
     public static final int SCALE_DOWN_SIZE_SMALL = 512;
     public static final String IMAGE_CACHE_DIR = "thumbs";
     public static final String IMAGE_BG_CACHE_DIR = "bgs";
+    private static VolleyPlusHelper mVolleyPlusHelper;
 
     private final Context mContext;
     private RequestTickle mRequestTickle;
@@ -48,13 +49,17 @@ public class VolleyPlusHelper {
     }
 
     public static VolleyPlusHelper with() {
-        VolleyPlusHelper volleyPlusHelper = new VolleyPlusHelper(App.getInstance().getApplicationContext());
-        return volleyPlusHelper;
+        if(null != mVolleyPlusHelper) {
+            mVolleyPlusHelper = new VolleyPlusHelper(App.getInstance().getApplicationContext());
+        }
+        return mVolleyPlusHelper;
     }
 
     public static VolleyPlusHelper with(Context context) {
-        VolleyPlusHelper volleyPlusHelper = new VolleyPlusHelper(context);
-        return volleyPlusHelper;
+        if(null != mVolleyPlusHelper) {
+            mVolleyPlusHelper = new VolleyPlusHelper(context);
+        }
+        return mVolleyPlusHelper;
     }
 
     public VolleyPlusHelper load(String string) {

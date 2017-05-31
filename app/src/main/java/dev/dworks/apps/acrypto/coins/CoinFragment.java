@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -175,7 +176,7 @@ public class CoinFragment extends RecyclerFragment
             mAdapter.setData(mCoins.data);
         }
         setEmptyText("");
-        if(null == mCoins || mCoins.response.isEmpty()){
+        if(null == mCoins || TextUtils.isEmpty(mCoins.response)){
             setEmptyText("No Data");
         }
         setListShown(true);
@@ -266,7 +267,7 @@ public class CoinFragment extends RecyclerFragment
     }
 
     private void removeUrlCache(){
-        Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
+        Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
     }
 

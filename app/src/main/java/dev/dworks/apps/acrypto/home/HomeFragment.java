@@ -313,7 +313,7 @@ public class HomeFragment extends ActionBarFragment
                 this);
         request.setCacheMinutes(5);
         request.setShouldCache(true);
-        VolleyPlusHelper.with().updateToRequestQueue(request, "Home");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Home");
         fetchDifferenceData();
         if(refreshAll) {
             fetchExchangeData();
@@ -347,7 +347,7 @@ public class HomeFragment extends ActionBarFragment
                     }
                 });
         request.setShouldCache(true);
-        VolleyPlusHelper.with().updateToRequestQueue(request, "exchange");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "exchange");
     }
 
     private void fetchDifferenceData() {
@@ -380,7 +380,7 @@ public class HomeFragment extends ActionBarFragment
                         mTimeDuration.setText("");
                     }
                 });
-        VolleyPlusHelper.with().updateToRequestQueue(request, "diff");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "diff");
     }
 
     public void setDefaultValues(){
@@ -794,7 +794,7 @@ public class HomeFragment extends ActionBarFragment
     };
 
     private void showLastUpdate(){
-        Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
+        Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         Cache.Entry entry = cache.get(getUrl());
         if(null != entry) {
             long lastUpdated = entry.serverDate;
@@ -807,7 +807,7 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void removeUrlCache(){
-        Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
+        Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
     }
 

@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
 
                 if(!FirebaseHelper.isLoggedIn()) {
+                    AnalyticsManager.logEvent("view_login");
                     Intent login = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(login);
                 }

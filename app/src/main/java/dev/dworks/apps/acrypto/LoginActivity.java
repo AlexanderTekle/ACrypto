@@ -27,6 +27,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import java.io.IOException;
 
 import dev.dworks.apps.acrypto.entity.User;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import needle.Needle;
 
@@ -63,6 +64,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             @Override
             public void onClick(View v) {
                 attemptGoogleSignIn();
+                AnalyticsManager.logEvent("login_attempted");
             }
         });
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

@@ -213,7 +213,7 @@ public class ArbitrageFragment extends ActionBarFragment
                 SettingsActivity.setCurrencyFrom(item);
                 fetchData(true);
                 Bundle bundle = new Bundle();
-                bundle.putString("currency", getCurrentCurrencyOneName());
+                bundle.putString("coin", getCurrentCurrencyFrom());
                 AnalyticsManager.logEvent("coin_filtered", bundle);
             }
         });
@@ -238,7 +238,8 @@ public class ArbitrageFragment extends ActionBarFragment
                 reloadCurrencyTwo();
                 fetchData(true);
                 Bundle bundle = new Bundle();
-                bundle.putString("currency", getCurrentCurrencyOneName());
+                bundle.putString("coin", getCurrentCurrencyFrom());
+                bundle.putString("currency_one", getCurrentCurrencyOneTwoName());
                 AnalyticsManager.logEvent("currency_filtered", bundle);
             }
         });
@@ -249,7 +250,8 @@ public class ArbitrageFragment extends ActionBarFragment
                 SettingsActivity.setCurrencyTwo(item);
                 fetchData(true);
                 Bundle bundle = new Bundle();
-                bundle.putString("currency", getCurrentCurrencyOneName());
+                bundle.putString("coin", getCurrentCurrencyFrom());
+                bundle.putString("currency_two", getCurrentCurrencyOneTwoName());
                 AnalyticsManager.logEvent("exchange_filtered", bundle);
             }
         });
@@ -326,7 +328,7 @@ public class ArbitrageFragment extends ActionBarFragment
                 this);
         request.setCacheMinutes(1);
         request.setShouldCache(true);
-        VolleyPlusHelper.with().updateToRequestQueue(request, TAG + "One");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG + "One");
 
         GsonRequest<Prices> request2 = new GsonRequest<>(getUrl(true),
                 Prices.class,
@@ -346,7 +348,7 @@ public class ArbitrageFragment extends ActionBarFragment
                 });
         request2.setCacheMinutes(1);
         request2.setShouldCache(true);
-        VolleyPlusHelper.with().updateToRequestQueue(request2, TAG + "Two");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request2, TAG + "Two");
     }
 
     private void loadConversionData() {
@@ -373,7 +375,7 @@ public class ArbitrageFragment extends ActionBarFragment
                     }
                 });
         request.setShouldCache(true);
-        VolleyPlusHelper.with().updateToRequestQueue(request, TAG + "conversion");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG + "conversion");
     }
 
     public void setDefaultValues(){
@@ -412,6 +414,10 @@ public class ArbitrageFragment extends ActionBarFragment
 
     public static String getCurrentCurrencyTwoName(){
         return getCurrentCurrencyFrom() + "/" + getCurrentCurrencyTwo();
+    }
+
+    public static String getCurrentCurrencyOneTwoName(){
+        return getCurrentCurrencyOneName() + "/" + getCurrentCurrencyTwoName();
     }
 
 
@@ -551,7 +557,8 @@ public class ArbitrageFragment extends ActionBarFragment
                 removeUrlCache();
                 fetchData(false);
                 Bundle bundle = new Bundle();
-                bundle.putString("currency", getCurrentCurrencyOneName());
+                bundle.putString("coin", getCurrentCurrencyFrom());
+                bundle.putString("currency", getCurrentCurrencyOneTwoName());
                 AnalyticsManager.logEvent("arbitrage_refreshed", bundle);
                 break;
         }
@@ -640,7 +647,8 @@ public class ArbitrageFragment extends ActionBarFragment
         setDateTimeValue(mTimeTwo, getMillisFromTimestamp(price.time));
         mDifferencePercentage.setText(getDisplayPercentage(priceOne, priceTwo));
         Bundle bundle = new Bundle();
-        bundle.putString("currency", getCurrentCurrencyOneName());
+        bundle.putString("coin", getCurrentCurrencyFrom());
+        bundle.putString("currency", getCurrentCurrencyOneTwoName());
         AnalyticsManager.logEvent("price_highlighted", bundle);
     }
 
@@ -688,7 +696,8 @@ public class ArbitrageFragment extends ActionBarFragment
         }
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
-        bundle.putString("currency", getCurrentCurrencyOneName());
+        bundle.putString("coin", getCurrentCurrencyFrom());
+        bundle.putString("currency", getCurrentCurrencyOneTwoName());
         AnalyticsManager.logEvent("price_filter", bundle);
         fetchData(false);
     }
@@ -824,7 +833,7 @@ public class ArbitrageFragment extends ActionBarFragment
 
 
     private void removeUrlCache(){
-        Cache cache = VolleyPlusHelper.with().getRequestQueue().getCache();
+        Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl(false));
         cache.remove(getUrl(true));
     }
