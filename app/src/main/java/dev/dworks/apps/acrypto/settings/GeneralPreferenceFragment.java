@@ -1,20 +1,27 @@
 package dev.dworks.apps.acrypto.settings;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.support.v7.app.AlertDialog;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.common.DialogFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 
+import static android.app.Activity.RESULT_FIRST_USER;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_USER_CURRENCY;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 
 
 public class GeneralPreferenceFragment extends PreferenceFragment
         implements Preference.OnPreferenceClickListener, Preference.OnPreferenceChangeListener {
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,6 +33,21 @@ public class GeneralPreferenceFragment extends PreferenceFragment
         preferenceCurrency.setDefaultValue(getUserCurrencyFrom());
         preferenceCurrency.setOnPreferenceClickListener(this);
         preferenceCurrency.setOnPreferenceChangeListener(this);
+
+        PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("account");
+        Preference logoutPreference = findPreference(SettingsActivity.KEY_LOGOUT);
+        logoutPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                AnalyticsManager.logEvent("logout");
+                showLogoutDialog();
+                return true;
+            }
+        });
+
+        if(!FirebaseHelper.isLoggedIn()){
+            preferenceCategory.removePreference(logoutPreference);
+        }
     }
 
     @Override
@@ -40,5 +62,22 @@ public class GeneralPreferenceFragment extends PreferenceFragment
         bundle.putString("currency", newValue.toString());
         AnalyticsManager.logEvent("currency_changed", bundle);
         return true;
+    }
+
+    private void showLogoutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_Dialog)
+                .setTitle("Logout")
+                .setMessage("Want to logout from shifoo app ?")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FirebaseHelper.logout();
+                        getActivity().setResult(RESULT_FIRST_USER);
+                        getActivity().finish();
+
+                    }
+                })
+                .setNegativeButton("Cancel", null);
+        DialogFragment.showThemedDialog(builder);
     }
 }

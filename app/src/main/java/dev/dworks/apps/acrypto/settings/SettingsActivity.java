@@ -21,6 +21,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String CURRENCY_TWO_DEFAULT = "INR";
 
     public static final String KEY_BUILD_VERSION = "build_version";
+    public static final String KEY_LOGOUT = "logout";
     public static final String KEY_USER_CURRENCY = "user_currency";
     public static final String KEY_CURRENCY_TO = "currency_to";
     public static final String KEY_CURRENCY_ONE = "currency_one";

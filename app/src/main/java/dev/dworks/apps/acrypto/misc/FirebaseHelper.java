@@ -40,4 +40,8 @@ public class FirebaseHelper {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         return null != user && user.isAnonymous();
     }
+
+    public static void logout() {
+        FirebaseAuth.getInstance().signOut();
+    }
 }

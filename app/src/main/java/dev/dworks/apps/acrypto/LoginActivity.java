@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -52,7 +53,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        getSupportActionBar().setTitle(null);
         initControls();
     }
 
@@ -67,6 +67,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 AnalyticsManager.logEvent("login_attempted");
             }
         });
+        try {
+            ((TextView) googleButton.getChildAt(0)).setText(R.string.common_signin_button_text_long);
+        } catch (ClassCastException | NullPointerException e) {
+            e.printStackTrace();
+        }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestIdToken(getString(R.string.default_web_client_id))

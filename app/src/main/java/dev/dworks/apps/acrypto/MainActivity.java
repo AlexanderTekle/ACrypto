@@ -15,6 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.anjlab.android.iab.v3.BillingProcessor;
+import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.auth.FirebaseUser;
 
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
@@ -33,10 +35,19 @@ import dev.dworks.apps.acrypto.view.BezelImageView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        Utils.OnFragmentInteractionListener {
+        Utils.OnFragmentInteractionListener, BillingProcessor.IBillingHandler{
 
     private static final int SETTINGS = 47;
     private static final String TAG = "Main";
+
+    // PRODUCT & SUBSCRIPTION IDS
+    private static final String PRODUCT_ID = "dev.dworks.apps.acrypto";
+    private static final String SUBSCRIPTION_ID = "dev.dworks.apps.acrypto.subscription1";
+    private static final String LICENSE_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn+84Wpabn7TD8Y2I8EEV6agPHA9/kvFu3g94gyaFErhz/zR4QPWlrmtMQOiiNRdr3Zr09//vPBGlVp/l3luSDzN3U0ry71cUvka7Bp89In5HfOYg8MNjNxJ2fIYi4Kk9BIfG1kLgptffA3QDm3tqGSy8aSYqu73x+rAkZ4ynGDHQrVzcv6MMKxabOKcMRXmze/yY92UllvpYhtK0/37OjHO/56miYB349rDbVJhZZapSkbXTKEFQDo20u3FtEgC5sVy6Yy7UED9Q5seJiNjb/9HswCOHmYBnRuwd/kGJDc/90jLsEuQgPiT5SHgbQOMGHFJlmm/K/x5ym2lcsQ6tpQIDAQAB";
+    private static final String MERCHANT_ID = "04739006991233188912";
+
+    private BillingProcessor bp;
+
     private int currentPositionId;
     private TextView mName;
     private TextView mEmail;
@@ -52,6 +63,7 @@ public class MainActivity extends AppCompatActivity
             HomeFragment.show(getSupportFragmentManager());
         }
         FirebaseHelper.signInAnonymously();
+        bp = new BillingProcessor(this, LICENSE_KEY, MERCHANT_ID, this);
         initControls();
     }
 
@@ -112,6 +124,10 @@ public class MainActivity extends AppCompatActivity
             mName.setText(user.getDisplayName());
             mEmail.setText(user.getEmail());
             mPicture.setImageUrl(user.getPhotoUrl().toString(), VolleyPlusHelper.with(this).getImageLoader());
+        } else {
+            mName.setText("Guest");
+            mEmail.setText(null);
+            mPicture.setImageResource(R.drawable.ic_person);
         }
     }
 
@@ -190,6 +206,46 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFragmentInteraction(int type, Bundle bundle) {
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (bp != null) {
+            bp.release();
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!bp.handleActivityResult(requestCode, resultCode, data)) {
+            if(requestCode == SETTINGS){
+                if(resultCode == RESULT_FIRST_USER){
+                    updateUserDetails();
+                }
+            }
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    public void onProductPurchased(String s, TransactionDetails transactionDetails) {
+
+    }
+
+    @Override
+    public void onPurchaseHistoryRestored() {
+
+    }
+
+    @Override
+    public void onBillingError(int i, Throwable throwable) {
+
+    }
+
+    @Override
+    public void onBillingInitialized() {
 
     }
 }
