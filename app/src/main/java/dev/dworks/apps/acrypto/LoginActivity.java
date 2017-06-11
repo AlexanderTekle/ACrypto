@@ -27,14 +27,12 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
 
-import dev.dworks.apps.acrypto.entity.User;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import needle.Needle;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static dev.dworks.apps.acrypto.entity.User.USERS;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -90,7 +88,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null && !user.isAnonymous()) {
                     // User is signed in
-                    addUserToDatabase(user);
+                    FirebaseHelper.updateUser();
                     Intent home = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(home);
                     finish();
@@ -99,26 +97,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         };
 
         displayLoadingState();
-    }
-
-    private void addUserToDatabase(FirebaseUser firebaseUser) {
-        User user = new User(
-                firebaseUser.getDisplayName(),
-                firebaseUser.getEmail(),
-                firebaseUser.getUid(),
-                firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString()
-        );
-
-        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(user.getUid()).setValue(user);
-
-        String instanceId = FirebaseInstanceId.getInstance().getToken();
-        if (instanceId != null) {
-            FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                    .child(firebaseUser.getUid())
-                    .child("instanceId")
-                    .setValue(instanceId);
-        }
     }
 
     @Override
