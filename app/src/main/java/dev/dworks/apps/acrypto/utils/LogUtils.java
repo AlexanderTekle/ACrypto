@@ -32,7 +32,7 @@ import dev.dworks.apps.acrypto.misc.Config;
 import dev.dworks.apps.acrypto.misc.CrashReportingManager;
 
 public class LogUtils {
-	private static final String LOG_PREFIX = "shifoodroid_";
+	private static final String LOG_PREFIX = "acryotodroid_";
 	private static final int LOG_PREFIX_LENGTH = LOG_PREFIX.length();
 	private static final int MAX_LOG_TAG_LENGTH = 23;
 

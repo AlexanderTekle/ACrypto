@@ -52,6 +52,9 @@ public class FirebaseHelper {
 
     public static void updateUser() {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(!isLoggedIn()){
+            return;
+        }
         User user = new User(
                 firebaseUser.getDisplayName(),
                 firebaseUser.getEmail(),

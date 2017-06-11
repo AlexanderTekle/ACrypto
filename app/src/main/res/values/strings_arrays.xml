@@ -35,6 +35,16 @@
         <item>DASH</item>
         <item>ETC</item>
         <item>XMR</item>
+        <item>ZEC</item>
+        <item>GNO</item>
+        <item>STRAT</item>
+        <item>REP</item>
+        <item>LSK</item>
+        <item>PPC</item>
+        <item>NMC</item>
+        <item>OBITS</item>
+        <item>EMC</item>
+        <item>PIVX</item>
         <item>NXT</item>
         <item>DOGE</item>
         <item>STEEM</item>
@@ -43,8 +53,17 @@
         <item>WAVES</item>
         <item>XEM</item>
         <item>XLM</item>
-        <item>ZEC</item>
-        <item>PIVX</item>
+        <item>SC</item>
+        <item>FCT</item>
+        <item>BAT</item>
+        <item>ANT</item>
+        <item>MAID</item>
+        <item>XZC</item>
+        <item>UBQ</item>
+        <item>SCJX</item>
+        <item>XDN</item>
+        <item>DGB</item>
+        <item>DCR</item>
     </string-array>
 
     <string-array name="coin_arbitrage">

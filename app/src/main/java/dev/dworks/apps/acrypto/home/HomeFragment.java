@@ -4,6 +4,7 @@ package dev.dworks.apps.acrypto.home;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -70,6 +71,8 @@ import dev.dworks.apps.acrypto.utils.Utils;
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
@@ -86,6 +89,7 @@ public class HomeFragment extends ActionBarFragment
         OnChartValueSelectedListener, RadioGroup.OnCheckedChangeListener {
 
     private static final String TAG = "Home";
+    public static final int LIMIT_ALT = 10;
     private Utils.OnFragmentInteractionListener mListener;
 
     // time stamp constants
@@ -165,7 +169,7 @@ public class HomeFragment extends ActionBarFragment
     public void onResume() {
         super.onResume();
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
-        reloadCurrencyFrom();
+        reloadCurrencyTo();
         fetchData();
     }
 
@@ -202,12 +206,12 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void setSpinners() {
-        setCurrencyToSpinner();
         setCurrencyFromSpinner();
+        setCurrencyToSpinner();
         setMarketSpinner();
     }
 
-    private void setCurrencyToSpinner() {
+    private void setCurrencyFromSpinner() {
         List<String> coinNames = Arrays.asList(getResources().getStringArray(R.array.coin_symbols));
         mCurrencyFromSpinner.getPopupWindow().setWidth(300);
         mCurrencyFromSpinner.setItems(coinNames);
@@ -216,7 +220,7 @@ public class HomeFragment extends ActionBarFragment
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
                 SettingsActivity.setCurrencyFrom(item);
-                reloadCurrencyFrom();
+                reloadCurrencyTo();
                 fetchData(true);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
@@ -225,14 +229,14 @@ public class HomeFragment extends ActionBarFragment
         });
     }
 
-    private void reloadCurrencyFrom(){
+    private void reloadCurrencyTo(){
         mCurrencyToSpinner.setItems(getCurrencyToList());
         setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
     }
 
-    private void setCurrencyFromSpinner() {
+    private void setCurrencyToSpinner() {
         mCurrencyToSpinner.getPopupWindow().setWidth(300);
-        reloadCurrencyFrom();
+        reloadCurrencyTo();
         mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
@@ -263,11 +267,19 @@ public class HomeFragment extends ActionBarFragment
 
     private ArrayList<String> getCurrencyToList() {
         ArrayList<String> currencies = new ArrayList<>(App.getInstance().getCurrencyToList());
-
+        ArrayList<String> list = new ArrayList<>();
         if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
-            currencies.add(CURRENCY_FROM_DEFAULT);
+            if(isTopAltCoin()){
+                list.addAll(currencies);
+                list.add(CURRENCY_FROM_DEFAULT);
+            } else {
+                list.add(CURRENCY_FROM_DEFAULT);
+                list.addAll(currencies);
+            }
+        } else {
+            list.addAll(currencies);
         }
-        return currencies;
+        return list;
     }
 
     private void initLineChart() {
@@ -441,19 +453,24 @@ public class HomeFragment extends ActionBarFragment
         }
     }
 
-    public static String getCurrentCurrencyTo(){
-        return SettingsActivity.getCurrencyTo();
+    public String getCurrentCurrencyTo(){
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(getCurrencyToKey(), isTopAltCoin() ? getUserCurrencyFrom() : CURRENCY_FROM_DEFAULT);
+    }
+
+    public boolean isTopAltCoin(){
+        return mCurrencyFromSpinner.getSelectedIndex() <= LIMIT_ALT;
     }
 
     public static String getCurrentCurrencyFrom(){
         return SettingsActivity.getCurrencyFrom();
     }
 
-    public static String getCurrentCurrencyName(){
+    public String getCurrentCurrencyName(){
         return getCurrentCurrencyFrom() + "/" + getCurrentCurrencyTo();
     }
 
-    public static String getCurrentCurrencyToSymbol(){
+    public String getCurrentCurrencyToSymbol(){
         final String currencyTo = getCurrentCurrencyTo();
         final Symbols symbols = App.getInstance().getSymbols();
         String currencyToSymbol = "";
@@ -894,7 +911,6 @@ public class HomeFragment extends ActionBarFragment
     public static void setSpinnerValue(Spinner spinner, String value) {
         int index = 0;
         if (value.compareTo(CURRENCY_FROM_DEFAULT) == 0
-                || value.compareTo(CURRENCY_FROM_DEFAULT) == 0
                 || value.compareTo(ALL_EXCHANGES) == 0) {
             spinner.setSelectedIndex(index);
             return;
@@ -909,9 +925,10 @@ public class HomeFragment extends ActionBarFragment
         spinner.setSelectedIndex(index + 1);
     }
 
-    public static void setSpinnerToValue(Spinner spinner, String value) {
+    public void setSpinnerToValue(Spinner spinner, String value) {
         int index = 0;
-        if (value.compareTo(CURRENCY_TO_DEFAULT) == 0) {
+        if (isTopAltCoin() ? value.compareTo(CURRENCY_TO_DEFAULT) == 0
+                : value.compareTo(CURRENCY_FROM_DEFAULT) == 0) {
             spinner.setSelectedIndex(index);
             return;
         }

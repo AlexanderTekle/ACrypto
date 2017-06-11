@@ -118,7 +118,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         return KEY_EXCHANGE + "_" + getCurrencyFrom() + "_" + getCurrencyTo();
     }
 
-    private static String getCurrencyToKey(){
+    public static String getCurrencyToKey(){
         return KEY_CURRENCY_TO + "_" + getCurrencyFrom();
     }
 

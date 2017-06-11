@@ -67,7 +67,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
     private void showLogoutDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_Dialog)
                 .setTitle("Logout")
-                .setMessage("Want to logout from shifoo app ?")
+                .setMessage("Want to logout from Acrypto app ?")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

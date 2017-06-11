@@ -134,7 +134,7 @@ public class Utils {
         if (!BuildConfig.DEBUG) {
             return;
         }
-        String topic = "SHIFOO-DROID";
+        String topic = "ACRYPTO-DROID";
         if (t != null) {
             topic = topic + " " + t;
         }
