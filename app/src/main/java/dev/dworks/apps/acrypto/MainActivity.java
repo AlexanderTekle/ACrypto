@@ -29,6 +29,8 @@ import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
 
+import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
+
 /**
  * Created by HaKr on 16/05/17.
  */
@@ -120,6 +122,7 @@ public class MainActivity extends AppCompatActivity
 
     private void updateUserDetails() {
         FirebaseUser user = FirebaseHelper.getCurrentUser();
+        setProperty("LoggedIn", String.valueOf(FirebaseHelper.isLoggedIn()));
         if(FirebaseHelper.isLoggedIn()){
             mName.setText(user.getDisplayName());
             mEmail.setText(user.getEmail());
