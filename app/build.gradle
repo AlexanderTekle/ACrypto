@@ -36,6 +36,34 @@ android {
                     'proguard/proguard-google-play-services.pro'
         }
     }
+
+    flavorDimensions "release", "default"
+    productFlavors {
+        main {
+            applicationId "dev.dworks.apps.acrypto"
+            dimension "default"
+        }
+        underground {
+            applicationId "dev.dworks.apps.acrypto.underground"
+            dimension "default"
+        }
+        google {
+            dimension "release"
+        }
+        amazon {
+            dimension "release"
+        }
+        other {
+            dimension "release"
+        }
+    }
+    variantFilter { variant ->
+        def names = variant.flavors*.name
+
+        if (names.contains("underground") && (names.contains("google") || names.contains("other"))) {
+            variant.ignore = true
+        }
+    }
 }
 
 ext {
