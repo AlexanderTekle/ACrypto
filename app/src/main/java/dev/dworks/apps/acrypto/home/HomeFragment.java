@@ -362,6 +362,7 @@ public class HomeFragment extends ActionBarFragment
         String url = getUrl();
         mChartProgress.setVisibility(View.VISIBLE);
         mChart.highlightValue(null);
+        mBarChart.highlightValue(null);
         diffValue = -1;
         GsonRequest<Prices> request = new GsonRequest<>(url,
                 Prices.class,
@@ -569,6 +570,9 @@ public class HomeFragment extends ActionBarFragment
         mChart.setNoDataText(message);
         mChart.clear();
         mChart.invalidate();
+        mBarChart.setNoDataText(null);
+        mBarChart.clear();
+        mBarChart.invalidate();
     }
 
     @Override

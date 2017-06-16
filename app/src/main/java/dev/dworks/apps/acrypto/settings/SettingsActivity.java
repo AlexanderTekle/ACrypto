@@ -27,6 +27,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String KEY_CURRENCY_ONE = "currency_one";
     public static final String KEY_CURRENCY_TWO = "currency_two";
     public static final String KEY_CURRENCY_FROM = "currency_from";
+    public static final String KEY_ARBITRAGE_CURRENCY_FROM = "arbitrage_currency_from";
     public static final String KEY_EXCHANGE = "exchange";
 
     @Override
@@ -76,6 +77,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static void setCurrencyFrom(String currency) {
         PreferenceUtils.set(KEY_CURRENCY_FROM, currency);
+    }
+
+    public static String getArbitrageCurrencyFrom() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(KEY_ARBITRAGE_CURRENCY_FROM, CURRENCY_FROM_DEFAULT);
+    }
+
+    public static void setArbitrageCurrencyFrom(String currency) {
+        PreferenceUtils.set(KEY_ARBITRAGE_CURRENCY_FROM, currency);
     }
 
     public static String getCurrencyTo() {

@@ -210,6 +210,7 @@ public class ArbitrageFragment extends ActionBarFragment
         mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
+                SettingsActivity.setArbitrageCurrencyFrom(item);
                 reloadCurrencyTwo();
                 fetchData(true);
                 Bundle bundle = new Bundle();
@@ -411,7 +412,7 @@ public class ArbitrageFragment extends ActionBarFragment
     }
 
     public static String getCurrentCurrencyFrom(){
-        return SettingsActivity.getCurrencyFrom();
+        return SettingsActivity.getArbitrageCurrencyFrom();
     }
 
     public static String getCurrentCurrencyOneName(){
