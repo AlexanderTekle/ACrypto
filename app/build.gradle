@@ -67,8 +67,8 @@ android {
 }
 
 ext {
-    supportLibVersion = '25.3.1'
-    gmsVersion = '10.2.6'
+    supportLibVersion = '25.4.0'
+    gmsVersion = '11.0.1'
 }
 
 dependencies {
