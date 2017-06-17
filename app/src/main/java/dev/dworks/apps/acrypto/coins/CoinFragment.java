@@ -33,7 +33,9 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.BASE_URL;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_LIST_DEFAULT;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_CURRENCY;
+import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -47,9 +49,11 @@ public class CoinFragment extends RecyclerFragment
     private Utils.OnFragmentInteractionListener mListener;
     private CoinAdapter mAdapter;
     private Coins mCoins;
+    private String mCurrency;
 
-    public static void show(FragmentManager fm) {
+    public static void show(FragmentManager fm, String currency) {
         final Bundle args = new Bundle();
+        args.putString(BUNDLE_CURRENCY, currency);
         final FragmentTransaction ft = fm.beginTransaction();
         final CoinFragment fragment = new CoinFragment();
         fragment.setArguments(args);
@@ -83,7 +87,7 @@ public class CoinFragment extends RecyclerFragment
         if(null != savedInstanceState) {
             mCoins = (Coins) savedInstanceState.getSerializable(Utils.BUNDLE_FAVORITE_ITEMS);
         }
-
+        mCurrency = getArguments().getString(BUNDLE_CURRENCY, CURRENCY_LIST_DEFAULT);
         setHasOptionsMenu(true);
     }
 
@@ -126,7 +130,7 @@ public class CoinFragment extends RecyclerFragment
     private String getUrl() {
         return UrlManager.with(UrlConstant.COINLIST_URL)
                 .setParam("limit", "60")
-                .setParam("symbol", CURRENCY_TO_DEFAULT)
+                .setParam("symbol", mCurrency)
                 .getUrl();
     }
 
@@ -158,11 +162,16 @@ public class CoinFragment extends RecyclerFragment
         loadData(response);
     }
 
+    public void refreshData(String currency) {
+        mCurrency = currency;
+        fetchDataTask();
+    }
+
     private void loadData(Coins coins) {
         // TODO this is not something i'm proud of
         ArrayList<String> ignoreList = new ArrayList<>();
         for (String coin : coins.data) {
-            for (String key : App.getInstance().getSymbols().ignore) {
+            for (String key : getIgnoreCurrencies()) {
                 if(coin.contains(key)){
                     ignoreList.add(coin);
                 }
@@ -171,6 +180,7 @@ public class CoinFragment extends RecyclerFragment
         coins.data.removeAll(ignoreList);
         mCoins = coins;
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
+        mAdapter.setCurrencySymbol(getCurrencySymbol(mCurrency));
         mAdapter.clear();
         if(null != mCoins) {
             mAdapter.setData(mCoins.data);
@@ -180,6 +190,16 @@ public class CoinFragment extends RecyclerFragment
             setEmptyText("No Data");
         }
         setListShown(true);
+    }
+
+    private ArrayList<String> getIgnoreCurrencies() {
+        ArrayList<String> ignoreCurrencies = new ArrayList<>(App.getInstance().getSymbols().ignore);
+        if(mCurrency.equals("USD")){
+            ignoreCurrencies.add("EUR");
+        } if (mCurrency.equals("JPY")){
+            ignoreCurrencies.add("USD");
+        }
+        return ignoreCurrencies;
     }
 
     @Override
@@ -205,7 +225,7 @@ public class CoinFragment extends RecyclerFragment
         ActionBar actionBar = getActionBarActivity().getSupportActionBar();
         if(null != actionBar) {
             actionBar.setTitle(TAG);
-            actionBar.setSubtitle("Top 40 coins");
+            //actionBar.setSubtitle("Top 40 coins");
         }
 
         if(null == mAdapter) {
@@ -230,7 +250,7 @@ public class CoinFragment extends RecyclerFragment
     public void onItemClick(View view, int position) {
         Coins.Coin item = Coins.getCoin(mAdapter.getItem(position));
         String url = BASE_URL + "/coins/" + item.fromSym.toLowerCase()
-                + "/overview/" + CURRENCY_TO_DEFAULT.toLowerCase();
+                + "/overview/" + mCurrency.toLowerCase();
         Utils.openCustomTabUrl(getActivity(), url);
         Bundle bundle = new Bundle();
         bundle.putString("currency", item.fromSym);

@@ -12,12 +12,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Arrays;
+import java.util.List;
 
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
@@ -57,6 +65,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mEmail;
     private View mheaderLayout;
     private BezelImageView mPicture;
+    private Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +96,17 @@ public class MainActivity extends AppCompatActivity
     private void initControls() {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        spinner = (Spinner) findViewById(R.id.stack);
+        List<String> currencyList = Arrays.asList(getResources().getStringArray(R.array.currency_list));
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+                R.layout.item_spinner , currencyList);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(dataAdapter);
+        SpinnerInteractionListener listener = new SpinnerInteractionListener();
+        spinner.setOnTouchListener(listener);
+        spinner.setOnItemSelectedListener(listener);
+        setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
+
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -183,6 +203,7 @@ public class MainActivity extends AppCompatActivity
 
                 item.setChecked(true);
                 drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
                 HomeFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_home");
                 return true;
@@ -190,7 +211,8 @@ public class MainActivity extends AppCompatActivity
 
                 item.setChecked(true);
                 drawer.closeDrawers();
-                CoinFragment.show(getSupportFragmentManager());
+                spinner.setVisibility(View.VISIBLE);
+                CoinFragment.show(getSupportFragmentManager(), SettingsActivity.getCurrencyList());
                 AnalyticsManager.logEvent("view_coins");
                 return true;
 
@@ -198,6 +220,7 @@ public class MainActivity extends AppCompatActivity
 
                 item.setChecked(true);
                 drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
                 ArbitrageFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_arbitrage");
                 return true;
@@ -260,5 +283,46 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBillingInitialized() {
 
+    }
+
+    public class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
+
+        boolean userSelect = false;
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            userSelect = true;
+            return false;
+        }
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            if (userSelect) {
+                String item = parent.getItemAtPosition(position).toString();
+                SettingsActivity.setCurrencyList(item);
+                CoinFragment fragment = CoinFragment.get(getSupportFragmentManager());
+                if(null != fragment) {
+                    fragment.refreshData(item);
+                }
+                userSelect = false;
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    }
+
+    public void setSpinnerToValue(Spinner spinner, String value) {
+        int index = 0;
+        SpinnerAdapter adapter = spinner.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equals(value)) {
+                index = i;
+                break; // terminate loop
+            }
+        }
+        spinner.setSelection(index);
     }
 }

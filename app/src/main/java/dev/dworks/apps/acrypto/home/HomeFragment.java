@@ -50,7 +50,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Currency;
 import java.util.List;
 
 import dev.dworks.apps.acrypto.App;
@@ -58,7 +57,6 @@ import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.entity.Exchanges;
 import dev.dworks.apps.acrypto.entity.Prices;
-import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
@@ -74,6 +72,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFA
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
+import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.getTimestamp;
@@ -448,7 +447,7 @@ public class HomeFragment extends ActionBarFragment
             double difference = currentValue - diffValue;
             setPriceValue(mValueChange, difference);
             setDifferenceColor(getColor(HomeFragment.this, getValueDifferenceColor(difference)));
-            mTimeDuration.setText("Since " + timeDifference);
+            mTimeDuration.setText(Utils.getDisplayPercentage(diffValue, currentValue) + " since " + timeDifference);
             mValueChange.setVisibility(View.VISIBLE);
             mVolume.setVisibility(View.GONE);
         }
@@ -472,25 +471,8 @@ public class HomeFragment extends ActionBarFragment
     }
 
     public String getCurrentCurrencyToSymbol(){
-        final String currencyTo = getCurrentCurrencyTo();
-        final Symbols symbols = App.getInstance().getSymbols();
-        String currencyToSymbol = "";
-        try {
-            currencyToSymbol = symbols.currencies.get(currencyTo);
-            if(TextUtils.isEmpty(currencyToSymbol)) {
-                currencyToSymbol = symbols.coins.get(currencyTo);
-            }
-        } catch (Exception e){
-            Currency currency = Currency.getInstance(currencyTo);
-            currencyToSymbol = currency.getSymbol();
-        } finally {
-            if(TextUtils.isEmpty(currencyToSymbol)){
-                currencyToSymbol = "";
-            }
-        }
-        return currencyToSymbol;
+        return getCurrencySymbol(getCurrentCurrencyTo());
     }
-
 
     private String getCurrentExchange() {
         return SettingsActivity.getExchange();

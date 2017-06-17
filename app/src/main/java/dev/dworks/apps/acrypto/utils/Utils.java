@@ -54,6 +54,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -63,6 +64,7 @@ import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 
@@ -110,8 +112,8 @@ public class Utils {
     public static final String BUNDLE_SEARCH_QUERY = "bundle_search_query";
     public static final String BUNDLE_SEARCH_ITEM_NAME = "bundle_search_item_name";
 
-    //Menut Item
-    public static final String BUNDLE_ITEM_ID = "bundle_item_id";
+    //Coins
+    public static final String BUNDLE_CURRENCY = "bundle_currency";
     public static final String BUNDLE_ITEM_NAME = "bundle_item_name";
     public static final String BUNDLE_ITEM_URL = "bundle_item_url";
 
@@ -476,15 +478,20 @@ public class Utils {
     }
 
     public static DecimalFormat getMoneyFormat(boolean high){
-        String precisionFormat = high ? "###,##0.########" : "###,##0.00";
+        String precisionFormat = high ? "###,##0.###" : "###,##0.##";
         DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
         decimalFormat.setDecimalSeparatorAlwaysShown(false);
         return decimalFormat;
     }
 
     public static DecimalFormat getMoneyFormat(double value, String symbol){
-        String precisionFormat = Math.abs((int)value) == 0
-                && "Ƀ".compareTo(symbol) == 0 ? "###,##0.00000000" : "###,##0.00";
+        String precisionFormat = "###,##0.###";
+
+        if("Ƀ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        } else if("Ξ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        }
         DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
         decimalFormat.setDecimalSeparatorAlwaysShown(false);
         return decimalFormat;
@@ -569,13 +576,47 @@ public class Utils {
         VolleyPlusHelper.with(context).addToRequestQueue(request2);
     }
 
-    public static String getDisplayPercentage(double value){
+    public static String getDisplayPercentageSimple(double valueOne, double valueTwo){
+        double value = ((valueTwo - valueOne)/valueOne) * 100;
+        if(value == 0){
+            return " - ";
+        }
         return String.format("%.2f", Math.abs(value)) + "% " + (value > 0 ? "↑" : "↓");
+    }
+
+    public static String getDisplayPercentageRounded(double valueOne, double valueTwo){
+        double value = ((valueTwo - valueOne)/valueOne) * 100;
+        if(value == 0){
+            return " - ";
+        }
+        return String.valueOf(Math.round(Math.abs(value))) +  "% " + (value > 0 ? "▲" : "▼");
     }
 
     public static String getDisplayPercentage(double valueOne, double valueTwo){
         double value = ((valueTwo - valueOne)/valueOne) * 100;
-        return String.valueOf(Math.round(Math.abs(value))) +  "% " + (value > 0 ? "▲" : "▼");
+        if(value == 0){
+            return " - ";
+        }
+        return String.format("%.2f", Math.abs(value)) +  "% " + (value > 0 ? "▲" : "▼");
+    }
+
+    public static String getCurrencySymbol(String currencyTo){
+        final Symbols symbols = App.getInstance().getSymbols();
+        String currencyToSymbol = "";
+        try {
+            currencyToSymbol = symbols.currencies.get(currencyTo);
+            if(TextUtils.isEmpty(currencyToSymbol)) {
+                currencyToSymbol = symbols.coins.get(currencyTo);
+            }
+        } catch (Exception e){
+            Currency currency = Currency.getInstance(currencyTo);
+            currencyToSymbol = currency.getSymbol();
+        } finally {
+            if(TextUtils.isEmpty(currencyToSymbol)){
+                currencyToSymbol = "";
+            }
+        }
+        return currencyToSymbol;
     }
 
 }

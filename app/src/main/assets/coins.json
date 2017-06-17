@@ -1,5 +1,17 @@
 {
   "coins": {
+    "QRL": {
+      "id": "quantum-resistant-ledger",
+      "name": "Quantum Resistant Ledger"
+    },
+    "BAT": {
+      "id": "basic-attention-token",
+      "name": "Basic Attention Token"
+    },
+    "IOT": {
+      "id": "iota",
+      "name": "IOTA"
+    },
     "RRT": {
       "id": "rrt",
       "name": "Recovery Right Tokens"

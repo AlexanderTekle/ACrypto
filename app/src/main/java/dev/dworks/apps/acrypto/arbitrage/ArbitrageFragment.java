@@ -66,7 +66,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DE
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_ONE_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TWO_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
-import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentage;
+import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageRounded;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.setDateTimeValue;
@@ -392,7 +392,7 @@ public class ArbitrageFragment extends ActionBarFragment
         mTimeOne.setText(getCurrentCurrencyOneName() + " Price");
         mTimeTwo.setText(getCurrentCurrencyTwoName() + " Price" + " in " + getCurrentCurrencyOne());
         double diff = (currentValueTwo - currentValueOne);
-        mDifferencePercentage.setText(getDisplayPercentage(currentValueOne, currentValueTwo));
+        mDifferencePercentage.setText(getDisplayPercentageRounded(currentValueOne, currentValueTwo));
         String text = getString(R.string.artbitrage_message,
                 getCurrentCurrencyFrom(),
                 Math.round(currentValueOne) + " " + getCurrentCurrencyOne(),
@@ -653,7 +653,7 @@ public class ArbitrageFragment extends ActionBarFragment
             setPriceValue(mValueTwo, priceTwo);
             setDateTimeValue(mTimeOne, getMillisFromTimestamp(price.time));
             setDateTimeValue(mTimeTwo, getMillisFromTimestamp(price.time));
-            mDifferencePercentage.setText(getDisplayPercentage(priceOne, priceTwo));
+            mDifferencePercentage.setText(getDisplayPercentageRounded(priceOne, priceTwo));
             Bundle bundle = new Bundle();
             bundle.putString("coin", getCurrentCurrencyFrom());
             bundle.putString("currency", getCurrentCurrencyOneTwoName());

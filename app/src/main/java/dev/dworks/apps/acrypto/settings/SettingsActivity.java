@@ -19,6 +19,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String CURRENCY_TO_DEFAULT = "USD";
     public static final String CURRENCY_ONE_DEFAULT = "USD";
     public static final String CURRENCY_TWO_DEFAULT = "INR";
+    public static final String CURRENCY_LIST_DEFAULT = "USD";
 
     public static final String KEY_BUILD_VERSION = "build_version";
     public static final String KEY_LOGOUT = "logout";
@@ -27,6 +28,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String KEY_CURRENCY_ONE = "currency_one";
     public static final String KEY_CURRENCY_TWO = "currency_two";
     public static final String KEY_CURRENCY_FROM = "currency_from";
+    public static final String KEY_CURRENCY_LIST = "currency_list";
     public static final String KEY_ARBITRAGE_CURRENCY_FROM = "arbitrage_currency_from";
     public static final String KEY_EXCHANGE = "exchange";
 
@@ -103,6 +105,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 .getString(getCurrencyTwoKey(), CURRENCY_TWO_DEFAULT);
     }
 
+    public static String getCurrencyList() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(KEY_CURRENCY_LIST, CURRENCY_LIST_DEFAULT);
+    }
+
     public static void setCurrencyTo(String currency) {
         PreferenceUtils.set(getCurrencyToKey(), currency);
     }
@@ -113,6 +120,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static void setCurrencyTwo(String currency) {
         PreferenceUtils.set(getCurrencyTwoKey(), currency);
+    }
+
+    public static void setCurrencyList(String currency) {
+        PreferenceUtils.set(KEY_CURRENCY_LIST, currency);
     }
 
     public static void setExchange(String exchange) {

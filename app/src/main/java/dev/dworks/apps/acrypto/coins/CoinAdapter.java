@@ -2,7 +2,6 @@ package dev.dworks.apps.acrypto.coins;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,7 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
-import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentage;
+import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageSimple;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 
@@ -43,6 +42,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
     private String mBaseImageUrl;
+    private String mCurrencySymbol;
 
     public CoinAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         mData = new ArrayList<>();
@@ -52,6 +52,11 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
 
     public CoinAdapter setBaseImageUrl(String baseImageUrl) {
         this.mBaseImageUrl = baseImageUrl;
+        return this;
+    }
+
+    public CoinAdapter setCurrencySymbol(String currencySymbol) {
+        this.mCurrencySymbol = currencySymbol;
         return this;
     }
 
@@ -192,13 +197,11 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
 
             } catch (Exception e){
                 name.setText(item.fromSym);
-                Log.i("WhatDoYouKnow", item.fromSym);
             }
-
             imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
 
-            Utils.setNumberValue(volume, Double.parseDouble(item.volume24To), "$");
-            Utils.setPriceValue(price, Double.parseDouble(item.price), "$");
+            Utils.setNumberValue(volume, Double.parseDouble(item.volume24To), mCurrencySymbol);
+            Utils.setPriceValue(price, Double.parseDouble(item.price), mCurrencySymbol);
             setDifference(item);
         }
 
@@ -220,8 +223,8 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
         private void setDifference(Coins.Coin item){
             double currentPrice = Double.parseDouble(item.price);
             double prevPrice = Double.parseDouble(item.openHour);
-            Double difference = ((currentPrice - prevPrice) / prevPrice) * 100;
-            change.setText(getDisplayPercentage(difference));
+            Double difference = (currentPrice - prevPrice);
+            change.setText(getDisplayPercentageSimple(prevPrice, currentPrice));
             change.setTextColor(ContextCompat.getColor(change.getContext(), getPercentDifferenceColor(difference)));
         }
     }
