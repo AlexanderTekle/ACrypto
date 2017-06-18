@@ -2,7 +2,6 @@ package dev.dworks.apps.acrypto.arbitrage;
 
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
@@ -307,7 +306,7 @@ public class ArbitrageFragment extends ActionBarFragment
         mChart.getXAxis().setDrawGridLines(false);
 
         mChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        mChart.getXAxis().setTextColor(Color.WHITE);
+        mChart.getXAxis().setTextColor(getColor(this, R.color.colorPrimary));
         mChart.getXAxis().setAvoidFirstLastClipping(false);
         mChart.getXAxis().setValueFormatter(new IAxisValueFormatter() {
             @Override
@@ -604,15 +603,17 @@ public class ArbitrageFragment extends ActionBarFragment
         set1.setLineWidth(1.75f);
         set1.setCircleRadius(2f);
         set1.setCircleHoleRadius(1f);
-        set1.setColor(Color.WHITE);
-        set1.setCircleColor(Color.WHITE);
+        set1.setColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setCircleColorHole(getColor(this, R.color.colorPrimaryLight));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
+        set1.setFillAlpha(255);
         set1.setHighlightLineWidth(1);
 
         set1.setDrawValues(false);
         set1.setDrawCircles(true);
         set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set1.setFillColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setFillColor(getColor(this, R.color.colorPrimary));
         set1.setDrawFilled(true);
 
         LineDataSet set2 = new LineDataSet(entriesTwo, "TimeTwo");
@@ -621,15 +622,17 @@ public class ArbitrageFragment extends ActionBarFragment
         set2.setLineWidth(1.75f);
         set2.setCircleRadius(2f);
         set2.setCircleHoleRadius(1f);
-        set2.setColor(Color.WHITE);
-        set2.setCircleColor(Color.WHITE);
+        set2.setColor(getColor(this, R.color.colorPrimaryLight));
+        set2.setCircleColor(getColor(this, R.color.colorPrimaryLight));
+        set2.setCircleColorHole(getColor(this, R.color.colorPrimaryLight));
         set2.setHighLightColor(getColor(this, R.color.colorAccent));
         set2.setHighlightLineWidth(1);
 
         set2.setDrawValues(false);
         set2.setDrawCircles(true);
         set2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set2.setFillColor(getColor(this, R.color.accent_green));
+        set2.setFillColor(getColor(this, R.color.accent_teal));
+        set2.setFillAlpha(255);
         set2.setDrawFilled(true);
 
 
