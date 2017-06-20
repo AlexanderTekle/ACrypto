@@ -3,6 +3,7 @@ package dev.dworks.apps.acrypto.utils;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -63,8 +64,10 @@ import java.util.TimeZone;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.R;
-import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.Symbols;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 
@@ -79,8 +82,6 @@ public class Utils {
     @Retention(RetentionPolicy.SOURCE)
     public @interface Visibility {}
 
-    public static final int REQUEST_CHECK_SETTINGS = 0x1;
-
     // cache
     public static final int IMAGE_SIZE_BIG = 100;
     public static final int IMAGE_SIZE = 50;
@@ -89,37 +90,12 @@ public class Utils {
     public static final String IMAGE_CACHE_DIR = "thumbs";
     public static final String IMAGE_BG_CACHE_DIR = "bgs";
 
-    public static final String API_URL ="";// BuildConfig.BASE_API_URL;
     static final String TAG = "Utils";
-    public static final String BUNDLE_PLACES = "bundle_places";
-    public static final String BUNDLE_RESTAURANT = "bundle_restaurant";
-    public static final String BUNDLE_MENU = "bundle_menu";
-    public static final String BUNDLE_MENU_ITEMS = "bundle_menu_items";
-    public static final String BUNDLE_FAVORITE_ITEMS = "bundle_favourite_items";
-    public static final String BUNDLE_ITEM = "bundle_item";
-    public static final String BUNDLE_LOCATION = "bundle_location";
-    public static final String BUNDLE_ADDRESS = "bundle_address";
-
-    public static final String GOOGLE_PLACES_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
-    public static final String GOOGLE_PHOTOS_URL = "https://maps.googleapis.com/maps/api/place/photo";
-    public static final String GOOGLE_PLACES_API_KEY = "AIzaSyArBmLVB_OqHZAiQo7zoSzbnAiDjkPZ03o";
-
-    //Restaurant
-    public static final String BUNDLE_RESTAURANT_ID = "bundle_restaurant_id";
-    public static final String BUNDLE_RESTAURANT_NAME = "bundle_restaurant_name";
-    public static final String BUNDLE_RESTAURANT_URL = "bundle_restaurant_url";
-    public static final String BUNDLE_RESTAURANT_CUISINES = "bundle_restaurant_cuisines";
-    public static final String BUNDLE_SEARCH_QUERY = "bundle_search_query";
-    public static final String BUNDLE_SEARCH_ITEM_NAME = "bundle_search_item_name";
 
     //Coins
     public static final String BUNDLE_CURRENCY = "bundle_currency";
-    public static final String BUNDLE_ITEM_NAME = "bundle_item_name";
-    public static final String BUNDLE_ITEM_URL = "bundle_item_url";
-
-    public static final String BUNDLE_IMAGE_PATH = "bundle_image_path";
-
-    public static final String PARAM_KEY = "thuglife";
+    public static final String BUNDLE_COINS = "bundle_coins";
+    public static final String BUNDLE_COIN = "bundle_coin";
 
     public static final String REGISTERED_VERSION_CODE = "registered_version_code";
     public static final String REQUIRED_VERSION_CODE = "required_version_code";
@@ -384,16 +360,18 @@ public class Utils {
         return text;
     }
 
-    public static void openCustomTabUrl(Context context, String url){
+    public static void openCustomTabUrl(Activity activity, String url){
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        builder.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
-        builder.setSecondaryToolbarColor(ContextCompat.getColor(context, R.color.colorAccent));
-        builder.setCloseButtonIcon(getVector2Bitmap(context, R.drawable.ic_back));
-        //builder.setCloseButtonIcon(BitmapFactory.decodeResource(
-          //      context.getResources(), R.drawable.abc_ic_ab_back_material));
+        builder.setToolbarColor(ContextCompat.getColor(activity, R.color.colorPrimary));
+        builder.setSecondaryToolbarColor(ContextCompat.getColor(activity, R.color.colorAccent));
+        builder.setCloseButtonIcon(getVector2Bitmap(activity, R.drawable.ic_back));
         CustomTabsIntent customTabsIntent = builder.build();
         customTabsIntent.intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        customTabsIntent.launchUrl(context, Uri.parse(url));
+        try {
+            customTabsIntent.launchUrl(activity, Uri.parse(url));
+        } catch (ActivityNotFoundException ex) {
+            showSnackBar(activity, "Cant Open");
+        }
     }
 
     public static void openUrl(Context context, String url){
@@ -437,6 +415,13 @@ public class Utils {
             return ContextCompat.getColor(fragment.getActivity(), resId);
         }
         return 0;
+    }
+
+    public static String getString(Fragment fragment, int resId, Object... formatArgs){
+        if(null != fragment && fragment.isAdded()){
+            return fragment.getResources().getString(resId, formatArgs);
+        }
+        return "";
     }
 
     public static int getValueDifferenceColor(double value){
@@ -548,11 +533,11 @@ public class Utils {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
-                        Type coinType = new TypeToken<ArrayList<CoinDetails.CoinDetail>>() {}.getType();
-                        ArrayList<CoinDetails.CoinDetail> array = new Gson().fromJson(s, coinType);
-                        CoinDetails sample = new CoinDetails();
-                        for (CoinDetails.CoinDetail coin : array){
-                            sample.coins.put(coin.symbol, new CoinDetails.CoinDetail(coin.id, coin.name));
+                        Type coinType = new TypeToken<ArrayList<CoinDetailSample.CoinDetail>>() {}.getType();
+                        ArrayList<CoinDetailSample.CoinDetail> array = new Gson().fromJson(s, coinType);
+                        CoinDetailSample sample = new CoinDetailSample();
+                        for (CoinDetailSample.CoinDetail coin : array){
+                            sample.coins.put(coin.symbol, new CoinDetailSample.CoinDetail(coin.id, coin.name));
                         }
                         String values = new Gson().toJson(sample);
                         try {
@@ -577,6 +562,7 @@ public class Utils {
     }
 
     public static String getDisplayPercentageSimple(double valueOne, double valueTwo){
+        valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
         if(value == 0){
             return " - ";
@@ -585,6 +571,7 @@ public class Utils {
     }
 
     public static String getDisplayPercentageRounded(double valueOne, double valueTwo){
+        valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
         if(value == 0){
             return " - ";
@@ -593,6 +580,7 @@ public class Utils {
     }
 
     public static String getDisplayPercentage(double valueOne, double valueTwo){
+        valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
         if(value == 0){
             return " - ";
@@ -613,10 +601,37 @@ public class Utils {
             currencyToSymbol = currency.getSymbol();
         } finally {
             if(TextUtils.isEmpty(currencyToSymbol)){
-                currencyToSymbol = "";
+                currencyToSymbol = currencyTo;
             }
         }
         return currencyToSymbol;
     }
 
+    public static String roundDouble(String value){
+        return roundDouble(Double.valueOf(value));
+    }
+
+    public static String roundDouble(Double value){
+        RoundedNumberFormat roundedNumberFormat = new RoundedNumberFormat();
+        return roundedNumberFormat.format(value);
+    }
+
+    public static void showAppFeedback(Activity activity){
+        AppFeedback.with(activity, R.id.container_rate).listener(new AppFeedback.OnShowListener() {
+            @Override
+            public void onRateAppShowing() {
+                AnalyticsManager.logEvent("feedback_shown");
+            }
+
+            @Override
+            public void onRateAppDismissed() {
+                AnalyticsManager.logEvent("feedback_dismissed");
+            }
+
+            @Override
+            public void onRateAppClicked() {
+                AnalyticsManager.logEvent("feedback_given");
+            }
+        }).checkAndShow();
+    }
 }

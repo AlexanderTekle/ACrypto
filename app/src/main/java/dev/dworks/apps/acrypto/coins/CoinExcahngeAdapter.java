@@ -16,13 +16,10 @@ import java.util.ArrayList;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
-import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
-import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
-import dev.dworks.apps.acrypto.view.ImageView;
 
 import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageSimple;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
@@ -32,11 +29,11 @@ import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
  * Created by HaKr on 16/05/17.
  */
 
-public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> implements Filterable{
+public class CoinExcahngeAdapter extends RecyclerView.Adapter<CoinExcahngeAdapter.ViewHolder> implements Filterable{
 
     private final Symbols coinSymbols;
-    ArrayList<String> mData;
-    ArrayList<String> mOrigData;
+    ArrayList<Coins.CoinDetail> mData;
+    ArrayList<Coins.CoinDetail> mOrigData;
 
     final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
     static final int TYPE_HEADER = 0;
@@ -44,23 +41,23 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
     private String mBaseImageUrl;
     private String mCurrencySymbol;
 
-    public CoinAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
+    public CoinExcahngeAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
         coinSymbols = App.getInstance().getSymbols();
     }
 
-    public CoinAdapter setBaseImageUrl(String baseImageUrl) {
+    public CoinExcahngeAdapter setBaseImageUrl(String baseImageUrl) {
         this.mBaseImageUrl = baseImageUrl;
         return this;
     }
 
-    public CoinAdapter setCurrencySymbol(String currencySymbol) {
+    public CoinExcahngeAdapter setCurrencySymbol(String currencySymbol) {
         this.mCurrencySymbol = currencySymbol;
         return this;
     }
 
-    public void setData(ArrayList<String> contents){
+    public void setData(ArrayList<Coins.CoinDetail> contents){
         this.mData = contents;
         this.mOrigData = contents;
     }
@@ -82,7 +79,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
         switch (viewType) {
             case TYPE_CELL: {
                 view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item_list_coin, parent, false);
+                        .inflate(R.layout.item_list_coin_exchange, parent, false);
                 return new ViewHolder(view) {
                 };
             }
@@ -91,7 +88,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
     }
 
     @Override
-    public void onBindViewHolder(CoinAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(CoinExcahngeAdapter.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE_CELL:
                 holder.setData(position);
@@ -105,7 +102,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             @Override
             protected FilterResults performFiltering(CharSequence prefix) {
                 FilterResults results = new FilterResults();
-                ArrayList<String> filteredList = new ArrayList<>();
+                ArrayList<Coins.CoinDetail> filteredList = new ArrayList<>();
                 if (null == prefix || prefix.length() == 0) {
                     filteredList.addAll(mOrigData);
                 } else {
@@ -113,7 +110,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
                     final int count = mOrigData.size();
 
                     for (int i = 0; i < count; i++) {
-                        final String value = mOrigData.get(i);
+                        final Coins.CoinDetail value = mOrigData.get(i);
                         final String valueText = value.toString().toLowerCase();
 
                         // First match against the whole, non-splitted value
@@ -139,7 +136,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.count > 0) {
                     mData.clear();
-                    mData.addAll((ArrayList<String>) results.values);
+                    mData.addAll((ArrayList<Coins.CoinDetail>) results.values);
                 } else {
                     mData.clear();
                 }
@@ -149,7 +146,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
         };
     }
 
-    public String getItem(int position){
+    public Coins.CoinDetail getItem(int position){
         return mData.get(position);
     }
 
@@ -164,7 +161,6 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private final TextView name;
         private final TextView change;
-        private final ImageView imageView;
         private final MoneyTextView volume;
         private final MoneyTextView price;
         private int mPosition;
@@ -179,7 +175,6 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             });
             name = (TextView) v.findViewById(R.id.name);
             change = (TextView) v.findViewById(R.id.change);
-            imageView = (ImageView) v.findViewById(R.id.image);
             volume = (MoneyTextView) v.findViewById(R.id.volume);
             volume.setDecimalFormat(new RoundedNumberFormat());
             price = (MoneyTextView) v.findViewById(R.id.price);
@@ -188,18 +183,14 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
 
         public void setData(int position){
             mPosition = position;
-            Coins.CoinDetail item = Coins.getCoin(mData.get(position));
+            Coins.CoinDetail item = mData.get(position);
             String url = "";
             try {
-                final CoinDetailSample.CoinDetail coinDetail = getCoin(item.fromSym);
-                name.setText(coinDetail.name);
-                url = getCoinUrl(coinDetail);
+                name.setText(item.market);
 
             } catch (Exception e){
                 name.setText(item.fromSym);
             }
-            imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
-
             Utils.setNumberValue(volume, Double.parseDouble(item.volume24HTo), mCurrencySymbol);
             Utils.setPriceValue(price, Double.parseDouble(item.price), mCurrencySymbol);
             setDifference(item);
@@ -210,14 +201,6 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             if(null != onItemClickListener){
                 onItemClickListener.onItemViewClick(v, mPosition);
             }
-        }
-
-        private CoinDetailSample.CoinDetail getCoin(String symbol){
-            return App.getInstance().getCoinDetails().coins.get(symbol);
-        }
-
-        private String getCoinUrl(CoinDetailSample.CoinDetail coinDetail){
-            return mBaseImageUrl + coinDetail.id + ".png";
         }
 
         private void setDifference(Coins.CoinDetail item){

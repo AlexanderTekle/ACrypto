@@ -25,4 +25,8 @@
     <dimen name="side_navigation_width">304dp</dimen>
 
     <dimen name="root_icon_size">24dp</dimen>
+    <dimen name="app_bar_height">200dp</dimen>
+    <dimen name="item_width">250dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="appbar_padding_top">8dp</dimen>
 </resources>

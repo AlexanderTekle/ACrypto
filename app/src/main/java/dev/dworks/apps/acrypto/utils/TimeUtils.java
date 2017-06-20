@@ -96,7 +96,7 @@ public class TimeUtils {
         }
     }
 
-    public static String getTimeAgo(long time, Context context) {
+    public static String getTimeAgo(long time) {
         long now = System.currentTimeMillis();
         if (time < 1000000000000L) {
             // if timestamp given in seconds, convert to millis
@@ -104,7 +104,7 @@ public class TimeUtils {
         }
         final long diff = now - time;
         if (diff < MINUTE) {
-            return context.getString(R.string.time_just_now);
+            return "just now";
         } else {
             return DateUtils.getRelativeTimeSpanString(time, now, DateUtils.MINUTE_IN_MILLIS).toString();
         }

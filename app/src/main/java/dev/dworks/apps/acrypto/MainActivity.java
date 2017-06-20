@@ -12,9 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
@@ -29,6 +27,7 @@ import java.util.List;
 
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
+import dev.dworks.apps.acrypto.common.SpinnerInteractionListener;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
@@ -102,7 +101,7 @@ public class MainActivity extends AppCompatActivity
                 R.layout.item_spinner , currencyList);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(dataAdapter);
-        SpinnerInteractionListener listener = new SpinnerInteractionListener();
+        SpinnerInteractionListener listener = new SpinnerInteractionListener(this);
         spinner.setOnTouchListener(listener);
         spinner.setOnItemSelectedListener(listener);
         setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
@@ -283,35 +282,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBillingInitialized() {
 
-    }
-
-    public class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
-
-        boolean userSelect = false;
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            userSelect = true;
-            return false;
-        }
-
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            if (userSelect) {
-                String item = parent.getItemAtPosition(position).toString();
-                SettingsActivity.setCurrencyList(item);
-                CoinFragment fragment = CoinFragment.get(getSupportFragmentManager());
-                if(null != fragment) {
-                    fragment.refreshData(item);
-                }
-                userSelect = false;
-            }
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
     }
 
     public void setSpinnerToValue(Spinner spinner, String value) {

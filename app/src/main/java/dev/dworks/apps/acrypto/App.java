@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
-import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.utils.Utils;
@@ -39,7 +39,7 @@ public class App extends Application {
 	private static App sInstance;
 	private Locale current;
 	private Symbols symbols;
-	private CoinDetails coinDetails;
+	private CoinDetailSample coinDetails;
 	private ArrayList<String> currencies;
 	private ArrayList<String> currenciesOne;
 	private ArrayList<String> currenciesTWo;
@@ -87,14 +87,14 @@ public class App extends Application {
 	private void loadCoinDetails() {
 		String symbolsString = Utils.getStringAsset(this, "coins.json");
 		Gson gson = new Gson();
-		coinDetails = gson.fromJson(symbolsString, CoinDetails.class);
+		coinDetails = gson.fromJson(symbolsString, CoinDetailSample.class);
 	}
 
 	public Symbols getSymbols(){
 		return symbols;
 	}
 
-	public CoinDetails getCoinDetails(){
+	public CoinDetailSample getCoinDetails(){
 		return coinDetails;
 	}
 

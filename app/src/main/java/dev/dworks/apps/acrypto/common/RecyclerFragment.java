@@ -28,6 +28,7 @@ public class RecyclerFragment extends ActionBarFragment {
     private RecyclerView mList;
     private View mListContainer;
     private boolean mListShown;
+    private String mLoadingText;
 
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
@@ -76,7 +77,7 @@ public class RecyclerFragment extends ActionBarFragment {
         }
         View root = getView();
         if (root == null) {
-            throw new IllegalStateException("Content view not yet created");
+            return;
         }
         if (root instanceof RecyclerView) {
             mList = (RecyclerView) root;
@@ -153,6 +154,7 @@ public class RecyclerFragment extends ActionBarFragment {
             Bundle savedInstanceState) {
         mLayoutManager = new LinearLayoutManager(getActivity());
         mItemAnimator = new DefaultItemAnimator();
+        mLoadingText = getString(R.string.loading);
         return inflater.inflate(R.layout.abp_recycler_content, container, false);
     }
 
@@ -178,8 +180,7 @@ public class RecyclerFragment extends ActionBarFragment {
     public void setEmptyText(CharSequence text) {
         ensureList();
         if (mStandardEmptyView == null) {
-            throw new IllegalStateException(
-                    "Can't be used with a custom content view");
+            return;
         }
         mStandardEmptyView.setText(text);
         mEmptyText = text;
@@ -188,9 +189,7 @@ public class RecyclerFragment extends ActionBarFragment {
     private void setLoadingText(CharSequence text) {
         ensureList();
         if (mLoadingView == null) {
-/*            throw new IllegalStateException(
-                    "Can't be used with a custom content view");*/
-        	return;
+            return;
         }
         mLoadingView.setText(text);
     }
@@ -241,15 +240,14 @@ public class RecyclerFragment extends ActionBarFragment {
     }
 
     public void setListShown(boolean shown) {
-    	setLoadingText(getString(R.string.loading));
+    	setLoadingText(mLoadingText);
         setListShown(shown, true);
     }
 
     private void setListShown(boolean shown, boolean animate) {
         ensureList();
         if (mProgressContainer == null) {
-            throw new IllegalStateException(
-                    "Can't be used with a custom content view");
+            return;
         }
         if (mListShown == shown) {
             return;

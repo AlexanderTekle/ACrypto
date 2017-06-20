@@ -2,11 +2,11 @@ package dev.dworks.apps.acrypto.coins;
 
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
+import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -21,10 +21,13 @@ import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
+import dev.dworks.apps.acrypto.entity.CoinDetails;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
@@ -33,38 +36,37 @@ import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_LIST_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_CURRENCY;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
-import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 /**
  * Created by HaKr on 16/05/17.
  */
 
-public class CoinFragment extends RecyclerFragment
+public class CoinExchangeFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
-        Response.Listener<Coins>, Response.ErrorListener{
+        Response.Listener<CoinDetails>, Response.ErrorListener{
 
-    private static final String TAG = "Coins";
+    private static final String TAG = "CoinExchange";
     private Utils.OnFragmentInteractionListener mListener;
-    private CoinAdapter mAdapter;
-    private Coins mCoins;
+    private CoinExcahngeAdapter mAdapter;
     private String mCurrency;
+    private Coins.CoinDetail mCoin;
+    private CoinDetails mCoinDetails;
 
     public static void show(FragmentManager fm, String currency) {
         final Bundle args = new Bundle();
         args.putString(BUNDLE_CURRENCY, currency);
         final FragmentTransaction ft = fm.beginTransaction();
-        final CoinFragment fragment = new CoinFragment();
+        final CoinExchangeFragment fragment = new CoinExchangeFragment();
         fragment.setArguments(args);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
 
-    public static CoinFragment get(FragmentManager fm) {
-        return (CoinFragment) fm.findFragmentByTag(TAG);
+    public static CoinExchangeFragment get(FragmentManager fm) {
+        return (CoinExchangeFragment) fm.findFragmentByTag(TAG);
     }
 
     public static void hide(FragmentManager fm){
@@ -73,31 +75,29 @@ public class CoinFragment extends RecyclerFragment
         }
     }
 
-    public static CoinFragment newInstance() {
-        CoinFragment fragment = new CoinFragment();
+    public static Fragment newInstance(Coins.CoinDetail coinDetail) {
+        CoinExchangeFragment fragment = new CoinExchangeFragment();
         Bundle args = new Bundle();
+        args.putSerializable(BUNDLE_COIN, coinDetail);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public CoinFragment() {
+    public CoinExchangeFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showAppFeedback(getActivity());
-        if(null != savedInstanceState) {
-            mCoins = (Coins) savedInstanceState.getSerializable(Utils.BUNDLE_COINS);
-        }
-        mCurrency = getArguments().getString(BUNDLE_CURRENCY, CURRENCY_LIST_DEFAULT);
+        mCoin = (Coins.CoinDetail) getArguments().getSerializable(BUNDLE_COIN);
+        mCurrency = mCoin.toSym;
         setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_coin, container, false);
+        return inflater.inflate(R.layout.fragment_coin_exchange, container, false);
     }
 
     @Override
@@ -116,27 +116,26 @@ public class CoinFragment extends RecyclerFragment
     private void fetchDataTask() {
         setEmptyText("");
         setListShown(false);
-        String url = getUrl();
 
-        GsonRequest<Coins> request = new GsonRequest<>(
-                url,
-                Coins.class,
+        GsonRequest<CoinDetails> request = new GsonRequest<>(getUrl(),
+                CoinDetails.class,
                 "",
                 this,
                 this);
         request.setCacheMinutes(5);
         request.setShouldCache(true);
-        VolleyPlusHelper.with(getActivity()).addToRequestQueue(request, TAG);
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Excahnge");
 
     }
+    public String getUrl(){
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("fsym", mCoin.fromSym);
+        params.put("tsym", mCoin.toSym);
 
-    private String getUrl() {
-        return UrlManager.with(UrlConstant.COINLIST_URL)
-                .setParam("limit", "60")
-                .setParam("symbol", mCurrency)
-                .getUrl();
+        String url = UrlManager.with(UrlConstant.COINDETAILS_URL)
+                .setDefaultParams(params).getUrl();
+        return url;
     }
-
     @Override
     public void onErrorResponse(VolleyError error) {
         setListShown(true);
@@ -161,7 +160,7 @@ public class CoinFragment extends RecyclerFragment
     }
 
     @Override
-    public void onResponse(Coins response) {
+    public void onResponse(CoinDetails response) {
         loadData(response);
     }
 
@@ -170,26 +169,22 @@ public class CoinFragment extends RecyclerFragment
         fetchDataTask();
     }
 
-    private void loadData(Coins coins) {
-        // TODO this is not something i'm proud of
-        ArrayList<String> ignoreList = new ArrayList<>();
-        for (String coin : coins.data) {
-            for (String key : getIgnoreCurrencies()) {
-                if(coin.contains(key)){
-                    ignoreList.add(coin);
-                }
-            }
-        }
-        coins.data.removeAll(ignoreList);
-        mCoins = coins;
+    private void loadData(CoinDetails coins) {
+        mCoinDetails = coins;
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.setCurrencySymbol(getCurrencySymbol(mCurrency));
         mAdapter.clear();
-        if(null != mCoins) {
-            mAdapter.setData(mCoins.data);
+        if(null != mCoinDetails && mCoinDetails.isValidResponse()) {
+            Collections.sort(mCoinDetails.data.exchanges, new Comparator<Coins.CoinDetail>() {
+                @Override
+                public int compare(Coins.CoinDetail o1, Coins.CoinDetail o2) {
+                    return Double.valueOf(o2.volume24H).compareTo(Double.valueOf(o1.volume24H));
+                }
+            });
+            mAdapter.setData(mCoinDetails.data.exchanges);
         }
         setEmptyText("");
-        if(null == mCoins || TextUtils.isEmpty(mCoins.response)){
+        if(null == mCoinDetails || TextUtils.isEmpty(mCoinDetails.response)){
             setEmptyText("No Data");
         }
         setListShown(true);
@@ -225,19 +220,14 @@ public class CoinFragment extends RecyclerFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ActionBar actionBar = getActionBarActivity().getSupportActionBar();
-        if(null != actionBar) {
-            actionBar.setTitle(TAG);
-            //actionBar.setSubtitle("Top 40 coins");
-        }
 
         if(null == mAdapter) {
-            mAdapter = new CoinAdapter(this);
+            mAdapter = new CoinExcahngeAdapter(this);
         }
         setListAdapter(mAdapter);
 
-        if (null != mCoins) {
-            loadData(mCoins);
+        if (null != mCoinDetails) {
+            loadData(mCoinDetails);
         } else {
             fetchDataTask();
         }
@@ -245,19 +235,18 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(Utils.BUNDLE_COINS, mCoins);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        Coins.CoinDetail item = Coins.getCoin(mAdapter.getItem(position));
+/*        Coins.CoinDetail item = mAdapter.getItem(position);
         Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
         intent.putExtra(BUNDLE_COIN, item);
         startActivity(intent);
         Bundle bundle = new Bundle();
         bundle.putString("currency", item.fromSym);
-        AnalyticsManager.logEvent("view_coin_details", bundle);
+        AnalyticsManager.logEvent("view_coin_details", bundle);*/
     }
 
     @Override

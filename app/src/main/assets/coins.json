@@ -586,7 +586,7 @@
     },
     "DCT": {
       "id": "decent",
-      "name": "DECENT (Pre-Launch)"
+      "name": "DECENT"
     },
     "DEM": {
       "id": "deutsche-emark",
@@ -2730,7 +2730,7 @@
     },
     "QTUM": {
       "id": "qtum",
-      "name": "Qtum (Pre-Launch)"
+      "name": "Qtum"
     },
     "RADS": {
       "id": "radium",

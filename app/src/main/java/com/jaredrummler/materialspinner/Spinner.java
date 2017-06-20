@@ -106,7 +106,7 @@ public class Spinner extends AppCompatTextView {
         this.setGravity(8388627);
         this.setClickable(true);
         this.setPadding(left, top, right, bottom);
-        this.setBackgroundResource(drawable.ms__selector);
+        this.setBackgroundResource(dev.dworks.apps.acrypto.R.drawable.spinner_selector);
         if(VERSION.SDK_INT >= 17 && rtl) {
             this.setLayoutDirection(1);
             this.setTextDirection(4);
@@ -222,7 +222,6 @@ public class Spinner extends AppCompatTextView {
 
     public void setTextColor(int color) {
         this.textColor = color;
-        super.setTextColor(color);
     }
 
     public Parcelable onSaveInstanceState() {
@@ -277,7 +276,8 @@ public class Spinner extends AppCompatTextView {
     public void setSelectedIndex(int position) {
         if(this.adapter != null) {
             if(position < 0 || position > this.adapter.getCount()) {
-                throw new IllegalArgumentException("Position must be lower than adapter count!");
+               // throw new IllegalArgumentException("Position must be lower than adapter count!");
+                return;
             }
 
             this.adapter.notifyItemSelected(position);

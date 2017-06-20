@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
@@ -49,6 +50,7 @@ import java.util.List;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
+import dev.dworks.apps.acrypto.common.ChartOnTouchListener;
 import dev.dworks.apps.acrypto.entity.Conversion;
 import dev.dworks.apps.acrypto.entity.Prices;
 import dev.dworks.apps.acrypto.entity.Symbols;
@@ -69,6 +71,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageRounded;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.setDateTimeValue;
+import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -120,6 +123,7 @@ public class ArbitrageFragment extends ActionBarFragment
     private View mArbitrageLayout;
     private TextView mArbitrageSummary;
     private TextView mIcon;
+    private ScrollView mScrollView;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -140,6 +144,7 @@ public class ArbitrageFragment extends ActionBarFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showAppFeedback(getActivity());
         setHasOptionsMenu(true);
     }
 
@@ -165,6 +170,8 @@ public class ArbitrageFragment extends ActionBarFragment
     private void initControls(View view) {
 
         mControls = view.findViewById(R.id.controls);
+        mScrollView = (ScrollView) view.findViewById(R.id.scrollView);
+
         mValueOne = (MoneyTextView) view.findViewById(R.id.valueOne);
         mTimeOne = (TextView) view.findViewById(R.id.timeOne);
         mDifferencePercentage = (TextView) view.findViewById(R.id.differencePercentage);
@@ -316,6 +323,7 @@ public class ArbitrageFragment extends ActionBarFragment
         });
 
         mChart.setOnChartGestureListener(mOnChartGestureListener);
+        mChart.setOnTouchListener(new ChartOnTouchListener(mScrollView));
     }
 
     private void fetchData() {
@@ -392,7 +400,7 @@ public class ArbitrageFragment extends ActionBarFragment
         mTimeTwo.setText(getCurrentCurrencyTwoName() + " Price" + " in " + getCurrentCurrencyOne());
         double diff = (currentValueTwo - currentValueOne);
         mDifferencePercentage.setText(getDisplayPercentageRounded(currentValueOne, currentValueTwo));
-        String text = getString(R.string.artbitrage_message,
+        String text = Utils.getString(this, R.string.artbitrage_message,
                 getCurrentCurrencyFrom(),
                 Math.round(currentValueOne) + " " + getCurrentCurrencyOne(),
                 Math.round((currentValueTwo / mConversionRate)) + " " + getCurrentCurrencyTwo(),
