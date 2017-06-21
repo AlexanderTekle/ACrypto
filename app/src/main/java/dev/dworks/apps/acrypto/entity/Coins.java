@@ -68,6 +68,10 @@ public class Coins extends BaseEntity implements Serializable{
         @Expose
         public String lastMarket;
 
+        public CoinDetail() {
+
+        }
+
         public CoinDetail(String data) {
             String[] dataSplit = data.split("~");
             type = dataSplit[0];

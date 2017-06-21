@@ -38,6 +38,7 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_CURRENCY;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_SCREEN_NAME;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 
 /**
@@ -51,9 +52,9 @@ public class CoinExchangeFragment extends RecyclerFragment
     private static final String TAG = "CoinExchange";
     private Utils.OnFragmentInteractionListener mListener;
     private CoinExcahngeAdapter mAdapter;
-    private String mCurrency;
     private Coins.CoinDetail mCoin;
     private CoinDetails mCoinDetails;
+    private String mScreenName;
 
     public static void show(FragmentManager fm, String currency) {
         final Bundle args = new Bundle();
@@ -75,10 +76,13 @@ public class CoinExchangeFragment extends RecyclerFragment
         }
     }
 
-    public static Fragment newInstance(Coins.CoinDetail coinDetail) {
+    public static Fragment newInstance(Coins.CoinDetail coinDetail, String screenName) {
         CoinExchangeFragment fragment = new CoinExchangeFragment();
         Bundle args = new Bundle();
         args.putSerializable(BUNDLE_COIN, coinDetail);
+        if(!TextUtils.isEmpty(screenName)) {
+            args.putSerializable(BUNDLE_SCREEN_NAME, screenName);
+        }
         fragment.setArguments(args);
         return fragment;
     }
@@ -90,7 +94,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mCoin = (Coins.CoinDetail) getArguments().getSerializable(BUNDLE_COIN);
-        mCurrency = mCoin.toSym;
+        mScreenName = getArguments().getString(BUNDLE_SCREEN_NAME, TAG);
         setHasOptionsMenu(true);
     }
 
@@ -110,7 +114,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     @Override
     public void onResume() {
         super.onResume();
-        AnalyticsManager.setCurrentScreen(getActivity(), TAG);
+        AnalyticsManager.setCurrentScreen(getActivity(), mScreenName);
     }
 
     private void fetchDataTask() {
@@ -164,15 +168,10 @@ public class CoinExchangeFragment extends RecyclerFragment
         loadData(response);
     }
 
-    public void refreshData(String currency) {
-        mCurrency = currency;
-        fetchDataTask();
-    }
-
     private void loadData(CoinDetails coins) {
         mCoinDetails = coins;
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
-        mAdapter.setCurrencySymbol(getCurrencySymbol(mCurrency));
+        mAdapter.setCurrencySymbol(getCurrencySymbol(getCurrency()));
         mAdapter.clear();
         if(null != mCoinDetails && mCoinDetails.isValidResponse()) {
             Collections.sort(mCoinDetails.data.exchanges, new Comparator<Coins.CoinDetail>() {
@@ -192,9 +191,9 @@ public class CoinExchangeFragment extends RecyclerFragment
 
     private ArrayList<String> getIgnoreCurrencies() {
         ArrayList<String> ignoreCurrencies = new ArrayList<>(App.getInstance().getSymbols().ignore);
-        if(mCurrency.equals("USD")){
+        if(getCurrency().equals("USD")){
             ignoreCurrencies.add("EUR");
-        } if (mCurrency.equals("JPY")){
+        } if (getCurrency().equals("JPY")){
             ignoreCurrencies.add("USD");
         }
         return ignoreCurrencies;
@@ -283,4 +282,23 @@ public class CoinExchangeFragment extends RecyclerFragment
         cache.remove(getUrl());
     }
 
+    public String getCurrency() {
+        return mCoin.toSym;
+    }
+
+    @Override
+    public void refreshData(Bundle bundle) {
+        mCoin = (Coins.CoinDetail) bundle.getSerializable(BUNDLE_COIN);
+        if(getUserVisibleHint()) {
+            fetchDataTask();
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser){
+            fetchDataTask();
+        }
+    }
 }

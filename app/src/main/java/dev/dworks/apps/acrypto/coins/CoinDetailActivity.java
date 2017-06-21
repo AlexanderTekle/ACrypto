@@ -108,7 +108,7 @@ public class CoinDetailActivity extends AppCompatActivity implements Utils.OnFra
         public Fragment getItem(int position) {
             switch (position){
                 case 1:
-                    return CoinExchangeFragment.newInstance((Coins.CoinDetail) getIntent().getSerializableExtra(BUNDLE_COIN));
+                    return CoinExchangeFragment.newInstance((Coins.CoinDetail) getIntent().getSerializableExtra(BUNDLE_COIN), null);
                 case 2:
                     return CoinChartFragment.newInstance((Coins.CoinDetail) getIntent().getSerializableExtra(BUNDLE_COIN));
             }

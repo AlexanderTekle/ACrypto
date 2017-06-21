@@ -96,6 +96,7 @@ public class Utils {
     public static final String BUNDLE_CURRENCY = "bundle_currency";
     public static final String BUNDLE_COINS = "bundle_coins";
     public static final String BUNDLE_COIN = "bundle_coin";
+    public static final String BUNDLE_SCREEN_NAME = "bundle_screen_name";
 
     public static final String REGISTERED_VERSION_CODE = "registered_version_code";
     public static final String REQUIRED_VERSION_CODE = "required_version_code";

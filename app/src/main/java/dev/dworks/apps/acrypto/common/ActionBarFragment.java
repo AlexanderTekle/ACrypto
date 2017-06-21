@@ -35,6 +35,10 @@ public class ActionBarFragment extends Fragment {
         super.onDetach();
     }
 
+    public void refreshData(Bundle bundle){
+
+    }
+
     public boolean isRecreated(){
         return mIsRecreated;
     }

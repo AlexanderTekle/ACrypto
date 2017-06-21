@@ -1,116 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="dev.dworks.apps.acrypto.coins.CoinDetailActivity">
 
-    <ScrollView
-        android:id="@+id/scrollView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="horizontal">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.jaredrummler.materialspinner.Spinner
+            android:id="@+id/currencyFromSpinner"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginLeft="5dp"
+            android:maxLines="1"
+            android:theme="@style/spinnerStyle"
+            android:textColor="@android:color/white"
+            app:ms_arrow_tint="@android:color/white"
+            app:ms_text_color="?android:attr/textColorPrimary"
+            app:ms_dropdown_max_height="300dp" />
 
-            <include layout="@layout/controls_arbitrage" />
+        <com.jaredrummler.materialspinner.Spinner
+            android:id="@+id/currencyOneSpinner"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:theme="@style/spinnerStyle"
+            android:textColor="@android:color/white"
+            app:ms_arrow_tint="@android:color/white"
+            app:ms_text_color="?android:attr/textColorPrimary"
+            app:ms_dropdown_max_height="300dp" />
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
+        <com.jaredrummler.materialspinner.Spinner
+            android:id="@+id/currencyTwoSpinner"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:maxLines="1"
+            android:theme="@style/spinnerStyle"
+            android:textColor="@android:color/white"
+            app:ms_arrow_tint="@android:color/white"
+            app:ms_text_color="?android:attr/textColorPrimary"
+            app:ms_dropdown_max_height="300dp" />
+    </LinearLayout>
 
-                    <com.github.mikephil.charting.charts.LineChart
-                        android:id="@+id/linechart"
-                        android:layout_width="match_parent"
-                        android:layout_height="250dp" />
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabGravity="fill"
+        app:tabMode="scrollable">
 
-                </LinearLayout>
+        <android.support.design.widget.TabItem
+            android:id="@+id/tabItem1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_text_3" />
 
-                <dev.dworks.apps.acrypto.view.MaterialProgressBar
-                    android:id="@+id/chartprogress"
-                    style="@style/MaterialProgress"
-                    android:layout_gravity="center"
-                    android:visibility="gone" />
-            </FrameLayout>
+        <android.support.design.widget.TabItem
+            android:id="@+id/tabItem2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_text_2" />
 
-            <android.support.v7.widget.CardView
-                android:id="@+id/arbitrage_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:visibility="gone"
-                app:cardBackgroundColor="@color/colorPrimary"
-                app:cardCornerRadius="4dp"
-                app:cardUseCompatPadding="true"
-                app:contentPadding="16dp">
+        <android.support.design.widget.TabItem
+            android:id="@+id/tabItem3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_text_2" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:baselineAligned="false"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+    </android.support.design.widget.TabLayout>
 
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal">
+    <android.support.v4.view.ViewPager
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
-                        <ImageView
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_gravity="center"
-                            android:background="@drawable/circular_background_amber"
-                            android:contentDescription="@null"
-                            android:padding="30dp"
-                            app:srcCompat="@drawable/ic_bug" />
-
-                        <TextView
-                            android:id="@+id/icon"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="$"
-                            android:textStyle="bold"
-                            android:textSize="20sp"
-                            android:textColor="?android:attr/textColorPrimaryInverse" />
-                    </FrameLayout>
-
-                    <TextView
-                        android:id="@android:id/summary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:ellipsize="end"
-                        android:paddingLeft="10dp"
-                        android:text="@string/artbitrage_message"
-                        android:textAlignment="viewStart"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textColor="?android:attr/textColorPrimaryInverse" />
-
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <TextView
-                android:id="@+id/lastupdated"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|right"
-                android:layout_margin="10dp"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"
-                android:visibility="gone"
-                tools:text="5/3/17 2:45 PM" />
-
-        </LinearLayout>
-    </ScrollView>
-
-</FrameLayout>
+</LinearLayout>
