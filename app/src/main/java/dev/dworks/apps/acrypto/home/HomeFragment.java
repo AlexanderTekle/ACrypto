@@ -33,6 +33,7 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -302,18 +303,25 @@ public class HomeFragment extends ActionBarFragment
 
         mChart.setPinchZoom(false);
         mChart.getDescription().setEnabled(false);
-
         mChart.getLegend().setEnabled(false);
 
-        mChart.getAxisLeft().setEnabled(false);
+        mChart.getAxisRight().setEnabled(false);
+        mChart.getAxisLeft().setEnabled(true);
+        mChart.getAxisLeft().setLabelCount(3);
+        mChart.getAxisLeft().setTextColor(Color.WHITE);
         mChart.getAxisLeft().setSpaceTop(40);
         mChart.getAxisLeft().setSpaceBottom(40);
-
-        mChart.getAxisRight().setEnabled(false);
+        mChart.getAxisLeft().setDrawZeroLine(false);
+        mChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+        mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedNumber(value, getCurrentCurrencyToSymbol());
+            }
+        });
 
         mChart.getXAxis().setEnabled(false);
         mChart.getXAxis().setDrawGridLines(false);
-
         mChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         mChart.getXAxis().setTextColor(Color.WHITE);
         mChart.getXAxis().setAvoidFirstLastClipping(false);
@@ -339,19 +347,19 @@ public class HomeFragment extends ActionBarFragment
 
         mBarChart.setPinchZoom(false);
         mBarChart.getDescription().setEnabled(false);
-
         mBarChart.getLegend().setEnabled(false);
 
-        mBarChart.getAxisLeft().setEnabled(false);
+        mBarChart.getAxisRight().setEnabled(false);
+        mBarChart.getAxisLeft().setEnabled(true);
         mBarChart.getAxisLeft().setSpaceTop(40);
         mBarChart.getAxisLeft().setSpaceBottom(40);
-        mBarChart.getAxisLeft().setAxisMinimum(0);
-
-        mBarChart.getAxisRight().setEnabled(false);
+        mBarChart.getAxisLeft().setLabelCount(3);
+        mBarChart.getAxisLeft().setTextColor(Color.WHITE);
+        mBarChart.getAxisLeft().setDrawZeroLine(false);
+        mBarChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
 
         mBarChart.getXAxis().setEnabled(false);
         mBarChart.getXAxis().setDrawGridLines(false);
-
         mBarChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         mBarChart.getXAxis().setTextColor(Color.WHITE);
         mBarChart.getXAxis().setAvoidFirstLastClipping(false);
@@ -656,13 +664,13 @@ public class HomeFragment extends ActionBarFragment
         set1.setLineWidth(1.75f);
         set1.setCircleRadius(2f);
         set1.setCircleHoleRadius(1f);
-        set1.setColor(Color.WHITE);
-        set1.setCircleColor(Color.WHITE);
+        set1.setColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
         set1.setHighlightLineWidth(1);
 
         set1.setDrawValues(false);
-        set1.setDrawCircles(true);
+        set1.setDrawCircles(false);
         set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         set1.setFillColor(getColor(this, R.color.colorPrimaryLight));
         set1.setDrawFilled(true);
@@ -855,7 +863,8 @@ public class HomeFragment extends ActionBarFragment
     OnChartGestureListener mOnChartGestureListener = new OnChartGestureListener() {
         @Override
         public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-
+            mChart.getAxisLeft().setEnabled(false);
+            mBarChart.getAxisLeft().setEnabled(false);
         }
 
         @Override
@@ -866,6 +875,8 @@ public class HomeFragment extends ActionBarFragment
                 mBarChart.highlightValue(null);
                 setDefaultValues();
             }
+            mChart.getAxisLeft().setEnabled(true);
+            mBarChart.getAxisLeft().setEnabled(true);
         }
 
         @Override

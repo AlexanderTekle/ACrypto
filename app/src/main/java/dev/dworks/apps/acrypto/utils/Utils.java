@@ -617,6 +617,11 @@ public class Utils {
         return roundedNumberFormat.format(value);
     }
 
+    public static String getFormattedNumber(double value, String symbol){
+        DecimalFormat decimalFormat = getMoneyFormat(value, symbol);
+        return decimalFormat.format(value);
+    }
+
     public static void showAppFeedback(Activity activity){
         AppFeedback.with(activity, R.id.container_rate).listener(new AppFeedback.OnShowListener() {
             @Override

@@ -30,6 +30,7 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -259,18 +260,23 @@ public class CoinChartFragment extends ActionBarFragment
 
         mChart.setPinchZoom(false);
         mChart.getDescription().setEnabled(false);
-
         mChart.getLegend().setEnabled(false);
 
-        mChart.getAxisLeft().setEnabled(false);
+        mChart.getAxisRight().setEnabled(false);
+        mChart.getAxisLeft().setEnabled(true);
+        mChart.getAxisLeft().setLabelCount(3);
         mChart.getAxisLeft().setSpaceTop(40);
         mChart.getAxisLeft().setSpaceBottom(40);
-
-        mChart.getAxisRight().setEnabled(false);
+        mChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+        mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedNumber(value, getCurrentCurrencyToSymbol());
+            }
+        });
 
         mChart.getXAxis().setEnabled(false);
         mChart.getXAxis().setDrawGridLines(false);
-
         mChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         mChart.getXAxis().setTextColor(getColor(this, R.color.colorPrimary));
         mChart.getXAxis().setAvoidFirstLastClipping(false);
@@ -296,19 +302,18 @@ public class CoinChartFragment extends ActionBarFragment
 
         mBarChart.setPinchZoom(false);
         mBarChart.getDescription().setEnabled(false);
-
         mBarChart.getLegend().setEnabled(false);
 
-        mBarChart.getAxisLeft().setEnabled(false);
+        mBarChart.getAxisRight().setEnabled(false);
+        mBarChart.getAxisLeft().setEnabled(true);
         mBarChart.getAxisLeft().setSpaceTop(40);
         mBarChart.getAxisLeft().setSpaceBottom(40);
         mBarChart.getAxisLeft().setAxisMinimum(0);
-
-        mBarChart.getAxisRight().setEnabled(false);
+        mBarChart.getAxisLeft().setLabelCount(3);
+        mBarChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
 
         mBarChart.getXAxis().setEnabled(false);
         mBarChart.getXAxis().setDrawGridLines(false);
-
         mBarChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         mBarChart.getXAxis().setTextColor(Color.WHITE);
         mBarChart.getXAxis().setAvoidFirstLastClipping(false);
@@ -557,7 +562,7 @@ public class CoinChartFragment extends ActionBarFragment
         set1.setDrawCircles(true);
         set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         set1.setFillColor(getColor(this, R.color.colorPrimary));
-        set1.setFillAlpha(255);
+        set1.setFillAlpha(200);
         set1.setDrawFilled(true);
 
 
@@ -728,7 +733,8 @@ public class CoinChartFragment extends ActionBarFragment
     OnChartGestureListener mOnChartGestureListener = new OnChartGestureListener() {
         @Override
         public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-
+            mChart.getAxisLeft().setEnabled(false);
+            mBarChart.getAxisLeft().setEnabled(false);
         }
 
         @Override
@@ -739,6 +745,8 @@ public class CoinChartFragment extends ActionBarFragment
                 mBarChart.highlightValue(null);
                 setDefaultValues();
             }
+            mChart.getAxisLeft().setEnabled(true);
+            mBarChart.getAxisLeft().setEnabled(true);
         }
 
         @Override
