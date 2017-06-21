@@ -501,7 +501,7 @@ public class CoinChartFragment extends ActionBarFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.home, menu);
+        inflater.inflate(R.menu.refresh, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

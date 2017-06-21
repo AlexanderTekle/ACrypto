@@ -51,7 +51,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.roundDouble;
 public class CoinInfoFragment extends ActionBarFragment
         implements Response.Listener<CoinDetails>, Response.ErrorListener {
 
-    private static final String TAG = "Home";
+    private static final String TAG = "CoinInfo";
     private Utils.OnFragmentInteractionListener mListener;
 
     private ProgressBar mChartProgress;
@@ -279,7 +279,7 @@ public class CoinInfoFragment extends ActionBarFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.home, menu);
+        inflater.inflate(R.menu.refresh, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

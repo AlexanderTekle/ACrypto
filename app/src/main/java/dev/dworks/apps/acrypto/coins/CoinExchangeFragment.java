@@ -114,7 +114,6 @@ public class CoinExchangeFragment extends RecyclerFragment
     @Override
     public void onResume() {
         super.onResume();
-        AnalyticsManager.setCurrentScreen(getActivity(), mScreenName);
     }
 
     private void fetchDataTask() {
@@ -260,7 +259,7 @@ public class CoinExchangeFragment extends RecyclerFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.home, menu);
+        inflater.inflate(R.menu.refresh, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -297,6 +296,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
+        AnalyticsManager.setCurrentScreen(getActivity(), mScreenName);
         if(isVisibleToUser){
             fetchDataTask();
         }

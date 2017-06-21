@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto.home;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -55,8 +56,10 @@ import java.util.List;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.coins.CoinDetailActivity;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.common.ChartOnTouchListener;
+import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.entity.Exchanges;
 import dev.dworks.apps.acrypto.entity.Prices;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -73,6 +76,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DE
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
@@ -600,13 +604,25 @@ public class HomeFragment extends ActionBarFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Bundle bundle = new Bundle();
         switch (item.getItemId()){
             case R.id.action_refresh:
                 removeUrlCache();
                 fetchData(false);
-                Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("price_refreshed", bundle);
+                break;
+
+            case R.id.action_view:
+                Coins.CoinDetail coinDetail = new Coins.CoinDetail();
+                coinDetail.fromSym = getCurrentCurrencyFrom();
+                coinDetail.toSym = getCurrentCurrencyTo();
+                Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
+                intent.putExtra(BUNDLE_COIN, coinDetail);
+                startActivity(intent);
+
+                bundle.putString("currency", getCurrentCurrencyName());
+                AnalyticsManager.logEvent("view_coin_details", bundle);
                 break;
         }
         return super.onOptionsItemSelected(item);

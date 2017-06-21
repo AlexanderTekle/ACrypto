@@ -30,12 +30,12 @@
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/linechart"
                         android:layout_width="match_parent"
-                        android:layout_height="220dp" />
+                        android:layout_height="200dp" />
 
                     <com.github.mikephil.charting.charts.BarChart
                         android:id="@+id/barchart"
                         android:layout_width="match_parent"
-                        android:layout_height="150dp" />
+                        android:layout_height="120dp" />
 
                 </LinearLayout>
 

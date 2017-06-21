@@ -466,7 +466,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.home, menu);
+        inflater.inflate(R.menu.refresh, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -479,7 +479,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
                 Bundle bundle = new Bundle();
                 bundle.putString("coin", getCurrentCurrencyFrom());
                 bundle.putString("currency", getCurrentCurrencyOneTwoName());
-                AnalyticsManager.logEvent("arbitrage_refreshed", bundle);
+                AnalyticsManager.logEvent("arbitrage_chart_refreshed", bundle);
                 break;
         }
         return super.onOptionsItemSelected(item);
