@@ -20,22 +20,22 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:maxLines="1"
-            android:theme="@style/spinnerStyle"
             android:textColor="@android:color/white"
+            android:theme="@style/spinnerStyle"
             app:ms_arrow_tint="@android:color/white"
-            app:ms_text_color="?android:attr/textColorPrimary"
-            app:ms_dropdown_max_height="300dp" />
+            app:ms_dropdown_max_height="300dp"
+            app:ms_text_color="?android:attr/textColorPrimary" />
 
         <com.jaredrummler.materialspinner.Spinner
             android:id="@+id/currencyOneSpinner"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:theme="@style/spinnerStyle"
             android:textColor="@android:color/white"
+            android:theme="@style/spinnerStyle"
             app:ms_arrow_tint="@android:color/white"
-            app:ms_text_color="?android:attr/textColorPrimary"
-            app:ms_dropdown_max_height="300dp" />
+            app:ms_dropdown_max_height="300dp"
+            app:ms_text_color="?android:attr/textColorPrimary" />
 
 
         <com.jaredrummler.materialspinner.Spinner
@@ -44,17 +44,18 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:maxLines="1"
-            android:theme="@style/spinnerStyle"
             android:textColor="@android:color/white"
+            android:theme="@style/spinnerStyle"
             app:ms_arrow_tint="@android:color/white"
-            app:ms_text_color="?android:attr/textColorPrimary"
-            app:ms_dropdown_max_height="300dp" />
+            app:ms_dropdown_max_height="300dp"
+            app:ms_text_color="?android:attr/textColorPrimary" />
     </LinearLayout>
 
     <android.support.design.widget.TabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:elevation="10dp"
         app:tabGravity="fill"
         app:tabMode="scrollable">
 
@@ -77,6 +78,11 @@
             android:text="@string/tab_text_2" />
 
     </android.support.design.widget.TabLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@drawable/rectangle_dark" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/container"

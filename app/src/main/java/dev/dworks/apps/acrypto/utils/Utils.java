@@ -52,6 +52,7 @@ import java.lang.reflect.Type;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -620,6 +621,26 @@ public class Utils {
     public static String getFormattedNumber(double value, String symbol){
         DecimalFormat decimalFormat = getMoneyFormat(value, symbol);
         return decimalFormat.format(value);
+    }
+
+    public static String formatDoubleValue(String value) {
+        return formatDoubleValue(Double.valueOf(value));
+    }
+
+    public static String formatDoubleValue(double value) {
+        int power;
+        String suffix = " KMBT";
+        String formattedNumber = "";
+
+        if(value == 0){
+            return "-";
+        }
+        NumberFormat formatter = new DecimalFormat("#,###.#");
+        power = (int)StrictMath.log10(value);
+        value = value/(Math.pow(10,(power/3)*3));
+        formattedNumber=formatter.format(value);
+        formattedNumber = formattedNumber + suffix.charAt(power/3);
+        return formattedNumber.length()>4 ?  formattedNumber.replaceAll("\\.[0-9]+", "") : formattedNumber;
     }
 
     public static void showAppFeedback(Activity activity){

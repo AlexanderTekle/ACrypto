@@ -30,7 +30,7 @@ public class RoundedNumberFormat extends DecimalFormat {
         boolean isNegative = number < 0;
         number = Math.abs(number);
 
-        String result = new DecimalFormat("##0.####E0").format(number);
+        String result = new DecimalFormat("##0.##E0").format(number);
 
         Integer index = Character.getNumericValue(result.charAt(result.length() - 1)) / 3;
         result = result.replaceAll("E[0-9]", METRIC_PREFIXES[index]);

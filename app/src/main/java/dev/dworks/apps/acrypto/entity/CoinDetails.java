@@ -16,8 +16,10 @@ public class CoinDetails extends BaseEntity {
     public Coin data;
 
     public Double getMarketCap(){
+        Double mined = data.totalCoinsMined;
+        Double price = Double.valueOf(data.aggregatedData.price);
         try {
-            return data.totalCoinsMined * Double.valueOf(data.aggregatedData.price);
+            return mined * price;
         } catch (Exception e){
             return 0.0;
         }

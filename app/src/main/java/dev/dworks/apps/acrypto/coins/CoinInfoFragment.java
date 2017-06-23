@@ -39,10 +39,10 @@ import dev.dworks.apps.acrypto.view.ImageView;
 
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
+import static dev.dworks.apps.acrypto.utils.Utils.formatDoubleValue;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getValueDifferenceColor;
-import static dev.dworks.apps.acrypto.utils.Utils.roundDouble;
 
 /**
  * Created by HaKr on 17/06/17.
@@ -156,9 +156,9 @@ public class CoinInfoFragment extends ActionBarFragment
 
     private void setData() {
         Coins.CoinDetail coinDetail = mCoinDetails.data.aggregatedData;
-        mMarketCap.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + roundDouble(mCoinDetails.getMarketCap()));
-        mVolumeFrom.setText(Utils.getCurrencySymbol(coinDetail.fromSym) + " " + roundDouble(coinDetail.volume24H));
-        mVolumeTo.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + roundDouble(coinDetail.volume24HTo));
+        mMarketCap.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + formatDoubleValue(mCoinDetails.getMarketCap()));
+        mVolumeFrom.setText(Utils.getCurrencySymbol(coinDetail.fromSym) + " " + formatDoubleValue(coinDetail.volume24H));
+        mVolumeTo.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + formatDoubleValue(coinDetail.volume24HTo));
         mValueLow.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + coinDetail.low24H);
         mValueHigh.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + coinDetail.high24H);
         mValueOpen.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + coinDetail.open24H);

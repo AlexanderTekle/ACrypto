@@ -343,7 +343,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     }
 
     public static String getCurrentCurrencyOneTwoName(){
-        return getCurrentCurrencyOneName() + "/" + getCurrentCurrencyTwoName();
+        return getCurrentCurrencyOne() + "/" + getCurrentCurrencyTwo();
     }
 
 
@@ -574,7 +574,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
             Bundle bundle = new Bundle();
             bundle.putString("coin", getCurrentCurrencyFrom());
             bundle.putString("currency", getCurrentCurrencyOneTwoName());
-            AnalyticsManager.logEvent("price_highlighted", bundle);
+            AnalyticsManager.logEvent("arbitrage_price_highlighted", bundle);
         } catch (Exception ex){
             setDefaultValues();
         }
@@ -626,7 +626,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
         bundle.putString("type", type);
         bundle.putString("coin", getCurrentCurrencyFrom());
         bundle.putString("currency", getCurrentCurrencyOneTwoName());
-        AnalyticsManager.logEvent("price_filter", bundle);
+        AnalyticsManager.logEvent("arbitrage_price_filter", bundle);
         fetchData(false);
     }
 
