@@ -25,6 +25,7 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
+import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -63,11 +64,16 @@ public class App extends Application {
 				.apply();
 
 		if(!BuildConfig.DEBUG) {
-			AnalyticsManager.intialize(getApplicationContext());
-			setProperty("NativeCurrency", getLocaleCurrency());
-			FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
+			if(isGPSAvailable(this)) {
+				AnalyticsManager.intialize(getApplicationContext());
+				setProperty("NativeCurrency", getLocaleCurrency());
+				FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
+			}
 		}
-		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
+		if(isGPSAvailable(this)) {
+			FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+		}
 
     	try {
             final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);

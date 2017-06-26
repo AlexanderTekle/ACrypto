@@ -325,7 +325,9 @@ public class Spinner extends AppCompatTextView {
         if(this.selectedIndex >= this.numberOfItems) {
             this.selectedIndex = 0;
         }
-
+        if(numberOfItems == 0){
+            return;
+        }
         this.setText(adapter.get(this.selectedIndex).toString());
     }
 

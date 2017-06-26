@@ -38,6 +38,8 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.request.StringRequest;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -675,5 +677,9 @@ public class Utils {
 
     public static boolean isRtl(Context context) {
         return hasJellyBeanMR1() && context.getResources().getConfiguration().getLayoutDirection() == 1;
+    }
+
+    public static boolean isGPSAvailable(Context context){
+        return ConnectionResult.SUCCESS == GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
     }
 }
