@@ -45,6 +45,9 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.jaredrummler.materialspinner.Spinner;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
@@ -52,8 +55,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
@@ -64,6 +65,7 @@ import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.entity.Exchanges;
 import dev.dworks.apps.acrypto.entity.Prices;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
@@ -222,10 +224,26 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void setCurrencyFromSpinner() {
-        List<String> coinNames = Arrays.asList(getResources().getStringArray(R.array.coin_symbols));
-        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-        mCurrencyFromSpinner.setItems(coinNames);
-        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+
+        FirebaseHelper.getFirebaseDatabaseReference().child("master/coins").orderByChild("order")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> coins = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            String coin = childSnapshot.getKey();
+                            coins.add(coin);
+                        }
+                        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
+                        mCurrencyFromSpinner.setItems(coins);
+                        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
         mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
@@ -239,9 +257,26 @@ public class HomeFragment extends ActionBarFragment
         });
     }
 
+
     private void reloadCurrencyTo(){
-        mCurrencyToSpinner.setItems(getCurrencyToList());
-        setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
+        FirebaseHelper.getFirebaseDatabaseReference().child("master/currency").orderByChild("order")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> currencies = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            String currency = childSnapshot.getKey();
+                            currencies.add(currency);
+                        }
+                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies));
+                        setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void setCurrencyToSpinner() {
@@ -275,8 +310,7 @@ public class HomeFragment extends ActionBarFragment
         });
     }
 
-    private ArrayList<String> getCurrencyToList() {
-        ArrayList<String> currencies = new ArrayList<>(App.getInstance().getCurrencyToList());
+    private ArrayList<String> getCurrencyToList(ArrayList<String> currencies) {
         ArrayList<String> list = new ArrayList<>();
         if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
             if(isTopAltCoin()){

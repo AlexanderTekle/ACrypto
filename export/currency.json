@@ -1,0 +1,145 @@
+{
+  "USD" : {
+    "name" : "US Dollar",
+    "order" : 1,
+    "arbitrage_from" : 1
+  },
+  "EUR" : {
+    "name" : "Euro",
+    "order" : 2,
+    "arbitrage_from" : 1
+  },
+  "GBP" : {
+    "name" : "Great British Pound",
+    "order" : 3,
+    "arbitrage_from" : 1
+  },
+  "CAD" : {
+    "name" : "Canadian Dollar",
+    "order" : 4,
+    "arbitrage_from" : 1
+  },
+  "PLN" : {
+    "name" : "Polish Zloty",
+    "order" : 5,
+    "arbitrage_from" : 1
+  },
+  "AUD" : {
+    "name" : "Australian Dollar",
+    "order" : 6,
+    "arbitrage_from" : 1
+  },
+  "CNY" : {
+    "name" : "Chineese Yen",
+    "order" : 7,
+    "arbitrage_from" : 1
+  },
+  "RUB" : {
+    "name" : "Russian Rubble",
+    "order" : 8,
+    "arbitrage_from" : 1
+  },
+  "HKD" : {
+    "name" : "Hongkong Dollar",
+    "order" : 9,
+    "arbitrage_from" : 1
+  },
+  "NZD" : {
+    "name" : "New Zealand Dollar",
+    "order" : 10,
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 8
+  },
+  "JPY" : {
+    "name" : "Japanese Yen",
+    "order" : 11,
+    "arbitrage_from" : 1
+  },
+  "SGD" : {
+    "name" : "Singapore Dollar",
+    "order" : 12,
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 9
+  },
+  "DKK" : {
+    "name" : "Danish Krone",
+    "order" : 20,
+    "arbitrage_from" : 1
+  },
+  "ILS" : {
+    "name" : "Israeli New Shekel",
+    "order" : 19,
+    "arbitrage_from" : 1
+  },
+  "MXN" : {
+    "name" : "Mexican Peso",
+    "order" : 22,
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 10
+  },
+  "AED" : {
+    "name" : "United Arab Emirates Dirham",
+    "order" : 23,
+    "arbitrage_from" : 1
+  },
+  "SEK" : {
+    "name" : "Swedish Krona",
+    "order" : 24,
+    "arbitrage_from" : 1
+  },
+  "CHF" : {
+    "name" : "Swiss Franc",
+    "order" : 25,
+    "arbitrage_from" : 1
+  },
+  "KRW" : {
+    "name" : "South Koren Won",
+    "order" : 13,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 2
+  },
+  "INR" : {
+    "name" : "Indian Rupee",
+    "order" : 14,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 1
+  },
+  "PHP" : {
+    "name" : "Phillipines Peso",
+    "order" : 15,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 3
+  },
+  "IDR" : {
+    "name" : "Indonesian Rupee",
+    "order" : 17,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 4
+  },
+  "BRL" : {
+    "name" : "Brazillian Real",
+    "order" : 16,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 5
+  },
+  "ZAR" : {
+    "name" : "South African Rand",
+    "order" : 18,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 6
+  },
+  "MYR" : {
+    "name" : "Malaysian Ringgit",
+    "order" : 21,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 7
+  },
+  "NOK" : {
+    "name" : "Norwegian Krone",
+    "order" : 26,
+    "arbitrage_from" : 1
+  }
+}

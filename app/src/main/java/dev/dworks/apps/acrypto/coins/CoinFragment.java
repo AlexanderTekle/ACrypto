@@ -196,7 +196,7 @@ public class CoinFragment extends RecyclerFragment
     }
 
     private ArrayList<String> getIgnoreCurrencies() {
-        ArrayList<String> ignoreCurrencies = new ArrayList<>(App.getInstance().getSymbols().ignore);
+        ArrayList<String> ignoreCurrencies = new ArrayList<>(App.getInstance().getCoinsIgnore());
         if(mCurrency.equals("USD")){
             ignoreCurrencies.add("EUR");
         } if (mCurrency.equals("JPY")){

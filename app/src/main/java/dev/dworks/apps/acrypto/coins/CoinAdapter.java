@@ -18,7 +18,6 @@ import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.Coins;
-import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
@@ -34,7 +33,6 @@ import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 
 public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> implements Filterable{
 
-    private final Symbols coinSymbols;
     ArrayList<String> mData;
     ArrayList<String> mOrigData;
 
@@ -47,7 +45,6 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
     public CoinAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
-        coinSymbols = App.getInstance().getSymbols();
     }
 
     public CoinAdapter setBaseImageUrl(String baseImageUrl) {

@@ -1,0 +1,149 @@
+{
+  "BTC" : {
+    "name" : "Bitcoin",
+    "order" : 1,
+    "arbitrage" : 1
+  },
+  "ETH" : {
+    "name" : "Ethereum",
+    "order" : 2,
+    "arbitrage" : 1
+  },
+  "LTC" : {
+    "name" : "Litecoin",
+    "order" : 3
+  },
+  "XRP" : {
+    "name" : "Ripple",
+    "order" : 4,
+    "arbitrage" : 1
+  },
+  "DASH" : {
+    "name" : "DigitalCash",
+    "order" : 5
+  },
+  "ETC" : {
+    "name" : "Ethereum Classic",
+    "order" : 6
+  },
+  "XMR" : {
+    "name" : "Monero",
+    "order" : 7
+  },
+  "ZEC" : {
+    "name" : "ZCash",
+    "order" : 8
+  },
+  "GNO" : {
+    "name" : "Gnosis",
+    "order" : 9
+  },
+  "STRAT" : {
+    "name" : "Stratis",
+    "order" : 10
+  },
+  "REP" : {
+    "name" : "Augur",
+    "order" : 11
+  },
+  "LSK" : {
+    "name" : "Lisk",
+    "order" : 12
+  },
+  "PPC" : {
+    "name" : "PeerCoin",
+    "order" : 13
+  },
+  "NMC" : {
+    "name" : "NameCoin",
+    "order" : 14
+  },
+  "OBITS" : {
+    "name" : "ObitsCoin",
+    "order" : 15
+  },
+  "EMC" : {
+    "name" : "Emercoin",
+    "order" : 16
+  },
+  "PIVX" : {
+    "name" : "Private Instant Verified Transaction",
+    "order" : 17
+  },
+  "NXT" : {
+    "name" : "Nxt",
+    "order" : 18
+  },
+  "DOGE" : {
+    "name" : "Dogecoin",
+    "order" : 18
+  },
+  "STEEM" : {
+    "name" : "Steem",
+    "order" : 19
+  },
+  "BCN" : {
+    "name" : "ByteCoin",
+    "order" : 20
+  },
+  "GNT" : {
+    "name" : "Golem Network Token",
+    "order" : 21
+  },
+  "WAVES" : {
+    "name" : "Waves",
+    "order" : 22
+  },
+  "XEM" : {
+    "name" : "NEM",
+    "order" : 23
+  },
+  "XLM" : {
+    "name" : "Stellar",
+    "order" : 24
+  },
+  "SC" : {
+    "name" : "SiaCoin",
+    "order" : 25
+  },
+  "FCT" : {
+    "name" : "Factom",
+    "order" : 26
+  },
+  "BAT" : {
+    "name" : "Basic Attention Token",
+    "order" : 27
+  },
+  "ANT" : {
+    "name" : "Aragon",
+    "order" : 28
+  },
+  "MAID" : {
+    "name" : "MaidSafe Coin",
+    "order" : 29
+  },
+  "XZC" : {
+    "name" : "ZCoin",
+    "order" : 30
+  },
+  "UBQ" : {
+    "name" : "Ubiq",
+    "order" : 31
+  },
+  "SJCX" : {
+    "name" : "StorjCoin",
+    "order" : 32
+  },
+  "XDN" : {
+    "name" : "DigitalNote",
+    "order" : 33
+  },
+  "DGB" : {
+    "name" : "DigiByte",
+    "order" : 34
+  },
+  "DCR" : {
+    "name" : "Decred",
+    "order" : 35
+  }
+}

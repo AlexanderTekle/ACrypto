@@ -11,18 +11,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SpinnerAdapter;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.jaredrummler.materialspinner.Spinner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.coins.CoinExchangeFragment;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
 
@@ -110,11 +111,29 @@ public class ArbitrageFragment extends ActionBarFragment{
         setCurrencyFromSpinner();
     }
 
-    private void setCurrencyFromSpinner() {
-        List<String> coinNames = Arrays.asList(getResources().getStringArray(R.array.coin_arbitrage));
-        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-        mCurrencyFromSpinner.setItems(coinNames);
-        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+    private void setCurrencyFromSpinner() {;
+        FirebaseHelper.getFirebaseDatabaseReference().child("master/coins")
+                .orderByChild("arbitrage")
+                .equalTo(1)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> coins = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            String coin = childSnapshot.getKey();
+                            coins.add(coin);
+                        }
+                        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
+                        mCurrencyFromSpinner.setItems(coins);
+                        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
         mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
@@ -128,17 +147,36 @@ public class ArbitrageFragment extends ActionBarFragment{
         });
     }
 
-    private void reloadCurrencyTwo(){
-        mCurrencyTwoSpinner.setItems(getCurrencyTwoList());
-        setSpinnerToValue(mCurrencyTwoSpinner, getCurrentCurrencyTwo());
-    }
-
     private void setCurrencyToSpinner() {
         mCurrencyOneSpinner.getPopupWindow().setWidth(300);
         mCurrencyTwoSpinner.getPopupWindow().setWidth(300);
 
-        mCurrencyOneSpinner.setItems(getCurrencyOneList());
-        setSpinnerToValue(mCurrencyOneSpinner, getCurrentCurrencyOne());
+        FirebaseHelper.getFirebaseDatabaseReference().child("master/currency")
+                .orderByChild("order")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> currencies = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            if(!childSnapshot.hasChild("arbitrage_from")){
+                                continue;
+                            }
+                            int arbitrage =  childSnapshot.child("arbitrage_from").getValue(int.class);
+                            if(arbitrage == 1) {
+                                String currency = childSnapshot.getKey();
+                                currencies.add(currency);
+                            }
+                        }
+                        mCurrencyOneSpinner.setItems(currencies);
+                        setSpinnerToValue(mCurrencyOneSpinner, getCurrentCurrencyOne());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
         reloadCurrencyTwo();
         mCurrencyOneSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
@@ -166,26 +204,41 @@ public class ArbitrageFragment extends ActionBarFragment{
         });
     }
 
+    private void reloadCurrencyTwo(){
+        FirebaseHelper.getFirebaseDatabaseReference().child("master/currency")
+                .orderByChild("order_arbitrage_to")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> currencies = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            if(!childSnapshot.hasChild("arbitrage_to")){
+                                continue;
+                            }
+                            int arbitrage =  childSnapshot.child("arbitrage_to").getValue(int.class);
+                            if(arbitrage == 1) {
+                                String currency = childSnapshot.getKey();
+                                currencies.add(currency);
+                            }
+                        }
 
-    private ArrayList<String> getCurrencyOneList() {
-        return App.getInstance().getCurrencyOneList();
+                        mCurrencyTwoSpinner.setItems(getCurrencyTwoList(currencies));
+                        setSpinnerToValue(mCurrencyTwoSpinner, getCurrentCurrencyTwo());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
-    private ArrayList<String> getCurrencyTwoList() {
-        if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
-            ArrayList<String> currencies = new ArrayList<>();
-            currencies.add("INR");
-            currencies.add("KRW");
-            return currencies;
-        }
-        ArrayList<String> currencies = new ArrayList<>(App.getInstance().getCurrencyTwoList());
-
+    private ArrayList<String> getCurrencyTwoList(ArrayList<String> currencies) {
         if(!currencies.equals(getCurrentCurrencyOne())){
             currencies.remove(getCurrentCurrencyOne());
         }
         return currencies;
     }
-
 
     public static String getCurrentCurrencyOne(){
         return SettingsActivity.getCurrencyOne();

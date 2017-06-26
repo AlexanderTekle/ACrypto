@@ -1,0 +1,20 @@
+{
+  "BTC" : {
+    "order" : 1
+  },
+  "ETH" : {
+    "order" : 2
+  },
+  "USD" : {
+    "order" : 3
+  },
+  "EUR" : {
+    "order" : 4
+  },
+  "CNY" : {
+    "order" : 5
+  },
+  "JPY" : {
+    "order" : 6
+  }
+}

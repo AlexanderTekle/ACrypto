@@ -23,7 +23,7 @@
             android:textColor="@android:color/white"
             android:theme="@style/spinnerStyle"
             app:ms_arrow_tint="@android:color/white"
-            app:ms_dropdown_max_height="300dp"
+            app:ms_dropdown_max_height="@dimen/spinner_max_height"
             app:ms_text_color="?android:attr/textColorPrimary" />
 
         <com.jaredrummler.materialspinner.Spinner
@@ -34,7 +34,7 @@
             android:textColor="@android:color/white"
             android:theme="@style/spinnerStyle"
             app:ms_arrow_tint="@android:color/white"
-            app:ms_dropdown_max_height="300dp"
+            app:ms_dropdown_max_height="@dimen/spinner_max_height"
             app:ms_text_color="?android:attr/textColorPrimary" />
 
 
@@ -47,7 +47,7 @@
             android:textColor="@android:color/white"
             android:theme="@style/spinnerStyle"
             app:ms_arrow_tint="@android:color/white"
-            app:ms_dropdown_max_height="300dp"
+            app:ms_dropdown_max_height="@dimen/spinner_max_height"
             app:ms_text_color="?android:attr/textColorPrimary" />
     </LinearLayout>
 

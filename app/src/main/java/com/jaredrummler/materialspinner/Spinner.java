@@ -382,7 +382,7 @@ public class Spinner extends AppCompatTextView {
     }
 
     public void setDropdownWidth(int width) {
-        this.popupWindowHeight = width;
+        this.popupWindowWidth = width;
         this.getPopupWindow().setHeight(popupWindowWidth);
     }
 
@@ -391,7 +391,11 @@ public class Spinner extends AppCompatTextView {
             return -2;
         } else {
             float listViewHeight = (float)this.adapter.getCount() * this.getResources().getDimension(dimen.ms__item_height);
-            return this.popupWindowMaxHeight > 0 && listViewHeight > (float)this.popupWindowMaxHeight?this.popupWindowMaxHeight:(this.popupWindowHeight != -1 && this.popupWindowHeight != -2 && (float)this.popupWindowHeight <= listViewHeight?this.popupWindowHeight:-2);
+            return this.popupWindowMaxHeight > 0 && listViewHeight > (float)this.popupWindowMaxHeight
+                    ? this.popupWindowMaxHeight
+                    : (this.popupWindowHeight != -1
+                    && this.popupWindowHeight != -2
+                    && (float)this.popupWindowHeight <= listViewHeight ? this.popupWindowHeight : -2);
         }
     }
 

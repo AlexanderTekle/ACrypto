@@ -3,21 +3,24 @@ package dev.dworks.apps.acrypto;
 import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Currency;
-import java.util.List;
 import java.util.Locale;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
-import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
@@ -38,11 +41,11 @@ public class App extends Application {
     public static int APP_VERSION_CODE;
 	private static App sInstance;
 	private Locale current;
-	private Symbols symbols;
+	public ArrayMap<String, String> symbols;
+	public ArrayList<String> coinsIgnore;
 	private CoinDetailSample coinDetails;
-	private ArrayList<String> currencies;
-	private ArrayList<String> currenciesOne;
-	private ArrayList<String> currenciesTWo;
+	private ArrayList<String> currencyStrings;
+	private ArrayList<CharSequence> currencyChars;
 	private String defaultCurrencyCode;
 
 	@Override
@@ -64,6 +67,7 @@ public class App extends Application {
 			setProperty("NativeCurrency", getLocaleCurrency());
 			FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
 		}
+		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
     	try {
             final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -74,14 +78,53 @@ public class App extends Application {
 			APP_VERSION_CODE = 0;
 			e.printStackTrace();
 		}
+		loadCurrencyList();
 		loadCoinSymbols();
 		loadCoinDetails();
+		loadCoinIgnore();
+
+		FirebaseHelper.startMasterDataSync();
+	}
+
+	private void loadCurrencyList() {
+		currencyStrings = new ArrayList<>();
+		currencyChars = new ArrayList<>();
+		FirebaseHelper.getFirebaseDatabaseReference().child("master/currency").orderByChild("order")
+				.addListenerForSingleValueEvent(new ValueEventListener() {
+					@Override
+					public void onDataChange(DataSnapshot dataSnapshot) {
+						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+							String currency = childSnapshot.getKey();
+							currencyStrings.add(currency);
+							currencyChars.add(currency);
+						}
+					}
+
+					@Override
+					public void onCancelled(DatabaseError databaseError) {
+
+					}
+				});
 	}
 
 	private void loadCoinSymbols() {
-		String symbolsString = Utils.getStringAsset(this, "symbols.json");
-		Gson gson = new Gson();
-		symbols = gson.fromJson(symbolsString, Symbols.class);
+		symbols = new ArrayMap<>();
+		FirebaseHelper.getFirebaseDatabaseReference().child("master/symbols")
+				.addListenerForSingleValueEvent(new ValueEventListener() {
+					@Override
+					public void onDataChange(DataSnapshot dataSnapshot) {
+						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+							String currency = childSnapshot.getKey();
+							String symbol = (String) childSnapshot.getValue();
+							symbols.put(currency, symbol);
+						}
+					}
+
+					@Override
+					public void onCancelled(DatabaseError databaseError) {
+
+					}
+				});
 	}
 
 	private void loadCoinDetails() {
@@ -90,8 +133,31 @@ public class App extends Application {
 		coinDetails = gson.fromJson(symbolsString, CoinDetailSample.class);
 	}
 
-	public Symbols getSymbols(){
+	private void loadCoinIgnore() {
+		coinsIgnore = new ArrayList<>();
+		FirebaseHelper.getFirebaseDatabaseReference().child("master/coins_ignore")
+				.addListenerForSingleValueEvent(new ValueEventListener() {
+					@Override
+					public void onDataChange(DataSnapshot dataSnapshot) {
+						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+							String currency = childSnapshot.getKey();
+							coinsIgnore.add(currency);
+						}
+					}
+
+					@Override
+					public void onCancelled(DatabaseError databaseError) {
+
+					}
+				});
+	}
+
+	public ArrayMap<String, String> getSymbols(){
 		return symbols;
+	}
+
+	public ArrayList<String> getCoinsIgnore(){
+		return coinsIgnore;
 	}
 
 	public CoinDetailSample getCoinDetails(){
@@ -116,30 +182,12 @@ public class App extends Application {
 	}
 
 	public ArrayList<String> getCurrencyToList() {
-		if(currencies == null){
-			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_names));
-			currencies = new ArrayList<>(currencyNames);
-		}
-
-		return currencies;
+		return currencyStrings;
 	}
 
-	public ArrayList<String> getCurrencyOneList() {
-		if(currenciesOne == null){
-			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_one));
-			currenciesOne = new ArrayList<>(currencyNames);
-		}
 
-		return currenciesOne;
-	}
-
-	public ArrayList<String> getCurrencyTwoList() {
-		if(currenciesTWo == null){
-			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_two));
-			currenciesTWo = new ArrayList<>(currencyNames);
-		}
-
-		return currenciesTWo;
+	public ArrayList<CharSequence> getCurrencyCharsList() {
+		return currencyChars;
 	}
 
 	public String getLocaleCurrency(){

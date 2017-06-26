@@ -30,6 +30,8 @@ public class GeneralPreferenceFragment extends PreferenceFragment
         findPreference(SettingsActivity.KEY_BUILD_VERSION).setSummary(App.APP_VERSION);
 
         ListPreference preferenceCurrency = (ListPreference)findPreference(KEY_USER_CURRENCY);
+        preferenceCurrency.setEntries(App.getInstance().getCurrencyCharsList().toArray(new CharSequence[0]));
+        preferenceCurrency.setEntryValues(App.getInstance().getCurrencyCharsList().toArray(new CharSequence[0]));
         preferenceCurrency.setDefaultValue(getUserCurrencyFrom());
         preferenceCurrency.setOnPreferenceClickListener(this);
         preferenceCurrency.setOnPreferenceChangeListener(this);

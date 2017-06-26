@@ -20,9 +20,11 @@ import android.widget.TextView;
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
@@ -95,16 +97,8 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         spinner = (Spinner) findViewById(R.id.stack);
-        List<String> currencyList = Arrays.asList(getResources().getStringArray(R.array.currency_list));
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-                R.layout.item_spinner , currencyList);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(dataAdapter);
-        SpinnerInteractionListener listener = new SpinnerInteractionListener(this);
-        spinner.setOnTouchListener(listener);
-        spinner.setOnItemSelectedListener(listener);
-        setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
 
+        loadCoinsList();
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -145,6 +139,33 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    private void loadCoinsList() {
+        FirebaseHelper.getFirebaseDatabaseReference().child("master/coins_list").orderByChild("order")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> currencyList = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            String coin = childSnapshot.getKey();
+                            currencyList.add(coin);
+                        }
+                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MainActivity.this,
+                                R.layout.item_spinner , currencyList);
+                        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinner.setAdapter(dataAdapter);
+                        SpinnerInteractionListener listener = new SpinnerInteractionListener(MainActivity.this);
+                        spinner.setOnTouchListener(listener);
+                        spinner.setOnItemSelectedListener(listener);
+                        setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
     }
 
     private void updateUserDetails() {

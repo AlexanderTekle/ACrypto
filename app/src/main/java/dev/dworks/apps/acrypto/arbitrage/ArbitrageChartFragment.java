@@ -11,7 +11,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.ActionBar;
 import android.text.Html;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,15 +41,12 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import org.fabiomsr.moneytextview.MoneyTextView;
 
 import java.util.ArrayList;
-import java.util.Currency;
 
-import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.common.ChartOnTouchListener;
 import dev.dworks.apps.acrypto.entity.Conversion;
 import dev.dworks.apps.acrypto.entity.Prices;
-import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
@@ -348,23 +344,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
 
 
     public static String getCurrentCurrencyOneSymbol(){
-        final String currencyTo = getCurrentCurrencyOne();
-        final Symbols symbols = App.getInstance().getSymbols();
-        String currencyToSymbol = "";
-        try {
-            currencyToSymbol = symbols.currencies.get(currencyTo);
-            if(TextUtils.isEmpty(currencyToSymbol)) {
-                currencyToSymbol = symbols.coins.get(currencyTo);
-            }
-        } catch (Exception e){
-            Currency currency = Currency.getInstance(currencyTo);
-            currencyToSymbol = currency.getSymbol();
-        } finally {
-            if(TextUtils.isEmpty(currencyToSymbol)){
-                currencyToSymbol = "";
-            }
-        }
-        return currencyToSymbol;
+        return Utils.getCurrencySymbol(getCurrentCurrencyOne());
     }
 
     public void setPriceValue(MoneyTextView textView, double value){

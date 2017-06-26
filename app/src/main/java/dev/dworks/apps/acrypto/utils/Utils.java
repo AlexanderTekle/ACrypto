@@ -66,7 +66,6 @@ import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
-import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
@@ -591,13 +590,9 @@ public class Utils {
     }
 
     public static String getCurrencySymbol(String currencyTo){
-        final Symbols symbols = App.getInstance().getSymbols();
         String currencyToSymbol = "";
         try {
-            currencyToSymbol = symbols.currencies.get(currencyTo);
-            if(TextUtils.isEmpty(currencyToSymbol)) {
-                currencyToSymbol = symbols.coins.get(currencyTo);
-            }
+            currencyToSymbol = App.getInstance().getSymbols().get(currencyTo);
         } catch (Exception e){
             Currency currency = Currency.getInstance(currencyTo);
             currencyToSymbol = currency.getSymbol();

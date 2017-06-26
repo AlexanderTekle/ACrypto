@@ -13,11 +13,9 @@ import org.fabiomsr.moneytextview.MoneyTextView;
 
 import java.util.ArrayList;
 
-import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.Coins;
-import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -31,7 +29,6 @@ import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 
 public class CoinExcahngeAdapter extends RecyclerView.Adapter<CoinExcahngeAdapter.ViewHolder> implements Filterable{
 
-    private final Symbols coinSymbols;
     ArrayList<Coins.CoinDetail> mData;
     ArrayList<Coins.CoinDetail> mOrigData;
 
@@ -44,7 +41,6 @@ public class CoinExcahngeAdapter extends RecyclerView.Adapter<CoinExcahngeAdapte
     public CoinExcahngeAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
-        coinSymbols = App.getInstance().getSymbols();
     }
 
     public CoinExcahngeAdapter setBaseImageUrl(String baseImageUrl) {

@@ -77,7 +77,7 @@
                     android:maxLines="1"
                     android:theme="@style/spinnerStyle"
                     android:visibility="gone"
-                    app:ms_dropdown_max_height="300dp" />
+                    app:ms_dropdown_max_height="@dimen/spinner_max_height" />
 
                 <com.jaredrummler.materialspinner.Spinner
                     android:id="@+id/exchangeSpinner"
@@ -86,7 +86,7 @@
                     android:layout_marginRight="5dp"
                     android:maxLines="1"
                     android:theme="@style/spinnerStyle"
-                    app:ms_dropdown_max_height="300dp" />
+                    app:ms_dropdown_max_height="@dimen/spinner_max_height" />
             </LinearLayout>
 
         </LinearLayout>

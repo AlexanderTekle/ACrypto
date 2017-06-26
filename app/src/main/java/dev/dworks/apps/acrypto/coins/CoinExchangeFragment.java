@@ -20,11 +20,9 @@ import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.CoinDetails;
@@ -186,16 +184,6 @@ public class CoinExchangeFragment extends RecyclerFragment
             setEmptyText("No Data");
         }
         setListShown(true);
-    }
-
-    private ArrayList<String> getIgnoreCurrencies() {
-        ArrayList<String> ignoreCurrencies = new ArrayList<>(App.getInstance().getSymbols().ignore);
-        if(getCurrency().equals("USD")){
-            ignoreCurrencies.add("EUR");
-        } if (getCurrency().equals("JPY")){
-            ignoreCurrencies.add("USD");
-        }
-        return ignoreCurrencies;
     }
 
     @Override

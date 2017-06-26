@@ -73,4 +73,27 @@ public class FirebaseHelper {
                     .setValue(instanceId);
         }
     }
+
+    public static void startMasterDataSync() {
+        FirebaseHelper.syncData("master/coins", true);
+        FirebaseHelper.syncData("master/currency", true);
+        FirebaseHelper.syncData("master/symbols", true);
+        FirebaseHelper.syncData("master/coins_list", true);
+        FirebaseHelper.syncData("master/coins_ignore", true);
+        FirebaseHelper.syncData("master/coin_details", true);
+    }
+
+    public static void stopMasterDataSync() {
+        FirebaseHelper.syncData("master/coins", false);
+        FirebaseHelper.syncData("master/currency", false);
+        FirebaseHelper.syncData("master/symbols", false);
+        FirebaseHelper.syncData("master/coins_list", false);
+        FirebaseHelper.syncData("master/coins_ignore", false);
+        FirebaseHelper.syncData("master/coin_details", false);
+    }
+
+    public static void syncData(String path, boolean sync){
+        DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference(path);
+        scoresRef.keepSynced(sync);
+    }
 }
