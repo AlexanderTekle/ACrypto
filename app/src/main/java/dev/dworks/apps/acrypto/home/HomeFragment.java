@@ -48,7 +48,6 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.jaredrummler.materialspinner.Spinner;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
 import org.json.JSONException;
@@ -73,6 +72,7 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.Spinner;
 
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;

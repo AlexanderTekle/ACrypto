@@ -14,7 +14,7 @@
         android:background="@color/colorPrimaryDark"
         android:orientation="horizontal">
 
-        <com.jaredrummler.materialspinner.Spinner
+        <dev.dworks.apps.acrypto.view.Spinner
             android:id="@+id/currencyFromSpinner"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
             app:ms_dropdown_max_height="@dimen/spinner_max_height"
             app:ms_text_color="?android:attr/textColorPrimary" />
 
-        <com.jaredrummler.materialspinner.Spinner
+        <dev.dworks.apps.acrypto.view.Spinner
             android:id="@+id/currencyOneSpinner"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             app:ms_text_color="?android:attr/textColorPrimary" />
 
 
-        <com.jaredrummler.materialspinner.Spinner
+        <dev.dworks.apps.acrypto.view.Spinner
             android:id="@+id/currencyTwoSpinner"
             android:layout_width="100dp"
             android:layout_height="wrap_content"

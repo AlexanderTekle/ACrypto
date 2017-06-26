@@ -42,7 +42,6 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.jaredrummler.materialspinner.Spinner;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
 
@@ -61,6 +60,7 @@ import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.Spinner;
 
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;

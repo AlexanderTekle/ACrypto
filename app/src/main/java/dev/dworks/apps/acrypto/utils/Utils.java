@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -659,5 +660,20 @@ public class Utils {
                 AnalyticsManager.logEvent("feedback_given");
             }
         }).checkAndShow();
+    }
+
+    public static int darker(int color, float factor) {
+        return Color.argb(Color.alpha(color), Math.max((int)((float)Color.red(color) * factor), 0), Math.max((int)((float)Color.green(color) * factor), 0), Math.max((int)((float)Color.blue(color) * factor), 0));
+    }
+
+    public static int lighter(int color, float factor) {
+        int red = (int)(((float)Color.red(color) * (1.0F - factor) / 255.0F + factor) * 255.0F);
+        int green = (int)(((float)Color.green(color) * (1.0F - factor) / 255.0F + factor) * 255.0F);
+        int blue = (int)(((float)Color.blue(color) * (1.0F - factor) / 255.0F + factor) * 255.0F);
+        return Color.argb(Color.alpha(color), red, green, blue);
+    }
+
+    public static boolean isRtl(Context context) {
+        return hasJellyBeanMR1() && context.getResources().getConfiguration().getLayoutDirection() == 1;
     }
 }

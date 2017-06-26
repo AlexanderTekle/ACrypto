@@ -70,7 +70,7 @@
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <com.jaredrummler.materialspinner.Spinner
+                <dev.dworks.apps.acrypto.view.Spinner
                     android:id="@+id/currencyToSpinner"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
                     android:visibility="gone"
                     app:ms_dropdown_max_height="@dimen/spinner_max_height" />
 
-                <com.jaredrummler.materialspinner.Spinner
+                <dev.dworks.apps.acrypto.view.Spinner
                     android:id="@+id/exchangeSpinner"
                     android:layout_width="160dp"
                     android:layout_height="wrap_content"
