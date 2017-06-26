@@ -1,6 +1,8 @@
 # built application files
 #*.apk
 *.ap_
+**/node_modules/*
+**/.firebaserc
 
 # files for the dex VM
 *.dex
