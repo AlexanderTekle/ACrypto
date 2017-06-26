@@ -8,6 +8,7 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.ActionBar;
 import android.text.Html;
@@ -57,9 +58,11 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.CONVERSION_URL;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
+import static dev.dworks.apps.acrypto.utils.Utils.getDisplayCurrency;
 import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageRounded;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
+import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 import static dev.dworks.apps.acrypto.utils.Utils.setDateTimeValue;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
@@ -308,12 +311,13 @@ public class ArbitrageChartFragment extends ActionBarFragment
         mTimeTwo.setText(getCurrentCurrencyTwoName() + " Price" + " in " + getCurrentCurrencyOne());
         double diff = (currentValueTwo - currentValueOne);
         mDifferencePercentage.setText(getDisplayPercentageRounded(currentValueOne, currentValueTwo));
+        mDifferencePercentage.setTextColor(ContextCompat.getColor(getActivity(), getPercentDifferenceColor(diff)));
         String text = Utils.getString(this, R.string.artbitrage_message,
                 getCurrentCurrencyFrom(),
-                Math.round(currentValueOne) + " " + getCurrentCurrencyOne(),
-                Math.round((currentValueTwo / mConversionRate)) + " " + getCurrentCurrencyTwo(),
+                getDisplayCurrency(currentValueOne) + " " + getCurrentCurrencyOne(),
+                getDisplayCurrency((currentValueTwo / mConversionRate)) + " " + getCurrentCurrencyTwo(),
                 diff < 0 ?  "loss" : "profit",
-                Math.round(Math.abs(diff)) + " " +  getCurrentCurrencyOne());
+                getDisplayCurrency(Math.abs(diff)) + " " +  getCurrentCurrencyOne());
         mArbitrageSummary.setText(Html.fromHtml(text));
         mArbitrageLayout.setVisibility(View.VISIBLE);
     }
@@ -505,8 +509,8 @@ public class ArbitrageChartFragment extends ActionBarFragment
         set1.setHighlightLineWidth(1);
 
         set1.setDrawValues(false);
-        set1.setDrawCircles(true);
-        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set1.setDrawCircles(false);
+        set1.setMode(LineDataSet.Mode.LINEAR);
         set1.setFillColor(getColor(this, R.color.colorPrimary));
         set1.setDrawFilled(true);
 
@@ -523,8 +527,8 @@ public class ArbitrageChartFragment extends ActionBarFragment
         set2.setHighlightLineWidth(1);
 
         set2.setDrawValues(false);
-        set2.setDrawCircles(true);
-        set2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set2.setDrawCircles(false);
+        set2.setMode(LineDataSet.Mode.LINEAR);
         set2.setFillColor(getColor(this, R.color.accent_teal));
         set2.setFillAlpha(255);
         set2.setDrawFilled(true);
@@ -550,7 +554,9 @@ public class ArbitrageChartFragment extends ActionBarFragment
             setPriceValue(mValueTwo, priceTwo);
             setDateTimeValue(mTimeOne, getMillisFromTimestamp(price.time));
             setDateTimeValue(mTimeTwo, getMillisFromTimestamp(price.time));
+            double diff = (priceTwo - priceOne);
             mDifferencePercentage.setText(getDisplayPercentageRounded(priceOne, priceTwo));
+            mDifferencePercentage.setTextColor(ContextCompat.getColor(getActivity(), getPercentDifferenceColor(diff)));
             Bundle bundle = new Bundle();
             bundle.putString("coin", getCurrentCurrencyFrom());
             bundle.putString("currency", getCurrentCurrencyOneTwoName());

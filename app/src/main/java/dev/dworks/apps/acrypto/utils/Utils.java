@@ -604,6 +604,10 @@ public class Utils {
         return currencyToSymbol;
     }
 
+    public static String getDisplayCurrency(Double value){
+        return String.format("%.2f", Math.abs(value));
+    }
+
     public static String roundDouble(String value){
         return roundDouble(Double.valueOf(value));
     }

@@ -706,7 +706,7 @@ public class HomeFragment extends ActionBarFragment
 
         set1.setDrawValues(false);
         set1.setDrawCircles(false);
-        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set1.setMode(LineDataSet.Mode.LINEAR);
         set1.setFillColor(getColor(this, R.color.colorPrimaryLight));
         set1.setDrawFilled(true);
 

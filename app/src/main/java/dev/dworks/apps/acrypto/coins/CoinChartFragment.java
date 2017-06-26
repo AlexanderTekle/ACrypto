@@ -559,8 +559,8 @@ public class CoinChartFragment extends ActionBarFragment
         set1.setHighlightLineWidth(1);
 
         set1.setDrawValues(false);
-        set1.setDrawCircles(true);
-        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set1.setDrawCircles(false);
+        set1.setMode(LineDataSet.Mode.LINEAR);
         set1.setFillColor(getColor(this, R.color.colorPrimary));
         set1.setFillAlpha(200);
         set1.setDrawFilled(true);
