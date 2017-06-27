@@ -3,6 +3,7 @@
 *.ap_
 **/node_modules/*
 **/.firebaserc
+*debug.log
 
 # files for the dex VM
 *.dex
