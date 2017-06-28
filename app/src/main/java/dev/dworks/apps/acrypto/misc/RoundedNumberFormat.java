@@ -26,6 +26,9 @@ public class RoundedNumberFormat extends DecimalFormat {
     @Override
     public StringBuffer format(double number, StringBuffer toAppendTo, FieldPosition pos) {
 
+        if(Double.isNaN(number)){
+            return toAppendTo.append("-");
+        }
         // if the number is negative, convert it to a positive number and add the minus sign to the output at the end
         boolean isNegative = number < 0;
         number = Math.abs(number);

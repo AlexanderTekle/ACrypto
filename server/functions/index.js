@@ -49,17 +49,21 @@ app.get('/coins', (req, res) => {
   });
 });
 
-// GET /api/currency?type={type}
-// Get all currency, optionally specifying a type to filter on
-app.get('/currency', (req, res) => {
+// GET /api/currencies?type={type}
+// Get all currencies, optionally specifying a type to filter on
+app.get('/currencies', (req, res) => {
   const type = req.query.type;
+  let ref = admin.database().ref(`/master/currency`);
+  let query = ref.orderByChild('order');
   var filter = 0;
   if (type && ['arbitrage_from', 'arbitrage_to'].indexOf(type) > -1) {
      filter = 1;
+     if(type == 'arbitrage_to'){
+        query = ref.orderByChild('order_arbitrage_to');
+     }
   }
 
-  admin.database().ref(`/master/currency`)
-  .orderByChild("order")
+  query
   .once('value')
   .then(snapshot => {
     var value = snapshot.val();
@@ -73,7 +77,7 @@ app.get('/currency', (req, res) => {
             }
             messages.push({code: childSnapshot.key, name: childSnapshot.val().name, order: childSnapshot.val().order});
         });
-        return res.status(200).json({currency: messages});
+        return res.status(200).json({currencies: messages});
     } else {
         res.status(401).json({error: 'No data found'});
     }
@@ -106,6 +110,30 @@ app.get('/coins_list', (req, res) => {
     res.sendStatus(500);
   });
 });
+
+// GET /api/coins_ignore
+// Get all coins ignore
+app.get('/coins_ignore', (req, res) => {
+
+  admin.database().ref(`/master/coins_ignore`)
+  .once('value')
+  .then(snapshot => {
+    var value = snapshot.val();
+    if (value) {
+      var messages = [];
+      snapshot.forEach(childSnapshot => {
+        messages.push({code: childSnapshot.key});
+      });
+      return res.status(200).json({coins_list: messages});
+    } else {
+        res.status(401).json({error: 'No data found'});
+    }
+  }).catch(error => {
+    console.log('Error getting messages', error.message);
+    res.sendStatus(500);
+  });
+});
+
 
 // GET /api/symbols
 // Get symbol of all currency codes

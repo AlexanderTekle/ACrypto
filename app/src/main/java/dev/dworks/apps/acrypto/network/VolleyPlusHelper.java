@@ -16,6 +16,8 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.toolbox.VolleyTickle;
 
+import java.util.Map;
+
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 
@@ -157,5 +159,28 @@ public class VolleyPlusHelper {
     }
     public static boolean hasMoreHeap(){
         return Runtime.getRuntime().maxMemory() > 20971520;
+    }
+
+    public static String parseCharset(Map<String, String> headers, String defaultCharset) {
+        String contentType = (String)headers.get("Content-Type");
+        if(null == contentType) {
+            contentType = (String) headers.get("content-type");
+        }
+        if(contentType != null) {
+            String[] params = contentType.split(";");
+
+            for(int i = 1; i < params.length; ++i) {
+                String[] pair = params[i].trim().split("=");
+                if(pair.length == 2 && pair[0].equals("charset")) {
+                    return pair[1];
+                }
+            }
+        }
+
+        return defaultCharset;
+    }
+
+    public static String parseCharset(Map<String, String> headers) {
+        return parseCharset(headers, "ISO-8859-1");
     }
 }

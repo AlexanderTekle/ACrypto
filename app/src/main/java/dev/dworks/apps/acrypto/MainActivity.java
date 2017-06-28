@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -17,21 +18,22 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
 import dev.dworks.apps.acrypto.common.SpinnerInteractionListener;
+import dev.dworks.apps.acrypto.entity.CoinsList;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
+import dev.dworks.apps.acrypto.misc.UrlConstant;
+import dev.dworks.apps.acrypto.misc.UrlManager;
+import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
@@ -142,17 +144,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadCoinsList() {
-        FirebaseHelper.getFirebaseDatabaseReference().child("master/coins_list").orderByChild("order")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+
+        String url = UrlManager.with(UrlConstant.COINS_LIST_API)
+                .setDefaultParams(params).getUrl();
+
+        GsonRequest<CoinsList> request = new GsonRequest<>(url,
+                CoinsList.class,
+                "",
+                new Response.Listener<CoinsList>() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<String> currencyList = new ArrayList<>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                            String coin = childSnapshot.getKey();
-                            currencyList.add(coin);
-                        }
-                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MainActivity.this,
-                                R.layout.item_spinner , currencyList);
+                    public void onResponse(CoinsList coinsList) {
+                        ArrayAdapter<CoinsList.Currency> dataAdapter = new ArrayAdapter<CoinsList.Currency>(MainActivity.this,
+                                R.layout.item_spinner , coinsList.coins_list);
                         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         spinner.setAdapter(dataAdapter);
                         SpinnerInteractionListener listener = new SpinnerInteractionListener(MainActivity.this);
@@ -160,12 +164,16 @@ public class MainActivity extends AppCompatActivity
                         spinner.setOnItemSelectedListener(listener);
                         setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
                     }
-
+                },
+                new Response.ErrorListener() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onErrorResponse(VolleyError volleyError) {
 
                     }
                 });
+        request.setCacheMinutes(1440*10);
+        request.setShouldCache(true);
+        VolleyPlusHelper.with(this).updateToRequestQueue(request, "coins_list");
     }
 
     private void updateUserDetails() {

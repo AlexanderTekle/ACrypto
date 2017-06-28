@@ -26,6 +26,12 @@ public class CoinDetails extends BaseEntity {
     }
 
     public static class Coin implements Serializable{
+        @SerializedName("code")
+        @Expose
+        public String code;
+        @SerializedName("name")
+        @Expose
+        public String name;
         @SerializedName("Algorithm")
         @Expose
         public String algorithm;
@@ -50,5 +56,10 @@ public class CoinDetails extends BaseEntity {
         @SerializedName("Exchanges")
         @Expose
         public ArrayList<Coins.CoinDetail> exchanges = null;
+
+        @Override
+        public String toString() {
+            return code;
+        }
     }
 }

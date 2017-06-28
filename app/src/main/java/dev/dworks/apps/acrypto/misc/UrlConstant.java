@@ -6,6 +6,13 @@ package dev.dworks.apps.acrypto.misc;
 
 public class UrlConstant {
 
+    public static final String ACRYPTO_BASE_API_URL = "https://us-central1-acrypto-ef41d.cloudfunctions.net/api";
+    public static final String COINS_API = ACRYPTO_BASE_API_URL + "/coins";
+    public static final String CURRENCY_API = ACRYPTO_BASE_API_URL + "/currencies";
+    public static final String COINS_LIST_API = ACRYPTO_BASE_API_URL + "/coins_list";
+    public static final String COINS_IGNORE_API = ACRYPTO_BASE_API_URL + "/coins_ignore";
+    public static final String SYMBOLS_API = ACRYPTO_BASE_API_URL + "/symbols";
+
     public static final String BASE_API_URL = "https://min-api.cryptocompare.com";
     public static final String BASE_URL = "https://www.cryptocompare.com";
     public static final String HISTORY_MINUTE_URL = BASE_API_URL + "/data/histominute";

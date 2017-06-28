@@ -141,5 +141,11 @@
     "name" : "Norwegian Krone",
     "order" : 26,
     "arbitrage_from" : 1
+  },
+  "THB" : {
+    "name" : "Thai Baht",
+    "order" : 27,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 7
   }
 }

@@ -82,7 +82,7 @@ public class GsonRequest<T> extends BaseRequest<T> {
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
         try {
             String json = new String(
-                    response.data, HttpHeaderParser.parseCharset(response.headers));
+                    response.data, VolleyPlusHelper.parseCharset(response.headers));
             Cache.Entry entry;
             if(shouldCache()){
                 entry = HttpHeaderParser.parseIgnoreCacheHeaders(response, cacheMinutes * 60 * 1000, 24 * 60 * 60 * 1000);

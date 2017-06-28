@@ -5,27 +5,32 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SpinnerAdapter;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
-import dev.dworks.apps.acrypto.view.Spinner;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
 
 import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.coins.CoinExchangeFragment;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
+import dev.dworks.apps.acrypto.entity.CoinDetails;
 import dev.dworks.apps.acrypto.entity.Coins;
+import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
-import dev.dworks.apps.acrypto.misc.FirebaseHelper;
+import dev.dworks.apps.acrypto.misc.UrlConstant;
+import dev.dworks.apps.acrypto.misc.UrlManager;
+import dev.dworks.apps.acrypto.network.GsonRequest;
+import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
+import dev.dworks.apps.acrypto.view.Spinner;
 
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_ONE_DEFAULT;
@@ -112,32 +117,37 @@ public class ArbitrageFragment extends ActionBarFragment{
     }
 
     private void setCurrencyFromSpinner() {;
-        FirebaseHelper.getFirebaseDatabaseReference().child("master/coins")
-                .orderByChild("arbitrage")
-                .equalTo(1)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("type", "arbitrage");
+
+        String url = UrlManager.with(UrlConstant.COINS_API)
+                .setDefaultParams(params).getUrl();
+
+        GsonRequest<Coins> request = new GsonRequest<>(url,
+                Coins.class,
+                "",
+                new Response.Listener<Coins>() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<String> coins = new ArrayList<>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                            String coin = childSnapshot.getKey();
-                            coins.add(coin);
-                        }
-                        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-                        mCurrencyFromSpinner.setItems(coins);
+                    public void onResponse(Coins coins) {
+                        mCurrencyFromSpinner.setItems(coins.coins);
                         setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
                     }
-
+                },
+                new Response.ErrorListener() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onErrorResponse(VolleyError volleyError) {
 
                     }
                 });
+        request.setCacheMinutes(1440*10);
+        request.setShouldCache(true);
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "coins_arbitrage");
 
-        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
+        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<CoinDetails.Coin>() {
 
-            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
-                SettingsActivity.setArbitrageCurrencyFrom(item);
+            @Override public void onItemSelected(Spinner view, int position, long id, CoinDetails.Coin item) {
+                SettingsActivity.setArbitrageCurrencyFrom(item.code);
                 reloadCurrencyTwo();
                 refreshData();
                 Bundle bundle = new Bundle();
@@ -151,37 +161,36 @@ public class ArbitrageFragment extends ActionBarFragment{
         mCurrencyOneSpinner.getPopupWindow().setWidth(300);
         mCurrencyTwoSpinner.getPopupWindow().setWidth(300);
 
-        FirebaseHelper.getFirebaseDatabaseReference().child("master/currency")
-                .orderByChild("order")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("type", "arbitrage_from");
+        String url = UrlManager.with(UrlConstant.CURRENCY_API)
+                .setDefaultParams(params).getUrl();
+
+        GsonRequest<Currencies> request = new GsonRequest<>(url,
+                Currencies.class,
+                "",
+                new Response.Listener<Currencies>() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<String> currencies = new ArrayList<>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                            if(!childSnapshot.hasChild("arbitrage_from")){
-                                continue;
-                            }
-                            int arbitrage =  childSnapshot.child("arbitrage_from").getValue(int.class);
-                            if(arbitrage == 1) {
-                                String currency = childSnapshot.getKey();
-                                currencies.add(currency);
-                            }
-                        }
-                        mCurrencyOneSpinner.setItems(currencies);
+                    public void onResponse(Currencies currencies) {
+                        mCurrencyOneSpinner.setItems(currencies.currencies);
                         setSpinnerToValue(mCurrencyOneSpinner, getCurrentCurrencyOne());
                     }
-
+                },
+                new Response.ErrorListener() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onErrorResponse(VolleyError volleyError) {
 
                     }
                 });
+        request.setCacheMinutes(1440*10);
+        request.setShouldCache(true);
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_arbitrage_from");
 
         reloadCurrencyTwo();
-        mCurrencyOneSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+        mCurrencyOneSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
 
-            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
-                SettingsActivity.setCurrencyOne(item);
+            @Override public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
+                SettingsActivity.setCurrencyOne(item.code);
                 reloadCurrencyTwo();
                 refreshData();
                 Bundle bundle = new Bundle();
@@ -191,10 +200,10 @@ public class ArbitrageFragment extends ActionBarFragment{
             }
         });
 
-        mCurrencyTwoSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+        mCurrencyTwoSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
 
-            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
-                SettingsActivity.setCurrencyTwo(item);
+            @Override public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
+                SettingsActivity.setCurrencyTwo(item.code);
                 refreshData();
                 Bundle bundle = new Bundle();
                 bundle.putString("coin", getCurrentCurrencyFrom());
@@ -205,37 +214,38 @@ public class ArbitrageFragment extends ActionBarFragment{
     }
 
     private void reloadCurrencyTwo(){
-        FirebaseHelper.getFirebaseDatabaseReference().child("master/currency")
-                .orderByChild("order_arbitrage_to")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<String> currencies = new ArrayList<>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                            if(!childSnapshot.hasChild("arbitrage_to")){
-                                continue;
-                            }
-                            int arbitrage =  childSnapshot.child("arbitrage_to").getValue(int.class);
-                            if(arbitrage == 1) {
-                                String currency = childSnapshot.getKey();
-                                currencies.add(currency);
-                            }
-                        }
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("type", "arbitrage_to");
+        String url = UrlManager.with(UrlConstant.CURRENCY_API)
+                .setDefaultParams(params).getUrl();
 
-                        mCurrencyTwoSpinner.setItems(getCurrencyTwoList(currencies));
+        GsonRequest<Currencies> request = new GsonRequest<>(url,
+                Currencies.class,
+                "",
+                new Response.Listener<Currencies>() {
+                    @Override
+                    public void onResponse(Currencies currencies) {
+                        mCurrencyTwoSpinner.setItems(getCurrencyTwoList(currencies.currencies));
                         setSpinnerToValue(mCurrencyTwoSpinner, getCurrentCurrencyTwo());
                     }
-
+                },
+                new Response.ErrorListener() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onErrorResponse(VolleyError volleyError) {
 
                     }
                 });
+        request.setCacheMinutes(1440*10);
+        request.setShouldCache(true);
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_arbitrage_to");
     }
 
-    private ArrayList<String> getCurrencyTwoList(ArrayList<String> currencies) {
-        if(!currencies.equals(getCurrentCurrencyOne())){
-            currencies.remove(getCurrentCurrencyOne());
+    private ArrayList<Currencies.Currency> getCurrencyTwoList(ArrayList<Currencies.Currency> currencies) {
+        for (Currencies.Currency currency: currencies) {
+            if(currency.code.equals(getCurrentCurrencyOne())){
+                currencies.remove(currencies.indexOf(currency));
+                break;
+            }
         }
         return currencies;
     }
