@@ -89,8 +89,8 @@ public class App extends Application {
 			APP_VERSION_CODE = 0;
 			e.printStackTrace();
 		}
-		loadCurrencyList();
 		loadCoinSymbols();
+		loadCurrencyList();
 		loadCoinDetails();
 		loadCoinIgnore();
 	}
@@ -124,7 +124,6 @@ public class App extends Application {
 	}
 
 	private void loadCoinSymbols() {
-		symbols = new ArrayMap<>();
 		String url = UrlManager.with(UrlConstant.SYMBOLS_API).getUrl();
 
 		GsonRequest<Symbols> request = new GsonRequest<>(url,
@@ -133,6 +132,7 @@ public class App extends Application {
 				new Response.Listener<Symbols>() {
 					@Override
 					public void onResponse(Symbols list) {
+						symbols = new ArrayMap<>();
 
 						for (Symbols.Symbol sym: list.symbols) {
 							symbols.put(sym.code, sym.symbol);
@@ -157,7 +157,6 @@ public class App extends Application {
 	}
 
 	private void loadCoinIgnore() {
-		coinsIgnore = new ArrayList<>();
 		String url = UrlManager.with(UrlConstant.COINS_IGNORE_API).getUrl();
 
 		GsonRequest<CoinsList> request = new GsonRequest<>(url,
@@ -166,6 +165,7 @@ public class App extends Application {
 				new Response.Listener<CoinsList>() {
 					@Override
 					public void onResponse(CoinsList list) {
+						coinsIgnore = new ArrayList<>();
 
 						for (CoinsList.Currency currency: list.coins_list) {
 							coinsIgnore.add(currency.code);
@@ -184,10 +184,16 @@ public class App extends Application {
 	}
 
 	public ArrayMap<String, String> getSymbols(){
+		if(null == symbols) {
+			return new ArrayMap<>();
+		}
 		return symbols;
 	}
 
 	public ArrayList<String> getCoinsIgnore(){
+		if(null == coinsIgnore) {
+			return new ArrayList<>();
+		}
 		return coinsIgnore;
 	}
 
@@ -213,11 +219,16 @@ public class App extends Application {
 	}
 
 	public ArrayList<String> getCurrencyToList() {
+		if(null == currencyStrings) {
+			return new ArrayList<>();
+		}
 		return currencyStrings;
 	}
 
-
 	public ArrayList<CharSequence> getCurrencyCharsList() {
+		if(null == currencyChars) {
+			return new ArrayList<>();
+		}
 		return currencyChars;
 	}
 

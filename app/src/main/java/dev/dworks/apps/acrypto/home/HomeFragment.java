@@ -303,12 +303,12 @@ public class HomeFragment extends ActionBarFragment
 
         mChart.getAxisRight().setEnabled(false);
         mChart.getAxisLeft().setEnabled(true);
-        mChart.getAxisLeft().setLabelCount(3);
         mChart.getAxisLeft().setTextColor(Color.WHITE);
         mChart.getAxisLeft().setSpaceTop(40);
-        mChart.getAxisLeft().setSpaceBottom(40);
         mChart.getAxisLeft().setDrawZeroLine(true);
         mChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+        mChart.getAxisLeft().setDrawAxisLine(true);
+
         mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
@@ -348,11 +348,10 @@ public class HomeFragment extends ActionBarFragment
         mBarChart.getAxisRight().setEnabled(false);
         mBarChart.getAxisLeft().setEnabled(true);
         mBarChart.getAxisLeft().setSpaceTop(40);
-        mBarChart.getAxisLeft().setSpaceBottom(40);
-        mBarChart.getAxisLeft().setLabelCount(3);
         mBarChart.getAxisLeft().setTextColor(Color.WHITE);
         mBarChart.getAxisLeft().setDrawZeroLine(true);
         mBarChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+        mBarChart.getAxisLeft().setDrawAxisLine(true);
 
         mBarChart.getXAxis().setEnabled(false);
         mBarChart.getXAxis().setDrawGridLines(false);
