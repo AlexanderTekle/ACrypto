@@ -18,6 +18,7 @@ import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.LockableViewPager;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.BASE_URL;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
@@ -26,7 +27,7 @@ public class CoinDetailActivity extends AppCompatActivity implements Utils.OnFra
 
     public static final String TAG = "CoinDetail";
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
+    private LockableViewPager mViewPager;
     private Coins.CoinDetail mCoin;
 
     @Override
@@ -53,7 +54,7 @@ public class CoinDetailActivity extends AppCompatActivity implements Utils.OnFra
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (LockableViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);

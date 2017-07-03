@@ -29,6 +29,7 @@ import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
+import dev.dworks.apps.acrypto.view.LockableViewPager;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
 import dev.dworks.apps.acrypto.view.Spinner;
 
@@ -42,7 +43,7 @@ public class ArbitrageFragment extends ActionBarFragment{
 
     public static final String TAG = "CoinDetail";
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
+    private LockableViewPager mViewPager;
     private Spinner mCurrencyOneSpinner;
     private Spinner mCurrencyTwoSpinner;
     private Spinner mCurrencyFromSpinner;
@@ -86,7 +87,7 @@ public class ArbitrageFragment extends ActionBarFragment{
     private void initControls(View view) {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
 
-        mViewPager = (ViewPager) view.findViewById(R.id.container);
+        mViewPager = (LockableViewPager) view.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(mViewPager.getAdapter().getCount());
 
