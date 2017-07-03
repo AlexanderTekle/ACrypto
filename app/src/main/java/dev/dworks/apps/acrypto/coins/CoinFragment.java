@@ -231,7 +231,7 @@ public class CoinFragment extends RecyclerFragment
         ActionBar actionBar = getActionBarActivity().getSupportActionBar();
         if(null != actionBar) {
             actionBar.setTitle(TAG);
-            //actionBar.setSubtitle("Top 40 coins");
+            actionBar.setSubtitle(null);
         }
 
         if(null == mAdapter) {

@@ -442,16 +442,6 @@ public class ArbitrageChartFragment extends ActionBarFragment
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        ActionBar actionBar = getActionBarActivity().getSupportActionBar();
-        if(null != actionBar) {
-            actionBar.setTitle(TAG);
-            actionBar.setSubtitle(null);
-        }
-    }
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.refresh, menu);
         super.onCreateOptionsMenu(menu, inflater);

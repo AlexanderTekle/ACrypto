@@ -1,12 +1,14 @@
 package dev.dworks.apps.acrypto.arbitrage;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +44,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class ArbitrageFragment extends ActionBarFragment{
 
-    public static final String TAG = "CoinDetail";
+    public static final String TAG = "Arbitrage";
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private LockableViewPager mViewPager;
     private Spinner mCurrencyOneSpinner;
@@ -83,6 +85,16 @@ public class ArbitrageFragment extends ActionBarFragment{
     public void onViewCreated(View view, Bundle savedInstanceState) {
         initControls(view);
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ActionBar actionBar = getActionBarActivity().getSupportActionBar();
+        if(null != actionBar) {
+            actionBar.setTitle(TAG);
+            actionBar.setSubtitle(null);
+        }
     }
 
     private void initControls(View view) {
@@ -356,12 +368,20 @@ public class ArbitrageFragment extends ActionBarFragment{
 
         @Override
         public Fragment getItem(int position) {
+            Bundle bundle = new Bundle();
+            bundle.putString("currency", getCurrentCurrencyOne() + "/" +getCurrentCurrencyTwo());
             switch (position){
                 case 1:
+                    bundle.putString("type", "exchanges_one");
+                    AnalyticsManager.logEvent("arbitrage_details_viewed", bundle);
                     return CoinExchangeFragment.newInstance(getExchangeOneCoinDetail(), "ArbitrageExchangeOne");
                 case 2:
+                    bundle.putString("type", "exchange_two");
+                    AnalyticsManager.logEvent("arbitrage_details_viewed", bundle);
                     return CoinExchangeFragment.newInstance(getExchangeTwoCoinDetail(), "ArbitrageExchangeTwo");
             }
+            bundle.putString("type", "charts");
+            AnalyticsManager.logEvent("arbitrage_details_viewed", bundle);
             return ArbitrageChartFragment.newInstance();
         }
 

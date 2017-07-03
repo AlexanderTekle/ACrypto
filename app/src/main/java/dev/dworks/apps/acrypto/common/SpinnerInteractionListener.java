@@ -1,11 +1,13 @@
 package dev.dworks.apps.acrypto.common;
 
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 
 import dev.dworks.apps.acrypto.coins.CoinFragment;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 
 public class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
@@ -33,6 +35,9 @@ public class SpinnerInteractionListener implements AdapterView.OnItemSelectedLis
                 fragment.refreshData(item);
             }
             userSelect = false;
+            Bundle bundle = new Bundle();
+            bundle.putString("currency", item);
+            AnalyticsManager.logEvent("currency_filtered", bundle);
         }
     }
 

@@ -88,6 +88,7 @@
 -dontwarn org.slf4j.**
 
 -dontwarn cat.ereza.customactivityoncrash.**
+-dontwarn org.joda.time.**
 
 # Application classes that will be serialized/deserialized over Gson
 # or have been blown up by ProGuard in the past

@@ -107,12 +107,20 @@ public class CoinDetailActivity extends AppCompatActivity implements Utils.OnFra
 
         @Override
         public Fragment getItem(int position) {
+            Bundle bundle = new Bundle();
+            bundle.putString("currency", mCoin.fromSym + "/" +mCoin.toSym);
             switch (position){
                 case 1:
+                    bundle.putString("type", "exchanges");
+                    AnalyticsManager.logEvent("coin_details_viewed", bundle);
                     return CoinExchangeFragment.newInstance((Coins.CoinDetail) getIntent().getSerializableExtra(BUNDLE_COIN), null);
                 case 2:
+                    bundle.putString("type", "charts");
+                    AnalyticsManager.logEvent("coin_details_viewed", bundle);
                     return CoinChartFragment.newInstance((Coins.CoinDetail) getIntent().getSerializableExtra(BUNDLE_COIN));
             }
+            bundle.putString("type", "info");
+            AnalyticsManager.logEvent("coin_details_viewed", bundle);
             return CoinInfoFragment.newInstance((Coins.CoinDetail) getIntent().getSerializableExtra(BUNDLE_COIN));
         }
 
