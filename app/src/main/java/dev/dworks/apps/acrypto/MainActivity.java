@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 });
-        request.setCacheMinutes(1440*10);
+        request.setCacheMinutes(Utils.getMasterDataCacheTime());
         request.setShouldCache(true);
         VolleyPlusHelper.with(this).updateToRequestQueue(request, "coins_list");
     }

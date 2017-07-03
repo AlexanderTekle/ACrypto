@@ -304,6 +304,9 @@ public class ArbitrageChartFragment extends ActionBarFragment
     }
 
     public void setDefaultValues(){
+        if(!isAdded()){
+            return;
+        }
         mIcon.setText(getCurrentCurrencyOneSymbol());
         setPriceValue(mValueOne, currentValueOne);
         setPriceValue(mValueTwo, currentValueTwo);

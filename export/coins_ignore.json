@@ -1,5 +1,4 @@
 {
-  "GBP" : true,
   "AUD" : true,
   "CRPC" : true,
   "EDR2" : true,
@@ -85,5 +84,16 @@
   "SIRAHOSIVIX" : true,
   "TSUKASA" : true,
   "TSUKASAVIX" : true,
-  "YAMAGUCHIA" : true
+  "MIZUKI" : true,
+  "EOS" : true,
+  "CRS" : true,
+  "MCAP" : true,
+  "OTX" : true,
+  "MPK" : true,
+  "UTA" : true,
+  "FNC" : true,
+  "PPY" : true,
+  "PCSH" : true,
+  "NMR" : true,
+  "MCO" : true
 }

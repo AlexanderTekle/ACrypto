@@ -1,4 +1,8 @@
 {
+  "BNC": {
+    "id": "bancor-network-token",
+    "name": "Bancor Network Token"
+  },
   "QRL": {
     "id": "quantum-resistant-ledger",
     "name": "Quantum Resistant Ledger"

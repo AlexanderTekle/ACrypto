@@ -118,7 +118,7 @@ public class App extends Application {
 
 					}
 				});
-		request.setCacheMinutes(1440*10);
+		request.setCacheMinutes(Utils.getMasterDataCacheTime());
 		request.setShouldCache(true);
 		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "symbols");
 	}
@@ -145,7 +145,7 @@ public class App extends Application {
 
 					}
 				});
-		request.setCacheMinutes(1440*10);
+		request.setCacheMinutes(Utils.getMasterDataCacheTime());
 		request.setShouldCache(true);
 		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "currency");
 	}
@@ -178,7 +178,7 @@ public class App extends Application {
 
 					}
 				});
-		request.setCacheMinutes(1440*10);
+		request.setCacheMinutes(Utils.getMasterDataCacheTime());
 		request.setShouldCache(true);
 		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "coins_ignore");
 	}

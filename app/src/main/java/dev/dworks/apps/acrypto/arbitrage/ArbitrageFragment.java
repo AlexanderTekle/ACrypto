@@ -29,6 +29,7 @@ import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
+import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.LockableViewPager;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
 import dev.dworks.apps.acrypto.view.Spinner;
@@ -140,7 +141,7 @@ public class ArbitrageFragment extends ActionBarFragment{
 
                     }
                 });
-        request.setCacheMinutes(1440*10);
+        request.setCacheMinutes(Utils.getMasterDataCacheTime());
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "coins_arbitrage");
 
@@ -183,7 +184,7 @@ public class ArbitrageFragment extends ActionBarFragment{
 
                     }
                 });
-        request.setCacheMinutes(1440*10);
+        request.setCacheMinutes(Utils.getMasterDataCacheTime());
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_arbitrage_from");
 
@@ -236,7 +237,7 @@ public class ArbitrageFragment extends ActionBarFragment{
 
                     }
                 });
-        request.setCacheMinutes(1440*10);
+        request.setCacheMinutes(Utils.getMasterDataCacheTime());
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_arbitrage_to");
     }

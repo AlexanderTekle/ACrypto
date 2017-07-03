@@ -417,7 +417,7 @@ public class HomeFragment extends ActionBarFragment
 
                     }
                 });
-        request.setCacheMinutes(1440*10);
+        request.setCacheMinutes(Utils.getMasterDataCacheTime());
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_from");
     }
@@ -444,7 +444,7 @@ public class HomeFragment extends ActionBarFragment
 
                     }
                 });
-        request.setCacheMinutes(1440*10);
+        request.setCacheMinutes(Utils.getMasterDataCacheTime());
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_to");
     }
@@ -515,14 +515,18 @@ public class HomeFragment extends ActionBarFragment
     public void setDefaultValues(){
         setPriceValue(mValue, currentValue);
         mTime.setText(getCurrentCurrencyName() + " Price");
+        double difference;
         if(diffValue != -1) {
-            double difference = currentValue - diffValue;
-            setPriceValue(mValueChange, difference);
-            setDifferenceColor(getColor(HomeFragment.this, getValueDifferenceColor(difference)));
+            difference = currentValue - diffValue;
             mTimeDuration.setText(Utils.getDisplayPercentage(diffValue, currentValue) + " since " + timeDifference);
-            mValueChange.setVisibility(View.VISIBLE);
-            mVolume.setVisibility(View.GONE);
+        } else {
+            difference = 0;
+            mTimeDuration.setText("");
         }
+        setPriceValue(mValueChange, difference);
+        setDifferenceColor(getColor(HomeFragment.this, getValueDifferenceColor(difference)));
+        mValueChange.setVisibility(View.VISIBLE);
+        mVolume.setVisibility(View.GONE);
     }
 
     public String getCurrentCurrencyTo(){

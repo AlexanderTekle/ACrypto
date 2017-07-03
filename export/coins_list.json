@@ -15,6 +15,12 @@
     "order" : 5
   },
   "JPY" : {
+    "order" : 7
+  },
+  "KRW" : {
+    "order" : 8
+  },
+  "GBP" : {
     "order" : 6
   }
 }

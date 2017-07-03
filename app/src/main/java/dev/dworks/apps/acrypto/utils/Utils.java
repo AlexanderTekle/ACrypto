@@ -682,4 +682,8 @@ public class Utils {
     public static boolean isGPSAvailable(Context context){
         return ConnectionResult.SUCCESS == GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
     }
+
+    public static int getMasterDataCacheTime() {
+        return 1440*30;
+    }
 }
