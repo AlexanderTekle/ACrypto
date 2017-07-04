@@ -1,15 +1,26 @@
 package dev.dworks.apps.acrypto.entity;
 
-import android.support.v4.util.ArrayMap;
-
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Created by HaKr on 16/05/17.
+ * Created by HaKr on 28/06/17.
  */
 
-public class Symbols {
-    public ArrayMap<String, String> coins;
-    public ArrayMap<String, String> currencies;
-    public ArrayList<String> ignore;
+public class Symbols implements Serializable {
+    public ArrayList<Symbol> symbols = new ArrayList<>();
+
+    public static class Symbol {
+        public String code = "";
+        public String symbol = "";
+
+        public Symbol(String code) {
+            this.code = code;
+        }
+
+        @Override
+        public String toString() {
+            return code;
+        }
+    }
 }

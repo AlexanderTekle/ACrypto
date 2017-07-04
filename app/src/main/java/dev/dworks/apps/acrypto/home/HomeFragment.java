@@ -2,8 +2,10 @@ package dev.dworks.apps.acrypto.home;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
@@ -30,6 +33,7 @@ import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -41,23 +45,23 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.ChartTouchListener;
 import com.github.mikephil.charting.listener.OnChartGestureListener;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.jaredrummler.materialspinner.Spinner;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Currency;
-import java.util.List;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.coins.CoinDetailActivity;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
+import dev.dworks.apps.acrypto.common.ChartOnTouchListener;
+import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.entity.Coins;
+import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.entity.Exchanges;
 import dev.dworks.apps.acrypto.entity.Prices;
-import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
@@ -66,16 +70,22 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.Spinner;
 
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
+import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.getTimestamp;
 import static dev.dworks.apps.acrypto.utils.Utils.getValueDifferenceColor;
 import static dev.dworks.apps.acrypto.utils.Utils.setDateTimeValue;
+import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -86,6 +96,7 @@ public class HomeFragment extends ActionBarFragment
         OnChartValueSelectedListener, RadioGroup.OnCheckedChangeListener {
 
     private static final String TAG = "Home";
+    public static final int LIMIT_ALT = 10;
     private Utils.OnFragmentInteractionListener mListener;
 
     // time stamp constants
@@ -126,6 +137,7 @@ public class HomeFragment extends ActionBarFragment
     private BarChart mBarChart;
     private Prices mPrice;
     private TextView mVolume;
+    private ScrollView mScrollView;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -146,6 +158,7 @@ public class HomeFragment extends ActionBarFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showAppFeedback(getActivity());
         setHasOptionsMenu(true);
     }
 
@@ -165,7 +178,7 @@ public class HomeFragment extends ActionBarFragment
     public void onResume() {
         super.onResume();
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
-        reloadCurrencyFrom();
+        reloadCurrencyTo();
         fetchData();
     }
 
@@ -174,6 +187,7 @@ public class HomeFragment extends ActionBarFragment
         mControls = view.findViewById(R.id.controls);
         mValue = (MoneyTextView) view.findViewById(R.id.value);
         mTime = (TextView) view.findViewById(R.id.time);
+        mScrollView = (ScrollView) view.findViewById(R.id.scrollView);
 
         mValueChange = (MoneyTextView) view.findViewById(R.id.valueChange);
         mTimeDuration = (TextView) view.findViewById(R.id.timeDuration);
@@ -202,21 +216,18 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void setSpinners() {
-        setCurrencyToSpinner();
         setCurrencyFromSpinner();
+        setCurrencyToSpinner();
         setMarketSpinner();
     }
 
-    private void setCurrencyToSpinner() {
-        List<String> coinNames = Arrays.asList(getResources().getStringArray(R.array.coin_symbols));
+    private void setCurrencyFromSpinner() {
         mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-        mCurrencyFromSpinner.setItems(coinNames);
-        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
-        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<CoinDetails.Coin>() {
 
-            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
-                SettingsActivity.setCurrencyFrom(item);
-                reloadCurrencyFrom();
+            @Override public void onItemSelected(Spinner view, int position, long id, CoinDetails.Coin item) {
+                SettingsActivity.setCurrencyFrom(item.code);
+                reloadCurrencyTo();
                 fetchData(true);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
@@ -225,18 +236,18 @@ public class HomeFragment extends ActionBarFragment
         });
     }
 
-    private void reloadCurrencyFrom(){
-        mCurrencyToSpinner.setItems(getCurrencyToList());
-        setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
+
+    private void reloadCurrencyTo(){
+        //fetchCurrencyToData();
     }
 
-    private void setCurrencyFromSpinner() {
+    private void setCurrencyToSpinner() {
         mCurrencyToSpinner.getPopupWindow().setWidth(300);
-        reloadCurrencyFrom();
-        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+        reloadCurrencyTo();
+        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
 
-            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
-                SettingsActivity.setCurrencyTo(item);
+            @Override public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
+                SettingsActivity.setCurrencyTo(item.code);
                 fetchData(true);
                 Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
@@ -261,13 +272,20 @@ public class HomeFragment extends ActionBarFragment
         });
     }
 
-    private ArrayList<String> getCurrencyToList() {
-        ArrayList<String> currencies = new ArrayList<>(App.getInstance().getCurrencyToList());
-
+    private ArrayList<Currencies.Currency> getCurrencyToList(ArrayList<Currencies.Currency> currencies) {
+        ArrayList<Currencies.Currency> list = new ArrayList<>();
         if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
-            currencies.add(CURRENCY_FROM_DEFAULT);
+            if(isTopAltCoin()){
+                list.addAll(currencies);
+                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+            } else {
+                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+                list.addAll(currencies);
+            }
+        } else {
+            list.addAll(currencies);
         }
-        return currencies;
+        return list;
     }
 
     private void initLineChart() {
@@ -281,18 +299,25 @@ public class HomeFragment extends ActionBarFragment
 
         mChart.setPinchZoom(false);
         mChart.getDescription().setEnabled(false);
-
         mChart.getLegend().setEnabled(false);
 
-        mChart.getAxisLeft().setEnabled(false);
-        mChart.getAxisLeft().setSpaceTop(40);
-        mChart.getAxisLeft().setSpaceBottom(40);
-
         mChart.getAxisRight().setEnabled(false);
+        mChart.getAxisLeft().setEnabled(true);
+        mChart.getAxisLeft().setTextColor(Color.WHITE);
+        mChart.getAxisLeft().setSpaceTop(40);
+        mChart.getAxisLeft().setDrawZeroLine(true);
+        mChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+        mChart.getAxisLeft().setDrawAxisLine(true);
+
+        mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedNumber(value, getCurrentCurrencyToSymbol());
+            }
+        });
 
         mChart.getXAxis().setEnabled(false);
         mChart.getXAxis().setDrawGridLines(false);
-
         mChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         mChart.getXAxis().setTextColor(Color.WHITE);
         mChart.getXAxis().setAvoidFirstLastClipping(false);
@@ -304,6 +329,7 @@ public class HomeFragment extends ActionBarFragment
         });
 
         mChart.setOnChartGestureListener(mOnChartGestureListener);
+        mChart.setOnTouchListener(new ChartOnTouchListener(mScrollView));
     }
 
     private void initBarChart() {
@@ -317,21 +343,21 @@ public class HomeFragment extends ActionBarFragment
 
         mBarChart.setPinchZoom(false);
         mBarChart.getDescription().setEnabled(false);
-
         mBarChart.getLegend().setEnabled(false);
 
-        mBarChart.getAxisLeft().setEnabled(false);
-        mBarChart.getAxisLeft().setSpaceTop(40);
-        mBarChart.getAxisLeft().setSpaceBottom(40);
-        mBarChart.getAxisLeft().setAxisMinimum(0);
-
         mBarChart.getAxisRight().setEnabled(false);
+        mBarChart.getAxisLeft().setEnabled(true);
+        mBarChart.getAxisLeft().setSpaceTop(40);
+        mBarChart.getAxisLeft().setTextColor(Color.WHITE);
+        mBarChart.getAxisLeft().setDrawZeroLine(true);
+        mBarChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+        mBarChart.getAxisLeft().setDrawAxisLine(true);
 
         mBarChart.getXAxis().setEnabled(false);
         mBarChart.getXAxis().setDrawGridLines(false);
-
         mBarChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         mBarChart.getXAxis().setTextColor(Color.WHITE);
+        mBarChart.getXAxis().setDrawAxisLine(true);
         mBarChart.getXAxis().setAvoidFirstLastClipping(false);
 /*        mBarChart.getXAxis().setValueFormatter(new IAxisValueFormatter() {
             @Override
@@ -340,6 +366,7 @@ public class HomeFragment extends ActionBarFragment
             }
         });*/
         mBarChart.setOnChartGestureListener(mOnChartGestureListener);
+        mBarChart.setOnTouchListener(new ChartOnTouchListener(mScrollView));
     }
 
     private void fetchData() {
@@ -350,7 +377,15 @@ public class HomeFragment extends ActionBarFragment
         String url = getUrl();
         mChartProgress.setVisibility(View.VISIBLE);
         mChart.highlightValue(null);
+        mBarChart.highlightValue(null);
         diffValue = -1;
+
+        fetchCurrencyFromData();
+        fetchCurrencyToData();
+        if(refreshAll) {
+            fetchExchangeData();
+        }
+
         GsonRequest<Prices> request = new GsonRequest<>(url,
                 Prices.class,
                 "",
@@ -360,9 +395,60 @@ public class HomeFragment extends ActionBarFragment
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Home");
         fetchDifferenceData();
-        if(refreshAll) {
-            fetchExchangeData();
-        }
+    }
+
+    private void fetchCurrencyFromData() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+
+        String url = UrlManager.with(UrlConstant.COINS_API)
+                .setDefaultParams(params).getUrl();
+
+        GsonRequest<Coins> request = new GsonRequest<>(url,
+                Coins.class,
+                "",
+                new Response.Listener<Coins>() {
+                    @Override
+                    public void onResponse(Coins coins) {
+                        mCurrencyFromSpinner.setItems(coins.coins);
+                        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+
+                    }
+                });
+        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setShouldCache(true);
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_from");
+    }
+
+    private void fetchCurrencyToData() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+
+        String url = UrlManager.with(UrlConstant.CURRENCY_API)
+                .setDefaultParams(params).getUrl();
+
+        GsonRequest<Currencies> request = new GsonRequest<>(url,
+                Currencies.class,
+                "",
+                new Response.Listener<Currencies>() {
+                    @Override
+                    public void onResponse(Currencies currencies) {
+                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
+                        setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+
+                    }
+                });
+        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setShouldCache(true);
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_to");
     }
 
     private void fetchExchangeData() {
@@ -431,48 +517,40 @@ public class HomeFragment extends ActionBarFragment
     public void setDefaultValues(){
         setPriceValue(mValue, currentValue);
         mTime.setText(getCurrentCurrencyName() + " Price");
+        double difference;
         if(diffValue != -1) {
-            double difference = currentValue - diffValue;
-            setPriceValue(mValueChange, difference);
-            setDifferenceColor(getColor(HomeFragment.this, getValueDifferenceColor(difference)));
-            mTimeDuration.setText("Since " + timeDifference);
-            mValueChange.setVisibility(View.VISIBLE);
-            mVolume.setVisibility(View.GONE);
+            difference = currentValue - diffValue;
+            mTimeDuration.setText(Utils.getDisplayPercentage(diffValue, currentValue) + " since " + timeDifference);
+        } else {
+            difference = 0;
+            mTimeDuration.setText("");
         }
+        setPriceValue(mValueChange, difference);
+        setDifferenceColor(getColor(HomeFragment.this, getValueDifferenceColor(difference)));
+        mValueChange.setVisibility(View.VISIBLE);
+        mVolume.setVisibility(View.GONE);
     }
 
-    public static String getCurrentCurrencyTo(){
-        return SettingsActivity.getCurrencyTo();
+    public String getCurrentCurrencyTo(){
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(getCurrencyToKey(), isTopAltCoin() ? getUserCurrencyFrom() : CURRENCY_FROM_DEFAULT);
+    }
+
+    public boolean isTopAltCoin(){
+        return mCurrencyFromSpinner.getSelectedIndex() <= LIMIT_ALT;
     }
 
     public static String getCurrentCurrencyFrom(){
         return SettingsActivity.getCurrencyFrom();
     }
 
-    public static String getCurrentCurrencyName(){
+    public String getCurrentCurrencyName(){
         return getCurrentCurrencyFrom() + "/" + getCurrentCurrencyTo();
     }
 
-    public static String getCurrentCurrencyToSymbol(){
-        final String currencyTo = getCurrentCurrencyTo();
-        final Symbols symbols = App.getInstance().getSymbols();
-        String currencyToSymbol = "";
-        try {
-            currencyToSymbol = symbols.currencies.get(currencyTo);
-            if(TextUtils.isEmpty(currencyToSymbol)) {
-                currencyToSymbol = symbols.coins.get(currencyTo);
-            }
-        } catch (Exception e){
-            Currency currency = Currency.getInstance(currencyTo);
-            currencyToSymbol = currency.getSymbol();
-        } finally {
-            if(TextUtils.isEmpty(currencyToSymbol)){
-                currencyToSymbol = "";
-            }
-        }
-        return currencyToSymbol;
+    public String getCurrentCurrencyToSymbol(){
+        return getCurrencySymbol(getCurrentCurrencyTo());
     }
-
 
     private String getCurrentExchange() {
         return SettingsActivity.getExchange();
@@ -552,6 +630,9 @@ public class HomeFragment extends ActionBarFragment
         mChart.setNoDataText(message);
         mChart.clear();
         mChart.invalidate();
+        mBarChart.setNoDataText(null);
+        mBarChart.clear();
+        mBarChart.invalidate();
     }
 
     @Override
@@ -589,13 +670,25 @@ public class HomeFragment extends ActionBarFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Bundle bundle = new Bundle();
         switch (item.getItemId()){
             case R.id.action_refresh:
                 removeUrlCache();
                 fetchData(false);
-                Bundle bundle = new Bundle();
                 bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("price_refreshed", bundle);
+                break;
+
+            case R.id.action_view:
+                Coins.CoinDetail coinDetail = new Coins.CoinDetail();
+                coinDetail.fromSym = getCurrentCurrencyFrom();
+                coinDetail.toSym = getCurrentCurrencyTo();
+                Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
+                intent.putExtra(BUNDLE_COIN, coinDetail);
+                startActivity(intent);
+
+                bundle.putString("currency", getCurrentCurrencyName());
+                AnalyticsManager.logEvent("view_coin_details", bundle);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -629,14 +722,14 @@ public class HomeFragment extends ActionBarFragment
         set1.setLineWidth(1.75f);
         set1.setCircleRadius(2f);
         set1.setCircleHoleRadius(1f);
-        set1.setColor(Color.WHITE);
-        set1.setCircleColor(Color.WHITE);
+        set1.setColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
         set1.setHighlightLineWidth(1);
 
         set1.setDrawValues(false);
-        set1.setDrawCircles(true);
-        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set1.setDrawCircles(false);
+        set1.setMode(LineDataSet.Mode.LINEAR);
         set1.setFillColor(getColor(this, R.color.colorPrimaryLight));
         set1.setDrawFilled(true);
 
@@ -828,7 +921,8 @@ public class HomeFragment extends ActionBarFragment
     OnChartGestureListener mOnChartGestureListener = new OnChartGestureListener() {
         @Override
         public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {
-
+            mChart.getAxisLeft().setEnabled(false);
+            mBarChart.getAxisLeft().setEnabled(false);
         }
 
         @Override
@@ -839,6 +933,8 @@ public class HomeFragment extends ActionBarFragment
                 mBarChart.highlightValue(null);
                 setDefaultValues();
             }
+            mChart.getAxisLeft().setEnabled(true);
+            mBarChart.getAxisLeft().setEnabled(true);
         }
 
         @Override
@@ -894,7 +990,6 @@ public class HomeFragment extends ActionBarFragment
     public static void setSpinnerValue(Spinner spinner, String value) {
         int index = 0;
         if (value.compareTo(CURRENCY_FROM_DEFAULT) == 0
-                || value.compareTo(CURRENCY_FROM_DEFAULT) == 0
                 || value.compareTo(ALL_EXCHANGES) == 0) {
             spinner.setSelectedIndex(index);
             return;
@@ -909,9 +1004,10 @@ public class HomeFragment extends ActionBarFragment
         spinner.setSelectedIndex(index + 1);
     }
 
-    public static void setSpinnerToValue(Spinner spinner, String value) {
+    public void setSpinnerToValue(Spinner spinner, String value) {
         int index = 0;
-        if (value.compareTo(CURRENCY_TO_DEFAULT) == 0) {
+        if (isTopAltCoin() ? value.compareTo(CURRENCY_TO_DEFAULT) == 0
+                : value.compareTo(CURRENCY_FROM_DEFAULT) == 0) {
             spinner.setSelectedIndex(index);
             return;
         }

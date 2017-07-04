@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto.coins;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -32,8 +33,11 @@ import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
-import static dev.dworks.apps.acrypto.misc.UrlConstant.BASE_URL;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_LIST_DEFAULT;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_CURRENCY;
+import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
+import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -47,9 +51,11 @@ public class CoinFragment extends RecyclerFragment
     private Utils.OnFragmentInteractionListener mListener;
     private CoinAdapter mAdapter;
     private Coins mCoins;
+    private String mCurrency;
 
-    public static void show(FragmentManager fm) {
+    public static void show(FragmentManager fm, String currency) {
         final Bundle args = new Bundle();
+        args.putString(BUNDLE_CURRENCY, currency);
         final FragmentTransaction ft = fm.beginTransaction();
         final CoinFragment fragment = new CoinFragment();
         fragment.setArguments(args);
@@ -80,10 +86,11 @@ public class CoinFragment extends RecyclerFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showAppFeedback(getActivity());
         if(null != savedInstanceState) {
-            mCoins = (Coins) savedInstanceState.getSerializable(Utils.BUNDLE_FAVORITE_ITEMS);
+            mCoins = (Coins) savedInstanceState.getSerializable(Utils.BUNDLE_COINS);
         }
-
+        mCurrency = getArguments().getString(BUNDLE_CURRENCY, CURRENCY_LIST_DEFAULT);
         setHasOptionsMenu(true);
     }
 
@@ -126,7 +133,7 @@ public class CoinFragment extends RecyclerFragment
     private String getUrl() {
         return UrlManager.with(UrlConstant.COINLIST_URL)
                 .setParam("limit", "60")
-                .setParam("symbol", CURRENCY_TO_DEFAULT)
+                .setParam("symbol", mCurrency)
                 .getUrl();
     }
 
@@ -144,7 +151,7 @@ public class CoinFragment extends RecyclerFragment
         }
         else{
             setEmptyText("Something went wrong!");
-            Utils.showRetrySnackBar(getView(), "Cant Connect to Shifoo", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getView(), "Cant Connect to ACrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchDataTask();
@@ -158,11 +165,16 @@ public class CoinFragment extends RecyclerFragment
         loadData(response);
     }
 
+    public void refreshData(String currency) {
+        mCurrency = currency;
+        fetchDataTask();
+    }
+
     private void loadData(Coins coins) {
         // TODO this is not something i'm proud of
         ArrayList<String> ignoreList = new ArrayList<>();
         for (String coin : coins.data) {
-            for (String key : App.getInstance().getSymbols().ignore) {
+            for (String key : getIgnoreCurrencies()) {
                 if(coin.contains(key)){
                     ignoreList.add(coin);
                 }
@@ -171,6 +183,7 @@ public class CoinFragment extends RecyclerFragment
         coins.data.removeAll(ignoreList);
         mCoins = coins;
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
+        mAdapter.setCurrencySymbol(getCurrencySymbol(mCurrency));
         mAdapter.clear();
         if(null != mCoins) {
             mAdapter.setData(mCoins.data);
@@ -180,6 +193,19 @@ public class CoinFragment extends RecyclerFragment
             setEmptyText("No Data");
         }
         setListShown(true);
+    }
+
+    private ArrayList<String> getIgnoreCurrencies() {
+        ArrayList<String> ignoreCurrencies = new ArrayList<>(App.getInstance().getCoinsIgnore());
+        if(mCurrency.equals("USD")){
+            ignoreCurrencies.add("EUR");
+            ignoreCurrencies.add("GBP");
+        } else if (mCurrency.equals("JPY")){
+            ignoreCurrencies.add("USD");
+        } else  if (mCurrency.equals("GBP")){
+            ignoreCurrencies.add("EUR");
+        }
+        return ignoreCurrencies;
     }
 
     @Override
@@ -205,7 +231,7 @@ public class CoinFragment extends RecyclerFragment
         ActionBar actionBar = getActionBarActivity().getSupportActionBar();
         if(null != actionBar) {
             actionBar.setTitle(TAG);
-            actionBar.setSubtitle("Top 40 coins");
+            actionBar.setSubtitle(null);
         }
 
         if(null == mAdapter) {
@@ -222,16 +248,16 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable(Utils.BUNDLE_FAVORITE_ITEMS, mCoins);
+        outState.putSerializable(Utils.BUNDLE_COINS, mCoins);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        Coins.Coin item = Coins.getCoin(mAdapter.getItem(position));
-        String url = BASE_URL + "/coins/" + item.fromSym.toLowerCase()
-                + "/overview/" + CURRENCY_TO_DEFAULT.toLowerCase();
-        Utils.openCustomTabUrl(getActivity(), url);
+        Coins.CoinDetail item = Coins.getCoin(mAdapter.getItem(position));
+        Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
+        intent.putExtra(BUNDLE_COIN, item);
+        startActivity(intent);
         Bundle bundle = new Bundle();
         bundle.putString("currency", item.fromSym);
         AnalyticsManager.logEvent("view_coin_details", bundle);
@@ -249,7 +275,7 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.home, menu);
+        inflater.inflate(R.menu.refresh, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

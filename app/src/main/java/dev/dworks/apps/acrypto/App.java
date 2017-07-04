@@ -3,25 +3,34 @@ package dev.dworks.apps.acrypto;
 import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
 
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Currency;
-import java.util.List;
 import java.util.Locale;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
-import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.entity.CoinDetailSample;
+import dev.dworks.apps.acrypto.entity.CoinsList;
+import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.UrlConstant;
+import dev.dworks.apps.acrypto.misc.UrlManager;
+import dev.dworks.apps.acrypto.network.GsonRequest;
+import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
+import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -38,11 +47,11 @@ public class App extends Application {
     public static int APP_VERSION_CODE;
 	private static App sInstance;
 	private Locale current;
-	private Symbols symbols;
-	private CoinDetails coinDetails;
-	private ArrayList<String> currencies;
-	private ArrayList<String> currenciesOne;
-	private ArrayList<String> currenciesTWo;
+	public ArrayMap<String, String> symbols;
+	public ArrayList<String> coinsIgnore;
+	private CoinDetailSample coinDetails;
+	private ArrayList<String> currencyStrings;
+	private ArrayList<CharSequence> currencyChars;
 	private String defaultCurrencyCode;
 
 	@Override
@@ -60,9 +69,11 @@ public class App extends Application {
 				.apply();
 
 		if(!BuildConfig.DEBUG) {
-			AnalyticsManager.intialize(getApplicationContext());
-			setProperty("NativeCurrency", getLocaleCurrency());
-			FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
+			if(isGPSAvailable(this)) {
+				AnalyticsManager.intialize(getApplicationContext());
+				setProperty("NativeCurrency", getLocaleCurrency());
+				FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
+			}
 		}
 
     	try {
@@ -75,26 +86,114 @@ public class App extends Application {
 			e.printStackTrace();
 		}
 		loadCoinSymbols();
+		loadCurrencyList();
 		loadCoinDetails();
+		loadCoinIgnore();
+	}
+
+	private void loadCurrencyList() {
+		currencyStrings = new ArrayList<>();
+		currencyChars = new ArrayList<>();
+		String url = UrlManager.with(UrlConstant.CURRENCY_API).getUrl();
+		GsonRequest<Currencies> request = new GsonRequest<>(url,
+				Currencies.class,
+				"",
+				new Response.Listener<Currencies>() {
+					@Override
+					public void onResponse(Currencies list) {
+
+						for (Currencies.Currency currency: list.currencies) {
+							currencyStrings.add(currency.code);
+							currencyChars.add(currency.code);
+						}
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError volleyError) {
+
+					}
+				});
+		request.setCacheMinutes(Utils.getMasterDataCacheTime());
+		request.setShouldCache(true);
+		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "currency");
 	}
 
 	private void loadCoinSymbols() {
-		String symbolsString = Utils.getStringAsset(this, "symbols.json");
-		Gson gson = new Gson();
-		symbols = gson.fromJson(symbolsString, Symbols.class);
+		String url = UrlManager.with(UrlConstant.SYMBOLS_API).getUrl();
+
+		GsonRequest<Symbols> request = new GsonRequest<>(url,
+				Symbols.class,
+				"",
+				new Response.Listener<Symbols>() {
+					@Override
+					public void onResponse(Symbols list) {
+						symbols = new ArrayMap<>();
+
+						for (Symbols.Symbol sym: list.symbols) {
+							symbols.put(sym.code, sym.symbol);
+						}
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError volleyError) {
+
+					}
+				});
+		request.setCacheMinutes(Utils.getMasterDataCacheTime());
+		request.setShouldCache(true);
+		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "symbols");
 	}
 
 	private void loadCoinDetails() {
 		String symbolsString = Utils.getStringAsset(this, "coins.json");
 		Gson gson = new Gson();
-		coinDetails = gson.fromJson(symbolsString, CoinDetails.class);
+		coinDetails = gson.fromJson(symbolsString, CoinDetailSample.class);
 	}
 
-	public Symbols getSymbols(){
+	private void loadCoinIgnore() {
+		String url = UrlManager.with(UrlConstant.COINS_IGNORE_API).getUrl();
+
+		GsonRequest<CoinsList> request = new GsonRequest<>(url,
+				CoinsList.class,
+				"",
+				new Response.Listener<CoinsList>() {
+					@Override
+					public void onResponse(CoinsList list) {
+						coinsIgnore = new ArrayList<>();
+
+						for (CoinsList.Currency currency: list.coins_list) {
+							coinsIgnore.add(currency.code);
+						}
+					}
+				},
+				new Response.ErrorListener() {
+					@Override
+					public void onErrorResponse(VolleyError volleyError) {
+
+					}
+				});
+		request.setCacheMinutes(Utils.getMasterDataCacheTime());
+		request.setShouldCache(true);
+		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "coins_ignore");
+	}
+
+	public ArrayMap<String, String> getSymbols(){
+		if(null == symbols) {
+			return new ArrayMap<>();
+		}
 		return symbols;
 	}
 
-	public CoinDetails getCoinDetails(){
+	public ArrayList<String> getCoinsIgnore(){
+		if(null == coinsIgnore) {
+			return new ArrayList<>();
+		}
+		return coinsIgnore;
+	}
+
+	public CoinDetailSample getCoinDetails(){
 		return coinDetails;
 	}
 
@@ -116,30 +215,17 @@ public class App extends Application {
 	}
 
 	public ArrayList<String> getCurrencyToList() {
-		if(currencies == null){
-			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_names));
-			currencies = new ArrayList<>(currencyNames);
+		if(null == currencyStrings) {
+			return new ArrayList<>();
 		}
-
-		return currencies;
+		return currencyStrings;
 	}
 
-	public ArrayList<String> getCurrencyOneList() {
-		if(currenciesOne == null){
-			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_one));
-			currenciesOne = new ArrayList<>(currencyNames);
+	public ArrayList<CharSequence> getCurrencyCharsList() {
+		if(null == currencyChars) {
+			return new ArrayList<>();
 		}
-
-		return currenciesOne;
-	}
-
-	public ArrayList<String> getCurrencyTwoList() {
-		if(currenciesTWo == null){
-			List<String> currencyNames = Arrays.asList(getResources().getStringArray(R.array.currency_two));
-			currenciesTWo = new ArrayList<>(currencyNames);
-		}
-
-		return currenciesTWo;
+		return currencyChars;
 	}
 
 	public String getLocaleCurrency(){

@@ -14,32 +14,32 @@
         android:background="@android:color/white"
         android:orientation="horizontal">
 
-        <com.jaredrummler.materialspinner.Spinner
+        <dev.dworks.apps.acrypto.view.Spinner
             android:id="@+id/currencyFromSpinner"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:maxLines="1"
             android:theme="@style/spinnerStyle"
-            app:ms_dropdown_max_height="300dp" />
+            app:ms_dropdown_max_height="@dimen/spinner_max_height" />
 
-        <com.jaredrummler.materialspinner.Spinner
+        <dev.dworks.apps.acrypto.view.Spinner
             android:id="@+id/currencyToSpinner"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:theme="@style/spinnerStyle"
-            app:ms_dropdown_max_height="300dp" />
+            app:ms_dropdown_max_height="@dimen/spinner_max_height" />
 
 
-        <com.jaredrummler.materialspinner.Spinner
+        <dev.dworks.apps.acrypto.view.Spinner
             android:id="@+id/exchangeSpinner"
             android:layout_width="160dp"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:maxLines="1"
             android:theme="@style/spinnerStyle"
-            app:ms_dropdown_max_height="300dp" />
+            app:ms_dropdown_max_height="@dimen/spinner_max_height" />
     </LinearLayout>
 
     <LinearLayout
@@ -171,7 +171,7 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1M" />
+                    android:text="10M" />
 
 
                 <RadioButton

@@ -16,67 +16,85 @@ public class Coins extends BaseEntity implements Serializable{
     @SerializedName("Data")
     @Expose
     public ArrayList<String> data = null;
+    public ArrayList<CoinDetails.Coin> coins = new ArrayList<>();
 
-    public static class Coin implements Serializable {
+    public static class CoinDetail implements Serializable {
 
-        // 1. TYPE : 5
-        // 2. MARKET : CCCAGG
-        // 3. FROMSYMBOL : BTC
-        // 4. TOSYMBOL : USD
-        // 5. FLAG :  4
-        // 6. PRICE :  2159.75
-        // 7. LASTUPDATE : 1495952799
-        // 8. AVG : 0.249
-        // 9. LASTVOLUME : 544.40613
-        // 10. Last Trade ID :  15960455
-        // 12. VOLUME24HOUR : 186244.47348771704
-        // 13. VOLUME24HOURTO : 372064007.6147878
-        // 14. OPENHOUR : 2073.1
-        // 15. HIGHHOUR : 2231.57
-        // 16. LOWHOUR : 1851.93
-        // 17. LASTMARKET : Coinbase
-        // 18. MaskInt :  78ce9
+        @SerializedName("TYPE")
+        @Expose
+        public String type;
+        @SerializedName("MARKET")
+        @Expose
+        public String market;
+        @SerializedName("FROMSYMBOL")
+        @Expose
+        public String fromSym;
+        @SerializedName("TOSYMBOL")
+        @Expose
+        public String toSym;
+        @SerializedName("FLAGS")
+        @Expose
+        public String flags;
+        @SerializedName("PRICE")
+        @Expose
+        public String price;
+        @SerializedName("LASTUPDATE")
+        @Expose
+        public String lastUpdate;
+        @SerializedName("LASTVOLUME")
+        @Expose
+        public String lastVolume;
+        @SerializedName("LASTVOLUMETO")
+        @Expose
+        public String lastVolumeTo;
+        @SerializedName("LASTTRADEID")
+        @Expose
+        public String lastTradeId;
+        @SerializedName("VOLUME24HOUR")
+        @Expose
+        public String volume24H;
+        @SerializedName("VOLUME24HOURTO")
+        @Expose
+        public String volume24HTo;
+        @SerializedName("OPEN24HOUR")
+        @Expose
+        public String open24H;
+        @SerializedName("HIGH24HOUR")
+        @Expose
+        public String high24H;
+        @SerializedName("LOW24HOUR")
+        @Expose
+        public String low24H;
+        @SerializedName("LASTMARKET")
+        @Expose
+        public String lastMarket;
 
-        public final String type;
-        public final String market;
-        public final String fromSym;
-        public final String toSym;
-        public final String flag;
-        public final String price;
-        public final String lastUpdate;
-        public final String avg;
-        public final String lastVolume;
-        public final String lastTradeId;
-        public final String volume24;
-        public final String volume24To;
-        public final String openHour;
-        public final String highHour;
-        public final String lowHour;
-        public final String lastMarket;
+        public CoinDetail() {
 
-        public Coin(String data){
-           String[] dataSplit =  data.split("~");
-           type = dataSplit[0];
-           market = dataSplit[1];
-           fromSym = dataSplit[2];
-           toSym = dataSplit[3];
-           flag = dataSplit[4];
-           price = dataSplit[5];
-           lastUpdate = dataSplit[6];
-           avg = dataSplit[7];
-           lastVolume = dataSplit[8];
-           lastTradeId = dataSplit[9];
-           volume24 = dataSplit[10];
-           volume24To = dataSplit[11];
-           openHour = dataSplit[12];
-           highHour = dataSplit[13];
-           lowHour = dataSplit[14];
-           lastMarket = dataSplit[15];
+        }
 
+        public CoinDetail(String data) {
+            String[] dataSplit = data.split("~");
+            type = dataSplit[0];
+            market = dataSplit[1];
+            fromSym = dataSplit[2];
+            toSym = dataSplit[3];
+            flags = dataSplit[4];
+            price = dataSplit[5];
+            lastUpdate = dataSplit[6];
+            lastVolume = dataSplit[7];
+            lastVolumeTo = dataSplit[8];
+            lastTradeId = dataSplit[9];
+            volume24H = dataSplit[10];
+            volume24HTo = dataSplit[11];
+            open24H = dataSplit[12];
+            high24H = dataSplit[13];
+            low24H = dataSplit[14];
+            lastMarket = dataSplit[15];
         }
     }
 
-    public static Coin getCoin(String data){
-        return new Coin(data);
+    public static CoinDetail getCoin(String data){
+        return new CoinDetail(data);
     }
 }

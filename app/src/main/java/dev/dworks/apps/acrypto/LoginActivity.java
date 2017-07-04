@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -26,14 +27,12 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
 
-import dev.dworks.apps.acrypto.entity.User;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import needle.Needle;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static dev.dworks.apps.acrypto.entity.User.USERS;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -52,7 +51,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        getSupportActionBar().setTitle(null);
         initControls();
     }
 
@@ -67,6 +65,11 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 AnalyticsManager.logEvent("login_attempted");
             }
         });
+        try {
+            ((TextView) googleButton.getChildAt(0)).setText(R.string.common_signin_button_text_long);
+        } catch (ClassCastException | NullPointerException e) {
+            e.printStackTrace();
+        }
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -85,7 +88,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null && !user.isAnonymous()) {
                     // User is signed in
-                    addUserToDatabase(user);
+                    FirebaseHelper.updateUser();
                     Intent home = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(home);
                     finish();
@@ -94,26 +97,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         };
 
         displayLoadingState();
-    }
-
-    private void addUserToDatabase(FirebaseUser firebaseUser) {
-        User user = new User(
-                firebaseUser.getDisplayName(),
-                firebaseUser.getEmail(),
-                firebaseUser.getUid(),
-                firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString()
-        );
-
-        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(user.getUid()).setValue(user);
-
-        String instanceId = FirebaseInstanceId.getInstance().getToken();
-        if (instanceId != null) {
-            FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                    .child(firebaseUser.getUid())
-                    .child("instanceId")
-                    .setValue(instanceId);
-        }
     }
 
     @Override

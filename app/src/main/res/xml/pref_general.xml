@@ -4,12 +4,13 @@
         android:key="account"
         android:title="Account">
         <ListPreference
-            android:entries="@array/currency_names"
-            android:entryValues="@array/currency_names"
             android:key="user_currency"
             android:persistent="true"
             android:summary="%s"
             android:title="@string/pref_currency_title" />
+        <Preference
+            android:key="logout"
+            android:title="@string/pref_title_logout" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="about"
@@ -18,6 +19,4 @@
             android:key="build_version"
             android:title="@string/pref_title_build_version" />
     </PreferenceCategory>
-
-
 </PreferenceScreen>

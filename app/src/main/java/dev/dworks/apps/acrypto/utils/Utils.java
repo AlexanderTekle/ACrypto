@@ -3,12 +3,14 @@ package dev.dworks.apps.acrypto.utils;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -36,6 +38,8 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.request.StringRequest;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -51,9 +55,11 @@ import java.lang.reflect.Type;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -62,7 +68,9 @@ import java.util.TimeZone;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.R;
-import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.entity.CoinDetailSample;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 
@@ -77,8 +85,6 @@ public class Utils {
     @Retention(RetentionPolicy.SOURCE)
     public @interface Visibility {}
 
-    public static final int REQUEST_CHECK_SETTINGS = 0x1;
-
     // cache
     public static final int IMAGE_SIZE_BIG = 100;
     public static final int IMAGE_SIZE = 50;
@@ -87,37 +93,13 @@ public class Utils {
     public static final String IMAGE_CACHE_DIR = "thumbs";
     public static final String IMAGE_BG_CACHE_DIR = "bgs";
 
-    public static final String API_URL ="";// BuildConfig.BASE_API_URL;
     static final String TAG = "Utils";
-    public static final String BUNDLE_PLACES = "bundle_places";
-    public static final String BUNDLE_RESTAURANT = "bundle_restaurant";
-    public static final String BUNDLE_MENU = "bundle_menu";
-    public static final String BUNDLE_MENU_ITEMS = "bundle_menu_items";
-    public static final String BUNDLE_FAVORITE_ITEMS = "bundle_favourite_items";
-    public static final String BUNDLE_ITEM = "bundle_item";
-    public static final String BUNDLE_LOCATION = "bundle_location";
-    public static final String BUNDLE_ADDRESS = "bundle_address";
 
-    public static final String GOOGLE_PLACES_URL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json";
-    public static final String GOOGLE_PHOTOS_URL = "https://maps.googleapis.com/maps/api/place/photo";
-    public static final String GOOGLE_PLACES_API_KEY = "AIzaSyArBmLVB_OqHZAiQo7zoSzbnAiDjkPZ03o";
-
-    //Restaurant
-    public static final String BUNDLE_RESTAURANT_ID = "bundle_restaurant_id";
-    public static final String BUNDLE_RESTAURANT_NAME = "bundle_restaurant_name";
-    public static final String BUNDLE_RESTAURANT_URL = "bundle_restaurant_url";
-    public static final String BUNDLE_RESTAURANT_CUISINES = "bundle_restaurant_cuisines";
-    public static final String BUNDLE_SEARCH_QUERY = "bundle_search_query";
-    public static final String BUNDLE_SEARCH_ITEM_NAME = "bundle_search_item_name";
-
-    //Menut Item
-    public static final String BUNDLE_ITEM_ID = "bundle_item_id";
-    public static final String BUNDLE_ITEM_NAME = "bundle_item_name";
-    public static final String BUNDLE_ITEM_URL = "bundle_item_url";
-
-    public static final String BUNDLE_IMAGE_PATH = "bundle_image_path";
-
-    public static final String PARAM_KEY = "thuglife";
+    //Coins
+    public static final String BUNDLE_CURRENCY = "bundle_currency";
+    public static final String BUNDLE_COINS = "bundle_coins";
+    public static final String BUNDLE_COIN = "bundle_coin";
+    public static final String BUNDLE_SCREEN_NAME = "bundle_screen_name";
 
     public static final String REGISTERED_VERSION_CODE = "registered_version_code";
     public static final String REQUIRED_VERSION_CODE = "required_version_code";
@@ -134,7 +116,7 @@ public class Utils {
         if (!BuildConfig.DEBUG) {
             return;
         }
-        String topic = "SHIFOO-DROID";
+        String topic = "ACRYPTO-DROID";
         if (t != null) {
             topic = topic + " " + t;
         }
@@ -382,16 +364,18 @@ public class Utils {
         return text;
     }
 
-    public static void openCustomTabUrl(Context context, String url){
+    public static void openCustomTabUrl(Activity activity, String url){
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-        builder.setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary));
-        builder.setSecondaryToolbarColor(ContextCompat.getColor(context, R.color.colorAccent));
-        builder.setCloseButtonIcon(getVector2Bitmap(context, R.drawable.ic_back));
-        //builder.setCloseButtonIcon(BitmapFactory.decodeResource(
-          //      context.getResources(), R.drawable.abc_ic_ab_back_material));
+        builder.setToolbarColor(ContextCompat.getColor(activity, R.color.colorPrimary));
+        builder.setSecondaryToolbarColor(ContextCompat.getColor(activity, R.color.colorAccent));
+        builder.setCloseButtonIcon(getVector2Bitmap(activity, R.drawable.ic_back));
         CustomTabsIntent customTabsIntent = builder.build();
         customTabsIntent.intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-        customTabsIntent.launchUrl(context, Uri.parse(url));
+        try {
+            customTabsIntent.launchUrl(activity, Uri.parse(url));
+        } catch (ActivityNotFoundException ex) {
+            showSnackBar(activity, "Cant Open");
+        }
     }
 
     public static void openUrl(Context context, String url){
@@ -437,6 +421,13 @@ public class Utils {
         return 0;
     }
 
+    public static String getString(Fragment fragment, int resId, Object... formatArgs){
+        if(null != fragment && fragment.isAdded()){
+            return fragment.getResources().getString(resId, formatArgs);
+        }
+        return "";
+    }
+
     public static int getValueDifferenceColor(double value){
         int colorRes = R.color.accent_white;
         if(value > 0){
@@ -466,7 +457,7 @@ public class Utils {
     }
 
     public static void setPriceValue(MoneyTextView textView, double value, String symbol){
-        textView.setDecimalFormat(getMoneyFormat(value));
+        textView.setDecimalFormat(getMoneyFormat(value, symbol));
         textView.setAmount((float) Math.abs(value));
         textView.setSymbol(symbol);
     }
@@ -476,14 +467,20 @@ public class Utils {
     }
 
     public static DecimalFormat getMoneyFormat(boolean high){
-        String precisionFormat = high ? "###,##0.######" : "###,##0.##";
+        String precisionFormat = high ? "###,##0.###" : "###,##0.##";
         DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
         decimalFormat.setDecimalSeparatorAlwaysShown(false);
         return decimalFormat;
     }
 
-    public static DecimalFormat getMoneyFormat(double value){
-        String precisionFormat = Math.abs((int)value) == 0 ? "###,##0.######" : "###,##0.##";
+    public static DecimalFormat getMoneyFormat(double value, String symbol){
+        String precisionFormat = "###,##0.###";
+
+        if("Ƀ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        } else if("Ξ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        }
         DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
         decimalFormat.setDecimalSeparatorAlwaysShown(false);
         return decimalFormat;
@@ -540,11 +537,11 @@ public class Utils {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
-                        Type coinType = new TypeToken<ArrayList<CoinDetails.CoinDetail>>() {}.getType();
-                        ArrayList<CoinDetails.CoinDetail> array = new Gson().fromJson(s, coinType);
-                        CoinDetails sample = new CoinDetails();
-                        for (CoinDetails.CoinDetail coin : array){
-                            sample.coins.put(coin.symbol, new CoinDetails.CoinDetail(coin.id, coin.name));
+                        Type coinType = new TypeToken<ArrayList<CoinDetailSample.CoinDetail>>() {}.getType();
+                        ArrayList<CoinDetailSample.CoinDetail> array = new Gson().fromJson(s, coinType);
+                        CoinDetailSample sample = new CoinDetailSample();
+                        for (CoinDetailSample.CoinDetail coin : array){
+                            sample.coins.put(coin.symbol, new CoinDetailSample.CoinDetail(coin.id, coin.name));
                         }
                         String values = new Gson().toJson(sample);
                         try {
@@ -568,13 +565,125 @@ public class Utils {
         VolleyPlusHelper.with(context).addToRequestQueue(request2);
     }
 
-    public static String getDisplayPercentage(double value){
+    public static String getDisplayPercentageSimple(double valueOne, double valueTwo){
+        valueOne = valueOne == 0 ? 1 : valueOne;
+        double value = ((valueTwo - valueOne)/valueOne) * 100;
+        if(value == 0){
+            return " - ";
+        }
         return String.format("%.2f", Math.abs(value)) + "% " + (value > 0 ? "↑" : "↓");
     }
 
-    public static String getDisplayPercentage(double valueOne, double valueTwo){
+    public static String getDisplayPercentageRounded(double valueOne, double valueTwo){
+        valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
+        if(value == 0){
+            return " - ";
+        }
         return String.valueOf(Math.round(Math.abs(value))) +  "% " + (value > 0 ? "▲" : "▼");
     }
 
+    public static String getDisplayPercentage(double valueOne, double valueTwo){
+        valueOne = valueOne == 0 ? 1 : valueOne;
+        double value = ((valueTwo - valueOne)/valueOne) * 100;
+        if(value == 0){
+            return " - ";
+        }
+        return String.format("%.2f", Math.abs(value)) +  "% " + (value > 0 ? "▲" : "▼");
+    }
+
+    public static String getCurrencySymbol(String currencyTo){
+        String currencyToSymbol = "";
+        try {
+            currencyToSymbol = App.getInstance().getSymbols().get(currencyTo);
+        } catch (Exception e){
+            Currency currency = Currency.getInstance(currencyTo);
+            currencyToSymbol = currency.getSymbol();
+        } finally {
+            if(TextUtils.isEmpty(currencyToSymbol)){
+                currencyToSymbol = currencyTo;
+            }
+        }
+        return currencyToSymbol;
+    }
+
+    public static String getDisplayCurrency(Double value){
+        return String.format("%.2f", Math.abs(value));
+    }
+
+    public static String roundDouble(String value){
+        return roundDouble(Double.valueOf(value));
+    }
+
+    public static String roundDouble(Double value){
+        RoundedNumberFormat roundedNumberFormat = new RoundedNumberFormat();
+        return roundedNumberFormat.format(value);
+    }
+
+    public static String getFormattedNumber(double value, String symbol){
+        DecimalFormat decimalFormat = getMoneyFormat(value, symbol);
+        return decimalFormat.format(value);
+    }
+
+    public static String formatDoubleValue(String value) {
+        return formatDoubleValue(Double.valueOf(value));
+    }
+
+    public static String formatDoubleValue(double value) {
+        int power;
+        String suffix = " KMBT";
+        String formattedNumber = "";
+
+        if(value == 0){
+            return "-";
+        }
+        NumberFormat formatter = new DecimalFormat("#,###.#");
+        power = (int)StrictMath.log10(value);
+        value = value/(Math.pow(10,(power/3)*3));
+        formattedNumber=formatter.format(value);
+        formattedNumber = formattedNumber + suffix.charAt(power/3);
+        return formattedNumber.length()>4 ?  formattedNumber.replaceAll("\\.[0-9]+", "") : formattedNumber;
+    }
+
+    public static void showAppFeedback(Activity activity){
+        AppFeedback.with(activity, R.id.container_rate).listener(new AppFeedback.OnShowListener() {
+            @Override
+            public void onRateAppShowing() {
+                AnalyticsManager.logEvent("feedback_shown");
+            }
+
+            @Override
+            public void onRateAppDismissed() {
+                AnalyticsManager.logEvent("feedback_dismissed");
+            }
+
+            @Override
+            public void onRateAppClicked() {
+                AnalyticsManager.logEvent("feedback_given");
+            }
+        }).checkAndShow();
+    }
+
+    public static int darker(int color, float factor) {
+        return Color.argb(Color.alpha(color), Math.max((int)((float)Color.red(color) * factor), 0), Math.max((int)((float)Color.green(color) * factor), 0), Math.max((int)((float)Color.blue(color) * factor), 0));
+    }
+
+    public static int lighter(int color, float factor) {
+        int red = (int)(((float)Color.red(color) * (1.0F - factor) / 255.0F + factor) * 255.0F);
+        int green = (int)(((float)Color.green(color) * (1.0F - factor) / 255.0F + factor) * 255.0F);
+        int blue = (int)(((float)Color.blue(color) * (1.0F - factor) / 255.0F + factor) * 255.0F);
+        return Color.argb(Color.alpha(color), red, green, blue);
+    }
+
+    public static boolean isRtl(Context context) {
+        return hasJellyBeanMR1() && context.getResources().getConfiguration().getLayoutDirection() == 1;
+    }
+
+    public static boolean isGPSAvailable(Context context){
+        return ConnectionResult.SUCCESS == GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
+    }
+
+    public static int getMasterDataCacheTime() {
+        return 1440*30;
+    }
 }

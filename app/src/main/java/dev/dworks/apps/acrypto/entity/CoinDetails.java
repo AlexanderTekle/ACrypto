@@ -1,7 +1,5 @@
 package dev.dworks.apps.acrypto.entity;
 
-import android.support.v4.util.ArrayMap;
-
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -9,62 +7,59 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Created by HaKr on 28/05/17.
+ * Created by HaKr on 18/06/17.
  */
 
-public class CoinDetails {
-    public ArrayMap<String, CoinDetail> coins =  new ArrayMap<>();
+public class CoinDetails extends BaseEntity {
+    @SerializedName("Data")
+    @Expose
+    public Coin data;
 
-    public ArrayList<CoinDetail> data;
+    public Double getMarketCap(){
+        Double mined = data.totalCoinsMined;
+        Double price = Double.valueOf(data.aggregatedData.price);
+        try {
+            return mined * price;
+        } catch (Exception e){
+            return 0.0;
+        }
+    }
 
-    public static class CoinDetail implements Serializable {
-
-        @SerializedName("id")
+    public static class Coin implements Serializable{
+        @SerializedName("code")
         @Expose
-        public String id;
+        public String code;
         @SerializedName("name")
         @Expose
         public String name;
-        @SerializedName("symbol")
+        @SerializedName("Algorithm")
         @Expose
-        public String symbol;
-        @SerializedName("rank")
+        public String algorithm;
+        @SerializedName("ProofType")
         @Expose
-        public String rank;
-        @SerializedName("price_usd")
+        public String proofType;
+        @SerializedName("BlockNumber")
         @Expose
-        public String priceUsd;
-        @SerializedName("price_btc")
+        public Integer blockNumber;
+        @SerializedName("NetHashesPerSecond")
         @Expose
-        public String priceBtc;
-        @SerializedName("24h_volume_usd")
+        public Double netHashesPerSecond;
+        @SerializedName("TotalCoinsMined")
         @Expose
-        public String volumeUsd_24h;
-        @SerializedName("market_cap_usd")
+        public Double totalCoinsMined;
+        @SerializedName("BlockReward")
         @Expose
-        public String marketCapUsd;
-        @SerializedName("available_supply")
+        public Double blockReward;
+        @SerializedName("AggregatedData")
         @Expose
-        public String availableSupply;
-        @SerializedName("total_supply")
+        public Coins.CoinDetail aggregatedData;
+        @SerializedName("Exchanges")
         @Expose
-        public String totalSupply;
-        @SerializedName("percent_change_1h")
-        @Expose
-        public String percentChange1h;
-        @SerializedName("percent_change_24h")
-        @Expose
-        public String percentChange24h;
-        @SerializedName("percent_change_7d")
-        @Expose
-        public String percentChange7d;
-        @SerializedName("last_updated")
-        @Expose
-        public String lastUpdated;
+        public ArrayList<Coins.CoinDetail> exchanges = null;
 
-        public CoinDetail(String id, String name){
-            this.id = id;
-            this.name = name;
+        @Override
+        public String toString() {
+            return code;
         }
     }
 }

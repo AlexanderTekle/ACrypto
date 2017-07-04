@@ -2,6 +2,10 @@ package dev.dworks.apps.acrypto.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
@@ -15,6 +19,9 @@ import com.android.volley.cache.SimpleImageLoader;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.toolbox.VolleyTickle;
+
+import java.util.ArrayList;
+import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
@@ -96,8 +103,12 @@ public class VolleyPlusHelper {
                     TextUtils.isEmpty(mCacheDir) ? IMAGE_CACHE_DIR :  mCacheDir);
             cacheParams.setMemCacheSizePercent(0.5f);
 
+            ArrayList<Drawable> drawables = new ArrayList<>();
+            drawables.add(AppCompatDrawableManager.get().getDrawable(mContext,
+                    mPlaceHolder == 0 ? R.drawable.ic_coins : mPlaceHolder));
+
             mImageLoader = new SimpleImageLoader(mContext, cacheParams);
-            mImageLoader.setDefaultDrawable(mPlaceHolder == 0 ? R.drawable.ic_coins : mPlaceHolder);
+            mImageLoader.setDefaultDrawables(drawables);
             mImageLoader.setMaxImageSize(hasMoreHeap() ? IMAGE_SIZE_BIG: IMAGE_SIZE);
             mImageLoader.setFadeInImage(mCrossfade);
             mImageLoader.setContetResolver(mContext.getContentResolver());
@@ -157,5 +168,28 @@ public class VolleyPlusHelper {
     }
     public static boolean hasMoreHeap(){
         return Runtime.getRuntime().maxMemory() > 20971520;
+    }
+
+    public static String parseCharset(Map<String, String> headers, String defaultCharset) {
+        String contentType = (String)headers.get("Content-Type");
+        if(null == contentType) {
+            contentType = (String) headers.get("content-type");
+        }
+        if(contentType != null) {
+            String[] params = contentType.split(";");
+
+            for(int i = 1; i < params.length; ++i) {
+                String[] pair = params[i].trim().split("=");
+                if(pair.length == 2 && pair[0].equals("charset")) {
+                    return pair[1];
+                }
+            }
+        }
+
+        return defaultCharset;
+    }
+
+    public static String parseCharset(Map<String, String> headers) {
+        return parseCharset(headers, "ISO-8859-1");
     }
 }

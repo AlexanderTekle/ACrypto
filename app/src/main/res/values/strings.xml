@@ -7,6 +7,8 @@
 
     <string name="action_settings">Settings</string>
     <string name="action_refresh">Refresh</string>
+    <string name="action_view">View</string>
+    <string name="action_more">View More</string>
     <string name="loading">Loading…</string>
 
     <string name="time_just_now">just now</string>
@@ -29,8 +31,8 @@
     <string name="made_with_love">Made with Love</string>
     <string name="feedback_app_title">Enjoying ACrypto?</string>
     <string name="feedaback_app_message">Rate the app in Play Store or send us the feedback. Spread the love!</string>
-    <string name="artbitrage_message"><![CDATA[ You can buy <b>%1$s</b> for a price of ~<b>%2$s</b>
-    and sell it for a price of ~<b>%3$s</b>. This will make you a %4$s  of ~<font color=#009688><b>%5$s</b>!]]></string>
+    <string name="artbitrage_message"><![CDATA[ Buy <b>%1$s</b> for a price of ~<b>%2$s</b> <br/>
+    Sell it for a price of ~<b>%3$s</b> <br/> Get a %4$s  of ~<font color=#009688><b>%5$s</b>!]]></string>
 
     <string name="pref_title_build_version">Build version</string>
     <string name="pref_title_logout">Logout</string>
@@ -39,5 +41,8 @@
     <string name="default_currency">USD</string>
 
     <string name="error_google_sign_in">Can\'t sign in using Google</string>
+    <string name="tab_text_1">Info</string>
+    <string name="tab_text_2">Exchanges</string>
+    <string name="tab_text_3">Charts</string>
 
 </resources>

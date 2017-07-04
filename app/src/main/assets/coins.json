@@ -1,5 +1,21 @@
 {
   "coins": {
+    "BNC": {
+      "id": "bancor-network-token",
+      "name": "Bancor Network Token"
+    },
+    "QRL": {
+      "id": "quantum-resistant-ledger",
+      "name": "Quantum Resistant Ledger"
+    },
+    "BAT": {
+      "id": "basic-attention-token",
+      "name": "Basic Attention Token"
+    },
+    "IOT": {
+      "id": "iota",
+      "name": "IOTA"
+    },
     "RRT": {
       "id": "rrt",
       "name": "Recovery Right Tokens"
@@ -191,10 +207,6 @@
     "XP": {
       "id": "xp",
       "name": "XP"
-    },
-    "$$$": {
-      "id": "money",
-      "name": "Money"
     },
     "1CR": {
       "id": "1credit",
@@ -574,7 +586,7 @@
     },
     "DCT": {
       "id": "decent",
-      "name": "DECENT (Pre-Launch)"
+      "name": "DECENT"
     },
     "DEM": {
       "id": "deutsche-emark",
@@ -2718,7 +2730,7 @@
     },
     "QTUM": {
       "id": "qtum",
-      "name": "Qtum (Pre-Launch)"
+      "name": "Qtum"
     },
     "RADS": {
       "id": "radium",

@@ -2,7 +2,6 @@ package dev.dworks.apps.acrypto.coins;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,15 +16,14 @@ import java.util.ArrayList;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
-import dev.dworks.apps.acrypto.entity.CoinDetails;
+import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.Coins;
-import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
-import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentage;
+import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageSimple;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 
@@ -35,7 +33,6 @@ import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 
 public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> implements Filterable{
 
-    private final Symbols coinSymbols;
     ArrayList<String> mData;
     ArrayList<String> mOrigData;
 
@@ -43,15 +40,20 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
     private String mBaseImageUrl;
+    private String mCurrencySymbol;
 
     public CoinAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
-        coinSymbols = App.getInstance().getSymbols();
     }
 
     public CoinAdapter setBaseImageUrl(String baseImageUrl) {
         this.mBaseImageUrl = baseImageUrl;
+        return this;
+    }
+
+    public CoinAdapter setCurrencySymbol(String currencySymbol) {
+        this.mCurrencySymbol = currencySymbol;
         return this;
     }
 
@@ -183,22 +185,20 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
 
         public void setData(int position){
             mPosition = position;
-            Coins.Coin item = Coins.getCoin(mData.get(position));
+            Coins.CoinDetail item = Coins.getCoin(mData.get(position));
             String url = "";
             try {
-                final CoinDetails.CoinDetail coinDetail = getCoin(item.fromSym);
+                final CoinDetailSample.CoinDetail coinDetail = getCoin(item.fromSym);
                 name.setText(coinDetail.name);
                 url = getCoinUrl(coinDetail);
 
             } catch (Exception e){
                 name.setText(item.fromSym);
-                Log.i("WhatDoYouKnow", item.fromSym);
             }
-
             imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
 
-            Utils.setNumberValue(volume, Double.parseDouble(item.volume24To), "$");
-            Utils.setPriceValue(price, Double.parseDouble(item.price), "$");
+            Utils.setNumberValue(volume, Double.parseDouble(item.volume24HTo), mCurrencySymbol);
+            Utils.setPriceValue(price, Double.parseDouble(item.price), mCurrencySymbol);
             setDifference(item);
         }
 
@@ -209,19 +209,19 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             }
         }
 
-        private CoinDetails.CoinDetail getCoin(String symbol){
+        private CoinDetailSample.CoinDetail getCoin(String symbol){
             return App.getInstance().getCoinDetails().coins.get(symbol);
         }
 
-        private String getCoinUrl(CoinDetails.CoinDetail coinDetail){
+        private String getCoinUrl(CoinDetailSample.CoinDetail coinDetail){
             return mBaseImageUrl + coinDetail.id + ".png";
         }
 
-        private void setDifference(Coins.Coin item){
+        private void setDifference(Coins.CoinDetail item){
             double currentPrice = Double.parseDouble(item.price);
-            double prevPrice = Double.parseDouble(item.openHour);
-            Double difference = ((currentPrice - prevPrice) / prevPrice) * 100;
-            change.setText(getDisplayPercentage(difference));
+            double prevPrice = Double.parseDouble(item.open24H);
+            Double difference = (currentPrice - prevPrice);
+            change.setText(getDisplayPercentageSimple(prevPrice, currentPrice));
             change.setTextColor(ContextCompat.getColor(change.getContext(), getPercentDifferenceColor(difference)));
         }
     }

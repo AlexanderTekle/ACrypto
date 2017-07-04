@@ -12,7 +12,7 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <com.shifoo.widget.MaterialProgressBar
+        <dev.dworks.apps.acrypto.view.MaterialProgressBar
             style="@style/ListProgress"
             app:color="@color/colorAccentSecondary" />
 

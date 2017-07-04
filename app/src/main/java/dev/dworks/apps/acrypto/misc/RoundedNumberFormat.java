@@ -26,11 +26,14 @@ public class RoundedNumberFormat extends DecimalFormat {
     @Override
     public StringBuffer format(double number, StringBuffer toAppendTo, FieldPosition pos) {
 
+        if(Double.isNaN(number)){
+            return toAppendTo.append("-");
+        }
         // if the number is negative, convert it to a positive number and add the minus sign to the output at the end
         boolean isNegative = number < 0;
         number = Math.abs(number);
 
-        String result = new DecimalFormat("##0.####E0").format(number);
+        String result = new DecimalFormat("##0.##E0").format(number);
 
         Integer index = Character.getNumericValue(result.charAt(result.length() - 1)) / 3;
         result = result.replaceAll("E[0-9]", METRIC_PREFIXES[index]);

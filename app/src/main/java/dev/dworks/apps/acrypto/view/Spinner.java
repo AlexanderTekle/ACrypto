@@ -1,9 +1,4 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
-package com.jaredrummler.materialspinner;
+package dev.dworks.apps.acrypto.view;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
@@ -20,6 +15,7 @@ import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -32,6 +28,8 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 
+import com.jaredrummler.materialspinner.MaterialSpinnerAdapter;
+import com.jaredrummler.materialspinner.MaterialSpinnerBaseAdapter;
 import com.jaredrummler.materialspinner.R.dimen;
 import com.jaredrummler.materialspinner.R.drawable;
 import com.jaredrummler.materialspinner.R.styleable;
@@ -39,6 +37,8 @@ import com.jaredrummler.materialspinner.R.styleable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+
+import dev.dworks.apps.acrypto.utils.Utils;
 
 public class Spinner extends AppCompatTextView {
     private Spinner.OnNothingSelectedListener onNothingSelectedListener;
@@ -106,14 +106,14 @@ public class Spinner extends AppCompatTextView {
         this.setGravity(8388627);
         this.setClickable(true);
         this.setPadding(left, top, right, bottom);
-        this.setBackgroundResource(drawable.ms__selector);
+        this.setBackgroundResource(dev.dworks.apps.acrypto.R.drawable.spinner_selector);
         if(VERSION.SDK_INT >= 17 && rtl) {
             this.setLayoutDirection(1);
             this.setTextDirection(4);
         }
 
         if(!this.hideArrow) {
-            this.arrowDrawable = Utils.getDrawable(context, drawable.ms__arrow).mutate();
+            this.arrowDrawable = ContextCompat.getDrawable(context, drawable.ms__arrow).mutate();
             this.arrowDrawable.setColorFilter(this.arrowColor, Mode.SRC_IN);
             if(rtl) {
                 this.setCompoundDrawablesWithIntrinsicBounds(this.arrowDrawable, (Drawable)null, (Drawable)null, (Drawable)null);
@@ -150,9 +150,9 @@ public class Spinner extends AppCompatTextView {
         this.popupWindow.setFocusable(true);
         if(VERSION.SDK_INT >= 21) {
             this.popupWindow.setElevation(16.0F);
-            this.popupWindow.setBackgroundDrawable(Utils.getDrawable(context, drawable.ms__drawable));
+            this.popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(context, drawable.ms__drawable));
         } else {
-            this.popupWindow.setBackgroundDrawable(Utils.getDrawable(context, drawable.ms__drop_down_shadow));
+            this.popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(context, drawable.ms__drop_down_shadow));
         }
 
         if(this.backgroundColor != -1) {
@@ -222,7 +222,6 @@ public class Spinner extends AppCompatTextView {
 
     public void setTextColor(int color) {
         this.textColor = color;
-        super.setTextColor(color);
     }
 
     public Parcelable onSaveInstanceState() {
@@ -277,7 +276,8 @@ public class Spinner extends AppCompatTextView {
     public void setSelectedIndex(int position) {
         if(this.adapter != null) {
             if(position < 0 || position > this.adapter.getCount()) {
-                throw new IllegalArgumentException("Position must be lower than adapter count!");
+               // throw new IllegalArgumentException("Position must be lower than adapter count!");
+                return;
             }
 
             this.adapter.notifyItemSelected(position);
@@ -299,6 +299,7 @@ public class Spinner extends AppCompatTextView {
         this.numberOfItems = items.size();
         this.adapter = (new MaterialSpinnerAdapter(this.getContext(), items)).setTextColor(this.textColor);
         this.setAdapterInternal(this.adapter);
+        getPopupWindow().setHeight(calculatePopupWindowHeight());
     }
 
     public <T> void setItems(@NonNull T... items) {
@@ -324,7 +325,9 @@ public class Spinner extends AppCompatTextView {
         if(this.selectedIndex >= this.numberOfItems) {
             this.selectedIndex = 0;
         }
-
+        if(numberOfItems == 0){
+            return;
+        }
         this.setText(adapter.get(this.selectedIndex).toString());
     }
 
@@ -382,7 +385,7 @@ public class Spinner extends AppCompatTextView {
     }
 
     public void setDropdownWidth(int width) {
-        this.popupWindowHeight = width;
+        this.popupWindowWidth = width;
         this.getPopupWindow().setHeight(popupWindowWidth);
     }
 
@@ -391,7 +394,11 @@ public class Spinner extends AppCompatTextView {
             return -2;
         } else {
             float listViewHeight = (float)this.adapter.getCount() * this.getResources().getDimension(dimen.ms__item_height);
-            return this.popupWindowMaxHeight > 0 && listViewHeight > (float)this.popupWindowMaxHeight?this.popupWindowMaxHeight:(this.popupWindowHeight != -1 && this.popupWindowHeight != -2 && (float)this.popupWindowHeight <= listViewHeight?this.popupWindowHeight:-2);
+            return this.popupWindowMaxHeight > 0 && listViewHeight > (float)this.popupWindowMaxHeight
+                    ? this.popupWindowMaxHeight
+                    : (this.popupWindowHeight != -1
+                    && this.popupWindowHeight != -2
+                    && (float)this.popupWindowHeight <= listViewHeight ? this.popupWindowHeight : -2);
         }
     }
 
