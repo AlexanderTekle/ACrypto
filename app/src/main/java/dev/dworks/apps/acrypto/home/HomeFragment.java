@@ -379,6 +379,13 @@ public class HomeFragment extends ActionBarFragment
         mChart.highlightValue(null);
         mBarChart.highlightValue(null);
         diffValue = -1;
+
+        fetchCurrencyFromData();
+        fetchCurrencyToData();
+        if(refreshAll) {
+            fetchExchangeData();
+        }
+
         GsonRequest<Prices> request = new GsonRequest<>(url,
                 Prices.class,
                 "",
@@ -388,11 +395,6 @@ public class HomeFragment extends ActionBarFragment
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Home");
         fetchDifferenceData();
-        fetchCurrencyFromData();
-        fetchCurrencyToData();
-        if(refreshAll) {
-            fetchExchangeData();
-        }
     }
 
     private void fetchCurrencyFromData() {

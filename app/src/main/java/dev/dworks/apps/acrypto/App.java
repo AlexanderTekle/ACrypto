@@ -76,10 +76,6 @@ public class App extends Application {
 			}
 		}
 
-		if(isGPSAvailable(this)) {
-			FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-		}
-
     	try {
             final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
     		APP_VERSION = info.versionName;
@@ -120,7 +116,7 @@ public class App extends Application {
 				});
 		request.setCacheMinutes(Utils.getMasterDataCacheTime());
 		request.setShouldCache(true);
-		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "symbols");
+		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "currency");
 	}
 
 	private void loadCoinSymbols() {
@@ -147,7 +143,7 @@ public class App extends Application {
 				});
 		request.setCacheMinutes(Utils.getMasterDataCacheTime());
 		request.setShouldCache(true);
-		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "currency");
+		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "symbols");
 	}
 
 	private void loadCoinDetails() {

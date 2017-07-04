@@ -2,6 +2,10 @@ package dev.dworks.apps.acrypto.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
@@ -16,6 +20,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.toolbox.VolleyTickle;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
@@ -98,8 +103,12 @@ public class VolleyPlusHelper {
                     TextUtils.isEmpty(mCacheDir) ? IMAGE_CACHE_DIR :  mCacheDir);
             cacheParams.setMemCacheSizePercent(0.5f);
 
+            ArrayList<Drawable> drawables = new ArrayList<>();
+            drawables.add(AppCompatDrawableManager.get().getDrawable(mContext,
+                    mPlaceHolder == 0 ? R.drawable.ic_coins : mPlaceHolder));
+
             mImageLoader = new SimpleImageLoader(mContext, cacheParams);
-            mImageLoader.setDefaultDrawable(mPlaceHolder == 0 ? R.drawable.ic_coins : mPlaceHolder);
+            mImageLoader.setDefaultDrawables(drawables);
             mImageLoader.setMaxImageSize(hasMoreHeap() ? IMAGE_SIZE_BIG: IMAGE_SIZE);
             mImageLoader.setFadeInImage(mCrossfade);
             mImageLoader.setContetResolver(mContext.getContentResolver());

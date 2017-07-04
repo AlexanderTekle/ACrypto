@@ -79,7 +79,7 @@ public class CoinChartFragment extends ActionBarFragment
         implements Response.Listener<Prices>, Response.ErrorListener,
         OnChartValueSelectedListener, RadioGroup.OnCheckedChangeListener {
 
-    private static final String TAG = "Home";
+    private static final String TAG = "CoinChart";
     public static final int LIMIT_ALT = 10;
     private Utils.OnFragmentInteractionListener mListener;
 
@@ -340,7 +340,7 @@ public class CoinChartFragment extends ActionBarFragment
                 this);
         request.setCacheMinutes(5);
         request.setShouldCache(true);
-        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Chart");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG);
         fetchExchangeData();
     }
 
@@ -370,7 +370,7 @@ public class CoinChartFragment extends ActionBarFragment
                     }
                 });
         request.setShouldCache(true);
-        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "exchange");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG+"exchanges");
     }
 
     public void setDefaultValues(Prices.Price currentPrice){

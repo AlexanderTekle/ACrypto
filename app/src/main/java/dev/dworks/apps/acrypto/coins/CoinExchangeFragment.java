@@ -125,7 +125,7 @@ public class CoinExchangeFragment extends RecyclerFragment
                 this);
         request.setCacheMinutes(5);
         request.setShouldCache(true);
-        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Excahnge");
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request,  TAG+"Exchanges");
 
     }
     public String getUrl(){
