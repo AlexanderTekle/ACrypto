@@ -3,12 +3,11 @@ package dev.dworks.apps.acrypto.network;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.AppCompatDrawableManager;
 import android.text.TextUtils;
 import android.widget.ImageView;
 
+import com.android.volley.Cache;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -25,6 +24,8 @@ import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
+
+import static com.android.volley.toolbox.HttpHeaderParser.parseDateAsEpoch;
 
 /**
  * Created by HaKr on 13/05/17.
@@ -191,5 +192,28 @@ public class VolleyPlusHelper {
 
     public static String parseCharset(Map<String, String> headers) {
         return parseCharset(headers, "ISO-8859-1");
+    }
+
+    public static Cache.Entry parseIgnoreCacheHeaders(NetworkResponse response, long soft_expire, long expire) {
+        long now = System.currentTimeMillis();
+        Map headers = response.headers;
+        long serverDate = 0L;
+        String serverEtag = null;
+        String headerValue = (String)headers.get("Date");
+        if(headerValue != null) {
+            serverDate = parseDateAsEpoch(headerValue);
+        }
+
+        serverEtag = (String)headers.get("ETag");
+        long softExpire = soft_expire == 0 ? 0 : now + soft_expire;
+        long ttl = expire == 0 ? 0 : now + expire;
+        Cache.Entry entry = new Cache.Entry();
+        entry.data = response.data;
+        entry.etag = serverEtag;
+        entry.softTtl = softExpire;
+        entry.ttl = ttl;
+        entry.serverDate = serverDate;
+        entry.responseHeaders = headers;
+        return entry;
     }
 }

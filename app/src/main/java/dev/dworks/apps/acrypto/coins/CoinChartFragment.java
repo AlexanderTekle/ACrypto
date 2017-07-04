@@ -338,7 +338,7 @@ public class CoinChartFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(5);
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG);
         fetchExchangeData();
@@ -369,6 +369,7 @@ public class CoinChartFragment extends ActionBarFragment
 
                     }
                 });
+        request.setCacheMinutes(1440, 1440);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG+"exchanges");
     }

@@ -124,7 +124,7 @@ public class CoinFragment extends RecyclerFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(5);
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).addToRequestQueue(request, TAG);
 
@@ -167,6 +167,7 @@ public class CoinFragment extends RecyclerFragment
 
     public void refreshData(String currency) {
         mCurrency = currency;
+        mAdapter.clear();
         fetchDataTask();
     }
 

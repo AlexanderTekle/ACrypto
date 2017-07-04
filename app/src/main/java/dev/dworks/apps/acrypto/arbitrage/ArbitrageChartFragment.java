@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
-import android.support.v7.app.ActionBar;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -251,7 +250,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(1);
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG + "One");
 
@@ -271,7 +270,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
                         mChartProgress.setVisibility(View.GONE);
                     }
                 });
-        request2.setCacheMinutes(1);
+        request2.setCacheMinutes(5, 60);
         request2.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request2, TAG + "Two");
     }
@@ -299,6 +298,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
                         mChartProgress.setVisibility(View.GONE);
                     }
                 });
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG + "conversion");
     }

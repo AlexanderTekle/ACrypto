@@ -7,8 +7,8 @@ import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
 
 import com.android.volley.Response;
+import com.android.volley.VolleyLog;
 import com.android.volley.error.VolleyError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.gson.Gson;
 
@@ -58,7 +58,7 @@ public class App extends Application {
 	public void onCreate() {
 		super.onCreate();
 		sInstance = this;
-
+		VolleyLog.DEBUG = true;
 		CaocConfig.Builder.create()
 				.backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT)
 				.showErrorDetails(false)
@@ -114,7 +114,7 @@ public class App extends Application {
 
 					}
 				});
-		request.setCacheMinutes(Utils.getMasterDataCacheTime());
+		request.setDontExpireCache();
 		request.setShouldCache(true);
 		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "currency");
 	}
@@ -141,7 +141,7 @@ public class App extends Application {
 
 					}
 				});
-		request.setCacheMinutes(Utils.getMasterDataCacheTime());
+		request.setDontExpireCache();
 		request.setShouldCache(true);
 		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "symbols");
 	}
@@ -174,7 +174,7 @@ public class App extends Application {
 
 					}
 				});
-		request.setCacheMinutes(Utils.getMasterDataCacheTime());
+		request.setDontExpireCache();
 		request.setShouldCache(true);
 		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "coins_ignore");
 	}

@@ -391,7 +391,7 @@ public class HomeFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(5);
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Home");
         fetchDifferenceData();
@@ -419,7 +419,7 @@ public class HomeFragment extends ActionBarFragment
 
                     }
                 });
-        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setDontExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_from");
     }
@@ -446,7 +446,7 @@ public class HomeFragment extends ActionBarFragment
 
                     }
                 });
-        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setDontExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_to");
     }
@@ -477,6 +477,7 @@ public class HomeFragment extends ActionBarFragment
 
                     }
                 });
+        request.setCacheMinutes(1440, 1440);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "exchange");
     }

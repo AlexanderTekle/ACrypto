@@ -183,7 +183,7 @@ public class CoinInfoFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(5);
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Info");
 
