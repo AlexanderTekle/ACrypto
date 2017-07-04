@@ -17,11 +17,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.TransactionDetails;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.firebase.auth.FirebaseUser;
 
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity
     private View mheaderLayout;
     private BezelImageView mPicture;
     private Spinner spinner;
+    private InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +92,30 @@ public class MainActivity extends AppCompatActivity
                 && !PreferenceUtils.getBooleanPrefs(App.getInstance().getBaseContext(), UPDATE_USER)){
             FirebaseHelper.updateUser();
             PreferenceUtils.set(UPDATE_USER, true);
+        }
+
+        initAd();
+    }
+
+    private void initAd() {
+        //MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713");
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-6407484780907805/5183261278");
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            }
+
+        });
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+    }
+
+    private void showInterstitial() {
+        if (mInterstitialAd != null && mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            Toast.makeText(this, "No sponsor available", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -243,6 +272,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_about:
                 startActivity(new Intent(this, AboutActivity.class));
                 AnalyticsManager.logEvent("view_about");
+                return true;
+
+            case R.id.nav_sponsor:
+                showInterstitial();
+                AnalyticsManager.logEvent("view_sponsor");
                 return true;
 
         }

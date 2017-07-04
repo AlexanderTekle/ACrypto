@@ -24,6 +24,10 @@
             android:icon="@drawable/ic_menu_settings"
             android:title="Settings" />
         <item
+            android:id="@+id/nav_sponsor"
+            android:icon="@drawable/ic_sponsor"
+            android:title="Sponsor" />
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_about"
             android:title="About" />
