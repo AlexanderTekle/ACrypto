@@ -243,6 +243,9 @@ public class Spinner extends AppCompatTextView {
             Bundle bundle = (Bundle)savedState;
             this.selectedIndex = bundle.getInt("selected_index");
             if(this.adapter != null) {
+                if(numberOfItems == 0){
+                    return;
+                }
                 this.setText(this.adapter.get(this.selectedIndex).toString());
                 this.adapter.notifyItemSelected(this.selectedIndex);
             }
