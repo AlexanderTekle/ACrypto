@@ -4,6 +4,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 const cors = require('cors')({origin: true});
+const request = require('request');
 const express = require('express');
 
 const app = express();
@@ -157,6 +158,74 @@ app.get('/symbols', (req, res) => {
     res.sendStatus(500);
   });
 });
+
+// GET /api/price
+// Get symbol of all currency codes
+app.get('/crons/alert_price', (req, res) => {
+  admin.database().ref(`/crons/price_alerts`).set(admin.database.ServerValue.TIMESTAMP);
+  return res.status(200).json({alerts: 'triggered'});
+});
+
+  exports.priceAlertCheck = functions.database.ref('/crons/price_alerts').onWrite(event => {
+
+    const promises = [];
+
+    admin.database().ref(`/alerts`).once('value', function(alertSnapshot) {
+      alertSnapshot.forEach(function(fromCurrencySnapshot) {
+        fromCurrencySnapshot.forEach(function(toCurrencySnapshot) {
+          promises.push(createPriceAlertPromise(fromCurrencySnapshot.key, toCurrencySnapshot));
+        });
+      });
+    });
+    return Promise.all(promises);
+});
+
+function createPriceUrl(fromCurrency, toCurrency) {
+  return 'https://min-api.cryptocompare.com/data/price?fsym='
+          +fromCurrency+'&tsyms='+toCurrency;
+}
+
+function createPriceAlertPromise(fromCurrency, snapshot) {
+  const toCurrency = snapshot.key;
+  return request(createPriceUrl(fromCurrency, toCurrency), function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        const jsonobj = JSON.parse(response.body);
+        const currentPrice = jsonobj[toCurrency];
+        var tokens = [];
+        snapshot.forEach(function(data) {
+          const alertPrice = data.val().price;
+          const instanceid = data.val().instanceid;
+          if(currentPrice > alertPrice) {
+            tokens.push(instanceid);
+          }
+        });
+        return sendAlertNotification(tokens, fromCurrency, currentPrice);
+      }
+  });
+}
+
+function sendAlertNotification(tokens, fromCurrency, currentPrice) {
+  // Notification details.
+  const payload = {
+    notification: {
+      title: 'ACrypto Price Alert',
+      body: `${fromCurrency} price has increased to ${currentPrice}`,
+      sound: 'default'
+    }
+  };
+  // Set the message as high priority and have it expire after 24 hours.
+  var options = {
+    priority: "high",
+    timeToLive: 60 * 10
+  };
+  return admin.messaging().sendToDevice(tokens, payload, options)
+  .then(function(response) {
+    console.log("Successfully sent message:", response);
+  })
+  .catch(function(error) {
+    console.log("Error sending message:", error);
+  });
+}
 
 // Expose the API as a function
 exports.api = functions.https.onRequest(app);
