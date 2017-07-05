@@ -159,25 +159,26 @@ app.get('/symbols', (req, res) => {
   });
 });
 
-// GET /api/price
-// Get symbol of all currency codes
-app.get('/crons/alert_price', (req, res) => {
-  admin.database().ref(`/crons/price_alerts`).set(admin.database.ServerValue.TIMESTAMP);
+// GET /api/crons/alert_price
+// Triggers price alert check
+app.get('/crons/alerts/price', (req, res) => {
+  admin.database().ref(`/crons/alerts/price`).set(admin.database.ServerValue.TIMESTAMP);
   return res.status(200).json({alerts: 'triggered'});
 });
 
-  exports.priceAlertCheck = functions.database.ref('/crons/price_alerts').onWrite(event => {
+// Expose the API as a function
+exports.api = functions.https.onRequest(app);
 
-    const promises = [];
-
-    admin.database().ref(`/alerts`).once('value', function(alertSnapshot) {
-      alertSnapshot.forEach(function(fromCurrencySnapshot) {
-        fromCurrencySnapshot.forEach(function(toCurrencySnapshot) {
-          promises.push(createPriceAlertPromise(fromCurrencySnapshot.key, toCurrencySnapshot));
-        });
+exports.priceAlertCheck = functions.database.ref('/crons/alerts/price').onWrite(event => {
+  const promises = [];
+  admin.database().ref(`/alerts/price`).once('value', function(alertSnapshot) {
+    alertSnapshot.forEach(function(fromCurrencySnapshot) {
+      fromCurrencySnapshot.forEach(function(toCurrencySnapshot) {
+        promises.push(createPriceAlertPromise(fromCurrencySnapshot.key, toCurrencySnapshot));
       });
     });
-    return Promise.all(promises);
+  });
+  return Promise.all(promises);
 });
 
 function createPriceUrl(fromCurrency, toCurrency) {
@@ -193,8 +194,8 @@ function createPriceAlertPromise(fromCurrency, snapshot) {
         const currentPrice = jsonobj[toCurrency];
         var tokens = [];
         snapshot.forEach(function(data) {
-          const alertPrice = data.val().price;
-          const instanceid = data.val().instanceid;
+          const alertPrice = data.val().value;
+          const instanceid = data.val().instanceId;
           if(currentPrice > alertPrice) {
             tokens.push(instanceid);
           }
@@ -205,6 +206,10 @@ function createPriceAlertPromise(fromCurrency, snapshot) {
 }
 
 function sendAlertNotification(tokens, fromCurrency, currentPrice) {
+  if(tokens.length == 0){
+    console.log("No tokens to send");
+    return '';
+  }
   // Notification details.
   const payload = {
     notification: {
@@ -227,5 +232,14 @@ function sendAlertNotification(tokens, fromCurrency, currentPrice) {
   });
 }
 
-// Expose the API as a function
-exports.api = functions.https.onRequest(app);
+// exports.updateInstantId = functions.database.ref('/users/{uid}/instanceId').onWrite(event => {
+//   const promises = [];
+//   admin.database().ref(`/alerts`).once('value', function(alertSnapshot) {
+//     alertSnapshot.forEach(function(fromCurrencySnapshot) {
+//       fromCurrencySnapshot.forEach(function(toCurrencySnapshot) {
+//         promises.push(createPriceAlertPromise(fromCurrencySnapshot.key, toCurrencySnapshot));
+//       });
+//     });
+//   });
+//   return Promise.all(promises);
+// });
