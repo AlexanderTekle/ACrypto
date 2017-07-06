@@ -308,14 +308,23 @@ function round(value, decimals) {
   return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 }
 
-// exports.updateInstantId = functions.database.ref('/users/{uid}/instanceId').onWrite(event => {
-//   const promises = [];
-//   admin.database().ref(`/alerts`).once('value', function(alertSnapshot) {
-//     alertSnapshot.forEach(function(fromCurrencySnapshot) {
-//       fromCurrencySnapshot.forEach(function(toCurrencySnapshot) {
-//         promises.push(createPriceAlertPromise(fromCurrencySnapshot.key, toCurrencySnapshot));
-//       });
-//     });
-//   });
-//   return Promise.all(promises);
-// });
+exports.updateUserToPriceAlert = functions.database.ref('/user_alerts/price/{uid}/{comboKey}').onWrite(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const comboKey = event.params.comboKey;
+
+  // If /user_alert/price was deleted... delete /alert/price aswell
+  if (!event.data.exists()) {
+    console.log("deleted alert", comboKey);
+    return admin.database().ref(`/alerts/price/${comboKey}/${uid}`).remove();
+  }
+
+  // Only add into /alerts/price if its created for the first time
+  if (snapshot.previous.val()) {
+    console.log("previous alert exist", comboKey);
+    return;
+  }
+
+  console.log("added alert", comboKey);
+  return admin.database().ref(`/alerts/price/${comboKey}/${uid}`).set(true);
+});
