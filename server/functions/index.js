@@ -10,6 +10,7 @@ const express = require('express');
 const app = express();
 
 const authenticate = (req, res, next) => {
+    console.log("url:", req.url);
     next();
 };
 
@@ -169,67 +170,142 @@ app.get('/crons/alerts/price', (req, res) => {
 // Expose the API as a function
 exports.api = functions.https.onRequest(app);
 
+// Checks price alerts for users
 exports.priceAlertCheck = functions.database.ref('/crons/alerts/price').onWrite(event => {
   const promises = [];
   admin.database().ref(`/alerts/price`).once('value', function(alertSnapshot) {
-    alertSnapshot.forEach(function(fromCurrencySnapshot) {
-      fromCurrencySnapshot.forEach(function(toCurrencySnapshot) {
-        promises.push(createPriceAlertPromise(fromCurrencySnapshot.key, toCurrencySnapshot));
-      });
+    alertSnapshot.forEach(function(dataSnapshot) {
+      promises.push(createPriceAlertPromise(dataSnapshot));
     });
   });
   return Promise.all(promises);
 });
 
-function createPriceUrl(fromCurrency, toCurrency) {
+function createPriceUrl(fromCurrency, toCurrency, exchange) {
   return 'https://min-api.cryptocompare.com/data/price?fsym='
-          +fromCurrency+'&tsyms='+toCurrency;
+          +fromCurrency+'&tsyms='+toCurrency+(exchange ? '&e='+exchange : '');
 }
 
-function createPriceAlertPromise(fromCurrency, snapshot) {
-  const toCurrency = snapshot.key;
-  return request(createPriceUrl(fromCurrency, toCurrency), function (error, response, body) {
+function createPriceAlertPromise(snapshot) {
+  const comboKeyArray = snapshot.key.split('-');
+  const fromCurrency = comboKeyArray[0];
+  const toCurrency = comboKeyArray[1];
+  const exchange = comboKeyArray[2];
+  return request(createPriceUrl(fromCurrency, toCurrency, exchange), function (error, response, body) {
       if (!error && response.statusCode == 200) {
         const jsonobj = JSON.parse(response.body);
         const currentPrice = jsonobj[toCurrency];
-        var tokens = [];
+        const promises = [];
+
         snapshot.forEach(function(data) {
-          const alertPrice = data.val().value;
-          const instanceid = data.val().instanceId;
-          if(currentPrice > alertPrice) {
-            tokens.push(instanceid);
-          }
+            promises.push(sendAlertNotifications(snapshot.key, data.key, currentPrice));
         });
-        return sendAlertNotification(tokens, fromCurrency, currentPrice);
+        return Promise.all(promises);
+      } else {
+        console.log('Error fetching price', snapshot.key);
       }
   });
 }
 
-function sendAlertNotification(tokens, fromCurrency, currentPrice) {
-  if(tokens.length == 0){
-    console.log("No tokens to send");
-    return '';
-  }
-  // Notification details.
-  const payload = {
-    notification: {
-      title: 'ACrypto Price Alert',
-      body: `${fromCurrency} price has increased to ${currentPrice}`,
-      sound: 'default'
+function sendAlertNotifications(comboKey, userId, currentPrice) {
+  const getUserInstanceIdPromise = admin.database()
+                          .ref(`/users/${userId}/instanceId`)
+                          .once('value');
+  const getUserPriceAlertsPromise = admin.database()
+                          .ref(`/user_alerts/price/${userId}/${comboKey}`)
+                          .orderByChild('status')
+                          .equalTo(1)
+                          .once('value');
+  return Promise.all([getUserInstanceIdPromise, getUserPriceAlertsPromise]).then(results => {
+    const instanceId = results[0].val();
+    const priceAlertSnapshot = results[1];
+    // Check if there are any device tokens.
+    if (!priceAlertSnapshot.hasChildren()) {
+      return console.log('There are no alerts to send for', comboKey);
     }
-  };
-  // Set the message as high priority and have it expire after 24 hours.
-  var options = {
-    priority: "high",
-    timeToLive: 60 * 10
-  };
-  return admin.messaging().sendToDevice(tokens, payload, options)
-  .then(function(response) {
-    console.log("Successfully sent message:", response);
-  })
-  .catch(function(error) {
-    console.log("Error sending message:", error);
+    console.log("Alerts of users fetched for ", comboKey, " : ", priceAlertSnapshot.numChildren());
+    const promises = [];
+    priceAlertSnapshot.forEach(function(dataSnapshot) {
+        promises.push(sendAlertNotification(instanceId, comboKey, currentPrice, dataSnapshot));
+    });
+    return Promise.all(promises);
   });
+}
+
+function sendAlertNotification(instanceId, comboKey, currentPrice, dataSnapshot) {
+  const comboKeyArray = comboKey.split('-');
+  const fromCurrency = comboKeyArray[0];
+  const toCurrency = comboKeyArray[1];
+  const alertPrice = dataSnapshot.val().value;
+  const condition = dataSnapshot.val().condition;
+  const toSymbol = dataSnapshot.val().toSymbol;
+  const frequency = dataSnapshot.val().frequency;
+  if(priceAlertConditionCheck(currentPrice, dataSnapshot)) {
+    if(frequency == 'onetime'){
+      dataSnapshot.ref.child('status').set(0);
+    }
+    // Notification details.
+    const payload = {
+      notification: {
+        title: `${fromCurrency} Price Alert`,
+        body: getPriceDiff(currentPrice, alertPrice) + "% " + getConditionSymbol(condition) + `to ${toSymbol}${currentPrice}`,
+        sound: 'default',
+        tag: comboKey
+      }
+    };
+    // Set the message as high priority and have it expire after 24 hours.
+    var options = {
+      priority: "high",
+      timeToLive: 60 * 10
+    };
+
+    return admin.messaging().sendToDevice(instanceId, payload, options)
+    .then(function(response) {
+      console.log("Successfully sent message:", response);
+    })
+    .catch(function(error) {
+      console.log("Error sending message:", error);
+    });
+  }
+  return;
+}
+
+function priceAlertConditionCheck(currentPrice, dataSnapshot) {
+  var result = false;
+  const alertPrice = dataSnapshot.val().value;
+  const condition = dataSnapshot.val().condition;
+
+  switch (condition) {
+      case "<":
+          result = currentPrice < alertPrice;
+          break;
+      case ">":
+          result = currentPrice > alertPrice;
+          break;
+  }
+  return result;
+}
+
+function getConditionSymbol(condition) {
+  var symbol = "";
+  switch (condition) {
+      case "<":
+          symbol = "▼";
+          break;
+      case ">":
+          symbol = "▲";
+          break;
+  }
+  return symbol;
+}
+
+function getPriceDiff(currentPrice, alertPrice) {
+  var diff = Math.abs((currentPrice - alertPrice)/alertPrice);
+  return round(diff*100, 2);
+}
+
+function round(value, decimals) {
+  return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 }
 
 // exports.updateInstantId = functions.database.ref('/users/{uid}/instanceId').onWrite(event => {
