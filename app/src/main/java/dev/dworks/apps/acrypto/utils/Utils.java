@@ -95,6 +95,9 @@ public class Utils {
 
     static final String TAG = "Utils";
 
+    //Home
+    public static final String BUNDLE_NAME = "bundle_name";
+
     //Coins
     public static final String BUNDLE_CURRENCY = "bundle_currency";
     public static final String BUNDLE_COINS = "bundle_coins";

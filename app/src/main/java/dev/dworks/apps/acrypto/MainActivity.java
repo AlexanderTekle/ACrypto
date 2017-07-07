@@ -11,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -41,6 +42,7 @@ import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
+import dev.dworks.apps.acrypto.utils.NotificationUtils;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            HomeFragment.show(getSupportFragmentManager());
+            HomeFragment.show(getSupportFragmentManager(), getName(getIntent().getExtras()));
         }
         FirebaseHelper.signInAnonymously();
         bp = new BillingProcessor(this, LICENSE_KEY, MERCHANT_ID, this);
@@ -96,6 +98,12 @@ public class MainActivity extends AppCompatActivity
         }
 
         initAd();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleExtras(intent.getExtras());
     }
 
     private void initAd() {
@@ -250,7 +258,7 @@ public class MainActivity extends AppCompatActivity
                 item.setChecked(true);
                 drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
-                HomeFragment.show(getSupportFragmentManager());
+                HomeFragment.show(getSupportFragmentManager(), "");
                 AnalyticsManager.logEvent("view_home");
                 return true;
             case R.id.nav_coins:
@@ -356,5 +364,28 @@ public class MainActivity extends AppCompatActivity
             }
         }
         spinner.setSelection(index);
+    }
+
+    private void handleExtras(Bundle extras) {
+        String name = getName(extras);
+        if(!TextUtils.isEmpty(name)){
+            spinner.setVisibility(View.GONE);
+            HomeFragment.show(getSupportFragmentManager(), name);
+            AnalyticsManager.logEvent("view_home");
+        }
+    }
+
+    private String getName(Bundle extras) {
+        String name = null;
+        if(null != extras){
+            String type = extras.getString("type");
+            if(!TextUtils.isEmpty(type)){
+                if(NotificationUtils.TYPE_ALERT.compareTo(type) == 0) {
+                    name = extras.getString("name");
+
+                }
+            }
+        }
+        return name;
     }
 }

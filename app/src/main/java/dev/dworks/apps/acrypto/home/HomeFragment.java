@@ -78,6 +78,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFA
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_NAME;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
@@ -138,9 +139,12 @@ public class HomeFragment extends ActionBarFragment
     private Prices mPrice;
     private TextView mVolume;
     private ScrollView mScrollView;
+    private String mName;
+    private boolean showFromIntent = false;
 
-    public static void show(FragmentManager fm) {
+    public static void show(FragmentManager fm, String name) {
         final Bundle args = new Bundle();
+        args.putString(BUNDLE_NAME, name);
         final FragmentTransaction ft = fm.beginTransaction();
         final HomeFragment fragment = new HomeFragment();
         fragment.setArguments(args);
@@ -160,6 +164,10 @@ public class HomeFragment extends ActionBarFragment
         super.onCreate(savedInstanceState);
         showAppFeedback(getActivity());
         setHasOptionsMenu(true);
+        mName = getArguments().getString(BUNDLE_NAME);
+        if(!TextUtils.isEmpty(mName)){
+            showFromIntent = true;
+        }
     }
 
     @Override
@@ -219,7 +227,25 @@ public class HomeFragment extends ActionBarFragment
         setCurrencyFromSpinner();
         setCurrencyToSpinner();
         setMarketSpinner();
+
+        if(showFromIntent()){
+            SettingsActivity.setCurrencyFrom(getNameFromIntent()[0]);
+            SettingsActivity.setCurrencyTo(getNameFromIntent()[1]);
+            if(getNameFromIntent().length == 3) {
+                SettingsActivity.setExchange(getNameFromIntent()[2]);
+            }
+            showFromIntent = false;
+        }
     }
+
+    private boolean showFromIntent() {
+        return !TextUtils.isEmpty(mName) && showFromIntent;
+    }
+
+    private String[] getNameFromIntent() {
+        return mName.split("-");
+    }
+
 
     private void setCurrencyFromSpinner() {
         mCurrencyFromSpinner.getPopupWindow().setWidth(300);
