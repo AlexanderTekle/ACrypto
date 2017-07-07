@@ -1,15 +1,18 @@
 package dev.dworks.apps.acrypto.entity;
 
+import java.io.Serializable;
+
 /**
  * Created by HaKr on 06-Jul-17.
  */
 
-public class PriceAlert {
+public class PriceAlert implements Serializable{
     public String name;
     public String fromSymbol;
     public String toSymbol;
     public int status;
     public String condition;
+    public String frequency;
     public String type;
     public double value;
     public String nameStatusIndex;
@@ -19,13 +22,14 @@ public class PriceAlert {
     }
 
     public PriceAlert(String name, String fromSymbol, String toSymbol, int status,
-                      String condition, String type, double value){
+                      String condition, String frequency, String type,double value){
         this.name = name;
         this.fromSymbol = fromSymbol;
         this.toSymbol = toSymbol;
         this.status = status;
         this.condition = condition;
-        this.type= type;
+        this.frequency = frequency;
+        this.type = type;
         this.value = value;
     }
 

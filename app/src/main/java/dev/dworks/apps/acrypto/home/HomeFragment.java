@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.android.volley.Cache;
@@ -246,7 +245,6 @@ public class HomeFragment extends ActionBarFragment
         return mName.split("-");
     }
 
-
     private void setCurrencyFromSpinner() {
         mCurrencyFromSpinner.getPopupWindow().setWidth(300);
         mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<CoinDetails.Coin>() {
@@ -436,7 +434,8 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Coins coins) {
                         mCurrencyFromSpinner.setItems(coins.coins);
-                        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+                        Utils.setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT,
+                                getCurrentCurrencyFrom());
                     }
                 },
                 new Response.ErrorListener() {
@@ -463,7 +462,9 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Currencies currencies) {
                         mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
-                        setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
+                        Utils.setSpinnerValue(mCurrencyToSpinner,
+                                (isTopAltCoin() ? CURRENCY_TO_DEFAULT : CURRENCY_FROM_DEFAULT),
+                                getCurrentCurrencyTo());
                     }
                 },
                 new Response.ErrorListener() {
@@ -493,8 +494,8 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Exchanges prices) {
                         mExchangeSpinner.setItems(prices.getAllData());
-                        //mExchangeSpinner.setText(SettingsActivity.getExchange());
-                        setSpinnerValue(mExchangeSpinner, SettingsActivity.getExchange());
+                        Utils.setSpinnerValue(mExchangeSpinner, ALL_EXCHANGES,
+                                SettingsActivity.getExchange());
                     }
                 },
                 new Response.ErrorListener() {
@@ -1011,40 +1012,5 @@ public class HomeFragment extends ActionBarFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
-    }
-
-
-    public static void setSpinnerValue(Spinner spinner, String value) {
-        int index = 0;
-        if (value.compareTo(CURRENCY_FROM_DEFAULT) == 0
-                || value.compareTo(ALL_EXCHANGES) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
-    }
-
-    public void setSpinnerToValue(Spinner spinner, String value) {
-        int index = 0;
-        if (isTopAltCoin() ? value.compareTo(CURRENCY_TO_DEFAULT) == 0
-                : value.compareTo(CURRENCY_FROM_DEFAULT) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
     }
 }

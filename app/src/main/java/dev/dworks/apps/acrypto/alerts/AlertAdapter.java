@@ -23,6 +23,7 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.FREQUENCY_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 
 /**
@@ -81,6 +82,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
         private final TextView name;
         private final TextView exchange;
         private final ImageView icon;
+        private final ImageView frequency;
         private final MoneyTextView value;
         private final TextView status;
         private final Switch status_switch;
@@ -97,6 +99,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             name = (TextView) v.findViewById(R.id.name);
             exchange = (TextView) v.findViewById(R.id.exchange);
             icon = (ImageView) v.findViewById(R.id.icon);
+            frequency = (ImageView) v.findViewById(R.id.frequency);
             value = (MoneyTextView) v.findViewById(R.id.value);
             value.setDecimalFormat(getMoneyFormat(true));
             status = (TextView) v.findViewById(R.id.status);
@@ -125,9 +128,16 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             Utils.setPriceValue(value, priceAlert.value, priceAlert.toSymbol);
             icon.setImageUrl(url, VolleyPlusHelper.with(icon.getContext()).getImageLoader());
 
+            setType(priceAlert.frequency);
             setStatus(priceAlert.status == 1);
             status_switch.setChecked(priceAlert.status == 1);
             status_switch.setOnCheckedChangeListener(this);
+        }
+
+        void setType(String frequency){
+            int resId = frequency.compareTo(FREQUENCY_DEFAULT) == 0
+                    ? R.drawable.ic_onetime : R.drawable.ic_persistent;
+            this.frequency.setImageResource(resId);
         }
 
         void setStatus(boolean enabled){

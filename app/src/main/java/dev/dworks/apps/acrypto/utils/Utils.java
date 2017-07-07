@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +74,7 @@ import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.view.Spinner;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -97,6 +99,10 @@ public class Utils {
 
     //Home
     public static final String BUNDLE_NAME = "bundle_name";
+
+    //Alert
+    public static final String BUNDLE_ALERT = "bundle_alert";
+    public static final String BUNDLE_REF_KEY = "bundle_ref_key";
 
     //Coins
     public static final String BUNDLE_CURRENCY = "bundle_currency";
@@ -688,5 +694,46 @@ public class Utils {
 
     public static int getMasterDataCacheTime() {
         return 1440*30;
+    }
+
+    public static void setSpinnerValue(Spinner spinner, String defaultValue, String value) {
+        int index = 0;
+        if (value.compareTo(defaultValue) == 0) {
+            spinner.setSelectedIndex(index);
+            return;
+        }
+        SpinnerAdapter adapter = spinner.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equals(value)) {
+                index = i;
+                break; // terminate loop
+            }
+        }
+        spinner.setSelectedIndex(index + 1);
+    }
+
+    public static String toTitleCase(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return str;
+        }
+        boolean space = true;
+        StringBuilder builder = new StringBuilder(str);
+        final int len = builder.length();
+
+        for (int i = 0; i < len; ++i) {
+            char c = builder.charAt(i);
+            if (space) {
+                if (!Character.isWhitespace(c)) {
+                    // Convert to title case and switch out of whitespace mode.
+                    builder.setCharAt(i, Character.toTitleCase(c));
+                    space = false;
+                }
+            } else if (Character.isWhitespace(c)) {
+                space = true;
+            } else {
+                builder.setCharAt(i, Character.toLowerCase(c));
+            }
+        }
+        return builder.toString();
     }
 }

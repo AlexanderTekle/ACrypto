@@ -20,6 +20,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String CURRENCY_ONE_DEFAULT = "USD";
     public static final String CURRENCY_TWO_DEFAULT = "INR";
     public static final String CURRENCY_LIST_DEFAULT = "USD";
+    public static final String CONDITION_DEFAULT = "<";
+    public static final String FREQUENCY_DEFAULT = "Onetime";
 
     public static final String KEY_BUILD_VERSION = "build_version";
     public static final String KEY_LOGOUT = "logout";

@@ -2,7 +2,9 @@ package dev.dworks.apps.acrypto.alerts;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -16,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
 
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
 import java.util.HashMap;
@@ -25,10 +26,13 @@ import java.util.Map;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.Coins;
+import dev.dworks.apps.acrypto.entity.PriceAlert;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 /**
@@ -36,7 +40,8 @@ import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
  */
 
 public class AlertFragment extends RecyclerFragment
-        implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener {
+        implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
+        View.OnClickListener{
 
     private static final String TAG = "Alerts";
     private Utils.OnFragmentInteractionListener mListener;
@@ -89,6 +94,8 @@ public class AlertFragment extends RecyclerFragment
         super.onViewCreated(view, savedInstanceState);
         setLayoutManager(new LinearLayoutManager(view.getContext()));
         setHasFixedSize(true);
+        FloatingActionButton addAlert = (FloatingActionButton) view.findViewById(R.id.add_alert);
+        addAlert.setOnClickListener(this);
     }
 
     @Override
@@ -124,7 +131,7 @@ public class AlertFragment extends RecyclerFragment
         }
 
         if (null == mAdapter) {
-            mAdapter = new AlertAdapter(getActivity(), getQuery(FirebaseHelper.getFirebaseDatabaseReference()), this);
+            mAdapter = new AlertAdapter(getActivity(), getQuery(), this);
         }
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -140,14 +147,14 @@ public class AlertFragment extends RecyclerFragment
         setListShown(false);
     }
 
-    public Query getQuery(DatabaseReference databaseReference) {
-        return databaseReference.child("/user_alerts/prices")
+    public Query getQuery() {
+        return FirebaseHelper.getFirebaseDatabaseReference().child("/user_alerts/prices")
                 .child(FirebaseHelper.getCurrentUser().getUid());
     }
 
     @Override
     public void onItemClick(View view, int position) {
-
+        openAlertDetails(mAdapter.getItem(position), mAdapter.getRef(position).getKey());
     }
 
     @Override
@@ -187,5 +194,19 @@ public class AlertFragment extends RecyclerFragment
         if (mAdapter != null) {
             mAdapter.cleanup();
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        openAlertDetails(null, null);
+    }
+
+    private void openAlertDetails(PriceAlert priceAlert, String refKey) {
+        Intent intent = new Intent(getActivity(), AlertDetailActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(BUNDLE_ALERT, priceAlert);
+        bundle.putString(BUNDLE_REF_KEY, refKey);
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 }
