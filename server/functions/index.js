@@ -267,7 +267,8 @@ function sendAlertNotification(instanceId, currentPrice, dataSnapshot) {
       data: {
         title: `${fromCurrency} Price Alert`,
         body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
-        name: comboKey
+        name: comboKey,
+        type: "alert"
       }
     };
     // Set the message as high priority and have it expire after 24 hours.
@@ -276,11 +277,16 @@ function sendAlertNotification(instanceId, currentPrice, dataSnapshot) {
       timeToLive: 60 * 10
     };
 
-    return admin.messaging().sendToDevice(instanceId, payload, options)
-    .then(function(response) {
-      console.log("Successfully sent message:", response);
+    return admin.messaging().sendToDevice(instanceId, payload, options).then(response => {
+      response.results.forEach((result, index) => {
+        const error = result.error;
+        if (error) {
+          console.error('Failure sending message', tokens[index], error);
+        }
+        console.log("Successfully sent message:", response);
+      });
     })
-    .catch(function(error) {
+    .catch(error => {
       console.log("Error sending message:", error);
     });
   }
