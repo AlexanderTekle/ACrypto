@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatDelegate;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
 import com.android.volley.error.VolleyError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.gson.Gson;
 
@@ -58,7 +59,7 @@ public class App extends Application {
 	public void onCreate() {
 		super.onCreate();
 		sInstance = this;
-		VolleyLog.DEBUG = true;
+		VolleyLog.DEBUG = false;
 		CaocConfig.Builder.create()
 				.backgroundMode(CaocConfig.BACKGROUND_MODE_SILENT)
 				.showErrorDetails(false)
@@ -74,6 +75,10 @@ public class App extends Application {
 				setProperty("NativeCurrency", getLocaleCurrency());
 				FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
 			}
+		}
+
+		if(isGPSAvailable(this)) {
+			FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 		}
 
     	try {

@@ -28,6 +28,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.firebase.auth.FirebaseUser;
 
+import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
 import dev.dworks.apps.acrypto.common.SpinnerInteractionListener;
@@ -87,7 +88,7 @@ public class MainActivity extends AppCompatActivity
         initControls();
 
         // TODO Remove after some time
-        if(App.APP_VERSION_CODE == 10
+        if(App.APP_VERSION_CODE == 11
                 && FirebaseHelper.isLoggedIn()
                 && !PreferenceUtils.getBooleanPrefs(App.getInstance().getBaseContext(), UPDATE_USER)){
             FirebaseHelper.updateUser();
@@ -98,31 +99,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initAd() {
-        //MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713");
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId("ca-app-pub-6407484780907805/5183261278");
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdClosed() {
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+                loadAd();
             }
 
         });
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        loadAd();
     }
 
-    private void showInterstitial() {
+    private void loadAd(){
+        if(null != mInterstitialAd) {
+            mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        }
+    }
+
+    private void showAd() {
         if (mInterstitialAd != null && mInterstitialAd.isLoaded()) {
             mInterstitialAd.show();
         } else {
             Toast.makeText(this, "No sponsor available", Toast.LENGTH_SHORT).show();
+            loadAd();
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserDetails();
     }
 
     private void initControls() {
@@ -222,6 +223,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        updateUserDetails();
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -264,6 +271,16 @@ public class MainActivity extends AppCompatActivity
                 AnalyticsManager.logEvent("view_arbitrage");
                 return true;
 
+            case R.id.nav_alerts:
+
+                item.setChecked(true);
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                AlertFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_alerts");
+                return true;
+
+
             case R.id.nav_settings:
                 startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS);
                 AnalyticsManager.logEvent("view_settings");
@@ -275,7 +292,7 @@ public class MainActivity extends AppCompatActivity
                 return true;
 
             case R.id.nav_sponsor:
-                showInterstitial();
+                showAd();
                 AnalyticsManager.logEvent("view_sponsor");
                 return true;
 
