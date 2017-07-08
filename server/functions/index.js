@@ -218,17 +218,22 @@ function createPriceAlertPromise(snapshot) {
 }
 
 function sendAlertNotifications(comboKey, userId, currentPrice) {
-  const getUserInstanceIdPromise = admin.database()
-                          .ref(`/users/${userId}/instanceId`)
+  const getUserPromise = admin.database()
+                          .ref(`/users/${userId}`)
                           .once('value');
   const getUserPriceAlertsPromise = admin.database()
-                          .ref(`/user_alerts/prices/${userId}`)
+                          .ref(`/user_alerts/price/${userId}`)
                           .orderByChild('nameStatusIndex')
                           .equalTo(comboKey+'1')
                           .once('value');
-  return Promise.all([getUserInstanceIdPromise, getUserPriceAlertsPromise]).then(results => {
-    const instanceId = results[0].val();
+  return Promise.all([getUserPromise, getUserPriceAlertsPromise]).then(results => {
+    const userSnapshot = results[0];
+    const instanceId = userSnapshot.val().instanceId;
+    const subscriptionStatus = userSnapshot.val().subscriptionStatus;
     const priceAlertSnapshot = results[1];
+    if(subscriptionStatus != 1){
+      return console.log('Not Sending alerts. Subscription Expired', userId);
+    }
     // Check if there are any device tokens.
     if (!priceAlertSnapshot.hasChildren()) {
       return console.log('There are no alerts to send for', comboKey);
@@ -253,7 +258,7 @@ function sendAlertNotification(instanceId, currentPrice, dataSnapshot) {
   const toSymbol = dataSnapshot.val().toSymbol;
   const frequency = dataSnapshot.val().frequency;
   if(priceAlertConditionCheck(currentPrice, dataSnapshot)) {
-    if(frequency == 'onetime'){
+    if(frequency == 'Onetime'){
       dataSnapshot.ref.update({status: 0, nameStatusIndex: comboKey+"0"});
     }
     // Notification details.
@@ -268,6 +273,7 @@ function sendAlertNotification(instanceId, currentPrice, dataSnapshot) {
         title: `${fromCurrency} Price Alert`,
         body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
         name: comboKey,
+        sound: 'default',
         type: "alert"
       }
     };
@@ -337,7 +343,7 @@ function round(value, decimals) {
   return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 }
 
-exports.updateUserToPriceAlert = functions.database.ref('/user_alerts/prices/{uid}/{alertId}').onWrite(event => {
+exports.updatePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onWrite(event => {
   const snapshot = event.data;
   const uid = event.params.uid;
 
@@ -350,8 +356,13 @@ exports.updateUserToPriceAlert = functions.database.ref('/user_alerts/prices/{ui
 
   // Only add into /alerts/price if its created for the first time
   if (snapshot.previous.val()) {
-    console.log("previous alert exist", comboKey);
-    return;
+    const prevComboKey = snapshot.previous.val().name;
+    if(prevComboKey == comboKey){
+      console.log("previous alert exist", comboKey);
+      return;
+    }
+    console.log("remove previous alert", comboKey);
+    admin.database().ref(`/alerts/price/${prevComboKey}/${uid}`).remove();
   }
 
   console.log("added alert", comboKey);
