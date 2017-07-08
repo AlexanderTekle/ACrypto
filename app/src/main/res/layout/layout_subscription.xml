@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryDark"
+    android:gravity="center"
+    android:padding="10dp"
+    android:orientation="vertical"
+    android:minHeight="64dp"
+    tools:showIn="@layout/fragment_subscription">
+
+    <Button
+        android:id="@+id/subscribe"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="Subscribe "
+        android:textColor="@android:color/white"
+        android:theme="@style/MyButton"
+        tools:text="Subscribe $4.99 / Month" />
+
+    <TextView
+        android:id="@+id/reason"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+        android:text="@string/paid_reason" />
+</LinearLayout>

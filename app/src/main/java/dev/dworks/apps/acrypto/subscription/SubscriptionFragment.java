@@ -6,24 +6,35 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
+import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
+import com.google.gson.Gson;
+
+import org.joda.time.format.PeriodFormat;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
+import dev.dworks.apps.acrypto.entity.Subscriptions;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.SimpleDividerItemDecoration;
 
 /**
  * Created by HaKr on 08/07/17.
@@ -32,10 +43,13 @@ import dev.dworks.apps.acrypto.utils.Utils;
 public class SubscriptionFragment extends ActionBarFragment implements View.OnClickListener {
 
     private static final String TAG = "Subscription";
-    public static final String SUBSCRIPTION_MONTHLY_ID = getSubscriptionMain()+".subs.m1";
+    public static final String SUBSCRIPTION_MONTHLY_ID = getSubscriptionMain() + ".subs.m1";
 
     private Utils.OnFragmentInteractionListener mListener;
-    private View mSubscribe;
+    private Button mSubscribe;
+    private RecyclerView mRecyclerView;
+    private TextView mReason;
+    private String paidReason;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -70,6 +84,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(false);
+        paidReason = getString(R.string.paid_reason);
     }
 
     @Override
@@ -81,8 +96,14 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mSubscribe = view.findViewById(R.id.subscribe);
+        mSubscribe = (Button) view.findViewById(R.id.subscribe);
         mSubscribe.setOnClickListener(this);
+        mReason = (TextView) view.findViewById(R.id.reason);
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
     }
 
     @Override
@@ -118,19 +139,41 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
             actionBar.setSubtitle(null);
         }
 
-        updateViews();
+        String symbolsString = Utils.getStringAsset(getActivity(), "subscriptions.json");
+        Gson gson = new Gson();
+        Subscriptions subscriptions = gson.fromJson(symbolsString, Subscriptions.class);
+
+        SubscriptionAdapter subscriptionAdapter = new SubscriptionAdapter(subscriptions.subscriptions);
+        mRecyclerView.setAdapter(subscriptionAdapter);
     }
 
     private void updateViews() {
-        if(App.getInstance().isBillingInitialized()){
+        if (App.getInstance().isBillingInitialized()) {
             getBillingProcessor().loadOwnedPurchasesFromGoogle();
+            SkuDetails skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
             boolean isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
             boolean autoRenewing = false;
-            if(isSubscribedMonthly) {
+            if (isSubscribedMonthly) {
                 TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
                 autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
             }
-            mSubscribe.setEnabled(!(isSubscribedMonthly && autoRenewing));
+
+            boolean isActive = isSubscribedMonthly && autoRenewing;
+            mSubscribe.setVisibility(Utils.getVisibility(!isActive));
+            FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
+            if(isActive) {
+                mReason.setText("Subscribed");
+                mReason.setOnClickListener(null);
+            } else {
+                if(null != skuDetails) {
+                    mSubscribe.setText("Subscribe "
+                            + skuDetails.priceText + "/"
+                            + PeriodFormat.getDefault().print(skuDetails.subscriptionPeriod));
+                }
+                String htmlString = "<u>"+paidReason+"</u>";
+                mReason.setText(Utils.getFromHtml(htmlString));
+                mReason.setOnClickListener(this);
+            }
         }
     }
 
@@ -153,11 +196,28 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
 
     @Override
     public void onClick(View view) {
-        if(FirebaseHelper.isLoggedIn()) {
-            getBillingProcessor().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
-        } else {
-            ((MainActivity)getActivity()).openLoginActivity();
+        switch (view.getId()) {
+            case R.id.subscribe:
+                if (FirebaseHelper.isLoggedIn()) {
+                    getBillingProcessor().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
+                } else {
+                    ((MainActivity) getActivity()).openLoginActivity();
+                }
+                break;
+
+            case R.id.reason:
+                showReason();
+                break;
         }
+    }
+
+    private void showReason() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
+                R.style.AppCompatAlertDialogStyle);
+        builder.setTitle(R.string.paid_reason);
+        builder.setMessage(R.string.paid_reason_description);
+        builder.setNegativeButton("Got It", null);
+        builder.show();
     }
 
     public BillingProcessor getBillingProcessor() {
@@ -165,7 +225,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     }
 
     private static String getSubscriptionMain() {
-        return BuildConfig.APPLICATION_ID+
-                (BuildConfig.DEBUG ? ".test" : "" );
+        return BuildConfig.APPLICATION_ID +
+                (BuildConfig.DEBUG ? ".test" : "");
     }
 }

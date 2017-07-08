@@ -31,7 +31,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
  * Created by HaKr on 06/07/17.
  */
 
-public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapter.ViewHolder>{
+public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapter.ViewHolder> {
 
     private final Context context;
     final OnItemClickListener onItemClickListener;
@@ -83,7 +83,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
     @Override
     public void onDataChanged() {
         super.onDataChanged();
-        if(null != onDataChangeListener){
+        if (null != onDataChangeListener) {
             onDataChangeListener.onDataChanged();
         }
     }
@@ -119,18 +119,18 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             status_switch = (Switch) v.findViewById(R.id.status_switch);
         }
 
-        public void setData(PriceAlert priceAlert, int position){
+        public void setData(PriceAlert priceAlert, int position) {
             mPosition = position;
             String[] nameArray = priceAlert.name.split("-");
-            name.setText(nameArray[0]+"/"+nameArray[1]);
+            name.setText(nameArray[0] + "/" + nameArray[1]);
             String url = "";
             try {
                 final CoinDetailSample.CoinDetail coinDetail = getCoin(nameArray[0]);
                 url = getCoinUrl(coinDetail);
 
-            } catch (Exception e){
+            } catch (Exception e) {
             }
-            if(nameArray.length == 3) {
+            if (nameArray.length == 3) {
                 exchange.setText(nameArray[2]);
                 exchange.setVisibility(View.VISIBLE);
             } else {
@@ -147,28 +147,28 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             status_switch.setOnCheckedChangeListener(this);
         }
 
-        void setType(String frequency){
+        void setType(String frequency) {
             int resId = frequency.compareTo(FREQUENCY_DEFAULT) == 0
                     ? R.drawable.ic_onetime : R.drawable.ic_persistent;
             this.frequency.setImageResource(resId);
         }
 
-        void setStatus(boolean enabled){
+        void setStatus(boolean enabled) {
             status.setText(enabled ? "Enabled" : "Disabled");
         }
 
-        private CoinDetailSample.CoinDetail getCoin(String symbol){
+        private CoinDetailSample.CoinDetail getCoin(String symbol) {
             return App.getInstance().getCoinDetails().coins.get(symbol);
         }
 
-        private String getCoinUrl(CoinDetailSample.CoinDetail coinDetail){
+        private String getCoinUrl(CoinDetailSample.CoinDetail coinDetail) {
             return mBaseImageUrl + coinDetail.id + ".png";
         }
 
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             setStatus(b);
-            if(null != onItemClickListener){
+            if (null != onItemClickListener) {
                 onItemClickListener.onItemViewClick(compoundButton, mPosition);
             }
         }

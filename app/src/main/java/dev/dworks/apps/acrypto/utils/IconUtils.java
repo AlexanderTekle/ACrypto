@@ -54,7 +54,7 @@ public class IconUtils {
         try {
             return ContextCompat.getDrawable(context, drawableId);
         } catch (Resources.NotFoundException e){
-            return ContextCompat.getDrawable(context, R.drawable.ic_artbitrage);
+            return ContextCompat.getDrawable(context, R.drawable.ic_coins);
         }
     }
 }

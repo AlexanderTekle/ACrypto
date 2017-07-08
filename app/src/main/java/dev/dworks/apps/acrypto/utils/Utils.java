@@ -27,6 +27,8 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.text.TextUtilsCompat;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -77,6 +79,7 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.view.Spinner;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.text.Html.FROM_HTML_MODE_LEGACY;
 
 /**
  * Created by HaKr on 20-Sep-14.
@@ -157,6 +160,10 @@ public class Utils {
     public static boolean hasLollipop() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
+    public static boolean hasNougat() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+    }
+
     public static boolean hasMoreHeap(){
         return Runtime.getRuntime().maxMemory() > 20971520;
     }
@@ -245,6 +252,9 @@ public class Utils {
     }
 
     public static void showNoInternetSnackBar(Activity activity, View.OnClickListener listener) {
+        if(null == activity){
+            return;
+        }
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content),
                 "Can't connect to Internet", Snackbar.LENGTH_INDEFINITE);
 
@@ -738,5 +748,13 @@ public class Utils {
             }
         }
         return builder.toString();
+    }
+
+    public static Spanned getFromHtml(String text){
+        if(Utils.hasNougat()){
+            return Html.fromHtml(text, FROM_HTML_MODE_LEGACY);
+        } else {
+            return Html.fromHtml(text);
+        }
     }
 }

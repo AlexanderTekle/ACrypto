@@ -13,13 +13,14 @@
             android:title="Coins" />
         <item
             android:id="@+id/nav_arbitrage"
-            android:icon="@drawable/ic_artbitrage"
-            android:title="Arbitrage" />
+            android:icon="@drawable/ic_arbitrage"
+            android:title="Arbitrage"
+            app:actionLayout="@layout/action_layout_tag" />
         <item
             android:id="@+id/nav_alerts"
-            app:actionLayout="@layout/action_layout_tag"
             android:icon="@drawable/ic_alerts"
-            android:title="Alerts" />
+            android:title="Alerts"
+            app:actionLayout="@layout/action_layout_tag" />
         <item
             android:id="@+id/nav_subscription"
             android:icon="@drawable/ic_subscription"

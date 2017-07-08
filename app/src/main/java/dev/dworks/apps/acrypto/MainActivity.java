@@ -62,8 +62,6 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
 
-    // PRODUCT & SUBSCRIPTION IDS
-    private static final String PRODUCT_ID = "dev.dworks.apps.acrypto";
     private static final String LICENSE_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn+84Wpabn7TD8Y2I8EEV6agPHA9/kvFu3g94gyaFErhz/zR4QPWlrmtMQOiiNRdr3Zr09//vPBGlVp/l3luSDzN3U0ry71cUvka7Bp89In5HfOYg8MNjNxJ2fIYi4Kk9BIfG1kLgptffA3QDm3tqGSy8aSYqu73x+rAkZ4ynGDHQrVzcv6MMKxabOKcMRXmze/yY92UllvpYhtK0/37OjHO/56miYB349rDbVJhZZapSkbXTKEFQDo20u3FtEgC5sVy6Yy7UED9Q5seJiNjb/9HswCOHmYBnRuwd/kGJDc/90jLsEuQgPiT5SHgbQOMGHFJlmm/K/x5ym2lcsQ6tpQIDAQAB";
     private static final String MERCHANT_ID = "04739006991233188912";
 

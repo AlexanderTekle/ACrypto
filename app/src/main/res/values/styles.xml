@@ -34,6 +34,10 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <style name="MyButton" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+        <item name="colorControlHighlight">@color/accent_orange</item>
+        <item name="colorButtonNormal">@color/accent_orange</item>
+    </style>
 
     <style name="MyTitleText">
         <item name="android:textSize">20sp</item>
@@ -64,6 +68,10 @@
 
     <style name="ToolbarSubTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
         <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
 </resources>
