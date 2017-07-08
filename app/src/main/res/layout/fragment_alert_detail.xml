@@ -53,7 +53,6 @@
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center"
                         android:layout_marginRight="16dp"
-                        android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_menu_coins"
                         tools:src="@drawable/ic_menu_coins" />
 

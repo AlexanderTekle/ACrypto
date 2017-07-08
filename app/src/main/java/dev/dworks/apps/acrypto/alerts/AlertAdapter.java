@@ -17,6 +17,7 @@ import org.fabiomsr.moneytextview.MoneyTextView;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
+import dev.dworks.apps.acrypto.common.RecyclerFragment.RecyclerItemClickListener.OnItemClickListener;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.PriceAlert;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
@@ -33,14 +34,18 @@ import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapter.ViewHolder>{
 
     private final Context context;
-    final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
+    final OnItemClickListener onItemClickListener;
+    final RecyclerFragment.onDataChangeListener onDataChangeListener;
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
     private String mBaseImageUrl;
 
-    public AlertAdapter(Context context, Query ref, RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
+    public AlertAdapter(Context context, Query ref,
+                        OnItemClickListener onItemClickListener,
+                        RecyclerFragment.onDataChangeListener onDataChangeListener) {
         super(PriceAlert.class, R.layout.item_list_price_alert, AlertAdapter.ViewHolder.class, ref);
         this.onItemClickListener = onItemClickListener;
+        this.onDataChangeListener = onDataChangeListener;
         this.context = context;
     }
 
@@ -73,6 +78,14 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
     public AlertAdapter setBaseImageUrl(String baseImageUrl) {
         this.mBaseImageUrl = baseImageUrl;
         return this;
+    }
+
+    @Override
+    public void onDataChanged() {
+        super.onDataChanged();
+        if(null != onDataChangeListener){
+            onDataChangeListener.onDataChanged();
+        }
     }
 
     /**

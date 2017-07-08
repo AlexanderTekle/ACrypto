@@ -30,6 +30,10 @@ public class RecyclerFragment extends ActionBarFragment {
     private boolean mListShown;
     private String mLoadingText;
 
+    public interface onDataChangeListener {
+        void onDataChanged();
+    }
+
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
     	private RecyclerViewHolder(View itemView) {

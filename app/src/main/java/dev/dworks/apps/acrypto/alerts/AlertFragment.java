@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,11 +40,12 @@ import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class AlertFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
-        View.OnClickListener{
+        View.OnClickListener, RecyclerFragment.onDataChangeListener {
 
     private static final String TAG = "Alerts";
     private Utils.OnFragmentInteractionListener mListener;
     private AlertAdapter mAdapter;
+    private FloatingActionButton addAlert;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -94,7 +94,7 @@ public class AlertFragment extends RecyclerFragment
         super.onViewCreated(view, savedInstanceState);
         setLayoutManager(new LinearLayoutManager(view.getContext()));
         setHasFixedSize(true);
-        FloatingActionButton addAlert = (FloatingActionButton) view.findViewById(R.id.add_alert);
+        addAlert = (FloatingActionButton) view.findViewById(R.id.add_alert);
         addAlert.setOnClickListener(this);
     }
 
@@ -131,20 +131,20 @@ public class AlertFragment extends RecyclerFragment
         }
 
         if (null == mAdapter) {
-            mAdapter = new AlertAdapter(getActivity(), getQuery(), this);
+            mAdapter = new AlertAdapter(getActivity(), getQuery(), this, this);
         }
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
-        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                super.onItemRangeInserted(positionStart, itemCount);
-                setListShown(true);
-                mAdapter.unregisterAdapterDataObserver(this);
-            }
-        });
         setListAdapter(mAdapter);
         setListShown(false);
+    }
+
+
+    @Override
+    public void onDataChanged() {
+        setListShown(true);
+        int itemCount = mAdapter.getItemCount();
+        setEmptyText(itemCount == 0 ? "No Alerts" : "");
+        addAlert.setVisibility(Utils.getVisibility(itemCount <= 10));
     }
 
     public Query getQuery() {
