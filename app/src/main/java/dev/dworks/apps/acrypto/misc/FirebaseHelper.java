@@ -1,10 +1,14 @@
 package dev.dworks.apps.acrypto.misc;
 
+import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import dev.dworks.apps.acrypto.entity.User;
 
@@ -72,6 +76,19 @@ public class FirebaseHelper {
                     .child("instanceId")
                     .setValue(instanceId);
         }
+    }
+
+    public static void updateUserSubscription(String productId, TransactionDetails details) {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(!isLoggedIn()){
+            return;
+        }
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("subscriptionStatus", 1);
+        childUpdates.put("subscriptionId", productId);
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid())
+                .updateChildren(childUpdates);
     }
 
     public static void startMasterDataSync() {

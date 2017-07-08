@@ -175,6 +175,9 @@ public class Utils {
     }
 
     public static boolean isNetConnected(Context context) {
+        if(null == context){
+            return false;
+        }
         final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();

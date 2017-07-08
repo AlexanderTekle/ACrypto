@@ -54,6 +54,9 @@ public class App extends Application {
 	private ArrayList<String> currencyStrings;
 	private ArrayList<CharSequence> currencyChars;
 	private String defaultCurrencyCode;
+	public boolean isSubsUpdateSupported;
+	public boolean isOneTimePurchaseSupported;
+	public boolean isBillingInitialized;
 
 	@Override
 	public void onCreate() {
@@ -246,5 +249,30 @@ public class App extends Application {
 			} catch (Exception e) { }
 		}
 		return defaultCurrencyCode;
+	}
+
+
+	public void setBillingInitialized(boolean billingInitialized) {
+		isBillingInitialized = billingInitialized;
+	}
+
+	public void setOneTimePurchaseSupported(boolean oneTimePurchaseSupported) {
+		isOneTimePurchaseSupported = oneTimePurchaseSupported;
+	}
+
+	public void setSubsUpdateSupported(boolean subsUpdateSupported) {
+		isSubsUpdateSupported = subsUpdateSupported;
+	}
+
+	public boolean isOneTimePurchaseSupported() {
+		return isOneTimePurchaseSupported;
+	}
+
+	public boolean isSubsUpdateSupported() {
+		return isSubsUpdateSupported;
+	}
+
+	public boolean isBillingInitialized() {
+		return isBillingInitialized;
 	}
 }

@@ -42,6 +42,7 @@ import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
+import dev.dworks.apps.acrypto.subscription.SubscriptionFragment;
 import dev.dworks.apps.acrypto.utils.NotificationUtils;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
@@ -59,13 +60,12 @@ public class MainActivity extends AppCompatActivity
 
     private static final int SETTINGS = 47;
     private static final String TAG = "Main";
+    private static final String UPDATE_USER = "update_user";
 
     // PRODUCT & SUBSCRIPTION IDS
     private static final String PRODUCT_ID = "dev.dworks.apps.acrypto";
-    private static final String SUBSCRIPTION_ID = "dev.dworks.apps.acrypto.subscription1";
     private static final String LICENSE_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn+84Wpabn7TD8Y2I8EEV6agPHA9/kvFu3g94gyaFErhz/zR4QPWlrmtMQOiiNRdr3Zr09//vPBGlVp/l3luSDzN3U0ry71cUvka7Bp89In5HfOYg8MNjNxJ2fIYi4Kk9BIfG1kLgptffA3QDm3tqGSy8aSYqu73x+rAkZ4ynGDHQrVzcv6MMKxabOKcMRXmze/yY92UllvpYhtK0/37OjHO/56miYB349rDbVJhZZapSkbXTKEFQDo20u3FtEgC5sVy6Yy7UED9Q5seJiNjb/9HswCOHmYBnRuwd/kGJDc/90jLsEuQgPiT5SHgbQOMGHFJlmm/K/x5ym2lcsQ6tpQIDAQAB";
     private static final String MERCHANT_ID = "04739006991233188912";
-    private static final String UPDATE_USER = "update_user";
 
     private BillingProcessor bp;
 
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
             HomeFragment.show(getSupportFragmentManager(), getName(getIntent().getExtras()));
         }
         FirebaseHelper.signInAnonymously();
-        bp = new BillingProcessor(this, LICENSE_KEY, MERCHANT_ID, this);
+
         initControls();
 
         // TODO Remove after some time
@@ -106,32 +106,9 @@ public class MainActivity extends AppCompatActivity
         handleExtras(intent.getExtras());
     }
 
-    private void initAd() {
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-6407484780907805/5183261278");
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdClosed() {
-                loadAd();
-            }
-
-        });
-        loadAd();
-    }
-
-    private void loadAd(){
-        if(null != mInterstitialAd) {
-            mInterstitialAd.loadAd(new AdRequest.Builder().build());
-        }
-    }
-
-    private void showAd() {
-        if (mInterstitialAd != null && mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-        } else {
-            Toast.makeText(this, "No sponsor available", Toast.LENGTH_SHORT).show();
-            loadAd();
-        }
+    private void initBilling() {
+        bp = BillingProcessor.newBillingProcessor(this, LICENSE_KEY, MERCHANT_ID, this);
+        bp.initialize();
     }
 
     private void initControls() {
@@ -172,12 +149,7 @@ public class MainActivity extends AppCompatActivity
         mheaderLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if(!FirebaseHelper.isLoggedIn()) {
-                    AnalyticsManager.logEvent("view_login");
-                    Intent login = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivity(login);
-                }
+                openLoginActivity();
             }
         });
     }
@@ -220,6 +192,7 @@ public class MainActivity extends AppCompatActivity
         setProperty("LoggedIn", String.valueOf(FirebaseHelper.isLoggedIn()));
 
         if(FirebaseHelper.isLoggedIn()){
+            initBilling();
             mName.setText(user.getDisplayName());
             mEmail.setText(user.getEmail());
             mPicture.setImageUrl(user.getPhotoUrl().toString(), VolleyPlusHelper.with(this).getImageLoader());
@@ -288,6 +261,14 @@ public class MainActivity extends AppCompatActivity
                 AnalyticsManager.logEvent("view_alerts");
                 return true;
 
+            case R.id.nav_subscription:
+
+                item.setChecked(true);
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                SubscriptionFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_subscription");
+                return true;
 
             case R.id.nav_settings:
                 startActivityForResult(new Intent(this, SettingsActivity.class), SETTINGS);
@@ -335,8 +316,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onProductPurchased(String s, TransactionDetails transactionDetails) {
+    public void onBillingInitialized() {
+        App.getInstance().setBillingInitialized(true);
+        App.getInstance().setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
+        App.getInstance().setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
+        bp.loadOwnedPurchasesFromGoogle();
+    }
 
+    @Override
+    public void onProductPurchased(String productId, TransactionDetails details) {
+        FirebaseHelper.updateUserSubscription(productId, details);
     }
 
     @Override
@@ -345,13 +334,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBillingError(int i, Throwable throwable) {
-
+    public void onBillingError(int errorCode, Throwable throwable) {
     }
 
-    @Override
-    public void onBillingInitialized() {
-
+    public BillingProcessor getBillingProcessor() {
+        return bp;
     }
 
     public void setSpinnerToValue(Spinner spinner, String value) {
@@ -387,5 +374,41 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return name;
+    }
+
+    private void initAd() {
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-6407484780907805/5183261278");
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                loadAd();
+            }
+
+        });
+        loadAd();
+    }
+
+    private void loadAd(){
+        if(null != mInterstitialAd) {
+            mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        }
+    }
+
+    private void showAd() {
+        if (mInterstitialAd != null && mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            Toast.makeText(this, "No sponsor available", Toast.LENGTH_SHORT).show();
+            loadAd();
+        }
+    }
+
+    public void openLoginActivity() {
+        if(!FirebaseHelper.isLoggedIn()) {
+            AnalyticsManager.logEvent("view_login");
+            Intent login = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(login);
+        }
     }
 }

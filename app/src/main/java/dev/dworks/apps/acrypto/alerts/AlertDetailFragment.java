@@ -399,7 +399,7 @@ public class AlertDetailFragment extends ActionBarFragment {
                 getCurrentCurrencyToSymbol(), status, getCondition(), getFrequency(),
                 "value", getValue());
         DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
-                .child("/user_alerts/prices").child(FirebaseHelper.getCurrentUser().getUid());
+                .child("/user_alerts/price").child(FirebaseHelper.getCurrentUser().getUid());
 
         DatabaseReference alertReference;
         if(TextUtils.isEmpty(refKey)){

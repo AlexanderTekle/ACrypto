@@ -9,6 +9,8 @@ public class User {
     public String uid;
     public String photoUrl;
     public String instanceId;
+    public boolean subscriptionStatus;
+    public String subscriptionId;
 
     public User() {
     }
