@@ -278,7 +278,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     private void loadConversionData() {
 
         String YQL = String.format("select * from yahoo.finance.xchange where pair in (\"%s\")",
-                getCurrentCurrencyTwo()+getCurrentCurrencyOne());
+                getCurrentCurrencyOne()+getCurrentCurrencyTwo());
 
         String url = String.format(CONVERSION_URL, Uri.encode(YQL));
 
@@ -318,7 +318,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
         String text = Utils.getString(this, R.string.artbitrage_message,
                 getCurrentCurrencyFrom(),
                 getDisplayCurrency(currentValueOne) + " " + getCurrentCurrencyOne(),
-                getDisplayCurrency((currentValueTwo / mConversionRate)) + " " + getCurrentCurrencyTwo(),
+                getDisplayCurrency((currentValueTwo * mConversionRate)) + " " + getCurrentCurrencyTwo(),
                 diff < 0 ?  "loss" : "profit",
                 getDisplayCurrency(Math.abs(diff)) + " " +  getCurrentCurrencyOne());
         mArbitrageSummary.setText(Html.fromHtml(text));

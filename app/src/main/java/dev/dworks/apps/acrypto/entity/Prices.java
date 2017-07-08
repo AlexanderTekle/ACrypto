@@ -37,7 +37,7 @@ public class Prices extends BaseEntity {
         public double conversion = 1;
 
         public double getClose() {
-            return close * conversion;
+            return close * (1/conversion);
         }
     }
 }
