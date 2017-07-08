@@ -14,6 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -46,6 +48,7 @@ import dev.dworks.apps.acrypto.utils.Utils.OnFragmentInteractionListener;
 import dev.dworks.apps.acrypto.view.ImageView;
 import dev.dworks.apps.acrypto.view.Spinner;
 
+import static android.view.View.GONE;
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.entity.Exchanges.NO_EXCHANGES;
 import static dev.dworks.apps.acrypto.home.HomeFragment.LIMIT_ALT;
@@ -81,6 +84,7 @@ public class AlertDetailFragment extends ActionBarFragment {
     private String frequency;
     private double value;
     private int status = 1;
+    private View mProgress;
 
     public static void show(FragmentManager fm, PriceAlert priceAlert, String refKey) {
         final Bundle args = new Bundle();
@@ -125,11 +129,12 @@ public class AlertDetailFragment extends ActionBarFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.detail_toolbar);
-        toolbar.setTitle((mPriceAlert == null ? "Add" : "Edit") + " Price Alert");
+        toolbar.setTitle((!isEdit() ? "Add" : "Edit") + " Price Alert");
         toolbar.setNavigationIcon(R.drawable.ic_close);
 
         getActionBarActivity().setSupportActionBar(toolbar);
 
+        mProgress = view.findViewById(R.id.progress);
         mCurrencyFromSpinner = (Spinner) view.findViewById(R.id.currencyFromSpinner);
         mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
         mExchangeSpinner = (Spinner) view.findViewById(R.id.exchangeSpinner);
@@ -158,6 +163,10 @@ public class AlertDetailFragment extends ActionBarFragment {
         }
         loadSymbol();
         loadIcon();
+    }
+
+    private boolean isEdit() {
+        return mPriceAlert != null && !TextUtils.isEmpty(refKey);
     }
 
     private void loadSymbol() {
@@ -369,6 +378,12 @@ public class AlertDetailFragment extends ActionBarFragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_delete).setVisible(isEdit());
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -378,8 +393,34 @@ public class AlertDetailFragment extends ActionBarFragment {
             case R.id.action_save:
                 saveAlert();
                 break;
+
+            case R.id.action_delete:
+                deleteAlert();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void deleteAlert() {
+        if(!Utils.isNetConnected(getActivity())){
+            Utils.showNoInternetSnackBar(getActivity(), null);
+            return;
+        }
+
+        setEditingEnabled(false);
+        DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
+                .child("/user_alerts/price")
+                .child(FirebaseHelper.getCurrentUser().getUid())
+                .child(refKey);
+        reference.removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                setEditingEnabled(true);
+                if(null == databaseError && null != getActivity()){
+                    getActivity().finish();
+                }
+            }
+        });
     }
 
     private void saveAlert() {
@@ -411,7 +452,7 @@ public class AlertDetailFragment extends ActionBarFragment {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 setEditingEnabled(true);
-                if(null == databaseError){
+                if(null == databaseError && null != getActivity()){
                     getActivity().finish();
                 }
             }
@@ -491,5 +532,15 @@ public class AlertDetailFragment extends ActionBarFragment {
         mCurrencyToSpinner.setEnabled(enabled);
         mExchangeSpinner.setEnabled(enabled);
         mValue.setEnabled(enabled);
+        mProgress.setVisibility(enabled ? GONE : View.VISIBLE);
+    }
+
+    private void hideKeyboard() {
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+    }
+
+    private void showKeyboard(EditText et) {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
     }
 }
