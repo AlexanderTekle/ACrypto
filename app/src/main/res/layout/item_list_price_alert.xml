@@ -100,7 +100,7 @@
                     app:symbolTextSize="12sp" />
 
                 <TextView
-                    android:id="@+id/status"
+                    android:id="@+id/condition"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
@@ -109,7 +109,7 @@
                     android:maxLines="1"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textSize="12sp"
-                    tools:text="Enabled" />
+                    tools:text="Less than" />
             </LinearLayout>
 
             <LinearLayout

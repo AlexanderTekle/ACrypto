@@ -24,6 +24,7 @@ import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CONDITION_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.FREQUENCY_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 
@@ -97,7 +98,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
         private final ImageView icon;
         private final ImageView frequency;
         private final MoneyTextView value;
-        private final TextView status;
+        private final TextView condition;
         private final Switch status_switch;
         private int mPosition;
 
@@ -115,7 +116,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             frequency = (ImageView) v.findViewById(R.id.frequency);
             value = (MoneyTextView) v.findViewById(R.id.value);
             value.setDecimalFormat(getMoneyFormat(true));
-            status = (TextView) v.findViewById(R.id.status);
+            condition = (TextView) v.findViewById(R.id.condition);
             status_switch = (Switch) v.findViewById(R.id.status_switch);
         }
 
@@ -142,7 +143,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             icon.setImageUrl(url, VolleyPlusHelper.with(icon.getContext()).getImageLoader());
 
             setType(priceAlert.frequency);
-            setStatus(priceAlert.status == 1);
+            setCondition(priceAlert.condition);
             status_switch.setChecked(priceAlert.status == 1);
             status_switch.setOnCheckedChangeListener(this);
         }
@@ -153,8 +154,8 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             this.frequency.setImageResource(resId);
         }
 
-        void setStatus(boolean enabled) {
-            status.setText(enabled ? "Enabled" : "Disabled");
+        void setCondition(String value) {
+            condition.setText((value.equals(CONDITION_DEFAULT) ? "Less" : "Greater") + " than");
         }
 
         private CoinDetailSample.CoinDetail getCoin(String symbol) {
@@ -167,7 +168,6 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
 
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-            setStatus(b);
             if (null != onItemClickListener) {
                 onItemClickListener.onItemViewClick(compoundButton, mPosition);
             }
