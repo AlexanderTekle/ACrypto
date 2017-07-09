@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.google.gson.Gson;
 
@@ -23,7 +22,6 @@ import org.joda.time.format.PeriodFormat;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
-import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.entity.Subscriptions;
@@ -179,11 +177,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.subscribe:
-                if (FirebaseHelper.isLoggedIn()) {
-                    getBillingProcessor().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
-                } else {
-                    ((MainActivity) getActivity()).openLoginActivity();
-                }
+                subscribe();
                 break;
 
             case R.id.reason:
@@ -199,10 +193,6 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
                 .setMessage(R.string.paid_reason_description)
                 .setNegativeButton("Got It", null)
                 .show();
-    }
-
-    public BillingProcessor getBillingProcessor() {
-        return App.getInstance().getBillingProcessor();
     }
 
     private static String getSubscriptionMain() {

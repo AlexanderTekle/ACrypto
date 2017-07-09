@@ -70,7 +70,7 @@ public class ArbitrageFragment extends ActionBarFragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showAppFeedback(getActivity());
+        showAppFeedback(getActivity(), true);
         setHasOptionsMenu(true);
     }
 

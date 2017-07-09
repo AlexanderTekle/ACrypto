@@ -79,7 +79,7 @@ public class AlertFragment extends RecyclerFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showAppFeedback(getActivity());
+        showAppFeedback(getActivity(), true);
         setHasOptionsMenu(false);
     }
 

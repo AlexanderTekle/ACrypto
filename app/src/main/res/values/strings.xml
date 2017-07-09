@@ -44,5 +44,19 @@
     <string name="tab_text_1">Info</string>
     <string name="tab_text_2">Exchanges</string>
     <string name="tab_text_3">Charts</string>
+    <string name="redeem">Redeem</string>
+    <string name="redeem_message">Redeem Code</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="subscribe_title">Subscribe</string>
+    <string name="subscribe_description">
+        Support our app and subscribe to ACrypto PRO.\n\n
+        As part of PRO subscription you will get these features:\n
+        * Get Alerts\n
+        * See Arbitrage\n
+        * Maintain Portfolio\n
+        * Advanced Graphs\n
+        * No Advertisements\n
+    </string>
 
 </resources>

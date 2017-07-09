@@ -678,7 +678,16 @@ public class Utils {
     }
 
     public static void showAppFeedback(Activity activity){
-        AppFeedback.with(activity, R.id.container_rate).listener(new AppFeedback.OnShowListener() {
+        showAppFeedback(activity, false);
+    }
+
+    public static void showAppFeedback(Activity activity, boolean isPro){
+        AppFeedback appFeedback = AppFeedback.with(activity, R.id.container_rate);
+        if(isPro){
+            appFeedback.hide();
+            return;
+        }
+        appFeedback.listener(new AppFeedback.OnShowListener() {
             @Override
             public void onRateAppShowing() {
                 AnalyticsManager.logEvent("feedback_shown");
