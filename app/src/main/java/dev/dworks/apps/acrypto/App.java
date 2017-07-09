@@ -11,7 +11,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyLog;
 import com.android.volley.error.VolleyError;
 import com.anjlab.android.iab.v3.BillingProcessor;
+import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
+import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.gson.Gson;
@@ -35,6 +37,7 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
+import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
 import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 /**
@@ -43,6 +46,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 public class App extends Application implements BillingProcessor.IBillingHandler {
 	public static final String TAG = "ACrypto";
+	public static final String BILLING_ACTION = "BillingInitialized";
 
 	static {
 		AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -62,6 +66,10 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	public boolean isOneTimePurchaseSupported;
 	public boolean isBillingInitialized;
 	private BillingProcessor bp;
+	private boolean isSubscribedMonthly;
+	private boolean autoRenewing;
+	private boolean isSubscriptionActive;
+	private SkuDetails skuDetails;
 
 	@Override
 	public void onCreate() {
@@ -88,6 +96,8 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		if(isGPSAvailable(this)) {
 			FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 		}
+
+		LocalBurst.initialize(getApplicationContext());
 
     	try {
             final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -287,6 +297,22 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		return isSubsUpdateSupported;
 	}
 
+	public boolean isSubscriptionActive() {
+		return isSubscriptionActive;
+	}
+
+	public boolean isSubscribedMonthly() {
+		return isSubscribedMonthly;
+	}
+
+	public boolean isAutoRenewing() {
+		return autoRenewing;
+	}
+
+	public SkuDetails getSkuDetails() {
+		return skuDetails;
+	}
+
 	public boolean isBillingInitialized() {
 		return isBillingInitialized;
 	}
@@ -297,6 +323,17 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
 		setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
 		bp.loadOwnedPurchasesFromGoogle();
+		skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
+		isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
+		if (isSubscribedMonthly) {
+			TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
+			autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
+		}
+
+		isSubscriptionActive = isSubscribedMonthly && autoRenewing;
+		LocalBurst.getInstance().emit(BILLING_ACTION);
+		FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
+
 	}
 
 	@Override

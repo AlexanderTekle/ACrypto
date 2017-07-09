@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
+import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -46,6 +47,7 @@ import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
 
+import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 
 /**
@@ -54,7 +56,7 @@ import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        Utils.OnFragmentInteractionListener{
+        Utils.OnFragmentInteractionListener, LocalBurst.OnBroadcastListener {
 
     private static final int SETTINGS = 47;
     private static final String TAG = "Main";
@@ -67,6 +69,8 @@ public class MainActivity extends AppCompatActivity
     private BezelImageView mPicture;
     private Spinner spinner;
     private InterstitialAd mInterstitialAd;
+    private LocalBurst broadcast;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +83,7 @@ public class MainActivity extends AppCompatActivity
         FirebaseHelper.signInAnonymously();
 
         App.getInstance().initializeBilling();
+        broadcast = LocalBurst.getInstance();
         initControls();
 
         // TODO Remove after some time
@@ -121,8 +126,10 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        updateNavigation();
+
         currentPositionId = R.id.nav_home;
         navigationView.setCheckedItem(currentPositionId);
 
@@ -185,8 +192,10 @@ public class MainActivity extends AppCompatActivity
         } else {
             mName.setText("Guest");
             mEmail.setText(null);
+            mPicture.setImageResource(0);
             mPicture.setImageResource(R.drawable.ic_person);
         }
+        updateNavigation();
     }
 
     @Override
@@ -282,8 +291,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        broadcast.removeListeners(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        broadcast.on(BILLING_ACTION, this);
+        broadcast.on(LocalBurst.DEFAULT_ACTION, this);
+    }
+
+    @Override
     protected void onDestroy() {
         App.getInstance().releaseBillingProcessor();
+        broadcast.removeListeners(this);
         super.onDestroy();
     }
 
@@ -368,5 +391,16 @@ public class MainActivity extends AppCompatActivity
             Intent login = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(login);
         }
+    }
+
+    @Override
+    public void onBroadcast(String s, Bundle bundle) {
+        updateNavigation();
+    }
+
+    private void updateNavigation() {
+        navigationView.getMenu().clear();
+        navigationView.inflateMenu(App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn()
+                ? R.menu.activity_main_drawer_pro : R.menu.activity_main_drawer);
     }
 }

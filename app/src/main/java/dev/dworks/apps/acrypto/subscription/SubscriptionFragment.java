@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
-import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.gson.Gson;
 
 import org.joda.time.format.PeriodFormat;
@@ -32,8 +31,6 @@ import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.SimpleDividerItemDecoration;
-import needle.Needle;
-import needle.UiRelatedTask;
 
 /**
  * Created by HaKr on 08/07/17.
@@ -148,47 +145,22 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     }
 
     private void updateViews() {
-        Needle.onBackgroundThread().execute(new UiRelatedTask<Void>() {
-            public boolean isActive;
-            public boolean isSubscribedMonthly;
-            public SkuDetails skuDetails;
-            boolean autoRenewing = false;
-
-            @Override
-            protected Void doWork() {
-                if (App.getInstance().isBillingInitialized() && null != getBillingProcessor()) {
-                    getBillingProcessor().loadOwnedPurchasesFromGoogle();
-                    skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
-                    isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
-                    if (isSubscribedMonthly) {
-                        TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
-                        autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
-                    }
-
-                    isActive = isSubscribedMonthly && autoRenewing;
-                    FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
-                }
-                return null;
+        boolean isActive = App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn();
+        mSubscribe.setVisibility(Utils.getVisibility(!isActive));
+        if(isActive) {
+            mReason.setText("Subscribed");
+            mReason.setOnClickListener(null);
+        } else {
+            SkuDetails skuDetails = App.getInstance().getSkuDetails();
+            if(null != skuDetails) {
+                mSubscribe.setText("Subscribe "
+                        + skuDetails.priceText + "/"
+                        + PeriodFormat.getDefault().print(skuDetails.subscriptionPeriod));
             }
-
-            @Override
-            protected void thenDoUiRelatedWork(Void result) {
-                mSubscribe.setVisibility(Utils.getVisibility(!isActive));
-                if(isActive) {
-                    mReason.setText("Subscribed");
-                    mReason.setOnClickListener(null);
-                } else {
-                    if(null != skuDetails) {
-                        mSubscribe.setText("Subscribe "
-                                + skuDetails.priceText + "/"
-                                + PeriodFormat.getDefault().print(skuDetails.subscriptionPeriod));
-                    }
-                    String htmlString = "<u>"+paidReason+"</u>";
-                    mReason.setText(Utils.getFromHtml(htmlString));
-                    mReason.setOnClickListener(SubscriptionFragment.this);
-                }
-            }
-        });
+            String htmlString = "<u>"+paidReason+"</u>";
+            mReason.setText(Utils.getFromHtml(htmlString));
+            mReason.setOnClickListener(SubscriptionFragment.this);
+        }
     }
 
     @Override
