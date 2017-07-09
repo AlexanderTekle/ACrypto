@@ -1,6 +1,7 @@
 package dev.dworks.apps.acrypto;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.support.v4.util.ArrayMap;
@@ -9,6 +10,8 @@ import android.support.v7.app.AppCompatDelegate;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
 import com.android.volley.error.VolleyError;
+import com.anjlab.android.iab.v3.BillingProcessor;
+import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.gson.Gson;
@@ -23,6 +26,7 @@ import dev.dworks.apps.acrypto.entity.CoinsList;
 import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
@@ -37,7 +41,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
  * Created by HaKr on 16/05/17.
  */
 
-public class App extends Application {
+public class App extends Application implements BillingProcessor.IBillingHandler {
 	public static final String TAG = "ACrypto";
 
 	static {
@@ -57,6 +61,7 @@ public class App extends Application {
 	public boolean isSubsUpdateSupported;
 	public boolean isOneTimePurchaseSupported;
 	public boolean isBillingInitialized;
+	private BillingProcessor bp;
 
 	@Override
 	public void onCreate() {
@@ -264,6 +269,16 @@ public class App extends Application {
 		isSubsUpdateSupported = subsUpdateSupported;
 	}
 
+	public void initializeBilling() {
+		if(null == bp) {
+			bp = BillingProcessor.newBillingProcessor(this,
+					getString(R.string.license_key), getString(R.string.merchant_id), this);
+		}
+		if(!bp.isInitialized()) {
+			bp.initialize();
+		}
+	}
+
 	public boolean isOneTimePurchaseSupported() {
 		return isOneTimePurchaseSupported;
 	}
@@ -274,5 +289,45 @@ public class App extends Application {
 
 	public boolean isBillingInitialized() {
 		return isBillingInitialized;
+	}
+
+	@Override
+	public void onBillingInitialized() {
+		setBillingInitialized(true);
+		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
+		setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
+		bp.loadOwnedPurchasesFromGoogle();
+	}
+
+	@Override
+	public void onProductPurchased(String productId, TransactionDetails details) {
+		FirebaseHelper.updateUserSubscription(productId, details);
+	}
+
+	@Override
+	public void onPurchaseHistoryRestored() {
+
+	}
+
+	@Override
+	public void onBillingError(int errorCode, Throwable throwable) {
+	}
+
+	public BillingProcessor getBillingProcessor() {
+		return bp;
+	}
+
+	public boolean handleActivityResult(int requestCode, int resultCode, Intent data){
+		if(null != bp){
+			return bp.handleActivityResult(requestCode, resultCode, data);
+		} else {
+			return false;
+		}
+	}
+
+	public void releaseBillingProcessor() {
+		if(null != bp){
+			bp.release();
+		}
 	}
 }

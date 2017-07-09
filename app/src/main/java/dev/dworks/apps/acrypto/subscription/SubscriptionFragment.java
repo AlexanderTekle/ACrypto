@@ -10,9 +10,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -35,6 +32,8 @@ import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.SimpleDividerItemDecoration;
+import needle.Needle;
+import needle.UiRelatedTask;
 
 /**
  * Created by HaKr on 08/07/17.
@@ -145,53 +144,51 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
 
         SubscriptionAdapter subscriptionAdapter = new SubscriptionAdapter(subscriptions.subscriptions);
         mRecyclerView.setAdapter(subscriptionAdapter);
+        updateViews();
     }
 
     private void updateViews() {
-        if (App.getInstance().isBillingInitialized()) {
-            getBillingProcessor().loadOwnedPurchasesFromGoogle();
-            SkuDetails skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
-            boolean isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
+        Needle.onBackgroundThread().execute(new UiRelatedTask<Void>() {
+            public boolean isActive;
+            public boolean isSubscribedMonthly;
+            public SkuDetails skuDetails;
             boolean autoRenewing = false;
-            if (isSubscribedMonthly) {
-                TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
-                autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
-            }
 
-            boolean isActive = isSubscribedMonthly && autoRenewing;
-            mSubscribe.setVisibility(Utils.getVisibility(!isActive));
-            FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
-            if(isActive) {
-                mReason.setText("Subscribed");
-                mReason.setOnClickListener(null);
-            } else {
-                if(null != skuDetails) {
-                    mSubscribe.setText("Subscribe "
-                            + skuDetails.priceText + "/"
-                            + PeriodFormat.getDefault().print(skuDetails.subscriptionPeriod));
+            @Override
+            protected Void doWork() {
+                if (App.getInstance().isBillingInitialized() && null != getBillingProcessor()) {
+                    getBillingProcessor().loadOwnedPurchasesFromGoogle();
+                    skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
+                    isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
+                    if (isSubscribedMonthly) {
+                        TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
+                        autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
+                    }
+
+                    isActive = isSubscribedMonthly && autoRenewing;
+                    FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
                 }
-                String htmlString = "<u>"+paidReason+"</u>";
-                mReason.setText(Utils.getFromHtml(htmlString));
-                mReason.setOnClickListener(this);
+                return null;
             }
-        }
-    }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.refresh, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("coins_refreshed", bundle);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
+            @Override
+            protected void thenDoUiRelatedWork(Void result) {
+                mSubscribe.setVisibility(Utils.getVisibility(!isActive));
+                if(isActive) {
+                    mReason.setText("Subscribed");
+                    mReason.setOnClickListener(null);
+                } else {
+                    if(null != skuDetails) {
+                        mSubscribe.setText("Subscribe "
+                                + skuDetails.priceText + "/"
+                                + PeriodFormat.getDefault().print(skuDetails.subscriptionPeriod));
+                    }
+                    String htmlString = "<u>"+paidReason+"</u>";
+                    mReason.setText(Utils.getFromHtml(htmlString));
+                    mReason.setOnClickListener(SubscriptionFragment.this);
+                }
+            }
+        });
     }
 
     @Override
@@ -212,16 +209,16 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     }
 
     private void showReason() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
-                R.style.AppCompatAlertDialogStyle);
-        builder.setTitle(R.string.paid_reason);
-        builder.setMessage(R.string.paid_reason_description);
-        builder.setNegativeButton("Got It", null);
-        builder.show();
+        new AlertDialog.Builder(getActivity(),
+                R.style.AppCompatAlertDialogStyle)
+                .setTitle(R.string.paid_reason)
+                .setMessage(R.string.paid_reason_description)
+                .setNegativeButton("Got It", null)
+                .show();
     }
 
     public BillingProcessor getBillingProcessor() {
-        return ((MainActivity) getActivity()).getBillingProcessor();
+        return App.getInstance().getBillingProcessor();
     }
 
     private static String getSubscriptionMain() {

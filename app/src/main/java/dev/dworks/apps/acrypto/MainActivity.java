@@ -22,8 +22,6 @@ import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
-import com.anjlab.android.iab.v3.BillingProcessor;
-import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -56,16 +54,11 @@ import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        Utils.OnFragmentInteractionListener, BillingProcessor.IBillingHandler{
+        Utils.OnFragmentInteractionListener{
 
     private static final int SETTINGS = 47;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
-
-    private static final String LICENSE_KEY = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn+84Wpabn7TD8Y2I8EEV6agPHA9/kvFu3g94gyaFErhz/zR4QPWlrmtMQOiiNRdr3Zr09//vPBGlVp/l3luSDzN3U0ry71cUvka7Bp89In5HfOYg8MNjNxJ2fIYi4Kk9BIfG1kLgptffA3QDm3tqGSy8aSYqu73x+rAkZ4ynGDHQrVzcv6MMKxabOKcMRXmze/yY92UllvpYhtK0/37OjHO/56miYB349rDbVJhZZapSkbXTKEFQDo20u3FtEgC5sVy6Yy7UED9Q5seJiNjb/9HswCOHmYBnRuwd/kGJDc/90jLsEuQgPiT5SHgbQOMGHFJlmm/K/x5ym2lcsQ6tpQIDAQAB";
-    private static final String MERCHANT_ID = "04739006991233188912";
-
-    private BillingProcessor bp;
 
     private int currentPositionId;
     private TextView mName;
@@ -85,6 +78,7 @@ public class MainActivity extends AppCompatActivity
         }
         FirebaseHelper.signInAnonymously();
 
+        App.getInstance().initializeBilling();
         initControls();
 
         // TODO Remove after some time
@@ -102,11 +96,6 @@ public class MainActivity extends AppCompatActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleExtras(intent.getExtras());
-    }
-
-    private void initBilling() {
-        bp = BillingProcessor.newBillingProcessor(this, LICENSE_KEY, MERCHANT_ID, this);
-        bp.initialize();
     }
 
     private void initControls() {
@@ -190,7 +179,6 @@ public class MainActivity extends AppCompatActivity
         setProperty("LoggedIn", String.valueOf(FirebaseHelper.isLoggedIn()));
 
         if(FirebaseHelper.isLoggedIn()){
-            initBilling();
             mName.setText(user.getDisplayName());
             mEmail.setText(user.getEmail());
             mPicture.setImageUrl(user.getPhotoUrl().toString(), VolleyPlusHelper.with(this).getImageLoader());
@@ -295,15 +283,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        if (bp != null) {
-            bp.release();
-        }
+        App.getInstance().releaseBillingProcessor();
         super.onDestroy();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (!bp.handleActivityResult(requestCode, resultCode, data)) {
+        if (!App.getInstance().handleActivityResult(requestCode, resultCode, data)) {
             if(requestCode == SETTINGS){
                 if(resultCode == RESULT_FIRST_USER){
                     updateUserDetails();
@@ -311,32 +297,6 @@ public class MainActivity extends AppCompatActivity
             }
             super.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    @Override
-    public void onBillingInitialized() {
-        App.getInstance().setBillingInitialized(true);
-        App.getInstance().setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
-        App.getInstance().setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
-        bp.loadOwnedPurchasesFromGoogle();
-    }
-
-    @Override
-    public void onProductPurchased(String productId, TransactionDetails details) {
-        FirebaseHelper.updateUserSubscription(productId, details);
-    }
-
-    @Override
-    public void onPurchaseHistoryRestored() {
-
-    }
-
-    @Override
-    public void onBillingError(int errorCode, Throwable throwable) {
-    }
-
-    public BillingProcessor getBillingProcessor() {
-        return bp;
     }
 
     public void setSpinnerToValue(Spinner spinner, String value) {
