@@ -228,6 +228,9 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
                           .once('value');
   return Promise.all([getUserPromise, getUserPriceAlertsPromise]).then(results => {
     const userSnapshot = results[0];
+    if(!userSnapshot.val()){
+      return console.log('Not user details', userId)
+    }
     const instanceId = userSnapshot.val().instanceId;
     const subscriptionStatus = userSnapshot.val().subscriptionStatus;
     const priceAlertSnapshot = results[1];
@@ -236,18 +239,21 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
     }
     // Check if there are any device tokens.
     if (!priceAlertSnapshot.hasChildren()) {
-      return console.log('There are no alerts to send for', comboKey);
+      return console.log('There are no alerts to send for', comboKey, ", userId:", userId);
     }
-    console.log("Alerts of users fetched for ", comboKey, " : ", priceAlertSnapshot.numChildren());
+    console.log("Alerts of users fetched for ", comboKey, " : ", priceAlertSnapshot.numChildren(), ", userId:", userId);
     const promises = [];
     priceAlertSnapshot.forEach(function(dataSnapshot) {
-        promises.push(sendAlertNotification(instanceId, currentPrice, dataSnapshot));
+        promises.push(sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot));
     });
     return Promise.all(promises);
+  })
+  .catch(error => {
+    console.log("Error getting user alert details:", error, ", userId:", userId);
   });
 }
 
-function sendAlertNotification(instanceId, currentPrice, dataSnapshot) {
+function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
   const comboKey = dataSnapshot.val().name;
   const comboKeyArray = comboKey.split('-');
   const fromCurrency = comboKeyArray[0];
@@ -287,13 +293,13 @@ function sendAlertNotification(instanceId, currentPrice, dataSnapshot) {
       response.results.forEach((result, index) => {
         const error = result.error;
         if (error) {
-          console.error('Failure sending message', tokens[index], error);
+          console.error("Failure sending message:", error, " userId:", userId, " token:", instanceId);
         }
-        console.log("Successfully sent message:", response);
+        console.log("Successfully sent message:", response, ", userId:", userId);
       });
     })
     .catch(error => {
-      console.log("Error sending message:", error);
+      console.log("Error sending message:", error, " userId:", userId, " token:", instanceId);
     });
   }
   return;
