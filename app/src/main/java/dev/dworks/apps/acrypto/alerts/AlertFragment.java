@@ -149,7 +149,7 @@ public class AlertFragment extends RecyclerFragment
 
     public Query getQuery() {
         return FirebaseHelper.getFirebaseDatabaseReference().child("/user_alerts/price")
-                .child(FirebaseHelper.getCurrentUser().getUid());
+                .child(FirebaseHelper.getCurrentUserId());
     }
 
     @Override

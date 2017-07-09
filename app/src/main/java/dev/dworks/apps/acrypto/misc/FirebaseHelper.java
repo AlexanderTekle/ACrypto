@@ -40,6 +40,14 @@ public class FirebaseHelper {
         return FirebaseAuth.getInstance().getCurrentUser();
     }
 
+    public static String getCurrentUserId(){
+        if(null != getCurrentUser()) {
+            return getCurrentUser().getUid();
+        } else {
+            return "";
+        }
+    }
+
     public static boolean isLoggedIn(){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         return null != user && !user.isAnonymous();
