@@ -145,6 +145,18 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     }
 
     private void updateViews() {
+        if(!App.getInstance().isBillingSupported()){
+            mSubscribe.setVisibility(View.GONE);
+            String htmlString = "Billing not supported. " + "<u>"+"Contact Developer"+"</u>";
+            mReason.setText(Utils.getFromHtml(htmlString));
+            mReason.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Utils.openSupport(getActivity());
+                }
+            });
+            return;
+        }
         boolean isActive = App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn();
         mSubscribe.setVisibility(Utils.getVisibility(!isActive));
         if(isActive) {
@@ -159,7 +171,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
             }
             String htmlString = "<u>"+paidReason+"</u>";
             mReason.setText(Utils.getFromHtml(htmlString));
-            mReason.setOnClickListener(SubscriptionFragment.this);
+            mReason.setOnClickListener(this);
         }
     }
 

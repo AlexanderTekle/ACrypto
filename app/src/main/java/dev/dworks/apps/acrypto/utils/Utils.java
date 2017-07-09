@@ -525,6 +525,16 @@ public class Utils {
         return Uri.parse("https://play.google.com/store/apps/dev?id=8683545855643814241");
     }
 
+    public static void openSupport(Activity activity){
+        ShareCompat.IntentBuilder
+                .from(activity)
+                .setEmailTo(new String[]{"hakr@dworks.in"})
+                .setSubject("ACrypto Support")
+                .setType("text/email")
+                .setChooserTitle("Contact Support")
+                .startChooser();
+    }
+
     public static void openFeedback(Activity activity){
         ShareCompat.IntentBuilder
                 .from(activity)

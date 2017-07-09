@@ -280,13 +280,7 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	}
 
 	public void initializeBilling() {
-		if(null == bp) {
-			bp = BillingProcessor.newBillingProcessor(this,
-					getString(R.string.license_key), getString(R.string.merchant_id), this);
-		}
-		if(!bp.isInitialized()) {
-			bp.initialize();
-		}
+		getBillingProcessor();
 	}
 
 	public boolean isOneTimePurchaseSupported() {
@@ -311,10 +305,6 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 
 	public SkuDetails getSkuDetails() {
 		return skuDetails;
-	}
-
-	public boolean isBillingInitialized() {
-		return isBillingInitialized;
 	}
 
 	@Override
@@ -351,6 +341,13 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	}
 
 	public BillingProcessor getBillingProcessor() {
+		if(null == bp) {
+			bp = BillingProcessor.newBillingProcessor(this,
+					getString(R.string.license_key), getString(R.string.merchant_id), this);
+		}
+		if(!bp.isInitialized()) {
+			bp.initialize();
+		}
 		return bp;
 	}
 
@@ -366,5 +363,9 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		if(null != bp){
 			bp.release();
 		}
+	}
+
+	public boolean isBillingSupported() {
+		return BillingProcessor.isIabServiceAvailable(getApplicationContext());
 	}
 }
