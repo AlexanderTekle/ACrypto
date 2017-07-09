@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
+import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.R;
 
 import static com.android.volley.toolbox.HttpHeaderParser.parseDateAsEpoch;
@@ -139,14 +140,18 @@ public class VolleyPlusHelper {
     public <T> void addToRequestQueue(Request<T> req, String tag) {
         // set the default tag if tag is empty
         req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
+        if(BuildConfig.DEBUG) {
+            VolleyLog.d("Adding request to queue: %s", req.getUrl());
+        }
         getRequestQueue().add(req);
     }
 
     public <T> void updateToRequestQueue(Request<T> req, String tag) {
         // set the default tag if tag is empty
         req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-        VolleyLog.d("Adding request to queue: %s", req.getUrl());
+        if(BuildConfig.DEBUG) {
+            VolleyLog.d("Adding request to queue: %s", req.getUrl());
+        }
         getRequestQueue().cancelAll(tag);
         getRequestQueue().add(req);
     }

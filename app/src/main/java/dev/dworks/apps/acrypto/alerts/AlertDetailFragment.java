@@ -21,8 +21,13 @@ import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
+import com.android.volley.request.StringRequest;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+
+import org.fabiomsr.moneytextview.MoneyTextView;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,12 +61,12 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CONDITION_DEFAUL
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.FREQUENCY_DEFAULT;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 
-public class AlertDetailFragment extends ActionBarFragment {
+public class AlertDetailFragment extends ActionBarFragment
+        implements Response.Listener<String>, Response.ErrorListener {
 
     private static final String TAG = "AlertDetails";
     private static final String REQUIRED = "Required";
@@ -85,6 +90,9 @@ public class AlertDetailFragment extends ActionBarFragment {
     private double value;
     private int status = 1;
     private View mProgress;
+    private MoneyTextView mCurrentValue;
+    private View mPriceProgress;
+    private TextView mMessage;
 
     public static void show(FragmentManager fm, PriceAlert priceAlert, String refKey) {
         final Bundle args = new Bundle();
@@ -135,6 +143,7 @@ public class AlertDetailFragment extends ActionBarFragment {
         getActionBarActivity().setSupportActionBar(toolbar);
 
         mProgress = view.findViewById(R.id.progress);
+        mPriceProgress = view.findViewById(R.id.priceprogress);
         mCurrencyFromSpinner = (Spinner) view.findViewById(R.id.currencyFromSpinner);
         mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
         mExchangeSpinner = (Spinner) view.findViewById(R.id.exchangeSpinner);
@@ -143,7 +152,8 @@ public class AlertDetailFragment extends ActionBarFragment {
         mValue = (EditText) view.findViewById(R.id.value);
         mSymbol = (TextView) view.findViewById(R.id.symbol);
         mIcon = (ImageView) view.findViewById(R.id.icon);
-
+        mCurrentValue = (MoneyTextView) view.findViewById(R.id.currentValue);
+        mMessage = (TextView) view.findViewById(R.id.message);
         setSpinners();
 
         if(null != mPriceAlert) {
@@ -157,12 +167,17 @@ public class AlertDetailFragment extends ActionBarFragment {
             frequency = mPriceAlert.frequency;
             status = mPriceAlert.status;
 
-            mValue.setText(String.valueOf(value));
+            loadValue();
             Utils.setSpinnerValue(mConditionSpinner, "<", getCondition());
             Utils.setSpinnerValue(mFrequencySpinner, "Onetime", getFrequency());
         }
         loadSymbol();
         loadIcon();
+        fetchCurrentPriceData();
+    }
+
+    private void loadValue() {
+        mValue.setText(String.valueOf(value));
     }
 
     private boolean isEdit() {
@@ -267,6 +282,24 @@ public class AlertDetailFragment extends ActionBarFragment {
         fetchCurrencyFromData();
         fetchCurrencyToData();
         fetchExchangeData();
+        fetchCurrentPriceData();
+    }
+
+    public String getUrl(){
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("fsym", getCurrentCurrencyFrom());
+        params.put("tsyms", getCurrentCurrencyTo());
+
+        String url = UrlManager.with(UrlConstant.HISTORY_PRICE_URL)
+                .setDefaultParams(params).getUrl();
+        return url;
+    }
+
+    private void fetchCurrentPriceData() {
+        mPriceProgress.setVisibility(View.VISIBLE);
+        StringRequest request = new StringRequest(getUrl(), this,
+                this);
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "diff");
     }
 
     private void fetchCurrencyFromData() {
@@ -461,7 +494,7 @@ public class AlertDetailFragment extends ActionBarFragment {
 
     public String getCurrentCurrencyTo(){
         return TextUtils.isEmpty(curencyTo)
-                ? (isTopAltCoin() ? getUserCurrencyFrom() : CURRENCY_FROM_DEFAULT) : curencyTo;
+                ? ( isTopAltCoin() ? CURRENCY_TO_DEFAULT : CURRENCY_FROM_DEFAULT) : curencyTo;
     }
 
     public boolean isTopAltCoin(){
@@ -542,5 +575,53 @@ public class AlertDetailFragment extends ActionBarFragment {
     private void showKeyboard(EditText et) {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError volleyError) {
+        mPriceProgress.setVisibility(GONE);
+        if(!Utils.isActivityAlive(getActivity())){
+            return;
+        }
+        if (!Utils.isNetConnected(getActivity())) {
+            setEmptyData("No Internet");
+            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fetchCurrentPriceData();
+                }
+            });
+        }
+        else{
+            setEmptyData("Something went wrong!");
+            Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fetchCurrentPriceData();
+                }
+            });
+        }
+    }
+
+    private void setEmptyData(String message) {
+        Utils.setPriceValue(mCurrentValue, 0, getCurrentCurrencyToSymbol());
+        mMessage.setText(message);
+        value = 0;
+        loadValue();
+    }
+
+    @Override
+    public void onResponse(String response) {
+        mPriceProgress.setVisibility(GONE);
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            double currentPrice = jsonObject.getDouble(getCurrentCurrencyTo());
+            Utils.setPriceValue(mCurrentValue, currentPrice, getCurrentCurrencyToSymbol());
+            value = currentPrice;
+            loadValue();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            setEmptyData("Something went wrong!");
+        }
     }
 }

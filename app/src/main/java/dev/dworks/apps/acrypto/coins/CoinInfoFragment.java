@@ -186,7 +186,6 @@ public class CoinInfoFragment extends ActionBarFragment
         request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Info");
-
     }
 
     public String getCurrentCurrencyTo(){
