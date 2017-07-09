@@ -17,6 +17,7 @@ import com.android.volley.error.VolleyError;
 
 import java.util.ArrayList;
 
+import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.coins.CoinExchangeFragment;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
@@ -71,7 +72,7 @@ public class ArbitrageFragment extends ActionBarFragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         showAppFeedback(getActivity(), true);
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(App.getInstance().isSubscriptionActive());
     }
 
     @Override

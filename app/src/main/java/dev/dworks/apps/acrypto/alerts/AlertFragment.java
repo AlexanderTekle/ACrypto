@@ -10,9 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
@@ -169,23 +166,6 @@ public class AlertFragment extends RecyclerFragment
         childUpdates.put("status", status);
         childUpdates.put("nameStatusIndex", mAdapter.getItem(position).name+status);
         mAdapter.getRef(position).updateChildren(childUpdates);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.refresh, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_refresh:
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("coins_refreshed", bundle);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
