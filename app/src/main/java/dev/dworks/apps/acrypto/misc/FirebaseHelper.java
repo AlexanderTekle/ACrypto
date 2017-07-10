@@ -74,16 +74,22 @@ public class FirebaseHelper {
                 firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString()
         );
 
-        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(firebaseUser.getUid()).setValue(user);
+        String photoUrl = firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("displayName", firebaseUser.getDisplayName());
+        childUpdates.put("email", firebaseUser.getEmail());
+        childUpdates.put("uid", firebaseUser.getUid());
+        childUpdates.put("photoUrl", photoUrl);
 
         String instanceId = FirebaseInstanceId.getInstance().getToken();
         if (instanceId != null) {
-            FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                    .child(firebaseUser.getUid())
-                    .child("instanceId")
-                    .setValue(instanceId);
+            childUpdates.put("instanceId", instanceId);
         }
+
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid()).updateChildren(childUpdates);
+
+
     }
 
     public static void updateUserSubscription(String productId, TransactionDetails details) {
