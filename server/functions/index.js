@@ -5,9 +5,55 @@ const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 const cors = require('cors')({origin: true});
 const request = require('request');
+const rp = require('request-promise');
 const express = require('express');
+const Logging = require('@google-cloud/logging');
 
 const app = express();
+const logging = Logging();
+
+function logError(message, context = {}) {
+  console.error(message, context);
+}
+
+function logInfo(message, context = {}) {
+  console.log(message, context);
+}
+
+function reportError(err, context = {}) {
+  // This is the name of the StackDriver log stream that will receive the log
+  // entry. This name can be any valid log stream name, but must contain "err"
+  // in order for the error to be picked up by StackDriver Error Reporting.
+  const logName = 'errors';
+  const log = logging.log(logName);
+
+  // https://cloud.google.com/logging/docs/api/ref_v2beta1/rest/v2beta1/MonitoredResource
+  const metadata = {
+    resource: {
+      type: 'cloud_function',
+      labels: { function_name: process.env.FUNCTION_NAME }
+    }
+  };
+
+  // https://cloud.google.com/error-reporting/reference/rest/v1beta1/ErrorEvent
+  const errorEvent = {
+    message: err.stack,
+    serviceContext: {
+      service: process.env.FUNCTION_NAME,
+      resourceType: 'cloud_function'
+    },
+    context: context
+  };
+
+  console.error('Error:', context, err);
+  // Write the error log entry
+  return new Promise((resolve, reject) => {
+    log.write(log.entry(metadata, errorEvent), error => {
+      if (error) { reject(error); }
+      resolve();
+    });
+  });
+}
 
 const authenticate = (req, res, next) => {
     console.log("url:", req.url);
@@ -165,16 +211,26 @@ app.get('/symbols', (req, res) => {
 app.get('/crons/alerts/price', (req, res) => {
   admin.database().ref(`/crons/alerts/price`).set(admin.database.ServerValue.TIMESTAMP);
   return res.status(200).json({alerts: 'triggered'});
+});
 
-  // const promises = [];
-  // admin.database().ref(`/alerts/price`).once('value', function(alertSnapshot) {
-  //   alertSnapshot.forEach(function(dataSnapshot) {
-  //     promises.push(createPriceAlertPromise(dataSnapshot));
-  //   });
-  // });
-  // return Promise.all(promises).then(results => {
-  //     return res.status(200).json({alerts: 'triggered'});
-  // });
+// GET /api/test/crons/alert_price
+// Triggers price alert check for testing
+app.get('/tests/crons/alerts/price', (req, res) => {
+  return admin.database().ref(`/alerts/price`).once('value').then(alertSnapshot => {
+    const promises = [];
+    const iamUser = 'hGYZLVvNzkNN0jJMKKDu70fIAom1';
+    alertSnapshot.forEach(function(dataSnapshot) {
+      dataSnapshot.forEach(function(data) {
+        const userId = data.key;
+        if(userId == iamUser){
+          promises.push(createPriceAlertPromise(dataSnapshot));
+        }
+      });
+    });
+    return Promise.all(promises).then(results => {
+        return res.status(200).json({alerts: 'triggered'});
+    });
+  });
 });
 
 // Expose the API as a function
@@ -182,13 +238,13 @@ exports.api = functions.https.onRequest(app);
 
 // Checks price alerts for users
 exports.priceAlertCheck = functions.database.ref('/crons/alerts/price').onWrite(event => {
-  const promises = [];
-  admin.database().ref(`/alerts/price`).once('value', function(alertSnapshot) {
+  return admin.database().ref(`/alerts/price`).once('value').then(alertSnapshot => {
+    const promises = [];
     alertSnapshot.forEach(function(dataSnapshot) {
       promises.push(createPriceAlertPromise(dataSnapshot));
     });
+    return Promise.all(promises);
   });
-  return Promise.all(promises);
 });
 
 function createPriceUrl(fromCurrency, toCurrency, exchange) {
@@ -201,19 +257,21 @@ function createPriceAlertPromise(snapshot) {
   const fromCurrency = comboKeyArray[0];
   const toCurrency = comboKeyArray[1];
   const exchange = comboKeyArray[2];
-  return request(createPriceUrl(fromCurrency, toCurrency, exchange), function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        const jsonobj = JSON.parse(response.body);
-        const currentPrice = jsonobj[toCurrency];
-        const promises = [];
+  return rp(createPriceUrl(fromCurrency, toCurrency, exchange),
+  {resolveWithFullResponse: true}).then(response => {
+    if (response.statusCode === 200) {
+      const jsonobj = JSON.parse(response.body);
+      const currentPrice = jsonobj[toCurrency];
+      const promises = [];
 
-        snapshot.forEach(function(data) {
-            promises.push(sendAlertNotifications(snapshot.key, data.key, currentPrice));
-        });
-        return Promise.all(promises);
-      } else {
-        console.log('Error fetching price', snapshot.key);
-      }
+      snapshot.forEach(function(data) {
+          promises.push(sendAlertNotifications(snapshot.key, data.key, currentPrice));
+      });
+      return Promise.all(promises);
+    }
+    throw response.body;
+  }).catch(error => {
+    return reportError(error, { type: 'http_request', context: 'price fetching'});
   });
 }
 
@@ -229,19 +287,19 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
   return Promise.all([getUserPromise, getUserPriceAlertsPromise]).then(results => {
     const userSnapshot = results[0];
     if(!userSnapshot.val()){
-      return console.log('Not user details', userId)
+      return logError('User not found', {user: userId})
     }
     const instanceId = userSnapshot.val().instanceId;
     const subscriptionStatus = userSnapshot.val().subscriptionStatus;
     const priceAlertSnapshot = results[1];
     if(subscriptionStatus != 1){
-      return console.log('Not Sending alerts. Subscription Expired', userId);
+      return logInfo("Subscription expired", {user: userId});
     }
     // Check if there are any device tokens.
     if (!priceAlertSnapshot.hasChildren()) {
-      return console.log('There are no alerts to send for', comboKey, ", userId:", userId);
+      return logInfo("No alerts to send", {user: userId, key : comboKey});
     }
-    console.log("Alerts of users fetched for ", comboKey, " : ", priceAlertSnapshot.numChildren(), ", userId:", userId);
+    logInfo("Alerts fetched", {user: userId, alert_count: priceAlertSnapshot.numChildren(), key : comboKey});
     const promises = [];
     priceAlertSnapshot.forEach(function(dataSnapshot) {
         promises.push(sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot));
@@ -249,7 +307,7 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
     return Promise.all(promises);
   })
   .catch(error => {
-    console.log("Error getting user alert details:", error, ", userId:", userId);
+    return reportError(error, {user: userId, type: 'database_query', context: 'user alerts'});
   });
 }
 
@@ -293,13 +351,13 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
       response.results.forEach((result, index) => {
         const error = result.error;
         if (error) {
-          console.error("Failure sending message:", error, " userId:", userId, " token:", instanceId);
+          return reportError(error, {user: userId, token: instanceId});
         }
-        console.log("Successfully sent message:", response, ", userId:", userId);
+          return logInfo("Successfully sent message", {user: userId, respnse : response});
       });
     })
     .catch(error => {
-      console.log("Error sending message:", error, " userId:", userId, " token:", instanceId);
+      return reportError(error, {user: userId, token: instanceId, type: 'fcm_message'});
     });
   }
   return;
@@ -364,13 +422,13 @@ exports.updatePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{ale
   if (snapshot.previous.val()) {
     const prevComboKey = snapshot.previous.val().name;
     if(prevComboKey == comboKey){
-      console.log("previous alert exist", comboKey);
+      logInfo("Exists previous alert", {user: uid, key : comboKey});
       return;
     }
-    console.log("remove previous alert", comboKey);
+    logInfo("Removed previous alert", {user: uid, key : comboKey});
     admin.database().ref(`/alerts/price/${prevComboKey}/${uid}`).remove();
   }
 
-  console.log("added alert", comboKey);
+  logInfo("Added alert", {user: uid, key : comboKey});
   return admin.database().ref(`/alerts/price/${comboKey}/${uid}`).set(true);
 });
