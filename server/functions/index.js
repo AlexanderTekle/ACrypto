@@ -5,6 +5,7 @@ const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 const cors = require('cors')({origin: true});
 const request = require('request');
+const rp = require('request-promise');
 const express = require('express');
 
 const app = express();
@@ -201,19 +202,21 @@ function createPriceAlertPromise(snapshot) {
   const fromCurrency = comboKeyArray[0];
   const toCurrency = comboKeyArray[1];
   const exchange = comboKeyArray[2];
-  return request(createPriceUrl(fromCurrency, toCurrency, exchange), function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        const jsonobj = JSON.parse(response.body);
-        const currentPrice = jsonobj[toCurrency];
-        const promises = [];
+  return rp(createPriceUrl(fromCurrency, toCurrency, exchange),
+  {resolveWithFullResponse: true}).then(response => {
+    if (response.statusCode === 200) {
+      const jsonobj = JSON.parse(response.body);
+      const currentPrice = jsonobj[toCurrency];
+      const promises = [];
 
-        snapshot.forEach(function(data) {
-            promises.push(sendAlertNotifications(snapshot.key, data.key, currentPrice));
-        });
-        return Promise.all(promises);
-      } else {
-        console.log('Error fetching price', snapshot.key);
-      }
+      snapshot.forEach(function(data) {
+          promises.push(sendAlertNotifications(snapshot.key, data.key, currentPrice));
+      });
+      return Promise.all(promises);
+    }
+    throw response.body;
+  }).catch(error => {
+    console.log('Error fetching price', error);
   });
 }
 
