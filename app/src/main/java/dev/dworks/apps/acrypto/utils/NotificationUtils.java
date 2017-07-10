@@ -18,6 +18,8 @@ import java.util.Map;
 import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
 
+import static android.support.v4.app.NotificationCompat.VISIBILITY_PRIVATE;
+
 /**
  * Created by HaKr on 07-Jul-17.
  */
@@ -53,6 +55,7 @@ public class NotificationUtils {
                 .setColor(color)
                 .setSound(defaultSoundUri)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setVisibility(VISIBILITY_PRIVATE)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(remoteMessage.getNotification().getBody()))
                 .setContentIntent(pendingIntent);
 
@@ -60,8 +63,8 @@ public class NotificationUtils {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         String tag = remoteMessage.getNotification().getTag();
-        int notificationId =  TextUtils.isEmpty(tag)
-                ? remoteMessage.getMessageId().hashCode() : tag.hashCode();
-        notificationManager.notify(notificationId, notificationBuilder.build());
+        tag = TextUtils.isEmpty(tag)
+                ? remoteMessage.getMessageId() : tag;
+        notificationManager.notify(tag, 0, notificationBuilder.build());
     }
 }
