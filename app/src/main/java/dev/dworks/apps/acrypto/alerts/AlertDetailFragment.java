@@ -64,6 +64,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.FREQUENCY_DEFAUL
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
+import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 
 public class AlertDetailFragment extends ActionBarFragment
         implements Response.Listener<String>, Response.ErrorListener {
@@ -93,6 +94,7 @@ public class AlertDetailFragment extends ActionBarFragment
     private MoneyTextView mCurrentValue;
     private View mPriceProgress;
     private TextView mMessage;
+    private boolean canLoadValue = true;
 
     public static void show(FragmentManager fm, PriceAlert priceAlert, String refKey) {
         final Bundle args = new Bundle();
@@ -167,17 +169,22 @@ public class AlertDetailFragment extends ActionBarFragment
             frequency = mPriceAlert.frequency;
             status = mPriceAlert.status;
 
-            loadValue();
-            Utils.setSpinnerValue(mConditionSpinner, "<", getCondition());
-            Utils.setSpinnerValue(mFrequencySpinner, "Onetime", getFrequency());
+            canLoadValue = TextUtils.isEmpty(refKey);
+            loadValue(true);
+            Utils.setSpinnerValue(mConditionSpinner, CONDITION_DEFAULT, getCondition());
+            Utils.setSpinnerValue(mFrequencySpinner, FREQUENCY_DEFAULT, getFrequency());
         }
         loadSymbol();
         loadIcon();
         fetchCurrentPriceData();
     }
 
-    private void loadValue() {
-        mValue.setText(String.valueOf(value));
+    private void loadValue(boolean forceLoad) {
+        if(!forceLoad && !canLoadValue) {
+            canLoadValue = true;
+            return;
+        }
+        mValue.setText(String.valueOf(getMoneyFormat(getCurrentCurrencyToSymbol()).format(value)));
     }
 
     private boolean isEdit() {
@@ -607,7 +614,7 @@ public class AlertDetailFragment extends ActionBarFragment
         Utils.setPriceValue(mCurrentValue, 0, getCurrentCurrencyToSymbol());
         mMessage.setText(message);
         value = 0;
-        loadValue();
+        loadValue(false);
     }
 
     @Override
@@ -618,7 +625,7 @@ public class AlertDetailFragment extends ActionBarFragment
             double currentPrice = jsonObject.getDouble(getCurrentCurrencyTo());
             Utils.setPriceValue(mCurrentValue, currentPrice, getCurrentCurrencyToSymbol());
             value = currentPrice;
-            loadValue();
+            loadValue(false);
         } catch (JSONException e) {
             e.printStackTrace();
             setEmptyData("Something went wrong!");
