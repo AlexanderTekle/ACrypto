@@ -27,8 +27,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
-                android:gravity="center"
                 android:background="@color/colorPrimaryDark"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <TextView
@@ -48,60 +48,43 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+                <TextView
+                    android:id="@android:id/summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:ellipsize="end"
+                    android:text="@string/subscribe_description"
+                    android:textAlignment="viewStart"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textColor="?android:attr/textColorSecondary" />
+
                 <LinearLayout
-                    android:id="@+id/line2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:baselineAligned="false"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/subscribe"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:minWidth="250dp"
+                        android:text="Subscribe Now"
+                        android:textColor="@color/accent_white"
+                        android:theme="@style/MyButton" />
 
                     <TextView
-                        android:id="@android:id/summary"
-                        android:layout_width="match_parent"
+                        android:id="@+id/reason"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:ellipsize="end"
-                        android:text="@string/subscribe_description"
-                        android:textAlignment="viewStart"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:textColor="?android:attr/textColorSecondary" />
-
+                        android:layout_gravity="center"
+                        android:text="@string/paid_reason"
+                        android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                        android:textColor="@color/colorPrimary" />
                 </LinearLayout>
-
-                <android.support.v7.widget.ButtonBarLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="bottom"
-                    android:layoutDirection="locale"
-                    android:orientation="horizontal"
-                    android:paddingTop="4dp">
-
-                    <android.support.v4.widget.Space
-                        android:id="@+id/spacer"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:visibility="invisible" />
-
-                    <Button
-                        android:id="@+id/action_trail"
-                        style="@style/Widget.AppCompat.Button.Borderless"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Start Trail"
-                        android:visibility="gone" />
-
-                    <Button
-                        android:id="@+id/action_subscribe"
-                        android:theme="@style/MyButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Subscribe Now"
-                        android:textColor="@color/accent_white" />
-
-                </android.support.v7.widget.ButtonBarLayout>
-
             </LinearLayout>
 
         </LinearLayout>

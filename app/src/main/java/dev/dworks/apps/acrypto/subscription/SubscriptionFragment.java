@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -77,7 +76,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(false);
+        setHasOptionsMenu(true);
         paidReason = getString(R.string.paid_reason);
     }
 
@@ -184,15 +183,6 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
                 showReason();
                 break;
         }
-    }
-
-    private void showReason() {
-        new AlertDialog.Builder(getActivity(),
-                R.style.AppCompatAlertDialogStyle)
-                .setTitle(R.string.paid_reason)
-                .setMessage(R.string.paid_reason_description)
-                .setNegativeButton("Got It", null)
-                .show();
     }
 
     private static String getSubscriptionMain() {

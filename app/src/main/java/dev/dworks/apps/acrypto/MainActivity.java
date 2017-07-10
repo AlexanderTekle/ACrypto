@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity
 
     private int currentPositionId;
     private TextView mName;
-    private TextView mEmail;
     private View mheaderLayout;
     private BezelImageView mPicture;
     private Spinner spinner;
@@ -135,7 +134,6 @@ public class MainActivity extends AppCompatActivity
 
         View header = navigationView.getHeaderView(0);
         mName = (TextView) header.findViewById(R.id.name);
-        mEmail = (TextView) header.findViewById(R.id.email);
         mPicture = (BezelImageView) header.findViewById(R.id.picture);
         mPicture.setImageResource(R.drawable.ic_person);
 
@@ -187,11 +185,9 @@ public class MainActivity extends AppCompatActivity
 
         if(FirebaseHelper.isLoggedIn()){
             mName.setText(user.getDisplayName());
-            mEmail.setText(user.getEmail());
             mPicture.setImageUrl(user.getPhotoUrl().toString(), VolleyPlusHelper.with(this).getImageLoader());
         } else {
             mName.setText("Guest");
-            mEmail.setText(null);
             mPicture.setImageResource(0);
             mPicture.setImageResource(R.drawable.ic_person);
         }
@@ -263,6 +259,23 @@ public class MainActivity extends AppCompatActivity
                 spinner.setVisibility(View.GONE);
                 SubscriptionFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_subscription");
+                return true;
+
+            case R.id.nav_charts:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
+                AnalyticsManager.logEvent("view_charts");
+                return true;
+
+            case R.id.nav_portfolio:
+
+                item.setChecked(true);
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
+                AnalyticsManager.logEvent("view_portfolio");
                 return true;
 
             case R.id.nav_settings:

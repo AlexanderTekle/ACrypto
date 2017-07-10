@@ -42,6 +42,7 @@ import org.fabiomsr.moneytextview.MoneyTextView;
 
 import java.util.ArrayList;
 
+import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.common.ChartOnTouchListener;
@@ -443,7 +444,9 @@ public class ArbitrageChartFragment extends ActionBarFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.refresh, menu);
+        if(App.getInstance().isSubscriptionActive()) {
+            inflater.inflate(R.menu.refresh, menu);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 

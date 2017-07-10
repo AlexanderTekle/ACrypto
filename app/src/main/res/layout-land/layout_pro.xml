@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/pro_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -70,39 +71,34 @@
                 </LinearLayout>
             </ScrollView>
 
-            <android.support.v7.widget.ButtonBarLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:layoutDirection="locale"
-                android:orientation="horizontal"
-                android:paddingTop="4dp">
-
-                <android.support.v4.widget.Space
-                    android:id="@+id/spacer"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:visibility="invisible" />
+                android:gravity="center"
+                android:paddingTop="10dp"
+                android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/action_trail"
-                    style="@style/Widget.AppCompat.Button.Borderless"
+                    android:id="@+id/subscribe"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="Subscribe "
+                    android:textColor="@android:color/white"
+                    android:theme="@style/MyButton"
+                    tools:text="Subscribe $4.99 / Month" />
+
+                <TextView
+                    android:id="@+id/reason"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Start Trail"
-                    android:visibility="gone" />
-
-                <Button
-                    android:id="@+id/action_subscribe"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Subscribe Now"
-                    android:textColor="@color/accent_white"
-                    android:theme="@style/MyButton" />
-
-            </android.support.v7.widget.ButtonBarLayout>
-
+                    android:layout_marginLeft="20dp"
+                    android:textColor="@color/colorPrimary"
+                    android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                    android:text="@string/paid_reason" />
+            </LinearLayout>
         </LinearLayout>
 
 
