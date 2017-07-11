@@ -79,9 +79,10 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             HomeFragment.show(getSupportFragmentManager(), getName(getIntent().getExtras()));
         }
-        FirebaseHelper.signInAnonymously();
 
+        FirebaseHelper.signInAnonymously();
         App.getInstance().initializeBilling();
+        App.getInstance().fetchTrailStatus();
         broadcast = LocalBurst.getInstance();
         initControls();
 

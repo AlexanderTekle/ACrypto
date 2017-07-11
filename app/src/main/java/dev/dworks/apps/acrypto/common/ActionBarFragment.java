@@ -1,8 +1,10 @@
 package dev.dworks.apps.acrypto.common;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -46,7 +48,7 @@ public class ActionBarFragment extends Fragment {
         if (!(activity instanceof AppCompatActivity)) {
             throw new IllegalStateException(getClass().getSimpleName() + " must be attached to a AppCompatActivity.");
         }
-        mActivity = (AppCompatActivity)activity;
+        mActivity = (AppCompatActivity) activity;
 
         super.onAttach(activity);
     }
@@ -65,7 +67,7 @@ public class ActionBarFragment extends Fragment {
     }
 
     private void initProOverlay() {
-        if(null == mProLayout){
+        if (null == mProLayout) {
             return;
         }
         mSubscribe = (Button) mProLayout.findViewById(R.id.subscribe);
@@ -77,14 +79,14 @@ public class ActionBarFragment extends Fragment {
         });
 
         SkuDetails skuDetails = App.getInstance().getSkuDetails();
-        if(null != skuDetails) {
+        if (null != skuDetails) {
             mSubscribe.setText("Subscribe "
                     + skuDetails.priceText + "/"
                     + PeriodFormat.getDefault().print(skuDetails.subscriptionPeriod));
         }
 
         mReason = (TextView) mProLayout.findViewById(R.id.reason);
-        String htmlString = "<u>"+paidReason+"</u>";
+        String htmlString = "<u>" + paidReason + "</u>";
         mReason.setText(Utils.getFromHtml(htmlString));
         mReason.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,7 +96,7 @@ public class ActionBarFragment extends Fragment {
         });
     }
 
-    public void refreshData(Bundle bundle){
+    public void refreshData(Bundle bundle) {
 
     }
 
@@ -104,15 +106,29 @@ public class ActionBarFragment extends Fragment {
         showProOverlay();
     }
 
-    public void showProOverlay(){
-        if(null == mProLayout){
+    public void showProOverlay() {
+        if (null == mProLayout) {
             return;
         }
-        boolean hide = App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn();
-        mProLayout.setVisibility(hide ? View.GONE : View.VISIBLE);
+
+        boolean trail = App.getInstance().getTrailStatus();
+        boolean subscribed = App.getInstance().isSubscriptionActive();
+        boolean hide =  subscribed && FirebaseHelper.isLoggedIn();
+        mProLayout.setVisibility(hide || trail ? View.GONE : View.VISIBLE);
+
+        if (trail && !subscribed) {
+            Utils.showSnackBar(getActivity(),
+                    "This is a PRO feature which is currently FREE",
+                    Snackbar.LENGTH_SHORT, "KNOW MORE?", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showReason();
+                }
+            });
+        }
     }
 
-    public boolean isRecreated(){
+    public boolean isRecreated() {
         return mIsRecreated;
     }
 
@@ -121,11 +137,17 @@ public class ActionBarFragment extends Fragment {
                 R.style.AppCompatAlertDialogStyle)
                 .setTitle(R.string.paid_reason)
                 .setMessage(R.string.paid_reason_description)
+                .setPositiveButton("I'll Subscribe", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        subscribe();
+                    }
+                })
                 .setNegativeButton("Got It", null)
                 .show();
     }
 
-    protected void subscribe(){
+    protected void subscribe() {
         if (FirebaseHelper.isLoggedIn()) {
             App.getInstance().getBillingProcessor().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
         } else {

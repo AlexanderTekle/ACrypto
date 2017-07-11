@@ -43,6 +43,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     private RecyclerView mRecyclerView;
     private TextView mReason;
     private String paidReason;
+    private TextView mTrailStatus;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -92,6 +93,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
         mSubscribe = (Button) view.findViewById(R.id.subscribe);
         mSubscribe.setOnClickListener(this);
         mReason = (TextView) view.findViewById(R.id.reason);
+        mTrailStatus = (TextView) view.findViewById(R.id.trail_status);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -170,6 +172,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
             mReason.setText(Utils.getFromHtml(htmlString));
             mReason.setOnClickListener(this);
         }
+        mTrailStatus.setVisibility(Utils.getVisibility(App.getInstance().getTrailStatus()));
     }
 
     @Override

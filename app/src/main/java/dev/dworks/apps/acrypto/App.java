@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
 
@@ -14,8 +15,12 @@ import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.github.lykmapipo.localburst.LocalBurst;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -47,6 +52,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 public class App extends Application implements BillingProcessor.IBillingHandler {
 	public static final String TAG = "ACrypto";
 	public static final String BILLING_ACTION = "BillingInitialized";
+	private static final String TRAIL_STATUS = "trail_status";
 
 	static {
 		AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -70,6 +76,7 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	private boolean autoRenewing;
 	private boolean isSubscriptionActive;
 	private SkuDetails skuDetails;
+	private FirebaseRemoteConfig mFirebaseRemoteConfig;
 
 	@Override
 	public void onCreate() {
@@ -94,6 +101,12 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		}
 
 		if(isGPSAvailable(this)) {
+			mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+			FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+					.setDeveloperModeEnabled(BuildConfig.DEBUG)
+					.build();
+			mFirebaseRemoteConfig.setConfigSettings(configSettings);
+			mFirebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
 			FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 		}
 
@@ -377,5 +390,25 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 
 	public boolean isBillingSupported() {
 		return BillingProcessor.isIabServiceAvailable(getApplicationContext());
+	}
+
+	public void fetchTrailStatus() {
+		long cacheExpiration = 24*3600; // 1 hour in seconds.
+		if (mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()) {
+			cacheExpiration = 0;
+		}
+		mFirebaseRemoteConfig.fetch(cacheExpiration)
+				.addOnCompleteListener(new OnCompleteListener<Void>() {
+					@Override
+					public void onComplete(@NonNull Task<Void> task) {
+						if (task.isSuccessful()) {
+							mFirebaseRemoteConfig.activateFetched();
+						}
+					}
+				});
+	}
+
+	public boolean getTrailStatus(){
+		return mFirebaseRemoteConfig.getBoolean(TRAIL_STATUS);
 	}
 }

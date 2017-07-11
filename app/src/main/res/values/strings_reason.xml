@@ -1,5 +1,6 @@
 <resources xmlns:xliff="http://schemas.android.com/tools">
 
+    <string name="trail_reason">Currently all PRO features are free but will be part of subscription soon.</string>
     <string name="paid_reason">Why isn\'t ACrypto free?</string>
     <string name="paid_reason_description">
         ACrypto is mostly free where you can see different prices of crypto currencies along 
