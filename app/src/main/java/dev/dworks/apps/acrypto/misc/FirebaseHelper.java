@@ -5,6 +5,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
@@ -34,6 +35,10 @@ public class FirebaseHelper {
 
     public static DatabaseReference getFirebaseDatabaseReference(){
        return FirebaseDatabase.getInstance().getReference();
+    }
+
+    public static DatabaseReference getFirebaseDatabaseReference(String path){
+        return FirebaseDatabase.getInstance().getReference(path);
     }
 
     public static FirebaseUser getCurrentUser(){
@@ -88,6 +93,11 @@ public class FirebaseHelper {
 
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
                 .child(firebaseUser.getUid()).updateChildren(childUpdates);
+
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid())
+                .child("createdAt").setValue(ServerValue.TIMESTAMP);
+
 
 
     }
