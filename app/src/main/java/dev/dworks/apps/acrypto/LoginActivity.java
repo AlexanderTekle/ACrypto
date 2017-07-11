@@ -3,11 +3,11 @@ package dev.dworks.apps.acrypto;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -26,6 +26,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.SignInClient;
+import dev.dworks.apps.acrypto.utils.Utils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -141,7 +142,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             GoogleSignInAccount account = result.getSignInAccount();
             firebaseAuthWithGoogle(account);
         } else {
-            Toast.makeText(this, R.string.error_google_sign_in, Toast.LENGTH_SHORT).show();
+            hideProgress();
+            Utils.showSnackBar(this, getString( R.string.error_google_sign_in),
+                    Snackbar.LENGTH_SHORT, "", null);
         }
     }
 
@@ -152,7 +155,10 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, R.string.error_google_sign_in, Toast.LENGTH_SHORT).show();
+                            hideProgress();
+                            Utils.showSnackBar(LoginActivity.this,
+                                    getString( R.string.error_google_sign_in),
+                                    Snackbar.LENGTH_SHORT, "", null);
                         }
                     }
                 });

@@ -444,7 +444,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if(App.getInstance().isSubscriptionActive()) {
+        if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
             inflater.inflate(R.menu.refresh, menu);
         }
         super.onCreateOptionsMenu(menu, inflater);

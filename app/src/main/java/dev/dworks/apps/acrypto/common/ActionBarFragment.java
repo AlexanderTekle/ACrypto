@@ -112,14 +112,14 @@ public class ActionBarFragment extends Fragment {
         }
 
         boolean trail = App.getInstance().getTrailStatus();
-        boolean subscribed = App.getInstance().isSubscriptionActive();
+        boolean subscribed = App.getInstance().isSubscribedMonthly();
         boolean hide =  subscribed && FirebaseHelper.isLoggedIn();
         mProLayout.setVisibility(hide || trail ? View.GONE : View.VISIBLE);
 
         if (trail && !subscribed) {
             Utils.showSnackBar(getActivity(),
-                    "This is a PRO feature which is currently FREE",
-                    Snackbar.LENGTH_SHORT, "KNOW MORE?", new View.OnClickListener() {
+                    "This PRO feature is currently FREE",
+                    Snackbar.LENGTH_LONG, "DETAILS", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     showReason();
@@ -151,7 +151,11 @@ public class ActionBarFragment extends Fragment {
         if (FirebaseHelper.isLoggedIn()) {
             App.getInstance().getBillingProcessor().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
         } else {
-            ((MainActivity) getActivity()).openLoginActivity();
+            openLogin();
         }
+    }
+
+    protected void openLogin(){
+        ((MainActivity) getActivity()).openLoginActivity();
     }
 }

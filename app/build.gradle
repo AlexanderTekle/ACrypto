@@ -88,6 +88,7 @@ dependencies {
     compile "com.google.firebase:firebase-database:${gmsVersion}"
     compile "com.google.firebase:firebase-ads:${gmsVersion}"
     compile "com.google.firebase:firebase-config:${gmsVersion}"
+    compile "com.google.firebase:firebase-invites:${gmsVersion}"
     compile 'com.firebaseui:firebase-ui-auth:2.0.1'
     compile 'com.firebaseui:firebase-ui-database:2.0.1'
     compile 'com.google.code.gson:gson:2.8.1'
