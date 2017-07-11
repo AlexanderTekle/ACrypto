@@ -422,7 +422,7 @@ exports.createPriceAlert = functions.database.ref('/user_alerts/price/{uid}/{ale
   const comboKey = snapshot.current.val().name;
 
   return admin.database().ref(`/alerts/price/${comboKey}/${uid}`).set(true).then(result => {
-    logInfo("create alert", {user: uid, key : comboKey});
+    logInfo("Create alert", {user: uid, key : comboKey});
   })
   .catch(error => {
     return reportError(error, {user: uid, type: 'database_write', context: 'add alert'});
@@ -453,12 +453,8 @@ exports.deletePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{ale
   const snapshot = event.data;
   const uid = event.params.uid;
 
-  if (!snapshot.exists()) {
-    return;
-  }
-
   const comboKey = snapshot.previous.val().name;
-  return admin.database().ref(`/alerts/price/${prevComboKey}/${uid}`).remove().then(result => {
+  return admin.database().ref(`/alerts/price/${comboKey}/${uid}`).remove().then(result => {
     logInfo("Delete alert", {user: uid, key : comboKey});
   })
   .catch(error => {
