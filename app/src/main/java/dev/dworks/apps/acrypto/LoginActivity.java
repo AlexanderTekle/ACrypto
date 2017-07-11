@@ -22,14 +22,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.iid.FirebaseInstanceId;
-
-import java.io.IOException;
 
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.SignInClient;
-import needle.Needle;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -76,6 +72,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                hideProgress();
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null && !user.isAnonymous()) {
                     // User is signed in
@@ -118,7 +115,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            hideProgress();
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleGoogleSignInResult(result);
         }
@@ -155,16 +151,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Needle.onBackgroundThread().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    FirebaseInstanceId.getInstance().deleteInstanceId();
-                                } catch (IOException e) {
-                                }
-                            }
-                        });
-
                         if (!task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this, R.string.error_google_sign_in, Toast.LENGTH_SHORT).show();
                         }

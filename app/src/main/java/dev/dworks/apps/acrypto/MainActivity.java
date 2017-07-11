@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity
         View header = navigationView.getHeaderView(0);
         mName = (TextView) header.findViewById(R.id.name);
         mPicture = (BezelImageView) header.findViewById(R.id.picture);
-        mPicture.setImageResource(R.drawable.ic_person);
+        mPicture.setDefaultImageResId(R.drawable.ic_person);
 
         mheaderLayout = header.findViewById(R.id.headerLayout);
         mheaderLayout.setOnClickListener(new View.OnClickListener() {
@@ -183,14 +183,14 @@ public class MainActivity extends AppCompatActivity
         FirebaseUser user = FirebaseHelper.getCurrentUser();
         setProperty("LoggedIn", String.valueOf(FirebaseHelper.isLoggedIn()));
 
-        if(FirebaseHelper.isLoggedIn()){
-            mName.setText(user.getDisplayName());
-            mPicture.setImageUrl(user.getPhotoUrl().toString(), VolleyPlusHelper.with(this).getImageLoader());
-        } else {
-            mName.setText("Guest");
-            mPicture.setImageResource(0);
-            mPicture.setImageResource(R.drawable.ic_person);
+        String url = "";
+        String name = "Guest";
+        if(FirebaseHelper.isLoggedIn()) {
+            name = user.getDisplayName();
+            url = user.getPhotoUrl().toString();
         }
+        mName.setText(name);
+        mPicture.setImageUrl(url, VolleyPlusHelper.with(this).getImageLoader());
         updateNavigation();
     }
 
