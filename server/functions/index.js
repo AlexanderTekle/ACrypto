@@ -21,9 +21,6 @@ function logInfo(message, context = {}) {
 }
 
 function reportError(err, context = {}) {
-  // This is the name of the StackDriver log stream that will receive the log
-  // entry. This name can be any valid log stream name, but must contain "err"
-  // in order for the error to be picked up by StackDriver Error Reporting.
   const logName = 'errors';
   const log = logging.log(logName);
 
@@ -56,8 +53,8 @@ function reportError(err, context = {}) {
 }
 
 const authenticate = (req, res, next) => {
-    console.log("url:", req.url);
-    next();
+  console.log("url:", req.url);
+  next();
 };
 
 app.use(authenticate);
@@ -72,27 +69,27 @@ app.get('/coins', (req, res) => {
      filter = 1;
   }
 
-  admin.database().ref(`/master/coins`)
-  .orderByChild("order")
-  .once('value')
-  .then(snapshot => {
+  return admin.database().ref(`/master/coins`).orderByChild("order")
+    .once('value').then(snapshot => {
     var value = snapshot.val();
     if (value) {
-        var messages = [];
-        snapshot.forEach(childSnapshot => {
-            if(filter == 1){
-              if(!childSnapshot.hasChild(type)){
-                return;
-              }
-            }
-            messages.push({code: childSnapshot.key, name: childSnapshot.val().name, order: childSnapshot.val().order});
-        });
-        return res.status(200).json({coins: messages});
+      var messages = [];
+      snapshot.forEach(childSnapshot => {
+        if(filter == 1){
+          if(!childSnapshot.hasChild(type)){
+            return;
+          }
+        }
+        messages.push({code: childSnapshot.key,
+          name: childSnapshot.val().name,
+          order: childSnapshot.val().order});
+      });
+      return res.status(200).json({coins: messages});
     } else {
-        res.status(401).json({error: 'No data found'});
+      res.status(401).json({error: 'No data found'});
     }
   }).catch(error => {
-    console.log('Error getting messages', error.message);
+    reportError(error, {type: 'http_request', context: req.url});
     res.sendStatus(500);
   });
 });
@@ -111,26 +108,26 @@ app.get('/currencies', (req, res) => {
      }
   }
 
-  query
-  .once('value')
-  .then(snapshot => {
+  return query.once('value').then(snapshot => {
     var value = snapshot.val();
     if (value) {
-        var messages = [];
-        snapshot.forEach(childSnapshot => {
-            if(filter == 1){
-              if(!childSnapshot.hasChild(type)){
-                return;
-              }
-            }
-            messages.push({code: childSnapshot.key, name: childSnapshot.val().name, order: childSnapshot.val().order});
-        });
-        return res.status(200).json({currencies: messages});
+      var messages = [];
+      snapshot.forEach(childSnapshot => {
+        if(filter == 1){
+          if(!childSnapshot.hasChild(type)){
+            return;
+          }
+        }
+        messages.push({code: childSnapshot.key,
+          name: childSnapshot.val().name,
+          order: childSnapshot.val().order});
+      });
+      return res.status(200).json({currencies: messages});
     } else {
         res.status(401).json({error: 'No data found'});
     }
   }).catch(error => {
-    console.log('Error getting messages', error.message);
+    reportError(error, {type: 'http_request', context: req.url});
     res.sendStatus(500);
   });
 });
@@ -139,7 +136,7 @@ app.get('/currencies', (req, res) => {
 // Get all coins list
 app.get('/coins_list', (req, res) => {
 
-  admin.database().ref(`/master/coins_list`)
+  return admin.database().ref(`/master/coins_list`)
   .orderByChild("order")
   .once('value')
   .then(snapshot => {
@@ -154,7 +151,7 @@ app.get('/coins_list', (req, res) => {
         res.status(401).json({error: 'No data found'});
     }
   }).catch(error => {
-    console.log('Error getting messages', error.message);
+    reportError(error, {type: 'http_request', context: req.url});
     res.sendStatus(500);
   });
 });
@@ -163,7 +160,7 @@ app.get('/coins_list', (req, res) => {
 // Get all coins ignore
 app.get('/coins_ignore', (req, res) => {
 
-  admin.database().ref(`/master/coins_ignore`)
+  return admin.database().ref(`/master/coins_ignore`)
   .once('value')
   .then(snapshot => {
     var value = snapshot.val();
@@ -177,7 +174,7 @@ app.get('/coins_ignore', (req, res) => {
         res.status(401).json({error: 'No data found'});
     }
   }).catch(error => {
-    console.log('Error getting messages', error.message);
+    reportError(error, {type: 'http_request', context: req.url});
     res.sendStatus(500);
   });
 });
@@ -187,7 +184,7 @@ app.get('/coins_ignore', (req, res) => {
 // Get symbol of all currency codes
 app.get('/symbols', (req, res) => {
 
-  admin.database().ref(`/master/symbols`)
+  return admin.database().ref(`/master/symbols`)
   .once('value')
   .then(snapshot => {
     var value = snapshot.val();
@@ -201,7 +198,7 @@ app.get('/symbols', (req, res) => {
         res.status(401).json({error: 'No data found'});
     }
   }).catch(error => {
-    console.log('Error getting messages', error.message);
+    reportError(error, {type: 'http_request', context: req.url});
     res.sendStatus(500);
   });
 });
@@ -209,8 +206,13 @@ app.get('/symbols', (req, res) => {
 // GET /api/crons/alert_price
 // Triggers price alert check
 app.get('/crons/alerts/price', (req, res) => {
-  admin.database().ref(`/crons/alerts/price`).set(admin.database.ServerValue.TIMESTAMP);
-  return res.status(200).json({alerts: 'triggered'});
+  return admin.database().ref(`/crons/alerts/price`).set(admin.database.ServerValue.TIMESTAMP).then(result => {
+    return res.status(200).json({alerts: 'triggered'});
+  })
+  .catch(error => {
+    reportError(error, {type: 'http_request', context: 'price alert cron'});
+    res.sendStatus(500);
+  });
 });
 
 // GET /api/test/crons/alert_price
@@ -265,7 +267,7 @@ function createPriceAlertPromise(snapshot) {
       const promises = [];
 
       snapshot.forEach(function(data) {
-          promises.push(sendAlertNotifications(snapshot.key, data.key, currentPrice));
+        promises.push(sendAlertNotifications(snapshot.key, data.key, currentPrice));
       });
       return Promise.all(promises);
     }
@@ -321,52 +323,59 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
   const condition = dataSnapshot.val().condition;
   const toSymbol = dataSnapshot.val().toSymbol;
   const frequency = dataSnapshot.val().frequency;
-  if(priceAlertConditionCheck(currentPrice, dataSnapshot)) {
-    if(frequency == 'Onetime'){
-      dataSnapshot.ref.update({status: 0, nameStatusIndex: comboKey+"0"});
-    }
-    // Notification details.
-    const payload = {
-      notification: {
-        title: `${fromCurrency} Price Alert`,
-        body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
-        sound: 'default',
-        tag: comboKey
-      },
-      data: {
-        title: `${fromCurrency} Price Alert`,
-        body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
-        name: comboKey,
-        sound: 'default',
-        type: "alert"
-      }
-    };
-    // Set the message as high priority and have it expire after 24 hours.
-    var options = {
-      priority: "high",
-      timeToLive: 60 * 10
-    };
 
-    return admin.messaging().sendToDevice(instanceId, payload, options).then(response => {
-      response.results.forEach((result, index) => {
-        const error = result.error;
-        if (error) {
-          return reportError(error, {user: userId, token: instanceId});
-        }
-          return logInfo("Successfully sent message", {user: userId, respnse : response});
-      });
-    })
-    .catch(error => {
-      return reportError(error, {user: userId, token: instanceId, type: 'fcm_message'});
-    });
+  if(!priceAlertConditionCheck(currentPrice, dataSnapshot)) {
+    return;
   }
-  return;
+
+  // Notification details.
+  const payload = {
+    notification: {
+      title: `${fromCurrency}/${toCurrency} Price Alert`,
+      body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
+      sound: 'default',
+      tag: comboKey
+    },
+    data: {
+      title: `${fromCurrency}/${toCurrency} Price Alert`,
+      body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
+      name: comboKey,
+      sound: 'default',
+      type: "alert"
+    }
+  };
+  // Set the message as high priority and have it expire after 24 hours.
+  var options = {
+    priority: "high",
+    timeToLive: 60 * 10
+  };
+
+  if (frequency == 'Onetime') {
+    dataSnapshot.ref.update({ status: 0, nameStatusIndex: comboKey + "0" });
+  }
+
+  return sendNotification(userId, instanceId, payload, options);
+}
+
+function sendNotification(userId, instanceId, payload, options) {
+  return admin.messaging().sendToDevice(instanceId, payload, options).then(response => {
+    response.results.forEach((result, index) => {
+      const error = result.error;
+      if (error) {
+        return reportError(error, {user: userId, token: instanceId});
+      }
+      return logInfo("Successfully sent message", {user: userId, respnse : response});
+    });
+  })
+  .catch(error => {
+    return reportError(error, {user: userId, token: instanceId, type: 'fcm_message'});
+  });
 }
 
 function getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange) {
-  return toSymbol + currentPrice + " (" + getPriceDiff(currentPrice, alertPrice)
-          + "% " + getConditionSymbol(condition) + ")"
-          + (exchange ? " on "+exchange : "");
+  return toSymbol + currentPrice + " (" + getPriceDiff(currentPrice, alertPrice) +
+    "% " + getConditionSymbol(condition) + ")" +
+    (exchange ? " on " + exchange : "");
 }
 
 function priceAlertConditionCheck(currentPrice, dataSnapshot) {
@@ -375,12 +384,12 @@ function priceAlertConditionCheck(currentPrice, dataSnapshot) {
   const condition = dataSnapshot.val().condition;
 
   switch (condition) {
-      case "<":
-          result = currentPrice < alertPrice;
-          break;
-      case ">":
-          result = currentPrice > alertPrice;
-          break;
+    case "<":
+      result = currentPrice < alertPrice;
+      break;
+    case ">":
+      result = currentPrice > alertPrice;
+      break;
   }
   return result;
 }
@@ -388,47 +397,71 @@ function priceAlertConditionCheck(currentPrice, dataSnapshot) {
 function getConditionSymbol(condition) {
   var symbol = "";
   switch (condition) {
-      case "<":
-          symbol = "▼";
-          break;
-      case ">":
-          symbol = "▲";
-          break;
+    case "<":
+      symbol = "▼";
+      break;
+    case ">":
+      symbol = "▲";
+      break;
   }
   return symbol;
 }
 
 function getPriceDiff(currentPrice, alertPrice) {
-  var diff = Math.abs((currentPrice - alertPrice)/alertPrice);
-  return round(diff*100, 2);
+  var diff = Math.abs((currentPrice - alertPrice) / alertPrice);
+  return round(diff * 100, 2);
 }
 
 function round(value, decimals) {
-  return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+  return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
 }
 
-exports.updatePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onWrite(event => {
+exports.createPriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onCreate(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const comboKey = snapshot.current.val().name;
+
+  return admin.database().ref(`/alerts/price/${comboKey}/${uid}`).set(true).then(result => {
+    logInfo("create alert", {user: uid, key : comboKey});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'add alert'});
+  });
+});
+
+exports.updatePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onUpdate(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const comboKey = snapshot.current.val().name;
+  const prevComboKey = snapshot.previous.val().name;
+
+  if(prevComboKey == comboKey){
+    logInfo("Exists previous alert", {user: uid, key : comboKey});
+    return;
+  }
+  const removePromise = admin.database().ref(`/alerts/price/${prevComboKey}/${uid}`).remove();
+  const addPromise = admin.database().ref(`/alerts/price/${comboKey}/${uid}`).set(true);
+  return Promise.all([removePromise, addPromise]).then(result => {
+    logInfo("Removed and Added alert", {user: uid, key : comboKey});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'update alert'});
+  });
+});
+
+exports.deletePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onDelete(event => {
   const snapshot = event.data;
   const uid = event.params.uid;
 
-  // If /user_alert/price was deleted... delete /alert/price aswell
   if (!snapshot.exists()) {
     return;
   }
 
-  const comboKey = snapshot.current.val().name;
-
-  // Only add into /alerts/price if its created for the first time
-  if (snapshot.previous.val()) {
-    const prevComboKey = snapshot.previous.val().name;
-    if(prevComboKey == comboKey){
-      logInfo("Exists previous alert", {user: uid, key : comboKey});
-      return;
-    }
-    logInfo("Removed previous alert", {user: uid, key : comboKey});
-    admin.database().ref(`/alerts/price/${prevComboKey}/${uid}`).remove();
-  }
-
-  logInfo("Added alert", {user: uid, key : comboKey});
-  return admin.database().ref(`/alerts/price/${comboKey}/${uid}`).set(true);
+  const comboKey = snapshot.previous.val().name;
+  return admin.database().ref(`/alerts/price/${prevComboKey}/${uid}`).remove().then(result => {
+    logInfo("Delete alert", {user: uid, key : comboKey});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'delete alert'});
+  });
 });
