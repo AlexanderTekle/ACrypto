@@ -46,6 +46,10 @@
             android:icon="@drawable/ic_sponsor"
             android:title="Sponsor" />
         <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Share" />
+        <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_about"
             android:title="About" />

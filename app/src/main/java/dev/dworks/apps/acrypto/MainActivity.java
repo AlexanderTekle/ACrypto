@@ -1,6 +1,7 @@
 package dev.dworks.apps.acrypto;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -26,7 +27,12 @@ import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.appinvite.AppInviteInvitation;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.appinvite.FirebaseAppInvite;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
@@ -59,6 +65,7 @@ public class MainActivity extends AppCompatActivity
         Utils.OnFragmentInteractionListener, LocalBurst.OnBroadcastListener {
 
     private static final int SETTINGS = 47;
+    private static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
 
@@ -83,6 +90,7 @@ public class MainActivity extends AppCompatActivity
         FirebaseHelper.signInAnonymously();
         App.getInstance().initializeBilling();
         App.getInstance().fetchTrailStatus();
+        getInvite();
         broadcast = LocalBurst.getInstance();
         initControls();
 
@@ -289,6 +297,11 @@ public class MainActivity extends AppCompatActivity
                 AnalyticsManager.logEvent("view_about");
                 return true;
 
+            case R.id.nav_share:
+                sendInvite();
+                AnalyticsManager.logEvent("view_share");
+                return true;
+
             case R.id.nav_sponsor:
                 showAd();
                 AnalyticsManager.logEvent("view_sponsor");
@@ -330,6 +343,12 @@ public class MainActivity extends AppCompatActivity
             if(requestCode == SETTINGS){
                 if(resultCode == RESULT_FIRST_USER){
                     updateUserDetails();
+                    App.getInstance().onPurchaseHistoryRestored();
+                }
+            }
+            else if (requestCode == REQUEST_INVITE) {
+                if (resultCode == RESULT_OK) {
+                    Utils.showSnackBar(this, "Invitations sent!");
                 }
             }
             super.onActivityResult(requestCode, resultCode, data);
@@ -414,7 +433,34 @@ public class MainActivity extends AppCompatActivity
 
     private void updateNavigation() {
         navigationView.getMenu().clear();
-        navigationView.inflateMenu(App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn()
+        navigationView.inflateMenu(App.getInstance().isSubscribedMonthly() && FirebaseHelper.isLoggedIn()
                 ? R.menu.activity_main_drawer_pro : R.menu.activity_main_drawer);
+    }
+
+    private void getInvite(){
+        FirebaseDynamicLinks.getInstance().getDynamicLink(getIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData data) {
+                        if (data == null) {
+                            return;
+                        }
+                        Uri deepLink = data.getLink();
+                        FirebaseAppInvite invite = FirebaseAppInvite.getInvitation(data);
+                        if (invite != null) {
+                            String invitationId = invite.getInvitationId();
+                        }
+
+                    }
+                });
+    }
+    private void sendInvite() {
+        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
+                .setMessage(getString(R.string.invitation_message))
+                //.setDeepLink(Uri.parse(getString(R.string.invitation_deep_link)))
+                //.setCustomImage(Uri.parse(getString(R.string.invitation_custom_image)))
+                .setCallToActionText(getString(R.string.invitation_cta))
+                .build();
+        startActivityForResult(intent, REQUEST_INVITE);
     }
 }
