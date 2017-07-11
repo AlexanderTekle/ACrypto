@@ -64,7 +64,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.FREQUENCY_DEFAUL
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
-import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
+import static dev.dworks.apps.acrypto.utils.Utils.getDecimalFormat;
 
 public class AlertDetailFragment extends ActionBarFragment
         implements Response.Listener<String>, Response.ErrorListener {
@@ -184,7 +184,7 @@ public class AlertDetailFragment extends ActionBarFragment
             canLoadValue = true;
             return;
         }
-        mValue.setText(String.valueOf(getMoneyFormat(getCurrentCurrencyToSymbol()).format(value)));
+        mValue.setText(String.valueOf(getDecimalFormat(getCurrentCurrencyToSymbol()).format(value)));
     }
 
     private boolean isEdit() {

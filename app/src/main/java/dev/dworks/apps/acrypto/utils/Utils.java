@@ -484,8 +484,27 @@ public class Utils {
         textView.setSymbol(symbol);
     }
 
+    public static void setDecimalValue(MoneyTextView textView, double value, String symbol){
+        textView.setDecimalFormat(getDecimalFormat(symbol));
+        textView.setAmount((float) Math.abs(value));
+        textView.setSymbol(symbol);
+    }
+
     public static void setDateTimeValue(TextView textView, long timeInMillis){
         textView.setText(TimeUtils.getFormattedDateTime(timeInMillis));
+    }
+
+    public static DecimalFormat getDecimalFormat(String symbol){
+        String precisionFormat = "#####0.###";
+
+        if("Ƀ".compareTo(symbol) == 0){
+            precisionFormat = "#####0.00000000";
+        } else if("Ξ".compareTo(symbol) == 0){
+            precisionFormat = "#####0.00000000";
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
+        decimalFormat.setDecimalSeparatorAlwaysShown(false);
+        return decimalFormat;
     }
 
     public static DecimalFormat getMoneyFormat(boolean high){

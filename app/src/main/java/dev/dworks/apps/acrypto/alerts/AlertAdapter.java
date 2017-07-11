@@ -2,11 +2,11 @@ package dev.dworks.apps.acrypto.alerts;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -99,7 +99,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
         private final ImageView frequency;
         private final MoneyTextView value;
         private final TextView condition;
-        private final Switch status_switch;
+        private final SwitchCompat status_switch;
         private int mPosition;
 
         public ViewHolder(View v) {
@@ -117,7 +117,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             value = (MoneyTextView) v.findViewById(R.id.value);
             value.setDecimalFormat(getMoneyFormat(true));
             condition = (TextView) v.findViewById(R.id.condition);
-            status_switch = (Switch) v.findViewById(R.id.status_switch);
+            status_switch = (SwitchCompat) v.findViewById(R.id.status_switch);
         }
 
         public void setData(PriceAlert priceAlert, int position) {

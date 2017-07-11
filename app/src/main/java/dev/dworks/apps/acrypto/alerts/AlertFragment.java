@@ -141,7 +141,7 @@ public class AlertFragment extends RecyclerFragment
         setListShown(true);
         int itemCount = mAdapter.getItemCount();
         setEmptyText(itemCount == 0 ? "No Alerts" : "");
-        addAlert.setVisibility(Utils.getVisibility(itemCount <= 10));
+        addAlert.setVisibility(Utils.getVisibility(itemCount < 10));
     }
 
     public Query getQuery() {
