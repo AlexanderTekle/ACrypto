@@ -295,7 +295,7 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
     const subscriptionStatus = userSnapshot.val().subscriptionStatus;
     const priceAlertSnapshot = results[1];
     if(subscriptionStatus != 1){
-      return logInfo("Subscription expired", {user: userId});
+      //return logInfo("Subscription expired", {user: userId});
     }
     // Check if there are any device tokens.
     if (!priceAlertSnapshot.hasChildren()) {
