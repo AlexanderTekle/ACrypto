@@ -376,7 +376,7 @@ public class CoinChartFragment extends ActionBarFragment
     public void setDefaultValues(Prices.Price currentPrice){
         setPriceValue(mValue, currentPrice.close);
         setDateTimeValue(mTime, getMillisFromTimestamp(currentPrice.time));
-        mVolume.setText(String.format("%.2f", currentPrice.volumefrom));
+        mVolume.setText("Vol. " + String.format("%.2f", currentPrice.volumefrom));
     }
 
     public void setDefaultValues(){

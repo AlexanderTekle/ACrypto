@@ -100,15 +100,13 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 			}
 		}
 
-		if(isGPSAvailable(this)) {
-			mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-			FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-					.setDeveloperModeEnabled(BuildConfig.DEBUG)
-					.build();
-			mFirebaseRemoteConfig.setConfigSettings(configSettings);
-			mFirebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
-			FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-		}
+		mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+		FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+				.setDeveloperModeEnabled(BuildConfig.DEBUG)
+				.build();
+		mFirebaseRemoteConfig.setConfigSettings(configSettings);
+		mFirebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
+		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 		LocalBurst.initialize(getApplicationContext());
 
@@ -320,19 +318,28 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		return skuDetails;
 	}
 
+	public String getSubscriptionCTA(){
+		if(null == skuDetails){
+			return "Subscribe";
+		}
+		return "Subscribe "
+				+ skuDetails.priceText + "/"
+				+ " Monthly";
+	}
+
 	@Override
 	public void onBillingInitialized() {
 		setBillingInitialized(true);
 		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
 		setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
 		bp.loadOwnedPurchasesFromGoogle();
+
 		skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
 		isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
 		if (isSubscribedMonthly) {
 			TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
 			autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
 		}
-
 		isSubscriptionActive = isSubscribedMonthly && autoRenewing;
 		selfHack();
 		LocalBurst.getInstance().emit(BILLING_ACTION);

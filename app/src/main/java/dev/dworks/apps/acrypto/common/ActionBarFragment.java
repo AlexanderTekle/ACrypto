@@ -12,10 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.anjlab.android.iab.v3.SkuDetails;
-
-import org.joda.time.format.PeriodFormat;
-
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
@@ -77,13 +73,7 @@ public class ActionBarFragment extends Fragment {
                 subscribe();
             }
         });
-
-        SkuDetails skuDetails = App.getInstance().getSkuDetails();
-        if (null != skuDetails) {
-            mSubscribe.setText("Subscribe "
-                    + skuDetails.priceText + "/"
-                    + PeriodFormat.getDefault().print(skuDetails.subscriptionPeriod));
-        }
+        mSubscribe.setText(App.getInstance().getSubscriptionCTA());
 
         mReason = (TextView) mProLayout.findViewById(R.id.reason);
         String htmlString = "<u>" + paidReason + "</u>";

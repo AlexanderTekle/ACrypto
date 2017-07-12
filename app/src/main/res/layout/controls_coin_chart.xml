@@ -34,23 +34,14 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="left"
                     app:amount="0"
-                    app:baseTextColor="@android:color/black"
-                    app:baseTextSize="12sp"
-                    app:decimalDigitsTextSize="12sp"
+                    app:baseTextColor="@color/colorPrimary"
+                    app:baseTextSize="22sp"
+                    app:decimalDigitsTextSize="22sp"
                     app:decimalSeparator="."
                     app:includeDecimalSeparator="true"
                     app:symbol="$"
                     app:symbolGravity="start|top"
-                    app:symbolTextSize="12sp" />
-
-                <TextView
-                    android:id="@+id/volume"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="left"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textSize="12sp"
-                    tools:text="Vol: 234" />
+                    app:symbolTextSize="16sp" />
 
                 <TextView
                     android:id="@+id/time"

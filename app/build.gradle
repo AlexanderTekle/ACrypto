@@ -98,7 +98,7 @@ dependencies {
     compile 'org.fabiomsr:moneytextview:1.1.0'
     compile 'com.jaredrummler:material-spinner:1.1.0'
     compile 'com.zsoltsafrany:needle:1.0.0'
-    compile 'com.anjlab.android.iab.v3:library:1.0.41'
+    compile 'com.anjlab.android.iab.v3:library:1.0.42'
     compile 'com.github.lykmapipo:local-burst:v0.2.0'
     testCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

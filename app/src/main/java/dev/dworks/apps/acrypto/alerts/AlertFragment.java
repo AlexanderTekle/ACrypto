@@ -9,10 +9,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Switch;
 
 import com.google.firebase.database.Query;
 
@@ -161,7 +161,7 @@ public class AlertFragment extends RecyclerFragment
 
     @Override
     public void onItemViewClick(View view, int position) {
-        int status = ((Switch)view).isChecked() ? 1 : 0;
+        int status = ((SwitchCompat)view).isChecked() ? 1 : 0;
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("status", status);
         childUpdates.put("nameStatusIndex", mAdapter.getItem(position).name+status);

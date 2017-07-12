@@ -408,7 +408,6 @@ public class Utils {
         context.startActivity(intent);
     }
 
-
     public static long getCurrentTimeInMillis() {
         return Calendar.getInstance().getTimeInMillis();
     }

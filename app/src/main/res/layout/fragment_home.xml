@@ -17,35 +17,24 @@
 
             <include layout="@layout/controls_home" />
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
 
-                <LinearLayout
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/linechart"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:layout_height="220dp" />
 
-                    <com.github.mikephil.charting.charts.LineChart
-                        android:id="@+id/linechart"
-                        android:layout_width="match_parent"
-                        android:layout_height="220dp" />
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/barchart"
+                    android:layout_marginTop="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp" />
 
-                    <com.github.mikephil.charting.charts.BarChart
-                        android:id="@+id/barchart"
-                        android:layout_marginTop="20dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="120dp" />
-
-                </LinearLayout>
-
-                <dev.dworks.apps.acrypto.view.MaterialProgressBar
-                    android:id="@+id/chartprogress"
-                    style="@style/MaterialProgress"
-                    android:layout_gravity="center"
-                    android:visibility="gone" />
-            </FrameLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/lastupdated"
@@ -60,4 +49,9 @@
 
         </LinearLayout>
     </ScrollView>
+    <dev.dworks.apps.acrypto.view.MaterialProgressBar
+        android:id="@+id/chartprogress"
+        style="@style/MaterialProgress"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 </FrameLayout>

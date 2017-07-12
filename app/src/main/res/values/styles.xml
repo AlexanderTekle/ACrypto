@@ -23,6 +23,12 @@
         <item name="android:layout_width">@dimen/progress_bar_size</item>
     </style>
 
+    <style name="MaterialProgress.Small" parent="@style/Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminate">true</item>
+        <item name="android:layout_height">@dimen/progress_bar_small_size</item>
+        <item name="android:layout_width">@dimen/progress_bar_small_size</item>
+    </style>
+
     <style name="ButtonAppTheme" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:gravity">center_vertical</item>
         <item name="android:minHeight">48dp</item>

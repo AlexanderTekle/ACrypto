@@ -10,7 +10,6 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingTop="?actionBarSize"
         android:visibility="gone">
 
         <dev.dworks.apps.acrypto.view.MaterialProgressBar

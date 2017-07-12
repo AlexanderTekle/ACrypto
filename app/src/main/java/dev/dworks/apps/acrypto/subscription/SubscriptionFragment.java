@@ -17,8 +17,6 @@ import android.widget.TextView;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.google.gson.Gson;
 
-import org.joda.time.format.PeriodFormat;
-
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.R;
@@ -162,12 +160,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
             mReason.setText("Subscribed");
             mReason.setOnClickListener(null);
         } else {
-            SkuDetails skuDetails = App.getInstance().getSkuDetails();
-            if(null != skuDetails) {
-                mSubscribe.setText("Subscribe "
-                        + skuDetails.priceText + "/"
-                        + PeriodFormat.getDefault().print(skuDetails.subscriptionPeriod));
-            }
+            mSubscribe.setText(App.getInstance().getSubscriptionCTA());
             String htmlString = "<u>"+paidReason+"</u>";
             mReason.setText(Utils.getFromHtml(htmlString));
             mReason.setOnClickListener(this);

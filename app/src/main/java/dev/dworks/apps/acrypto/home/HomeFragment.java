@@ -140,6 +140,7 @@ public class HomeFragment extends ActionBarFragment
     private ScrollView mScrollView;
     private String mName;
     private boolean showFromIntent = false;
+    private ProgressBar mPriceProgress;
 
     public static void show(FragmentManager fm, String name) {
         final Bundle args = new Bundle();
@@ -216,6 +217,7 @@ public class HomeFragment extends ActionBarFragment
         mTimeseries.setOnCheckedChangeListener(this);
 
         mChartProgress = (ProgressBar) view.findViewById(R.id.chartprogress);
+        mPriceProgress = (ProgressBar) view.findViewById(R.id.priceprogress);
         mChart = (LineChart) view.findViewById(R.id.linechart);
         mBarChart = (BarChart) view.findViewById(R.id.barchart);
         initLineChart();
@@ -510,6 +512,7 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void fetchDifferenceData() {
+        showDiffValue(false);
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("fsym", getCurrentCurrencyFrom());
         params.put("tsyms", getCurrentCurrencyTo());
@@ -530,16 +533,24 @@ public class HomeFragment extends ActionBarFragment
                             e.printStackTrace();
                         }
                         setDefaultValues();
+                        showDiffValue(true);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        showDiffValue(true);
                         setPriceValue(mValueChange, 0);
                         mTimeDuration.setText("");
                     }
                 });
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "diff");
+    }
+
+    private void showDiffValue(boolean show) {
+        mPriceProgress.setVisibility(Utils.getVisibility(!show));
+        mValueChange.setVisibility(Utils.getVisibility(show));
+        mTimeDuration.setVisibility(Utils.getVisibility(show));
     }
 
     public void setDefaultValues(){

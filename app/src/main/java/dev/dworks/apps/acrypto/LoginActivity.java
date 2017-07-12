@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuth mAuth;
-    private  boolean isLoading;
+    private boolean isLoading;
     private SignInClient mSignInClient;
 
     @Override

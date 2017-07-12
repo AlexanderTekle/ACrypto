@@ -24,12 +24,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.utils.ColorUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
+import static dev.dworks.apps.acrypto.utils.Utils.openCustomTabUrl;
 import static dev.dworks.apps.acrypto.utils.Utils.openFeedback;
 import static dev.dworks.apps.acrypto.utils.Utils.openPlaystore;
 
@@ -65,11 +68,13 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 		TextView action_support = (TextView)findViewById(R.id.action_support);
 		TextView action_share = (TextView)findViewById(R.id.action_share);
 		TextView action_feedback = (TextView)findViewById(R.id.action_feedback);
+		ImageView action_provider = (ImageView) findViewById(R.id.action_provider);
 
 		action_rate.setOnClickListener(this);
 		action_support.setOnClickListener(this);
 		action_share.setOnClickListener(this);
 		action_feedback.setOnClickListener(this);
+		action_provider.setOnClickListener(this);
 	}
 
 	@Override
@@ -135,6 +140,10 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 						.setChooserTitle("Share ACrypto")
 						.startChooser();
 				AnalyticsManager.logEvent("open_share");
+				break;
+			case R.id.action_provider:
+				openCustomTabUrl(this, UrlConstant.BASE_URL);
+				AnalyticsManager.logEvent("open_provider");
 				break;
 		}
 	}
