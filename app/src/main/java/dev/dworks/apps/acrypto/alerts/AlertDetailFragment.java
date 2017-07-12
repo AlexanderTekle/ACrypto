@@ -42,6 +42,7 @@ import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.entity.Exchanges;
 import dev.dworks.apps.acrypto.entity.PriceAlert;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
@@ -427,6 +428,7 @@ public class AlertDetailFragment extends ActionBarFragment
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
             case android.R.id.home:
+                AnalyticsManager.logEvent("alert_edit_cancelled");
                 getActivity().finish();
                 break;
 
@@ -457,6 +459,7 @@ public class AlertDetailFragment extends ActionBarFragment
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 setEditingEnabled(true);
                 if(null == databaseError && null != getActivity()){
+                    AnalyticsManager.logEvent("alert_deleted");
                     getActivity().finish();
                 }
             }
@@ -493,6 +496,7 @@ public class AlertDetailFragment extends ActionBarFragment
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 setEditingEnabled(true);
                 if(null == databaseError && null != getActivity()){
+                    AnalyticsManager.logEvent(TextUtils.isEmpty(refKey) ? "alert_added" : "alert_edited");
                     getActivity().finish();
                 }
             }

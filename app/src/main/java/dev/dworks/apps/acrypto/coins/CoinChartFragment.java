@@ -594,7 +594,7 @@ public class CoinChartFragment extends ActionBarFragment
         setDefaultValues(price);
         Bundle bundle = new Bundle();
         bundle.putString("currency", getCurrentCurrencyName());
-        AnalyticsManager.logEvent("price_highlighted", bundle);
+        AnalyticsManager.logEvent("details_price_highlighted", bundle);
     }
 
     @Override

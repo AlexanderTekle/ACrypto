@@ -804,9 +804,6 @@ public class HomeFragment extends ActionBarFragment
         mTimeDuration.setText("Volume");
         mVolume.setVisibility(View.VISIBLE);
         mValueChange.setVisibility(View.GONE);
-        Bundle bundle = new Bundle();
-        bundle.putString("currency", getCurrentCurrencyName());
-        AnalyticsManager.logEvent("price_highlighted", bundle);
     }
 
     @Override

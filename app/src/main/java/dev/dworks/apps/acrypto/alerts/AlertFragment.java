@@ -152,6 +152,7 @@ public class AlertFragment extends RecyclerFragment
     @Override
     public void onItemClick(View view, int position) {
         openAlertDetails(mAdapter.getItem(position), mAdapter.getRef(position).getKey());
+        AnalyticsManager.logEvent("view_alert_details");
     }
 
     @Override
@@ -166,6 +167,9 @@ public class AlertFragment extends RecyclerFragment
         childUpdates.put("status", status);
         childUpdates.put("nameStatusIndex", mAdapter.getItem(position).name+status);
         mAdapter.getRef(position).updateChildren(childUpdates);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean("enabled", status == 1);
+        AnalyticsManager.logEvent("alert_status_updated", bundle);
     }
 
     @Override
@@ -180,8 +184,12 @@ public class AlertFragment extends RecyclerFragment
     public void onClick(View view) {
         if(FirebaseHelper.isLoggedIn()) {
             openAlertDetails(null, null);
+            AnalyticsManager.logEvent("add_alert");
         } else {
             openLogin();
+            Bundle bundle = new Bundle();
+            bundle.putString("source", TAG);
+            AnalyticsManager.logEvent("view_login", bundle);
         }
     }
 

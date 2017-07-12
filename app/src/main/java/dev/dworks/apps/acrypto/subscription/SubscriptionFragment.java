@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.anjlab.android.iab.v3.SkuDetails;
 import com.google.gson.Gson;
 
 import dev.dworks.apps.acrypto.App;
@@ -170,13 +169,19 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
 
     @Override
     public void onClick(View view) {
+        Bundle bundle = new Bundle();
         switch (view.getId()) {
             case R.id.subscribe:
                 subscribe();
+                bundle.putString("source", TAG);
+                bundle.putString("type", "monthly");
+                AnalyticsManager.logEvent("view_subscription", bundle);
                 break;
 
             case R.id.reason:
                 showReason();
+                bundle.putString("source", TAG);
+                AnalyticsManager.logEvent("view_subscription_reason", bundle);
                 break;
         }
     }

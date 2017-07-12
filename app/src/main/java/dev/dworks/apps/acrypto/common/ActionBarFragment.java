@@ -15,6 +15,7 @@ import android.widget.TextView;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -130,6 +131,10 @@ public class ActionBarFragment extends Fragment {
                 .setPositiveButton("I'll Subscribe", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("source", "reason");
+                        bundle.putString("type", "monthly");
+                        AnalyticsManager.logEvent("view_subscription", bundle);
                         subscribe();
                     }
                 })
