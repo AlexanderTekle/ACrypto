@@ -48,13 +48,18 @@ import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.subscription.SubscriptionFragment;
-import dev.dworks.apps.acrypto.utils.NotificationUtils;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
 
 import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_ALERT;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_GENERIC;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_URL;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.getAlertName;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationType;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationUrl;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -84,7 +89,12 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            HomeFragment.show(getSupportFragmentManager(), getName(getIntent().getExtras()));
+            Bundle extras = getIntent().getExtras();
+            if(TextUtils.isEmpty(getNotificationType(extras))){
+                HomeFragment.show(getSupportFragmentManager(), null);
+            } else {
+                handleExtras(extras);
+            }
         }
 
         FirebaseHelper.signInAnonymously();
@@ -368,26 +378,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void handleExtras(Bundle extras) {
-        String name = getName(extras);
-        if(!TextUtils.isEmpty(name)){
-            spinner.setVisibility(View.GONE);
-            HomeFragment.show(getSupportFragmentManager(), name);
-            AnalyticsManager.logEvent("view_home");
+        String type = getNotificationType(extras);
+        if(TextUtils.isEmpty(type)){
+            return;
         }
-    }
-
-    private String getName(Bundle extras) {
-        String name = null;
-        if(null != extras){
-            String type = extras.getString("type");
-            if(!TextUtils.isEmpty(type)){
-                if(NotificationUtils.TYPE_ALERT.compareTo(type) == 0) {
-                    name = extras.getString("name");
-
-                }
+        if(type.equals(TYPE_ALERT)){
+            String name = getAlertName(extras);
+            if(!TextUtils.isEmpty(name)){
+                HomeFragment.show(getSupportFragmentManager(), name);
+                Bundle bundle = new Bundle();
+                bundle.putString("source", "notification");
+                AnalyticsManager.logEvent("view_home", bundle);
             }
+        } else if (type.equals(TYPE_URL)){
+            String url = getNotificationUrl(extras);
+            if(!TextUtils.isEmpty(url)){
+                Utils.openCustomTabUrl(this, url);
+                Bundle bundle = new Bundle();
+                bundle.putString("source", "notification");
+                AnalyticsManager.logEvent("view_url", bundle);
+            }
+        } else if (type.equals(TYPE_GENERIC)){
+            //Do nothing
+        } else {
+            //Do nothing
         }
-        return name;
     }
 
     private void initAd() {

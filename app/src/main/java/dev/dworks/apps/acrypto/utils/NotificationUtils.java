@@ -28,11 +28,15 @@ public class NotificationUtils {
 
     public static final String TYPE_ALERT = "alert";
     public static final String TYPE_GENERIC = "generic";
+    public static final String TYPE_URL = "url";
 
     public static void sendNotification(Context context, RemoteMessage remoteMessage) {
 
         int color = ContextCompat.getColor(context, R.color.colorPrimary);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        String tag = remoteMessage.getNotification().getTag();
+        tag = TextUtils.isEmpty(tag)
+                ? remoteMessage.getMessageId() : tag;
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -44,7 +48,7 @@ public class NotificationUtils {
             }
             intent.putExtras(bundle);
         }
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 , intent,
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, tag.hashCode() , intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
@@ -62,9 +66,30 @@ public class NotificationUtils {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        String tag = remoteMessage.getNotification().getTag();
-        tag = TextUtils.isEmpty(tag)
-                ? remoteMessage.getMessageId() : tag;
         notificationManager.notify(tag, 0, notificationBuilder.build());
+    }
+
+    public static String getNotificationUrl(Bundle extras) {
+        String name = null;
+        if(null != extras){
+            name = extras.getString("url");
+        }
+        return name;
+    }
+
+    public static String getAlertName(Bundle extras) {
+        String name = null;
+        if(null != extras){
+            name = extras.getString("name");
+        }
+        return name;
+    }
+
+    public static String getNotificationType(Bundle extras) {
+        String type = null;
+        if(null != extras){
+            type = extras.getString("type");
+        }
+        return type;
     }
 }
