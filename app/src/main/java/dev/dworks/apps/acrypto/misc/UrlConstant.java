@@ -1,5 +1,7 @@
 package dev.dworks.apps.acrypto.misc;
 
+import android.support.v4.util.ArrayMap;
+
 /**
  * Created by HaKr on 15/05/17.
  */
@@ -25,4 +27,26 @@ public class UrlConstant {
     public static final String COINDETAILS_URL =  BASE_URL + "/api/data/coinsnapshot/";
     public static final String EXCHANGELIST_URL = BASE_API_URL + "/data/top/exchanges";
     public static final String CONVERSION_URL = "https://query.yahooapis.com/v1/public/yql?q=%s&format=json&env=store://datatables.org/alltableswithkeys";
+
+    public static String getArbitrageToUrl() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("type", "arbitrage_to");
+        return UrlManager.with(UrlConstant.CURRENCY_API)
+                .setDefaultParams(params).getUrl();
+    }
+
+    public static String getArbitrageFromUrl() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("type", "arbitrage_from");
+        return UrlManager.with(UrlConstant.CURRENCY_API)
+                .setDefaultParams(params).getUrl();
+    }
+
+    public static String getArbitrageCoinsUrl() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("type", "arbitrage");
+
+        return UrlManager.with(UrlConstant.COINS_API)
+                .setDefaultParams(params).getUrl();
+    }
 }

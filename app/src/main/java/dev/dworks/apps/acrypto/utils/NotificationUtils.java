@@ -29,6 +29,7 @@ public class NotificationUtils {
     public static final String TYPE_ALERT = "alert";
     public static final String TYPE_GENERIC = "generic";
     public static final String TYPE_URL = "url";
+    public static final String TYPE_DATA = "data";
 
     public static void sendNotification(Context context, RemoteMessage remoteMessage) {
 
@@ -40,14 +41,8 @@ public class NotificationUtils {
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        Map<String, String> data = remoteMessage.getData();
-        if(null != data){
-            Bundle bundle = new Bundle();
-            for (Map.Entry<String, String> entry : data.entrySet()) {
-                bundle.putString(entry.getKey(), entry.getValue());
-            }
-            intent.putExtras(bundle);
-        }
+        intent.putExtras(getDataBundle(remoteMessage));
+
         PendingIntent pendingIntent = PendingIntent.getActivity(context, tag.hashCode() , intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
@@ -91,5 +86,16 @@ public class NotificationUtils {
             type = extras.getString("type");
         }
         return type;
+    }
+
+    public static Bundle getDataBundle(RemoteMessage remoteMessage){
+        Map<String, String> data = remoteMessage.getData();
+        Bundle bundle = new Bundle();
+        if(null != data){
+            for (Map.Entry<String, String> entry : data.entrySet()) {
+                bundle.putString(entry.getKey(), entry.getValue());
+            }
+        }
+        return bundle;
     }
 }

@@ -424,10 +424,7 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void fetchCurrencyFromData() {
-        ArrayMap<String, String> params = new ArrayMap<>();
-
-        String url = UrlManager.with(UrlConstant.COINS_API)
-                .setDefaultParams(params).getUrl();
+        String url = UrlManager.with(UrlConstant.COINS_API).getUrl();
 
         GsonRequest<Coins> request = new GsonRequest<>(url,
                 Coins.class,
@@ -452,10 +449,7 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void fetchCurrencyToData() {
-        ArrayMap<String, String> params = new ArrayMap<>();
-
-        String url = UrlManager.with(UrlConstant.CURRENCY_API)
-                .setDefaultParams(params).getUrl();
+        String url = UrlManager.with(UrlConstant.CURRENCY_API).getUrl();
 
         GsonRequest<Currencies> request = new GsonRequest<>(url,
                 Currencies.class,

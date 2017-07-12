@@ -6,7 +6,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.ArrayMap;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +23,6 @@ import dev.dworks.apps.acrypto.entity.CoinDetails;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
-import dev.dworks.apps.acrypto.misc.UrlConstant;
-import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
@@ -34,6 +31,9 @@ import dev.dworks.apps.acrypto.view.LockableViewPager;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
 import dev.dworks.apps.acrypto.view.Spinner;
 
+import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageCoinsUrl;
+import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageFromUrl;
+import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageToUrl;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_ONE_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TWO_DEFAULT;
@@ -130,11 +130,7 @@ public class ArbitrageFragment extends ActionBarFragment{
     }
 
     private void setCurrencyFromSpinner() {;
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("type", "arbitrage");
-
-        String url = UrlManager.with(UrlConstant.COINS_API)
-                .setDefaultParams(params).getUrl();
+        String url = getArbitrageCoinsUrl();
 
         GsonRequest<Coins> request = new GsonRequest<>(url,
                 Coins.class,
@@ -175,10 +171,7 @@ public class ArbitrageFragment extends ActionBarFragment{
         mCurrencyOneSpinner.getPopupWindow().setWidth(300);
         mCurrencyTwoSpinner.getPopupWindow().setWidth(300);
 
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("type", "arbitrage_from");
-        String url = UrlManager.with(UrlConstant.CURRENCY_API)
-                .setDefaultParams(params).getUrl();
+        String url = getArbitrageFromUrl();
 
         GsonRequest<Currencies> request = new GsonRequest<>(url,
                 Currencies.class,
@@ -228,10 +221,8 @@ public class ArbitrageFragment extends ActionBarFragment{
     }
 
     private void reloadCurrencyTwo(){
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("type", "arbitrage_to");
-        String url = UrlManager.with(UrlConstant.CURRENCY_API)
-                .setDefaultParams(params).getUrl();
+
+        String url = getArbitrageToUrl();
 
         GsonRequest<Currencies> request = new GsonRequest<>(url,
                 Currencies.class,
