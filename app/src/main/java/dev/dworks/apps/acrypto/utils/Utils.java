@@ -552,6 +552,7 @@ public class Utils {
                 .setSubject("ACrypto Support")
                 .setType("text/email")
                 .setChooserTitle("Contact Support")
+                .setText("ACrypto app version v"+App.APP_VERSION)
                 .startChooser();
     }
 
@@ -562,6 +563,7 @@ public class Utils {
                 .setSubject("ACrypto Feedback")
                 .setType("text/email")
                 .setChooserTitle("Send Feedback")
+                .setText("ACrypto app version v"+App.APP_VERSION)
                 .startChooser();
     }
 
