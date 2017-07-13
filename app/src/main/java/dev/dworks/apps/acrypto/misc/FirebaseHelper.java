@@ -13,6 +13,7 @@ import java.util.Map;
 
 import dev.dworks.apps.acrypto.entity.User;
 
+import static dev.dworks.apps.acrypto.App.APP_VERSION;
 import static dev.dworks.apps.acrypto.entity.User.USERS;
 
 /**
@@ -85,6 +86,7 @@ public class FirebaseHelper {
         childUpdates.put("email", firebaseUser.getEmail());
         childUpdates.put("uid", firebaseUser.getUid());
         childUpdates.put("photoUrl", photoUrl);
+        childUpdates.put("appVersion", APP_VERSION);
 
         String instanceId = FirebaseInstanceId.getInstance().getToken();
         if (instanceId != null) {
@@ -110,6 +112,18 @@ public class FirebaseHelper {
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("subscriptionStatus", 1);
         childUpdates.put("subscriptionId", productId);
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid())
+                .updateChildren(childUpdates);
+    }
+
+    public static void updateUserAppVersion(String version) {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(!isLoggedIn()){
+            return;
+        }
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("appVersion", version);
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
                 .child(firebaseUser.getUid())
                 .updateChildren(childUpdates);

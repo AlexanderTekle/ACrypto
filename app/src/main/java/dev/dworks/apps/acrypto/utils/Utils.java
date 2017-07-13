@@ -100,6 +100,8 @@ public class Utils {
 
     static final String TAG = "Utils";
 
+    public static final String APP_VERSION = "app_version";
+
     //Home
     public static final String BUNDLE_NAME = "bundle_name";
 

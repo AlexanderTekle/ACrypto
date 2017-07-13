@@ -592,9 +592,6 @@ public class CoinChartFragment extends ActionBarFragment
     public void onValueSelected(Entry e, Highlight h) {
         Prices.Price price = (Prices.Price) e.getData();
         setDefaultValues(price);
-        Bundle bundle = new Bundle();
-        bundle.putString("currency", getCurrentCurrencyName());
-        AnalyticsManager.logEvent("details_price_highlighted", bundle);
     }
 
     @Override

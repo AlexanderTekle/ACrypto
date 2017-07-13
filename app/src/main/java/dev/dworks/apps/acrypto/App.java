@@ -3,10 +3,11 @@ package dev.dworks.apps.acrypto;
 import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
+import android.text.TextUtils;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
@@ -14,6 +15,9 @@ import com.android.volley.error.VolleyError;
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
+import com.github.javiersantos.appupdater.AppUpdater;
+import com.github.javiersantos.appupdater.enums.Display;
+import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -38,6 +42,7 @@ import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
@@ -109,20 +114,34 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 		LocalBurst.initialize(getApplicationContext());
-
-    	try {
-            final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
-    		APP_VERSION = info.versionName;
-    		APP_VERSION_CODE = info.versionCode;
-		} catch (NameNotFoundException e) {
-			APP_VERSION = "Unknown";
-			APP_VERSION_CODE = 0;
-			e.printStackTrace();
-		}
 		loadCoinSymbols();
 		loadCurrencyList();
 		loadCoinDetails();
 		loadCoinIgnore();
+
+		checkForAppUpdates();
+	}
+
+	private void checkForAppUpdates() {
+
+		try {
+			final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
+			APP_VERSION = info.versionName;
+			APP_VERSION_CODE = info.versionCode;
+			String currentVersion = PreferenceUtils.getStringPrefs(this, Utils.APP_VERSION, "");
+			if(TextUtils.isEmpty(currentVersion) || !currentVersion.equals(APP_VERSION)) {
+				PreferenceUtils.set(this, Utils.APP_VERSION, APP_VERSION);
+				FirebaseHelper.updateUserAppVersion(APP_VERSION);
+			}
+		} catch (PackageManager.NameNotFoundException e) {
+			APP_VERSION = "Unknown";
+			APP_VERSION_CODE = 0;
+			e.printStackTrace();
+		}
+        AppUpdater appUpdater = new AppUpdater(this)
+				.setUpdateFrom(UpdateFrom.GOOGLE_PLAY)
+				.setDisplay(Display.DIALOG);
+        appUpdater.start();
 	}
 
 	private void loadCurrencyList() {

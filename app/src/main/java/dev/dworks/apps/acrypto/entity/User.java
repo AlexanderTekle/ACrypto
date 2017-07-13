@@ -14,6 +14,7 @@ public class User {
     public String instanceId;
     public int subscriptionStatus;
     public String subscriptionId;
+    public String appVersion;
     public Object createdAt;
 
     public User() {
