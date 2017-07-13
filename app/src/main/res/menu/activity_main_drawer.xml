@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <group android:checkableBehavior="single">
         <item
@@ -12,8 +13,25 @@
             android:title="Coins" />
         <item
             android:id="@+id/nav_arbitrage"
-            android:icon="@drawable/ic_artbitrage"
+            android:icon="@drawable/ic_arbitrage"
             android:title="Arbitrage" />
+        <item
+            android:id="@+id/nav_alerts"
+            android:icon="@drawable/ic_alerts"
+            android:title="Alerts" />
+        <item
+            android:id="@+id/nav_charts"
+            android:icon="@drawable/ic_charts"
+            android:title="Charts"
+            android:visible="false" />
+        <item
+            android:id="@+id/nav_portfolio"
+            android:icon="@drawable/ic_portfolio"
+            android:title="Portfolio" />
+        <item
+            android:id="@+id/nav_subscription"
+            android:icon="@drawable/ic_subscription"
+            android:title="Subscription" />
     </group>
 
     <group
@@ -23,6 +41,14 @@
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_menu_settings"
             android:title="Settings" />
+        <item
+            android:id="@+id/nav_sponsor"
+            android:icon="@drawable/ic_sponsor"
+            android:title="Sponsor" />
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Share" />
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_about"

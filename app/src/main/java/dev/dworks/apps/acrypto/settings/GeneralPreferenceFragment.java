@@ -8,11 +8,14 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AlertDialog;
 
+import com.google.android.gms.auth.api.Auth;
+
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.DialogFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
+import dev.dworks.apps.acrypto.misc.SignInClient;
 
 import static android.app.Activity.RESULT_FIRST_USER;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_USER_CURRENCY;
@@ -22,6 +25,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyF
 public class GeneralPreferenceFragment extends PreferenceFragment
         implements Preference.OnPreferenceClickListener, Preference.OnPreferenceChangeListener {
 
+    private SignInClient mSignInClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,9 +51,22 @@ public class GeneralPreferenceFragment extends PreferenceFragment
             }
         });
 
+        mSignInClient = new SignInClient(getActivity());
         if(!FirebaseHelper.isLoggedIn()){
             preferenceCategory.removePreference(logoutPreference);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mSignInClient.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mSignInClient.onStop();
     }
 
     @Override
@@ -74,6 +91,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         FirebaseHelper.logout();
+                        Auth.GoogleSignInApi.signOut(mSignInClient.getGoogleApiClient());
                         getActivity().setResult(RESULT_FIRST_USER);
                         getActivity().finish();
 

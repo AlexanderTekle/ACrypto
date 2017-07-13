@@ -45,8 +45,13 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".coins.CoinDetailActivity"
-            android:label="Details"
+            android:label="Coin Details"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".alerts.AlertDetailActivity"
+            android:label="Alert Details"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <service
             android:name=".services.InstanceIdService"
             tools:ignore="ExportedService">

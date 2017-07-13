@@ -27,12 +27,15 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.text.TextUtilsCompat;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,8 +76,10 @@ import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.view.Spinner;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.text.Html.FROM_HTML_MODE_LEGACY;
 
 /**
  * Created by HaKr on 20-Sep-14.
@@ -94,6 +99,13 @@ public class Utils {
     public static final String IMAGE_BG_CACHE_DIR = "bgs";
 
     static final String TAG = "Utils";
+
+    //Home
+    public static final String BUNDLE_NAME = "bundle_name";
+
+    //Alert
+    public static final String BUNDLE_ALERT = "bundle_alert";
+    public static final String BUNDLE_REF_KEY = "bundle_ref_key";
 
     //Coins
     public static final String BUNDLE_CURRENCY = "bundle_currency";
@@ -148,6 +160,10 @@ public class Utils {
     public static boolean hasLollipop() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
+    public static boolean hasNougat() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+    }
+
     public static boolean hasMoreHeap(){
         return Runtime.getRuntime().maxMemory() > 20971520;
     }
@@ -166,6 +182,9 @@ public class Utils {
     }
 
     public static boolean isNetConnected(Context context) {
+        if(null == context){
+            return false;
+        }
         final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
@@ -233,6 +252,9 @@ public class Utils {
     }
 
     public static void showNoInternetSnackBar(Activity activity, View.OnClickListener listener) {
+        if(null == activity){
+            return;
+        }
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content),
                 "Can't connect to Internet", Snackbar.LENGTH_INDEFINITE);
 
@@ -386,7 +408,6 @@ public class Utils {
         context.startActivity(intent);
     }
 
-
     public static long getCurrentTimeInMillis() {
         return Calendar.getInstance().getTimeInMillis();
     }
@@ -457,13 +478,32 @@ public class Utils {
     }
 
     public static void setPriceValue(MoneyTextView textView, double value, String symbol){
-        textView.setDecimalFormat(getMoneyFormat(value, symbol));
+        textView.setDecimalFormat(getMoneyFormat(symbol));
+        textView.setAmount((float) Math.abs(value));
+        textView.setSymbol(symbol);
+    }
+
+    public static void setDecimalValue(MoneyTextView textView, double value, String symbol){
+        textView.setDecimalFormat(getDecimalFormat(symbol));
         textView.setAmount((float) Math.abs(value));
         textView.setSymbol(symbol);
     }
 
     public static void setDateTimeValue(TextView textView, long timeInMillis){
         textView.setText(TimeUtils.getFormattedDateTime(timeInMillis));
+    }
+
+    public static DecimalFormat getDecimalFormat(String symbol){
+        String precisionFormat = "#####0.###";
+
+        if("Ƀ".compareTo(symbol) == 0){
+            precisionFormat = "#####0.00000000";
+        } else if("Ξ".compareTo(symbol) == 0){
+            precisionFormat = "#####0.00000000";
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
+        decimalFormat.setDecimalSeparatorAlwaysShown(false);
+        return decimalFormat;
     }
 
     public static DecimalFormat getMoneyFormat(boolean high){
@@ -473,7 +513,7 @@ public class Utils {
         return decimalFormat;
     }
 
-    public static DecimalFormat getMoneyFormat(double value, String symbol){
+    public static DecimalFormat getMoneyFormat(String symbol){
         String precisionFormat = "###,##0.###";
 
         if("Ƀ".compareTo(symbol) == 0){
@@ -501,6 +541,16 @@ public class Utils {
 
     public static Uri getAppStoreUri(){
         return Uri.parse("https://play.google.com/store/apps/dev?id=8683545855643814241");
+    }
+
+    public static void openSupport(Activity activity){
+        ShareCompat.IntentBuilder
+                .from(activity)
+                .setEmailTo(new String[]{"hakr@dworks.in"})
+                .setSubject("ACrypto Support")
+                .setType("text/email")
+                .setChooserTitle("Contact Support")
+                .startChooser();
     }
 
     public static void openFeedback(Activity activity){
@@ -621,7 +671,7 @@ public class Utils {
     }
 
     public static String getFormattedNumber(double value, String symbol){
-        DecimalFormat decimalFormat = getMoneyFormat(value, symbol);
+        DecimalFormat decimalFormat = getMoneyFormat(symbol);
         return decimalFormat.format(value);
     }
 
@@ -646,7 +696,16 @@ public class Utils {
     }
 
     public static void showAppFeedback(Activity activity){
-        AppFeedback.with(activity, R.id.container_rate).listener(new AppFeedback.OnShowListener() {
+        showAppFeedback(activity, false);
+    }
+
+    public static void showAppFeedback(Activity activity, boolean isPro){
+        AppFeedback appFeedback = AppFeedback.with(activity, R.id.container_rate);
+        if(isPro){
+            appFeedback.hide();
+            return;
+        }
+        appFeedback.listener(new AppFeedback.OnShowListener() {
             @Override
             public void onRateAppShowing() {
                 AnalyticsManager.logEvent("feedback_shown");
@@ -685,5 +744,54 @@ public class Utils {
 
     public static int getMasterDataCacheTime() {
         return 1440*30;
+    }
+
+    public static void setSpinnerValue(Spinner spinner, String defaultValue, String value) {
+        int index = 0;
+        if (value.compareTo(defaultValue) == 0) {
+            spinner.setSelectedIndex(index);
+            return;
+        }
+        SpinnerAdapter adapter = spinner.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).toString().equals(value)) {
+                index = i;
+                break; // terminate loop
+            }
+        }
+        spinner.setSelectedIndex(index + 1);
+    }
+
+    public static String toTitleCase(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return str;
+        }
+        boolean space = true;
+        StringBuilder builder = new StringBuilder(str);
+        final int len = builder.length();
+
+        for (int i = 0; i < len; ++i) {
+            char c = builder.charAt(i);
+            if (space) {
+                if (!Character.isWhitespace(c)) {
+                    // Convert to title case and switch out of whitespace mode.
+                    builder.setCharAt(i, Character.toTitleCase(c));
+                    space = false;
+                }
+            } else if (Character.isWhitespace(c)) {
+                space = true;
+            } else {
+                builder.setCharAt(i, Character.toLowerCase(c));
+            }
+        }
+        return builder.toString();
+    }
+
+    public static Spanned getFromHtml(String text){
+        if(Utils.hasNougat()){
+            return Html.fromHtml(text, FROM_HTML_MODE_LEGACY);
+        } else {
+            return Html.fromHtml(text);
+        }
     }
 }

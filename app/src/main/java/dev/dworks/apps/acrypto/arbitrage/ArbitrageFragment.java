@@ -6,13 +6,10 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.ArrayMap;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SpinnerAdapter;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
@@ -26,8 +23,6 @@ import dev.dworks.apps.acrypto.entity.CoinDetails;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
-import dev.dworks.apps.acrypto.misc.UrlConstant;
-import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
@@ -36,10 +31,14 @@ import dev.dworks.apps.acrypto.view.LockableViewPager;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
 import dev.dworks.apps.acrypto.view.Spinner;
 
+import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageCoinsUrl;
+import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageFromUrl;
+import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageToUrl;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_ONE_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TWO_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
+import static dev.dworks.apps.acrypto.utils.Utils.setSpinnerValue;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class ArbitrageFragment extends ActionBarFragment{
@@ -71,7 +70,7 @@ public class ArbitrageFragment extends ActionBarFragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showAppFeedback(getActivity());
+        showAppFeedback(getActivity(), true);
         setHasOptionsMenu(true);
     }
 
@@ -131,11 +130,7 @@ public class ArbitrageFragment extends ActionBarFragment{
     }
 
     private void setCurrencyFromSpinner() {;
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("type", "arbitrage");
-
-        String url = UrlManager.with(UrlConstant.COINS_API)
-                .setDefaultParams(params).getUrl();
+        String url = getArbitrageCoinsUrl();
 
         GsonRequest<Coins> request = new GsonRequest<>(url,
                 Coins.class,
@@ -144,7 +139,8 @@ public class ArbitrageFragment extends ActionBarFragment{
                     @Override
                     public void onResponse(Coins coins) {
                         mCurrencyFromSpinner.setItems(coins.coins);
-                        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+                        setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT,
+                                getCurrentCurrencyFrom());
                     }
                 },
                 new Response.ErrorListener() {
@@ -153,7 +149,7 @@ public class ArbitrageFragment extends ActionBarFragment{
 
                     }
                 });
-        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setDontExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "coins_arbitrage");
 
@@ -175,10 +171,7 @@ public class ArbitrageFragment extends ActionBarFragment{
         mCurrencyOneSpinner.getPopupWindow().setWidth(300);
         mCurrencyTwoSpinner.getPopupWindow().setWidth(300);
 
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("type", "arbitrage_from");
-        String url = UrlManager.with(UrlConstant.CURRENCY_API)
-                .setDefaultParams(params).getUrl();
+        String url = getArbitrageFromUrl();
 
         GsonRequest<Currencies> request = new GsonRequest<>(url,
                 Currencies.class,
@@ -187,7 +180,7 @@ public class ArbitrageFragment extends ActionBarFragment{
                     @Override
                     public void onResponse(Currencies currencies) {
                         mCurrencyOneSpinner.setItems(currencies.currencies);
-                        setSpinnerToValue(mCurrencyOneSpinner, getCurrentCurrencyOne());
+                        Utils.setSpinnerValue(mCurrencyOneSpinner, CURRENCY_ONE_DEFAULT, getCurrentCurrencyOne());
                     }
                 },
                 new Response.ErrorListener() {
@@ -196,7 +189,7 @@ public class ArbitrageFragment extends ActionBarFragment{
 
                     }
                 });
-        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setDontExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_arbitrage_from");
 
@@ -228,10 +221,8 @@ public class ArbitrageFragment extends ActionBarFragment{
     }
 
     private void reloadCurrencyTwo(){
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("type", "arbitrage_to");
-        String url = UrlManager.with(UrlConstant.CURRENCY_API)
-                .setDefaultParams(params).getUrl();
+
+        String url = getArbitrageToUrl();
 
         GsonRequest<Currencies> request = new GsonRequest<>(url,
                 Currencies.class,
@@ -240,7 +231,8 @@ public class ArbitrageFragment extends ActionBarFragment{
                     @Override
                     public void onResponse(Currencies currencies) {
                         mCurrencyTwoSpinner.setItems(getCurrencyTwoList(currencies.currencies));
-                        setSpinnerToValue(mCurrencyTwoSpinner, getCurrentCurrencyTwo());
+                        setSpinnerValue(mCurrencyTwoSpinner, CURRENCY_TWO_DEFAULT,
+                                getCurrentCurrencyTwo());
                     }
                 },
                 new Response.ErrorListener() {
@@ -249,7 +241,7 @@ public class ArbitrageFragment extends ActionBarFragment{
 
                     }
                 });
-        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setDontExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_arbitrage_to");
     }
@@ -286,39 +278,6 @@ public class ArbitrageFragment extends ActionBarFragment{
 
     public static String getCurrentCurrencyOneTwoName(){
         return getCurrentCurrencyOneName() + "/" + getCurrentCurrencyTwoName();
-    }
-
-    public static void setSpinnerValue(Spinner spinner, String value) {
-        int index = 0;
-        if (value.compareTo(CURRENCY_FROM_DEFAULT) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
-    }
-
-    public static void setSpinnerToValue(Spinner spinner, String value) {
-        int index = 0;
-        if (value.compareTo(CURRENCY_ONE_DEFAULT) == 0
-                || value.compareTo(CURRENCY_TWO_DEFAULT) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
     }
 
     private void refreshData() {

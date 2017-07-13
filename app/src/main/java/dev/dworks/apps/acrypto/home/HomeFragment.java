@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.android.volley.Cache;
@@ -78,6 +77,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFA
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_NAME;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
@@ -138,9 +138,13 @@ public class HomeFragment extends ActionBarFragment
     private Prices mPrice;
     private TextView mVolume;
     private ScrollView mScrollView;
+    private String mName;
+    private boolean showFromIntent = false;
+    private ProgressBar mPriceProgress;
 
-    public static void show(FragmentManager fm) {
+    public static void show(FragmentManager fm, String name) {
         final Bundle args = new Bundle();
+        args.putString(BUNDLE_NAME, name);
         final FragmentTransaction ft = fm.beginTransaction();
         final HomeFragment fragment = new HomeFragment();
         fragment.setArguments(args);
@@ -160,6 +164,10 @@ public class HomeFragment extends ActionBarFragment
         super.onCreate(savedInstanceState);
         showAppFeedback(getActivity());
         setHasOptionsMenu(true);
+        mName = getArguments().getString(BUNDLE_NAME);
+        if(!TextUtils.isEmpty(mName)){
+            showFromIntent = true;
+        }
     }
 
     @Override
@@ -209,6 +217,7 @@ public class HomeFragment extends ActionBarFragment
         mTimeseries.setOnCheckedChangeListener(this);
 
         mChartProgress = (ProgressBar) view.findViewById(R.id.chartprogress);
+        mPriceProgress = (ProgressBar) view.findViewById(R.id.priceprogress);
         mChart = (LineChart) view.findViewById(R.id.linechart);
         mBarChart = (BarChart) view.findViewById(R.id.barchart);
         initLineChart();
@@ -219,6 +228,23 @@ public class HomeFragment extends ActionBarFragment
         setCurrencyFromSpinner();
         setCurrencyToSpinner();
         setMarketSpinner();
+
+        if(showFromIntent()){
+            SettingsActivity.setCurrencyFrom(getNameFromIntent()[0]);
+            SettingsActivity.setCurrencyTo(getNameFromIntent()[1]);
+            if(getNameFromIntent().length == 3) {
+                SettingsActivity.setExchange(getNameFromIntent()[2]);
+            }
+            showFromIntent = false;
+        }
+    }
+
+    private boolean showFromIntent() {
+        return !TextUtils.isEmpty(mName) && showFromIntent;
+    }
+
+    private String[] getNameFromIntent() {
+        return mName.split("-");
     }
 
     private void setCurrencyFromSpinner() {
@@ -391,17 +417,14 @@ public class HomeFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(5);
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Home");
         fetchDifferenceData();
     }
 
     private void fetchCurrencyFromData() {
-        ArrayMap<String, String> params = new ArrayMap<>();
-
-        String url = UrlManager.with(UrlConstant.COINS_API)
-                .setDefaultParams(params).getUrl();
+        String url = UrlManager.with(UrlConstant.COINS_API).getUrl();
 
         GsonRequest<Coins> request = new GsonRequest<>(url,
                 Coins.class,
@@ -410,7 +433,8 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Coins coins) {
                         mCurrencyFromSpinner.setItems(coins.coins);
-                        setSpinnerValue(mCurrencyFromSpinner, getCurrentCurrencyFrom());
+                        Utils.setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT,
+                                getCurrentCurrencyFrom());
                     }
                 },
                 new Response.ErrorListener() {
@@ -419,16 +443,13 @@ public class HomeFragment extends ActionBarFragment
 
                     }
                 });
-        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setDontExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_from");
     }
 
     private void fetchCurrencyToData() {
-        ArrayMap<String, String> params = new ArrayMap<>();
-
-        String url = UrlManager.with(UrlConstant.CURRENCY_API)
-                .setDefaultParams(params).getUrl();
+        String url = UrlManager.with(UrlConstant.CURRENCY_API).getUrl();
 
         GsonRequest<Currencies> request = new GsonRequest<>(url,
                 Currencies.class,
@@ -437,7 +458,9 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Currencies currencies) {
                         mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
-                        setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
+                        Utils.setSpinnerValue(mCurrencyToSpinner,
+                                (isTopAltCoin() ? CURRENCY_TO_DEFAULT : CURRENCY_FROM_DEFAULT),
+                                getCurrentCurrencyTo());
                     }
                 },
                 new Response.ErrorListener() {
@@ -446,7 +469,7 @@ public class HomeFragment extends ActionBarFragment
 
                     }
                 });
-        request.setCacheMinutes(Utils.getMasterDataCacheTime());
+        request.setDontExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_to");
     }
@@ -467,8 +490,8 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Exchanges prices) {
                         mExchangeSpinner.setItems(prices.getAllData());
-                        //mExchangeSpinner.setText(SettingsActivity.getExchange());
-                        setSpinnerValue(mExchangeSpinner, SettingsActivity.getExchange());
+                        Utils.setSpinnerValue(mExchangeSpinner, ALL_EXCHANGES,
+                                SettingsActivity.getExchange());
                     }
                 },
                 new Response.ErrorListener() {
@@ -477,11 +500,13 @@ public class HomeFragment extends ActionBarFragment
 
                     }
                 });
+        request.setCacheMinutes(1440, 1440);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "exchange");
     }
 
     private void fetchDifferenceData() {
+        showDiffValue(false);
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("fsym", getCurrentCurrencyFrom());
         params.put("tsyms", getCurrentCurrencyTo());
@@ -502,16 +527,24 @@ public class HomeFragment extends ActionBarFragment
                             e.printStackTrace();
                         }
                         setDefaultValues();
+                        showDiffValue(true);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        showDiffValue(true);
                         setPriceValue(mValueChange, 0);
                         mTimeDuration.setText("");
                     }
                 });
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "diff");
+    }
+
+    private void showDiffValue(boolean show) {
+        mPriceProgress.setVisibility(Utils.getVisibility(!show));
+        mValueChange.setVisibility(Utils.getVisibility(show));
+        mTimeDuration.setVisibility(Utils.getVisibility(show));
     }
 
     public void setDefaultValues(){
@@ -765,9 +798,6 @@ public class HomeFragment extends ActionBarFragment
         mTimeDuration.setText("Volume");
         mVolume.setVisibility(View.VISIBLE);
         mValueChange.setVisibility(View.GONE);
-        Bundle bundle = new Bundle();
-        bundle.putString("currency", getCurrentCurrencyName());
-        AnalyticsManager.logEvent("price_highlighted", bundle);
     }
 
     @Override
@@ -984,40 +1014,5 @@ public class HomeFragment extends ActionBarFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
-    }
-
-
-    public static void setSpinnerValue(Spinner spinner, String value) {
-        int index = 0;
-        if (value.compareTo(CURRENCY_FROM_DEFAULT) == 0
-                || value.compareTo(ALL_EXCHANGES) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
-    }
-
-    public void setSpinnerToValue(Spinner spinner, String value) {
-        int index = 0;
-        if (isTopAltCoin() ? value.compareTo(CURRENCY_TO_DEFAULT) == 0
-                : value.compareTo(CURRENCY_FROM_DEFAULT) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
     }
 }

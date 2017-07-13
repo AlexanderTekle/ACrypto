@@ -27,7 +27,9 @@
   "AUD" : {
     "name" : "Australian Dollar",
     "order" : 6,
-    "arbitrage_from" : 1
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 9
   },
   "CNY" : {
     "name" : "Chineese Yen",
@@ -146,6 +148,6 @@
     "name" : "Thai Baht",
     "order" : 27,
     "arbitrage_to" : 1,
-    "order_arbitrage_to" : 7
+    "order_arbitrage_to" : 8
   }
 }

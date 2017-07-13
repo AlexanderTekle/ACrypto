@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
-import android.support.v7.app.ActionBar;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -43,6 +42,7 @@ import org.fabiomsr.moneytextview.MoneyTextView;
 
 import java.util.ArrayList;
 
+import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.common.ChartOnTouchListener;
@@ -251,7 +251,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(1);
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG + "One");
 
@@ -271,7 +271,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
                         mChartProgress.setVisibility(View.GONE);
                     }
                 });
-        request2.setCacheMinutes(1);
+        request2.setCacheMinutes(5, 60);
         request2.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request2, TAG + "Two");
     }
@@ -279,7 +279,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     private void loadConversionData() {
 
         String YQL = String.format("select * from yahoo.finance.xchange where pair in (\"%s\")",
-                getCurrentCurrencyTwo()+getCurrentCurrencyOne());
+                getCurrentCurrencyOne()+getCurrentCurrencyTwo());
 
         String url = String.format(CONVERSION_URL, Uri.encode(YQL));
 
@@ -299,6 +299,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
                         mChartProgress.setVisibility(View.GONE);
                     }
                 });
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG + "conversion");
     }
@@ -318,7 +319,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
         String text = Utils.getString(this, R.string.artbitrage_message,
                 getCurrentCurrencyFrom(),
                 getDisplayCurrency(currentValueOne) + " " + getCurrentCurrencyOne(),
-                getDisplayCurrency((currentValueTwo / mConversionRate)) + " " + getCurrentCurrencyTwo(),
+                getDisplayCurrency((currentValueTwo * mConversionRate)) + " " + getCurrentCurrencyTwo(),
                 diff < 0 ?  "loss" : "profit",
                 getDisplayCurrency(Math.abs(diff)) + " " +  getCurrentCurrencyOne());
         mArbitrageSummary.setText(Html.fromHtml(text));
@@ -443,7 +444,9 @@ public class ArbitrageChartFragment extends ActionBarFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.refresh, menu);
+        if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
+            inflater.inflate(R.menu.refresh, menu);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 

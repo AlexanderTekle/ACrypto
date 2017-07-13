@@ -1,10 +1,15 @@
 package dev.dworks.apps.acrypto.misc;
 
+import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import dev.dworks.apps.acrypto.entity.User;
 
@@ -32,8 +37,20 @@ public class FirebaseHelper {
        return FirebaseDatabase.getInstance().getReference();
     }
 
+    public static DatabaseReference getFirebaseDatabaseReference(String path){
+        return FirebaseDatabase.getInstance().getReference(path);
+    }
+
     public static FirebaseUser getCurrentUser(){
         return FirebaseAuth.getInstance().getCurrentUser();
+    }
+
+    public static String getCurrentUserId(){
+        if(null != getCurrentUser()) {
+            return getCurrentUser().getUid();
+        } else {
+            return "";
+        }
     }
 
     public static boolean isLoggedIn(){
@@ -62,38 +79,51 @@ public class FirebaseHelper {
                 firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString()
         );
 
-        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(firebaseUser.getUid()).setValue(user);
+        String photoUrl = firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString();
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("displayName", firebaseUser.getDisplayName());
+        childUpdates.put("email", firebaseUser.getEmail());
+        childUpdates.put("uid", firebaseUser.getUid());
+        childUpdates.put("photoUrl", photoUrl);
 
         String instanceId = FirebaseInstanceId.getInstance().getToken();
         if (instanceId != null) {
-            FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                    .child(firebaseUser.getUid())
-                    .child("instanceId")
-                    .setValue(instanceId);
+            childUpdates.put("instanceId", instanceId);
         }
+
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid()).updateChildren(childUpdates);
+
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid())
+                .child("createdAt").setValue(ServerValue.TIMESTAMP);
+
+
+
     }
 
-    public static void startMasterDataSync() {
-        FirebaseHelper.syncData("master/coins", true);
-        FirebaseHelper.syncData("master/currency", true);
-        FirebaseHelper.syncData("master/symbols", true);
-        FirebaseHelper.syncData("master/coins_list", true);
-        FirebaseHelper.syncData("master/coins_ignore", true);
-        FirebaseHelper.syncData("master/coin_details", true);
+    public static void updateUserSubscription(String productId, TransactionDetails details) {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(!isLoggedIn()){
+            return;
+        }
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("subscriptionStatus", 1);
+        childUpdates.put("subscriptionId", productId);
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid())
+                .updateChildren(childUpdates);
     }
 
-    public static void stopMasterDataSync() {
-        FirebaseHelper.syncData("master/coins", false);
-        FirebaseHelper.syncData("master/currency", false);
-        FirebaseHelper.syncData("master/symbols", false);
-        FirebaseHelper.syncData("master/coins_list", false);
-        FirebaseHelper.syncData("master/coins_ignore", false);
-        FirebaseHelper.syncData("master/coin_details", false);
-    }
-
-    public static void syncData(String path, boolean sync){
-        DatabaseReference scoresRef = FirebaseDatabase.getInstance().getReference(path);
-        scoresRef.keepSynced(sync);
+    public static void updateUserSubscription(boolean active) {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(!isLoggedIn()){
+            return;
+        }
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("subscriptionStatus", active ? 1 : 0);
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid())
+                .updateChildren(childUpdates);
     }
 }

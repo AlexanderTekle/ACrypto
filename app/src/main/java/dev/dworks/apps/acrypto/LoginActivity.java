@@ -3,15 +3,14 @@ package dev.dworks.apps.acrypto;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
@@ -23,29 +22,27 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.iid.FirebaseInstanceId;
-
-import java.io.IOException;
 
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
-import needle.Needle;
+import dev.dworks.apps.acrypto.misc.SignInClient;
+import dev.dworks.apps.acrypto.utils.Utils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 public class LoginActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    private static final int RC_SIGN_IN = 1;
+    private static final int RC_SIGN_IN = 9001;
     private static final String TAG = "Login";
 
     private SignInButton googleButton;
     private ProgressBar progress;
 
-    private GoogleApiClient mGoogleApiClient;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseAuth mAuth;
-    private  boolean isLoading;
+    private boolean isLoading;
+    private SignInClient mSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,21 +67,13 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
         } catch (ClassCastException | NullPointerException e) {
             e.printStackTrace();
         }
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .build();
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this , this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
 
         mAuth = FirebaseAuth.getInstance();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                hideProgress();
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null && !user.isAnonymous()) {
                     // User is signed in
@@ -95,6 +84,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 }
             }
         };
+        mSignInClient = new SignInClient(this);
 
         displayLoadingState();
     }
@@ -126,7 +116,6 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            hideProgress();
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleGoogleSignInResult(result);
         }
@@ -153,7 +142,9 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
             GoogleSignInAccount account = result.getSignInAccount();
             firebaseAuthWithGoogle(account);
         } else {
-            Toast.makeText(this, R.string.error_google_sign_in, Toast.LENGTH_SHORT).show();
+            hideProgress();
+            Utils.showSnackBar(this, getString( R.string.error_google_sign_in),
+                    Snackbar.LENGTH_SHORT, "", null);
         }
     }
 
@@ -163,25 +154,18 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Needle.onBackgroundThread().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    FirebaseInstanceId.getInstance().deleteInstanceId();
-                                } catch (IOException e) {
-                                }
-                            }
-                        });
-
                         if (!task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, R.string.error_google_sign_in, Toast.LENGTH_SHORT).show();
+                            hideProgress();
+                            Utils.showSnackBar(LoginActivity.this,
+                                    getString( R.string.error_google_sign_in),
+                                    Snackbar.LENGTH_SHORT, "", null);
                         }
                     }
                 });
     }
 
     public void attemptGoogleSignIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mSignInClient.getGoogleApiClient());
         startActivityForResult(signInIntent, RC_SIGN_IN);
         showProgress();
     }

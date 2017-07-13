@@ -170,6 +170,12 @@ public class AppFeedback implements View.OnClickListener{
         showAppRate();
     }
 
+    public void hide(){
+        if(null != mainView) {
+            hideAllViews(mainView);
+        }
+    }
+
     private void incrementViews() {
 
         editor.putInt(KEY_COUNT, settings.getInt(KEY_COUNT, 0) + 1);

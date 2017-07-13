@@ -1,0 +1,12 @@
+<resources xmlns:xliff="http://schemas.android.com/tools">
+
+    <string-array name="alert_frequency">
+        <item>Onetime</item>
+        <item>Persistent</item>
+    </string-array>
+
+    <string-array name="alert_condition">
+        <item>&lt;</item>
+        <item>&gt;</item>
+    </string-array>
+</resources>

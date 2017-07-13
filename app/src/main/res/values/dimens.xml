@@ -11,7 +11,7 @@
 
     <!--MaterialProgressBar-->
     <dimen name="progress_bar_size">70dp</dimen>
-    <dimen name="progress_bar_small_size">60dp</dimen>
+    <dimen name="progress_bar_small_size">45dp</dimen>
     <dimen name="default_stroke_width">4dp</dimen>
     <integer name="default_min_sweep_angle">20</integer>
     <integer name="default_max_sweep_angle">300</integer>
@@ -30,4 +30,7 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
     <dimen name="spinner_max_height">250dp</dimen>
+
+    <dimen name="activity_margin">16dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
 </resources>

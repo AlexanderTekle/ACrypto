@@ -23,6 +23,12 @@
         <item name="android:layout_width">@dimen/progress_bar_size</item>
     </style>
 
+    <style name="MaterialProgress.Small" parent="@style/Widget.AppCompat.ProgressBar">
+        <item name="android:indeterminate">true</item>
+        <item name="android:layout_height">@dimen/progress_bar_small_size</item>
+        <item name="android:layout_width">@dimen/progress_bar_small_size</item>
+    </style>
+
     <style name="ButtonAppTheme" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:gravity">center_vertical</item>
         <item name="android:minHeight">48dp</item>
@@ -34,6 +40,10 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
+    <style name="MyButton" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+        <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="colorButtonNormal">@color/colorAccent</item>
+    </style>
 
     <style name="MyTitleText">
         <item name="android:textSize">20sp</item>
@@ -64,6 +74,10 @@
 
     <style name="ToolbarSubTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
         <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorAccent</item>
     </style>
 
 </resources>

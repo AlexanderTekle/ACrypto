@@ -15,6 +15,38 @@
       },
       "oauth_client": [
         {
+          "client_id": "274399993168-h7cssma7vh1v64qvtr8khg8tdi71sujm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.dworks.apps.acrypto",
+            "certificate_hash": "03805b67abd2b63153f9e1a7c869f1fe1d8cf569"
+          }
+        },
+        {
+          "client_id": "274399993168-m9mmtgg96b1cup6sf6797i1s187r1gk1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.dworks.apps.acrypto",
+            "certificate_hash": "fd3a012d52a35d04da5b450d4b68828a5e47f1fa"
+          }
+        },
+        {
+          "client_id": "274399993168-c4i716mq1pies7dlvc9nsu4sn3bv38v5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.dworks.apps.acrypto",
+            "certificate_hash": "3e52782763e9e699cc1871ea32ec551a533de411"
+          }
+        },
+        {
+          "client_id": "274399993168-uvjkj35d5nc6oq57hs269879o7ropalq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.dworks.apps.acrypto",
+            "certificate_hash": "7d91c9612c1487679974af58b67fab1e86dc3ea8"
+          }
+        },
+        {
           "client_id": "274399993168-g81pptgqup3cuhi20n6fi81ui71ek4pl.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +61,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274399993168-g81pptgqup3cuhi20n6fi81ui71ek4pl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

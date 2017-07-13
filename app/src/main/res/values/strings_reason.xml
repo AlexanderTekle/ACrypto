@@ -1,0 +1,53 @@
+<resources xmlns:xliff="http://schemas.android.com/tools">
+
+    <string name="trail_reason">Currently all PRO features are free but will be part of subscription soon.</string>
+    <string name="paid_reason">Why isn\'t ACrypto free?</string>
+    <string name="paid_reason_description">
+        ACrypto is mostly free where you can see different prices of crypto currencies along 
+        different exchanges, coins list. Getting arbitrage between currencies, setting alerts for 
+        price drops and maintaining portfolio across is not. Why?
+        \n\n
+        Because this is not a venture-capital funded startup. It\'s bootstrapped! We don\'t 
+        have any external funding on purpose. The problem with so many venture-capital funded 
+        startups is that their investors force them to grow fast in user base without making any 
+        money in the first few years, to then sell out to BigCo (e.g. Google, Facebook) for a few 
+        million dollars, then write a blog post about their incredible journey, then either shut 
+        the app down, or fuck over their users by filling the service with ads.
+        \n\n
+        That sucks, right? I don\'t get that. I don\'t like that.The reason people do that 
+        because they\'re trying to make a quick buck. I get it. I\'d love to too. But the
+        odds of actual success are very low in that realm.
+        \n\n
+        So I\'d rather go for higher odds of success, try to make money on day one, and not 
+        make a billion dollars but just make good money to live off. Maybe I can hire a few people
+        then later on. Maybe I even get funding later, but then it should be money that\'s 
+        really necessary. Maybe I\'d actually get acquired later too. But it\'d have to be 
+        good for the users in the first place. And there shouldn\'t be the extreme high growth 
+        trajectory which will then fuck over my users.
+        \n\n
+        The challenge of going this way is that you can\'t offer everything for free, like 
+        Facebook or Google or any other funded startup does. You have to get money somehow. I 
+        could make money in sneaky ways like selling your user data, but that\'d suck and 
+        honestly it wouldn\'t make that much money at this scale. So the fastest way is 
+        simply asking you, as a user of this app, for money.
+        \n\n
+        If every additional user is putting money in the developers\' pockets, then
+        you\'re less likely to see the app disappear overnight. If every new user is costing
+        the developers money, and the app is really taking off, then get ready to read about
+        those synergies.
+        \n\n
+        I love free software and could not have built my app without it. But free
+        services are not like free software. If your free software project suddenly gets
+        popular, you gain resources, testers, developers and people willing to pitch in.
+        If your free app takes off, you lose resources. Your time is spent firefighting and
+        your money all goes to the nice people at AWS.
+        \n\n
+        Remember, right now this app is mostly me on a laptop coding my way through life. I
+        love it and it\'s super fun but it also means that if I can\'t make any money with
+        it I have literally no money and I\'ll have to get some desk job and this app won\'t 
+        exist.
+        \n\n
+        So if you like what I do and want ACrypto to survive, please support this app and
+        become a paid member.
+    </string>
+</resources>

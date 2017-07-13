@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.android.volley.Cache;
@@ -208,7 +207,7 @@ public class CoinChartFragment extends ActionBarFragment
     private void setCurrencyToSpinner() {
         mCurrencyToSpinner.getPopupWindow().setWidth(300);
         mCurrencyToSpinner.setItems(getCurrencyToList());
-        setSpinnerToValue(mCurrencyToSpinner, getCurrentCurrencyTo());
+        Utils.setSpinnerValue(mCurrencyToSpinner, CURRENCY_FROM_DEFAULT, getCurrentCurrencyTo());
         mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
@@ -338,7 +337,7 @@ public class CoinChartFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(5);
+        request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG);
         fetchExchangeData();
@@ -360,7 +359,7 @@ public class CoinChartFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Exchanges prices) {
                         mExchangeSpinner.setItems(prices.getAllData());
-                        setSpinnerValue(mExchangeSpinner, getCurrentExchange());
+                        Utils.setSpinnerValue(mExchangeSpinner, ALL_EXCHANGES, getCurrentExchange());
                     }
                 },
                 new Response.ErrorListener() {
@@ -369,6 +368,7 @@ public class CoinChartFragment extends ActionBarFragment
 
                     }
                 });
+        request.setCacheMinutes(1440, 1440);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG+"exchanges");
     }
@@ -376,7 +376,7 @@ public class CoinChartFragment extends ActionBarFragment
     public void setDefaultValues(Prices.Price currentPrice){
         setPriceValue(mValue, currentPrice.close);
         setDateTimeValue(mTime, getMillisFromTimestamp(currentPrice.time));
-        mVolume.setText(String.format("%.2f", currentPrice.volumefrom));
+        mVolume.setText("Vol. " + String.format("%.2f", currentPrice.volumefrom));
     }
 
     public void setDefaultValues(){
@@ -594,7 +594,7 @@ public class CoinChartFragment extends ActionBarFragment
         setDefaultValues(price);
         Bundle bundle = new Bundle();
         bundle.putString("currency", getCurrentCurrencyName());
-        AnalyticsManager.logEvent("price_highlighted", bundle);
+        AnalyticsManager.logEvent("details_price_highlighted", bundle);
     }
 
     @Override
@@ -782,39 +782,5 @@ public class CoinChartFragment extends ActionBarFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getChartUrl());
-    }
-
-
-    public void setSpinnerValue(Spinner spinner, String value) {
-        int index = 0;
-        if (value.compareTo(getCurrentCurrencyFrom()) == 0
-                || value.compareTo(ALL_EXCHANGES) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
-    }
-
-    public void setSpinnerToValue(Spinner spinner, String value) {
-        int index = 0;
-        if (value.compareTo(CURRENCY_FROM_DEFAULT) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
     }
 }
