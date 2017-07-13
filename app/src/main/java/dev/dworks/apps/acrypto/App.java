@@ -34,6 +34,7 @@ import java.util.Locale;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
+import dev.dworks.apps.acrypto.entity.DefaultData;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
@@ -76,6 +77,7 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	private boolean isSubscriptionActive;
 	private SkuDetails skuDetails;
 	private FirebaseRemoteConfig mFirebaseRemoteConfig;
+	private DefaultData defaultData;
 
 	@Override
 	public void onCreate() {
@@ -108,6 +110,7 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 		LocalBurst.initialize(getApplicationContext());
+		loadDefaultData();
 		loadCoinSymbols();
 		loadCurrencyList();
 		loadCoinDetails();
@@ -189,6 +192,13 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		coinDetails = gson.fromJson(symbolsString, CoinDetailSample.class);
 	}
 
+	private void loadDefaultData() {
+		defaultData = new DefaultData();
+		String data = Utils.getStringAsset(this, "coins_top.json");
+		Gson gson = new Gson();
+		defaultData = gson.fromJson(data, DefaultData.class);
+	}
+
 	private void loadCoinIgnore() {
 		FirebaseHelper.getFirebaseDatabaseReference().child("master/coins_ignore")
 				.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -220,6 +230,13 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 			return new ArrayList<>();
 		}
 		return coinsIgnore;
+	}
+
+	public DefaultData getDefaultData(){
+		if(null == defaultData) {
+			return new DefaultData();
+		}
+		return defaultData;
 	}
 
 	public CoinDetailSample getCoinDetails(){

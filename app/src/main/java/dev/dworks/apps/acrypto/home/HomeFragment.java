@@ -568,7 +568,7 @@ public class HomeFragment extends ActionBarFragment
     }
 
     public boolean isTopAltCoin(){
-        return mCurrencyFromSpinner.getSelectedIndex() <= LIMIT_ALT;
+        return App.getInstance().getDefaultData().coins_top.contains(getCurrentCurrencyFrom());
     }
 
     public static String getCurrentCurrencyFrom(){
