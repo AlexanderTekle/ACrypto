@@ -15,6 +15,7 @@ import dev.dworks.apps.acrypto.entity.User;
 
 import static dev.dworks.apps.acrypto.App.APP_VERSION;
 import static dev.dworks.apps.acrypto.entity.User.USERS;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -87,6 +88,7 @@ public class FirebaseHelper {
         childUpdates.put("uid", firebaseUser.getUid());
         childUpdates.put("photoUrl", photoUrl);
         childUpdates.put("appVersion", APP_VERSION);
+        childUpdates.put("nativeCurrency", getUserCurrencyFrom());
 
         String instanceId = FirebaseInstanceId.getInstance().getToken();
         if (instanceId != null) {
@@ -141,6 +143,17 @@ public class FirebaseHelper {
                 .updateChildren(childUpdates);
     }
 
+    public static void updateNativeCurrency(String currency) {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(!isLoggedIn()){
+            return;
+        }
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("nativeCurrency", currency);
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(firebaseUser.getUid())
+                .updateChildren(childUpdates);
+    }
 
     public static void startMasterDataSync() {
         FirebaseHelper.syncData("master/coins", true);

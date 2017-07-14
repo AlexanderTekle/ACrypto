@@ -9,18 +9,21 @@
     "order" : 3
   },
   "EUR" : {
-    "order" : 4
-  },
-  "CNY" : {
     "order" : 5
   },
+  "CNY" : {
+    "order" : 4
+  },
   "JPY" : {
-    "order" : 7
+    "order" : 6
   },
   "KRW" : {
-    "order" : 8
+    "order" : 7
   },
   "GBP" : {
-    "order" : 6
+    "order" : 8
+  },
+  "AUD" : {
+    "order" : 9
   }
 }
