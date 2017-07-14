@@ -153,6 +153,13 @@
                     android:text="1Y"
                     android:textColor="@color/colorPrimaryDark" />
 
+                <RadioButton
+                    android:id="@+id/timeseries_year5"
+                    style="@style/RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5Y"
+                    android:textColor="@color/colorPrimaryDark" />
             </RadioGroup>
 
             <View

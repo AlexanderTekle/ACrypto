@@ -631,6 +631,10 @@ public class CoinChartFragment extends ActionBarFragment
                 currentTimeseries = TIMESERIES_YEAR;
                 type = "year";
                 break;
+            case R.id.timeseries_year5:
+                currentTimeseries = TIMESERIES_YEAR;
+                type = "year";
+                break;
         }
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
@@ -716,8 +720,7 @@ public class CoinChartFragment extends ActionBarFragment
             case TIMESERIES_ALL:
                 url = UrlManager.with(UrlConstant.HISTORY_DAY_URL)
                         .setDefaultParams(getDefaultParams())
-                        .removeParam("limit")
-                        .setParam("allData", "true")
+                        .setParam("limit", "1825")
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_MONTH;
                 break;

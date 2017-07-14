@@ -158,6 +158,8 @@
                     android:layout_marginTop="5dp"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
                     tools:text="since last week" />
             </LinearLayout>
         </LinearLayout>
@@ -226,6 +228,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1Y" />
+
+                <RadioButton
+                    android:id="@+id/timeseries_year5"
+                    style="@style/RadioButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5Y" />
 
             </RadioGroup>
 

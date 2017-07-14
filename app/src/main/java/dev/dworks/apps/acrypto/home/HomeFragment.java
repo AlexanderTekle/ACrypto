@@ -839,6 +839,10 @@ public class HomeFragment extends ActionBarFragment
                 currentTimeseries = TIMESERIES_YEAR;
                 type = "year";
                 break;
+            case R.id.timeseries_year5:
+                currentTimeseries = TIMESERIES_ALL;
+                type = "year";
+                break;
         }
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
@@ -936,10 +940,11 @@ public class HomeFragment extends ActionBarFragment
             case TIMESERIES_ALL:
                 url = UrlManager.with(UrlConstant.HISTORY_DAY_URL)
                         .setDefaultParams(getDefaultParams())
-                        .removeParam("limit")
-                        .setParam("allData", "true")
+                        .setParam("limit", "1825")
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_MONTH;
+                changeTimestamp = getTimestamp(1825);
+                timeDifference = "5 years";
                 break;
         }
 
