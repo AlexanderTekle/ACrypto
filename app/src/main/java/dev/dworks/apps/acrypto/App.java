@@ -345,7 +345,10 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
 		setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
 		bp.loadOwnedPurchasesFromGoogle();
+		reloadSubscription();
+	}
 
+	public void reloadSubscription() {
 		skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
 		isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
 		if (isSubscribedMonthly) {
@@ -356,7 +359,6 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		selfHack();
 		LocalBurst.getInstance().emit(BILLING_ACTION);
 		FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
-
 	}
 
 	private void selfHack() {
@@ -375,7 +377,7 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 
 	@Override
 	public void onPurchaseHistoryRestored() {
-
+		reloadSubscription();
 	}
 
 	@Override

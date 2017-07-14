@@ -93,6 +93,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
                     public void onClick(DialogInterface dialog, int which) {
                         FirebaseHelper.logout();
                         Auth.GoogleSignInApi.signOut(mSignInClient.getGoogleApiClient());
+                        FirebaseHelper.signInAnonymously();
                         getActivity().setResult(RESULT_FIRST_USER);
                         getActivity().finish();
 

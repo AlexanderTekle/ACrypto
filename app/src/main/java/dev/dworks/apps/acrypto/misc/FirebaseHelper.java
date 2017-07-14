@@ -23,12 +23,13 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyF
 
 public class FirebaseHelper {
 
-    public static void signInAnonymously(){
+    public static FirebaseUser signInAnonymously(){
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(null == currentUser) {
             mAuth.signInAnonymously();
         }
+        return currentUser;
     }
 
     public static FirebaseAuth getFirebaseAuth(){

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity
         Utils.OnFragmentInteractionListener, LocalBurst.OnBroadcastListener {
 
     private static final int SETTINGS = 47;
+    private static final int LOGIN = 619;
     private static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
@@ -379,15 +381,28 @@ public class MainActivity extends AppCompatActivity
             if(requestCode == SETTINGS){
                 if(resultCode == RESULT_FIRST_USER){
                     updateUserDetails();
-                    App.getInstance().onPurchaseHistoryRestored();
+                    refreshData();
+                    App.getInstance().reloadSubscription();
                 }
-            }
-            else if (requestCode == REQUEST_INVITE) {
+            } else if(requestCode == LOGIN){
+                if(resultCode == RESULT_FIRST_USER){
+                    updateUserDetails();
+                    refreshData();
+                    App.getInstance().reloadSubscription();
+                }
+            } else if (requestCode == REQUEST_INVITE) {
                 if (resultCode == RESULT_OK) {
                     Utils.showSnackBar(this, "Invitations sent!");
                 }
             }
             super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void refreshData() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if(null != fragment && fragment instanceof AlertFragment){
+            AlertFragment.show(getSupportFragmentManager());
         }
     }
 
@@ -463,7 +478,7 @@ public class MainActivity extends AppCompatActivity
         if(!FirebaseHelper.isLoggedIn()) {
             AnalyticsManager.logEvent("view_login");
             Intent login = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(login);
+            startActivityForResult(login, LOGIN);
         }
     }
 

@@ -10,6 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
@@ -86,6 +87,15 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
         super.onDataChanged();
         if (null != onDataChangeListener) {
             onDataChangeListener.onDataChanged();
+        }
+    }
+
+    @Override
+    public void onCancelled(DatabaseError error) {
+        super.onCancelled(error);
+        cleanup();
+        if (null != onDataChangeListener) {
+            onDataChangeListener.onCancelled();
         }
     }
 
