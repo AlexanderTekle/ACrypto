@@ -42,13 +42,13 @@
             android:icon="@drawable/ic_menu_settings"
             android:title="Settings" />
         <item
-            android:id="@+id/nav_share"
-            android:icon="@drawable/ic_menu_share"
-            android:title="Share" />
+            android:id="@+id/nav_feedback"
+            android:icon="@drawable/ic_feedback"
+            android:title="Feed us back" />
         <item
             android:id="@+id/nav_about"
             android:icon="@drawable/ic_about"
-            android:title="About" />
+            android:title="About us" />
     </group>
 
 </menu>

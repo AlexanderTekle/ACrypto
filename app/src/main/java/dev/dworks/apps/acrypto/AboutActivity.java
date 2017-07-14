@@ -17,6 +17,7 @@
 package dev.dworks.apps.acrypto;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
@@ -24,17 +25,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
-import dev.dworks.apps.acrypto.utils.ColorUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.utils.Utils.openCustomTabUrl;
 import static dev.dworks.apps.acrypto.utils.Utils.openFeedback;
 import static dev.dworks.apps.acrypto.utils.Utils.openPlaystore;
+import static dev.dworks.apps.acrypto.utils.Utils.showLicenseDialog;
 
 public class AboutActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -51,30 +51,24 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 		mToolbar.setBackgroundColor(color);
 		setSupportActionBar(mToolbar);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		getSupportActionBar().setTitle(null);
+		getSupportActionBar().setTitle(TAG);
 		initControls();
 	}
 
 	private void initControls() {
 
-		int accentColor = ColorUtils.getTextColorForBackground(ContextCompat.getColor(this, R.color.colorPrimary));
-		TextView logo = (TextView)findViewById(R.id.logo);
-		logo.setTextColor(accentColor);
-		String header = logo.getText() + " v" + BuildConfig.VERSION_NAME
-				+ (BuildConfig.DEBUG ? " Debug" : "");
-		logo.setText(header);
+		TextView appVersion = (TextView)findViewById(R.id.app_version);
+		appVersion.setText( BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ") "
+				+ (BuildConfig.DEBUG ? " Debug" : ""));
 
-		TextView action_rate = (TextView)findViewById(R.id.action_rate);
-		TextView action_support = (TextView)findViewById(R.id.action_support);
-		TextView action_share = (TextView)findViewById(R.id.action_share);
-		TextView action_feedback = (TextView)findViewById(R.id.action_feedback);
-		ImageView action_provider = (ImageView) findViewById(R.id.action_provider);
-
-		action_rate.setOnClickListener(this);
-		action_support.setOnClickListener(this);
-		action_share.setOnClickListener(this);
-		action_feedback.setOnClickListener(this);
-		action_provider.setOnClickListener(this);
+		findViewById(R.id.rating).setOnClickListener(this);
+		findViewById(R.id.support).setOnClickListener(this);
+		findViewById(R.id.share).setOnClickListener(this);
+		findViewById(R.id.feedback).setOnClickListener(this);
+		findViewById(R.id.provider).setOnClickListener(this);
+		findViewById(R.id.licenses).setOnClickListener(this);
+		findViewById(R.id.twitter).setOnClickListener(this);
+		findViewById(R.id.gplus).setOnClickListener(this);
 	}
 
 	@Override
@@ -103,33 +97,29 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 	@Override
 	public void onClick(View view) {
 		switch (view.getId()) {
-/*			case R.id.action_github:
+			case R.id.gplus:
 				startActivity(new Intent("android.intent.action.VIEW",
-						Uri.parse("https://github.com/DWorkS")));
+						Uri.parse("https://plus.google.com/communities/104409384894430471343")));
+				AnalyticsManager.logEvent("open_gplus");
 				break;
-			case R.id.action_gplus:
-				startActivity(new Intent("android.intent.action.VIEW",
-						Uri.parse("https://plus.google.com/+HariKrishnaDulipudi")));
-				break;
-			case R.id.action_twitter:
+			case R.id.twitter:
 				startActivity(new Intent("android.intent.action.VIEW",
 						Uri.parse("https://twitter.com/1HaKr")));
-				break;*/
-			case R.id.action_feedback:
+				AnalyticsManager.logEvent("open_twitter");
+				break;
+			case R.id.feedback:
 				openFeedback(this);
 				AnalyticsManager.logEvent("open_feedback");
 				break;
-			case R.id.action_rate:
+			case R.id.rating:
 				openPlaystore(this);
 				AnalyticsManager.logEvent("open_rating");
 				break;
-			case R.id.action_support:
-				Intent intentMarketAll = new Intent("android.intent.action.VIEW");
-				intentMarketAll.setData(Utils.getAppStoreUri());
-				startActivity(intentMarketAll);
-				AnalyticsManager.logEvent("open_love");
+			case R.id.support:
+				Utils.showReason(this);
+				AnalyticsManager.logEvent("open_reason");
 				break;
-			case R.id.action_share:
+			case R.id.share:
 
 				String shareText = "I found this crypto currency trends app very useful. Give it a try. "
 						+ Utils.getAppShareUri().toString();
@@ -141,10 +131,16 @@ public class AboutActivity extends AppCompatActivity implements View.OnClickList
 						.startChooser();
 				AnalyticsManager.logEvent("open_share");
 				break;
-			case R.id.action_provider:
+			case R.id.provider:
 				openCustomTabUrl(this, UrlConstant.BASE_URL);
 				AnalyticsManager.logEvent("open_provider");
 				break;
+
+			case R.id.licenses:
+				showLicenseDialog(this);
+				AnalyticsManager.logEvent("open_licenses");
+				break;
+
 		}
 	}
 }

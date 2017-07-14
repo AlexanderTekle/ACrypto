@@ -140,6 +140,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     @Override
     public void onErrorResponse(VolleyError error) {
         setListShown(true);
+        mAdapter.clear();
         if (!Utils.isNetConnected(getActivity())) {
             setEmptyText("No Internet");
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {

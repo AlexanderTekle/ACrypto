@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         Utils.OnFragmentInteractionListener, LocalBurst.OnBroadcastListener {
 
-    private static final int SETTINGS = 47;
-    private static final int LOGIN = 619;
+    public static final int SETTINGS = 47;
+    public static final int LOGIN = 619;
     private static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
@@ -335,9 +335,9 @@ public class MainActivity extends AppCompatActivity
                 AnalyticsManager.logEvent("view_about");
                 return true;
 
-            case R.id.nav_share:
-                sendInvite();
-                AnalyticsManager.logEvent("view_share");
+            case R.id.nav_feedback:
+                Utils.openFeedback(this);
+                AnalyticsManager.logEvent("view_feedback");
                 return true;
 
             case R.id.nav_sponsor:
@@ -475,11 +475,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void openLoginActivity() {
-        if(!FirebaseHelper.isLoggedIn()) {
-            AnalyticsManager.logEvent("view_login");
-            Intent login = new Intent(MainActivity.this, LoginActivity.class);
-            startActivityForResult(login, LOGIN);
-        }
+        Utils.openLoginActivity(this);
+        AnalyticsManager.logEvent("view_login");
     }
 
     @Override
