@@ -210,7 +210,7 @@ public class ArbitrageFragment extends ActionBarFragment{
                 Bundle bundle = new Bundle();
                 bundle.putString("coin", getCurrentCurrencyFrom());
                 bundle.putString("currency_two", getCurrentCurrencyOneTwoName());
-                AnalyticsManager.logEvent("exchange_filtered", bundle);
+                AnalyticsManager.logEvent("currency_filtered", bundle);
             }
         });
     }
@@ -264,11 +264,11 @@ public class ArbitrageFragment extends ActionBarFragment{
     }
 
     public static String getCurrentCurrencyOneName(){
-        return getCurrentCurrencyFrom() + "/" + getCurrentCurrencyOne();
+        return getCurrentCurrencyOne();
     }
 
     public static String getCurrentCurrencyTwoName(){
-        return getCurrentCurrencyFrom() + "/" + getCurrentCurrencyTwo();
+        return getCurrentCurrencyTwo();
     }
 
     public static String getCurrentCurrencyOneTwoName(){

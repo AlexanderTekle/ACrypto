@@ -1,5 +1,6 @@
 package dev.dworks.apps.acrypto;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -8,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import com.android.volley.VolleyLog;
 import com.anjlab.android.iab.v3.BillingProcessor;
@@ -70,7 +72,6 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	private String defaultCurrencyCode;
 	public boolean isSubsUpdateSupported;
 	public boolean isOneTimePurchaseSupported;
-	public boolean isBillingInitialized;
 	private BillingProcessor bp;
 	private boolean isSubscribedMonthly;
 	private boolean autoRenewing;
@@ -289,11 +290,6 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		return defaultCurrencyCode;
 	}
 
-
-	public void setBillingInitialized(boolean billingInitialized) {
-		isBillingInitialized = billingInitialized;
-	}
-
 	public void setOneTimePurchaseSupported(boolean oneTimePurchaseSupported) {
 		isOneTimePurchaseSupported = oneTimePurchaseSupported;
 	}
@@ -341,7 +337,9 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 
 	@Override
 	public void onBillingInitialized() {
-		setBillingInitialized(true);
+		if(!isBillingSupported()){
+			return;
+		}
 		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
 		setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
 		bp.loadOwnedPurchasesFromGoogle();
@@ -349,6 +347,9 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	}
 
 	public void reloadSubscription() {
+		if(!isBillingSupported()){
+			return;
+		}
 		skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
 		isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
 		if (isSubscribedMonthly) {
@@ -385,6 +386,9 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	}
 
 	public BillingProcessor getBillingProcessor() {
+		if(!isBillingSupported()){
+			return null;
+		}
 		if(null == bp) {
 			bp = BillingProcessor.newBillingProcessor(this,
 					getString(R.string.license_key), getString(R.string.merchant_id), this);
@@ -431,5 +435,13 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 
 	public boolean getTrailStatus(){
 		return mFirebaseRemoteConfig.getBoolean(TRAIL_STATUS);
+	}
+
+	public void subscribe(Activity activity, String productId){
+		if(isBillingSupported()) {
+			getBillingProcessor().subscribe(activity, productId);
+		} else {
+			Toast.makeText(activity, "Billing not supported", Toast.LENGTH_SHORT).show();
+		}
 	}
 }

@@ -126,7 +126,7 @@ public class ActionBarFragment extends Fragment {
 
     protected void subscribe() {
         if (FirebaseHelper.isLoggedIn()) {
-            App.getInstance().getBillingProcessor().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
+            App.getInstance().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
         } else {
             openLogin();
         }

@@ -830,7 +830,7 @@ public class Utils {
                         bundle.putString("type", "monthly");
                         AnalyticsManager.logEvent("view_subscription", bundle);
                         if (FirebaseHelper.isLoggedIn()) {
-                            App.getInstance().getBillingProcessor().subscribe(activity,
+                            App.getInstance().subscribe(activity,
                                     SUBSCRIPTION_MONTHLY_ID);
                         } else {
                             openLoginActivity(activity);
