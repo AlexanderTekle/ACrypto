@@ -13,6 +13,7 @@ import android.widget.TextView;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -125,6 +126,10 @@ public class ActionBarFragment extends Fragment {
     }
 
     protected void subscribe() {
+        Bundle bundle = new Bundle();
+        bundle.putString("source", "subscription");
+        bundle.putString("type", "monthly");
+        AnalyticsManager.logEvent("subscribe", bundle);
         if (FirebaseHelper.isLoggedIn()) {
             App.getInstance().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
         } else {

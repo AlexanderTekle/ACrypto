@@ -828,7 +828,7 @@ public class Utils {
                         Bundle bundle = new Bundle();
                         bundle.putString("source", "reason");
                         bundle.putString("type", "monthly");
-                        AnalyticsManager.logEvent("view_subscription", bundle);
+                        AnalyticsManager.logEvent("subscribe", bundle);
                         if (FirebaseHelper.isLoggedIn()) {
                             App.getInstance().subscribe(activity,
                                     SUBSCRIPTION_MONTHLY_ID);
