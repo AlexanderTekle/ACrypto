@@ -220,7 +220,7 @@ app.get('/crons/alerts/price', (req, res) => {
 app.get('/tests/crons/alerts/price', (req, res) => {
   return admin.database().ref(`/alerts/price`).once('value').then(alertSnapshot => {
     const promises = [];
-    const iamUser = 'hGYZLVvNzkNN0jJMKKDu70fIAom1';
+    const iamUser = functions.config().iamuser.userid;
     alertSnapshot.forEach(function(dataSnapshot) {
       dataSnapshot.forEach(function(data) {
         const userId = data.key;
@@ -319,8 +319,13 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
     if(subscriptionStatus != 1){
       //return logInfo("Subscription expired", {user: userId});
     }
+    //we removed an invalid instanceId, so just return
+    if(!instanceId){
+      return logInfo("No instanceId", {user: userId});
+    }
     // Check if there are any device tokens.
     if (!priceAlertSnapshot.hasChildren()) {
+      // TODO: remove the corresponding /alerts/price
       return logInfo("No alerts to send", {user: userId, key : comboKey});
     }
     logInfo("Alerts fetched", {user: userId, alert_count: priceAlertSnapshot.numChildren(), key : comboKey});
@@ -384,7 +389,16 @@ function sendNotification(userId, instanceId, payload, options) {
     response.results.forEach((result, index) => {
       const error = result.error;
       if (error) {
-        return reportError(error, {user: userId, token: instanceId});
+        reportError(error, {user: userId, token: instanceId});
+        if (error.code === 'messaging/invalid-registration-token' ||
+            error.code === 'messaging/registration-token-not-registered') {
+          return admin.database().ref(`/users/${userId}/instanceId`).remove().then(result => {
+            logInfo('Removed invalid instanceId', {user: userId, token: instanceId});
+          })
+          .catch(error => {
+            return reportError(error, {user: uid, type: 'database_write', context: 'delete instanceId'});
+          });
+        }
       }
       return logInfo("Successfully sent message", {user: userId, respnse : response});
     });
