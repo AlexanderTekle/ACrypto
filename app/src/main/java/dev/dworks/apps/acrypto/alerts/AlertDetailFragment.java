@@ -596,7 +596,7 @@ public class AlertDetailFragment extends ActionBarFragment
         }
         else{
             setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchCurrentPriceData();

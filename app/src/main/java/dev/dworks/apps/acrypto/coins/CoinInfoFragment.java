@@ -224,7 +224,7 @@ public class CoinInfoFragment extends ActionBarFragment
         }
         else{
             setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchData();
@@ -242,7 +242,7 @@ public class CoinInfoFragment extends ActionBarFragment
             setData();
         } else {
             setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchData();

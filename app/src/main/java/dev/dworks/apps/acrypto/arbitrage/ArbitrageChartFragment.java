@@ -377,7 +377,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
         else{
             setEmptyData("Something went wrong!");
             mControls.setVisibility(View.INVISIBLE);
-            Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchData(false);
