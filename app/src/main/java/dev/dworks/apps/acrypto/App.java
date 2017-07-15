@@ -44,8 +44,8 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
-import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
-import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
+	import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
+	import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -117,6 +117,7 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		loadCoinDetails();
 		loadCoinIgnore();
 
+		FirebaseHelper.checkInstanceIdValidity();
 		checkForAppUpdates();
 	}
 

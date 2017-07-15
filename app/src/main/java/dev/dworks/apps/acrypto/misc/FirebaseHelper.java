@@ -1,11 +1,16 @@
 package dev.dworks.apps.acrypto.misc;
 
+import android.text.TextUtils;
+
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
@@ -155,5 +160,40 @@ public class FirebaseHelper {
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
                 .child(firebaseUser.getUid())
                 .updateChildren(childUpdates);
+    }
+
+    public static void updateInstanceId() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(!isLoggedIn()){
+            return;
+        }
+        String instanceId = FirebaseInstanceId.getInstance().getToken();
+        FirebaseDatabase.getInstance().getReference()
+                .child(USERS)
+                .child(firebaseUser.getUid())
+                .child("instanceId")
+                .setValue(instanceId);
+    }
+
+    public static void checkInstanceIdValidity(){
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(!isLoggedIn()){
+            return;
+        }
+        FirebaseHelper.getFirebaseDatabaseReference("users/"+firebaseUser.getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                if(TextUtils.isEmpty(user.instanceId)){
+                    updateInstanceId();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }
