@@ -256,6 +256,7 @@ public class AlertDetailFragment extends ActionBarFragment
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
                 curencyFrom = item;
+                currencyExchange = "";
                 loadIcon();
                 fetchData();
             }
@@ -268,6 +269,7 @@ public class AlertDetailFragment extends ActionBarFragment
 
             @Override public void onItemSelected(Spinner view, int position, long id, String item) {
                 curencyTo = item;
+                currencyExchange = "";
                 loadSymbol();
                 fetchData();
             }

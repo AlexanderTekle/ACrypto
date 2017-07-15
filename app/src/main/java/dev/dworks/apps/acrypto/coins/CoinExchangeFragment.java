@@ -152,7 +152,7 @@ public class CoinExchangeFragment extends RecyclerFragment
         }
         else{
             setEmptyText("Something went wrong!");
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getView(), "Cant Connect to ACrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchDataTask();
@@ -171,6 +171,7 @@ public class CoinExchangeFragment extends RecyclerFragment
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.setCurrencySymbol(getCurrencySymbol(getCurrency()));
         mAdapter.clear();
+        String empty = "";
         if(null != mCoinDetails && mCoinDetails.isValidResponse()) {
             Collections.sort(mCoinDetails.data.exchanges, new Comparator<Coins.CoinDetail>() {
                 @Override
@@ -179,11 +180,10 @@ public class CoinExchangeFragment extends RecyclerFragment
                 }
             });
             mAdapter.setData(mCoinDetails.data.exchanges);
+        } else {
+            empty = "No Data";
         }
-        setEmptyText("");
-        if(null == mCoinDetails || TextUtils.isEmpty(mCoinDetails.response)){
-            setEmptyText("No Data");
-        }
+        setEmptyText(empty);
         setListShown(true);
     }
 
