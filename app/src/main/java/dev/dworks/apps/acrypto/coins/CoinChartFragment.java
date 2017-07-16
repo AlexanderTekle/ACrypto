@@ -433,7 +433,7 @@ public class CoinChartFragment extends ActionBarFragment
         else{
             setEmptyData("Something went wrong!");
             mControls.setVisibility(View.VISIBLE);
-            Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchData();
@@ -592,9 +592,6 @@ public class CoinChartFragment extends ActionBarFragment
     public void onValueSelected(Entry e, Highlight h) {
         Prices.Price price = (Prices.Price) e.getData();
         setDefaultValues(price);
-        Bundle bundle = new Bundle();
-        bundle.putString("currency", getCurrentCurrencyName());
-        AnalyticsManager.logEvent("details_price_highlighted", bundle);
     }
 
     @Override
@@ -631,6 +628,10 @@ public class CoinChartFragment extends ActionBarFragment
                 type = "month";
                 break;
             case R.id.timeseries_year:
+                currentTimeseries = TIMESERIES_YEAR;
+                type = "year";
+                break;
+            case R.id.timeseries_year5:
                 currentTimeseries = TIMESERIES_YEAR;
                 type = "year";
                 break;
@@ -719,8 +720,7 @@ public class CoinChartFragment extends ActionBarFragment
             case TIMESERIES_ALL:
                 url = UrlManager.with(UrlConstant.HISTORY_DAY_URL)
                         .setDefaultParams(getDefaultParams())
-                        .removeParam("limit")
-                        .setParam("allData", "true")
+                        .setParam("limit", "1825")
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_MONTH;
                 break;

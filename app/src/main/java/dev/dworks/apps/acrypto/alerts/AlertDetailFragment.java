@@ -22,8 +22,10 @@ import android.widget.TextView;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
 import org.json.JSONException;
@@ -37,9 +39,7 @@ import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
-import dev.dworks.apps.acrypto.entity.CoinDetails;
 import dev.dworks.apps.acrypto.entity.Coins;
-import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.entity.Exchanges;
 import dev.dworks.apps.acrypto.entity.PriceAlert;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -252,10 +252,11 @@ public class AlertDetailFragment extends ActionBarFragment
 
     private void setCurrencyFromSpinner() {
         mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<CoinDetails.Coin>() {
+        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
-            @Override public void onItemSelected(Spinner view, int position, long id, CoinDetails.Coin item) {
-                curencyFrom = item.code;
+            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
+                curencyFrom = item;
+                currencyExchange = "";
                 loadIcon();
                 fetchData();
             }
@@ -264,10 +265,11 @@ public class AlertDetailFragment extends ActionBarFragment
 
     private void setCurrencyToSpinner() {
         mCurrencyToSpinner.getPopupWindow().setWidth(300);
-        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
+        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
 
-            @Override public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
-                curencyTo = item.code;
+            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
+                curencyTo = item;
+                currencyExchange = "";
                 loadSymbol();
                 fetchData();
             }
@@ -311,52 +313,49 @@ public class AlertDetailFragment extends ActionBarFragment
     }
 
     private void fetchCurrencyFromData() {
-        String url = UrlManager.with(UrlConstant.COINS_API).getUrl();
-
-        GsonRequest<Coins> request = new GsonRequest<>(url,
-                Coins.class,
-                "",
-                new Response.Listener<Coins>() {
+        FirebaseHelper.getFirebaseDatabaseReference("master/coins")
+                .orderByChild("order")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onResponse(Coins coins) {
-                        mCurrencyFromSpinner.setItems(coins.coins);
-                        Utils.setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT, getCurrentCurrencyFrom());
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> coins = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            String coin = childSnapshot.getKey();
+                            coins.add(coin);
+                        }
+                        mCurrencyFromSpinner.setItems(coins);
+                        Utils.setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT,
+                                getCurrentCurrencyFrom());
                     }
-                },
-                new Response.ErrorListener() {
+
                     @Override
-                    public void onErrorResponse(VolleyError volleyError) {
+                    public void onCancelled(DatabaseError databaseError) {
 
                     }
                 });
-        request.setDontExpireCache();
-        request.setShouldCache(true);
-        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_from");
     }
 
     private void fetchCurrencyToData() {
-        String url = UrlManager.with(UrlConstant.CURRENCY_API).getUrl();
-
-        GsonRequest<Currencies> request = new GsonRequest<>(url,
-                Currencies.class,
-                "",
-                new Response.Listener<Currencies>() {
+        FirebaseHelper.getFirebaseDatabaseReference("master/currency")
+                .orderByChild("order")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onResponse(Currencies currencies) {
-                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> coins = new ArrayList<>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            String coin = childSnapshot.getKey();
+                            coins.add(coin);
+                        }
+                        mCurrencyToSpinner.setItems(getCurrencyToList(coins));
                         Utils.setSpinnerValue(mCurrencyToSpinner, (isTopAltCoin() ? CURRENCY_TO_DEFAULT
                                 : CURRENCY_FROM_DEFAULT), getCurrentCurrencyTo());
                     }
-                },
-                new Response.ErrorListener() {
+
                     @Override
-                    public void onErrorResponse(VolleyError volleyError) {
+                    public void onCancelled(DatabaseError databaseError) {
 
                     }
                 });
-        request.setDontExpireCache();
-        request.setShouldCache(true);
-        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "currency_to");
     }
 
     private void fetchExchangeData() {
@@ -547,14 +546,14 @@ public class AlertDetailFragment extends ActionBarFragment
                 || getCurrentExchange().equals(NO_EXCHANGES) ? "" : getCurrentExchange());
     }
 
-    private ArrayList<Currencies.Currency> getCurrencyToList(ArrayList<Currencies.Currency> currencies) {
-        ArrayList<Currencies.Currency> list = new ArrayList<>();
+    private ArrayList<String> getCurrencyToList(ArrayList<String> currencies) {
+        ArrayList<String> list = new ArrayList<>();
         if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
             if(isTopAltCoin()){
                 list.addAll(currencies);
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+                list.add(CURRENCY_FROM_DEFAULT);
             } else {
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+                list.add(CURRENCY_FROM_DEFAULT);
                 list.addAll(currencies);
             }
         } else {
@@ -599,7 +598,7 @@ public class AlertDetailFragment extends ActionBarFragment
         }
         else{
             setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getView(), "Cant Connect to Acrypto", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchCurrentPriceData();

@@ -151,7 +151,7 @@ public class CoinFragment extends RecyclerFragment
         }
         else{
             setEmptyText("Something went wrong!");
-            Utils.showRetrySnackBar(getView(), "Cant Connect to ACrypto", new View.OnClickListener() {
+            Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     fetchDataTask();

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<notices>
+    <notice>
+        <name>Volley Plus</name>
+        <url>https://github.com/DWorkS/VolleyPlus</url>
+        <copyright>Copyright 2017 Hari Krishna Dulipudi</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Local Burst</name>
+        <url>https://github.com/lykmapipo/local-burst</url>
+        <copyright>Copyright (c) 2017 lykmapipo, lykmapipo Group &amp;&amp; Contributors</copyright>
+        <license>MIT License</license>
+    </notice>
+    <notice>
+        <name>Custom ActivityOnCrash</name>
+        <url>https://github.com/Ereza/CustomActivityOnCrash</url>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>GSON</name>
+        <url>https://github.com/google/gson</url>
+        <copyright>Copyright 2008 Google Inc.</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>MP Android Chart</name>
+        <url>https://github.com/PhilJay/MPAndroidChart</url>
+        <copyright>Copyright 2016 Philipp Jahoda</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Money TextView</name>
+        <url>https://github.com/fabiomsr/MoneyTextView</url>
+        <copyright>Copyright 2016 Fabio Santana (fabiomsr)</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Material Spinner</name>
+        <url>https://github.com/jaredrummler/MaterialSpinner</url>
+        <copyright>Copyright (C) 2016 Jared Rummler</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>App Updater</name>
+        <url>https://github.com/javiersantos/AppUpdater</url>
+        <copyright>Copyright 2016 Javier Santos</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Licenses Dialog</name>
+        <url>https://github.com/PSDev/LicensesDialog</url>
+        <copyright>Copyright 2013-2017 Philip Schiffer</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Needle</name>
+        <url>https://github.com/ZsoltSafrany/needle</url>
+        <copyright>Copyright (c) 2014 Zsolt Safrany</copyright>
+        <license>MIT License</license>
+    </notice>
+    <notice>
+        <name>Android Support Libraries</name>
+        <url>http://developer.android.com/tools/support-library/index.html</url>
+        <copyright>Copyright (C) 2016 The Android Open Source Project</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Android In-App Billing v3 Library</name>
+        <url>https://github.com/anjlab/android-inapp-billing-v3</url>
+        <copyright>Copyright 2014 AnjLab</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+</notices>

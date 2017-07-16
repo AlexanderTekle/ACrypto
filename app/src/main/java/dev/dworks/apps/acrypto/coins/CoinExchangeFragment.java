@@ -140,6 +140,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     @Override
     public void onErrorResponse(VolleyError error) {
         setListShown(true);
+        mAdapter.clear();
         if (!Utils.isNetConnected(getActivity())) {
             setEmptyText("No Internet");
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
@@ -170,6 +171,7 @@ public class CoinExchangeFragment extends RecyclerFragment
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.setCurrencySymbol(getCurrencySymbol(getCurrency()));
         mAdapter.clear();
+        String empty = "";
         if(null != mCoinDetails && mCoinDetails.isValidResponse()) {
             Collections.sort(mCoinDetails.data.exchanges, new Comparator<Coins.CoinDetail>() {
                 @Override
@@ -178,11 +180,10 @@ public class CoinExchangeFragment extends RecyclerFragment
                 }
             });
             mAdapter.setData(mCoinDetails.data.exchanges);
+        } else {
+            empty = "No Data";
         }
-        setEmptyText("");
-        if(null == mCoinDetails || TextUtils.isEmpty(mCoinDetails.response)){
-            setEmptyText("No Data");
-        }
+        setEmptyText(empty);
         setListShown(true);
     }
 

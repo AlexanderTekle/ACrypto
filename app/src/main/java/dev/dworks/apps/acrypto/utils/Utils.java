@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -27,6 +28,7 @@ import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.text.TextUtilsCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -68,18 +70,23 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import de.psdev.licensesdialog.LicensesDialog;
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.BuildConfig;
+import dev.dworks.apps.acrypto.LoginActivity;
+import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.AppFeedback;
+import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.view.Spinner;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
+import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
 
 /**
  * Created by HaKr on 20-Sep-14.
@@ -99,6 +106,8 @@ public class Utils {
     public static final String IMAGE_BG_CACHE_DIR = "bgs";
 
     static final String TAG = "Utils";
+
+    public static final String APP_VERSION = "app_version";
 
     //Home
     public static final String BUNDLE_NAME = "bundle_name";
@@ -391,6 +400,8 @@ public class Utils {
         builder.setToolbarColor(ContextCompat.getColor(activity, R.color.colorPrimary));
         builder.setSecondaryToolbarColor(ContextCompat.getColor(activity, R.color.colorAccent));
         builder.setCloseButtonIcon(getVector2Bitmap(activity, R.drawable.ic_back));
+        builder.setStartAnimations(activity, 0, 0);
+        builder.setExitAnimations(activity, 0, 0);
         CustomTabsIntent customTabsIntent = builder.build();
         customTabsIntent.intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
         try {
@@ -550,6 +561,7 @@ public class Utils {
                 .setSubject("ACrypto Support")
                 .setType("text/email")
                 .setChooserTitle("Contact Support")
+                .setText("ACrypto app version v"+App.APP_VERSION)
                 .startChooser();
     }
 
@@ -560,6 +572,7 @@ public class Utils {
                 .setSubject("ACrypto Feedback")
                 .setType("text/email")
                 .setChooserTitle("Send Feedback")
+                .setText("ACrypto app version v"+App.APP_VERSION)
                 .startChooser();
     }
 
@@ -792,6 +805,46 @@ public class Utils {
             return Html.fromHtml(text, FROM_HTML_MODE_LEGACY);
         } else {
             return Html.fromHtml(text);
+        }
+    }
+
+    public static void showLicenseDialog(Context context) {
+        new LicensesDialog.Builder(context)
+                .setNotices(R.raw.notices)
+                .setTitle(R.string.licenses)
+                .setIncludeOwnLicense(true)
+                .build()
+                .showAppCompat();
+    }
+
+    public static void showReason(final Activity activity){
+        new AlertDialog.Builder(activity,
+                R.style.AppCompatAlertDialogStyle)
+                .setTitle(R.string.paid_reason)
+                .setMessage(R.string.paid_reason_description)
+                .setPositiveButton("I'll Subscribe", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("source", "reason");
+                        bundle.putString("type", "monthly");
+                        AnalyticsManager.logEvent("subscribe", bundle);
+                        if (FirebaseHelper.isLoggedIn()) {
+                            App.getInstance().subscribe(activity,
+                                    SUBSCRIPTION_MONTHLY_ID);
+                        } else {
+                            openLoginActivity(activity);
+                        }
+                    }
+                })
+                .setNegativeButton("Got It", null)
+                .show();
+    }
+
+    public static void openLoginActivity(Activity activity){
+        if(!FirebaseHelper.isLoggedIn()) {
+            Intent login = new Intent(activity, LoginActivity.class);
+            activity.startActivityForResult(login, MainActivity.LOGIN);
         }
     }
 }

@@ -78,8 +78,7 @@ public class LoginActivity extends AppCompatActivity implements GoogleApiClient.
                 if (user != null && !user.isAnonymous()) {
                     // User is signed in
                     FirebaseHelper.updateUser();
-                    Intent home = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(home);
+                    setResult(RESULT_FIRST_USER);
                     finish();
                 }
             }

@@ -32,6 +32,7 @@ public class RecyclerFragment extends ActionBarFragment {
 
     public interface onDataChangeListener {
         void onDataChanged();
+        void onCancelled();
     }
 
     public class RecyclerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

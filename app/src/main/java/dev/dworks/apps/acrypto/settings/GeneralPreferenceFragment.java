@@ -36,7 +36,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
         ListPreference preferenceCurrency = (ListPreference)findPreference(KEY_USER_CURRENCY);
         preferenceCurrency.setEntries(App.getInstance().getCurrencyCharsList().toArray(new CharSequence[0]));
         preferenceCurrency.setEntryValues(App.getInstance().getCurrencyCharsList().toArray(new CharSequence[0]));
-        preferenceCurrency.setDefaultValue(getUserCurrencyFrom());
+        preferenceCurrency.setValue(getUserCurrencyFrom());
         preferenceCurrency.setOnPreferenceClickListener(this);
         preferenceCurrency.setOnPreferenceChangeListener(this);
 
@@ -77,6 +77,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        FirebaseHelper.updateNativeCurrency(newValue.toString());
         Bundle bundle = new Bundle();
         bundle.putString("currency", newValue.toString());
         AnalyticsManager.logEvent("currency_changed", bundle);
@@ -92,6 +93,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
                     public void onClick(DialogInterface dialog, int which) {
                         FirebaseHelper.logout();
                         Auth.GoogleSignInApi.signOut(mSignInClient.getGoogleApiClient());
+                        FirebaseHelper.signInAnonymously();
                         getActivity().setResult(RESULT_FIRST_USER);
                         getActivity().finish();
 

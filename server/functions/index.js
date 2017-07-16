@@ -220,7 +220,7 @@ app.get('/crons/alerts/price', (req, res) => {
 app.get('/tests/crons/alerts/price', (req, res) => {
   return admin.database().ref(`/alerts/price`).once('value').then(alertSnapshot => {
     const promises = [];
-    const iamUser = 'hGYZLVvNzkNN0jJMKKDu70fIAom1';
+    const iamUser = functions.config().iamuser.userid;
     alertSnapshot.forEach(function(dataSnapshot) {
       dataSnapshot.forEach(function(data) {
         const userId = data.key;
@@ -232,6 +232,28 @@ app.get('/tests/crons/alerts/price', (req, res) => {
     return Promise.all(promises).then(results => {
         return res.status(200).json({alerts: 'triggered'});
     });
+  });
+});
+
+app.get('/tests/query', (req, res) => {
+  return admin.database().ref(`/user_alerts/price`).once('value').then(alertSnapshot => {
+    var messages = [];
+    var count = 0;
+    alertSnapshot.forEach(function(dataSnapshot) {
+      dataSnapshot.forEach(function(data) {
+        const userId = dataSnapshot.key;
+        const key = data.key;
+        const name = data.val().name;
+        const status = data.val().status;
+        const nameStatusIndex = data.val().nameStatusIndex;
+        if(!nameStatusIndex){
+          count++;
+          messages.push({user: userId, comboKey:name });
+          admin.database().ref(`/user_alerts/price/${userId}/${key}/nameStatusIndex`).set(name + status);
+        }
+      });
+    });
+    return res.status(200).json({count: count, query: messages});
   });
 });
 
@@ -297,8 +319,13 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
     if(subscriptionStatus != 1){
       //return logInfo("Subscription expired", {user: userId});
     }
+    //we removed an invalid instanceId, so just return
+    if(!instanceId){
+      return logInfo("No instanceId", {user: userId});
+    }
     // Check if there are any device tokens.
     if (!priceAlertSnapshot.hasChildren()) {
+      // TODO: remove the corresponding /alerts/price
       return logInfo("No alerts to send", {user: userId, key : comboKey});
     }
     logInfo("Alerts fetched", {user: userId, alert_count: priceAlertSnapshot.numChildren(), key : comboKey});
@@ -362,7 +389,16 @@ function sendNotification(userId, instanceId, payload, options) {
     response.results.forEach((result, index) => {
       const error = result.error;
       if (error) {
-        return reportError(error, {user: userId, token: instanceId});
+        reportError(error, {user: userId, token: instanceId});
+        if (error.code === 'messaging/invalid-registration-token' ||
+            error.code === 'messaging/registration-token-not-registered') {
+          return admin.database().ref(`/users/${userId}/instanceId`).remove().then(result => {
+            logInfo('Removed invalid instanceId', {user: userId, token: instanceId});
+          })
+          .catch(error => {
+            return reportError(error, {user: uid, type: 'database_write', context: 'delete instanceId'});
+          });
+        }
       }
       return logInfo("Successfully sent message", {user: userId, respnse : response});
     });
@@ -429,26 +465,6 @@ exports.createPriceAlert = functions.database.ref('/user_alerts/price/{uid}/{ale
   });
 });
 
-exports.updatePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onUpdate(event => {
-  const snapshot = event.data;
-  const uid = event.params.uid;
-  const comboKey = snapshot.current.val().name;
-  const prevComboKey = snapshot.previous.val().name;
-
-  if(prevComboKey == comboKey){
-    logInfo("Exists previous alert", {user: uid, key : comboKey});
-    return;
-  }
-  const removePromise = admin.database().ref(`/alerts/price/${prevComboKey}/${uid}`).remove();
-  const addPromise = admin.database().ref(`/alerts/price/${comboKey}/${uid}`).set(true);
-  return Promise.all([removePromise, addPromise]).then(result => {
-    logInfo("Removed and Added alert", {user: uid, key : comboKey});
-  })
-  .catch(error => {
-    return reportError(error, {user: uid, type: 'database_write', context: 'update alert'});
-  });
-});
-
 exports.deletePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onDelete(event => {
   const snapshot = event.data;
   const uid = event.params.uid;
@@ -459,5 +475,39 @@ exports.deletePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{ale
   })
   .catch(error => {
     return reportError(error, {user: uid, type: 'database_write', context: 'delete alert'});
+  });
+});
+
+exports.updateOnPriceAlertName = functions.database.ref('/user_alerts/price/{uid}/{alertId}/name').onUpdate(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const name = snapshot.current.val();
+  const prevName = snapshot.previous.val();
+
+  const removePromise = admin.database().ref(`/alerts/price/${prevName}/${uid}`).remove();
+  const addPromise = admin.database().ref(`/alerts/price/${name}/${uid}`).set(true);
+  return Promise.all([removePromise, addPromise]).then(result => {
+    logInfo("Removed and Added alert", {user: uid, key : name});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'update alert'});
+  });
+});
+
+exports.updateOnPriceAlertStatus = functions.database.ref('/user_alerts/price/{uid}/{alertId}/status').onUpdate(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const alertId = event.params.alertId;
+  const status = snapshot.current.val();
+
+  return admin.database().ref(`/user_alerts/price/${uid}/${alertId}`).once('value').then(snapshot => {
+    const name = snapshot.val().name;
+    if(status == 1){
+        logInfo("Added alert on status change", {user: uid, key : name});
+        return admin.database().ref(`/alerts/price/${name}/${uid}`).set(true);
+    } else {
+        logInfo("Removed alert on status change", {user: uid, key : name});
+        return admin.database().ref(`/alerts/price/${name}/${uid}`).remove();
+    }
   });
 });

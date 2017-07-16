@@ -31,6 +31,7 @@ public class PriceAlert implements Serializable{
         this.frequency = frequency;
         this.type = type;
         this.value = value;
+        this.nameStatusIndex = getNameStatusIndex();
     }
 
     public String getNameStatusIndex() {

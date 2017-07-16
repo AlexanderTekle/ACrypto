@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,8 +31,13 @@ import com.google.android.gms.appinvite.AppInviteInvitation;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.appinvite.FirebaseAppInvite;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
+
+import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
@@ -68,7 +74,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         Utils.OnFragmentInteractionListener, LocalBurst.OnBroadcastListener {
 
-    private static final int SETTINGS = 47;
+    public static final int SETTINGS = 47;
+    public static final int LOGIN = 619;
     private static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
@@ -165,6 +172,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadCoinsList() {
+        FirebaseHelper.getFirebaseDatabaseReference().child("master/coins_list").orderByChild("order")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        ArrayList<String> coins = new ArrayList<String>();
+                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+                            String currency = childSnapshot.getKey();
+                            coins.add(currency);
+                        }
+
+                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MainActivity.this,
+                                R.layout.item_spinner , coins);
+                        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinner.setAdapter(dataAdapter);
+                        SpinnerInteractionListener listener = new SpinnerInteractionListener(MainActivity.this);
+                        spinner.setOnTouchListener(listener);
+                        spinner.setOnItemSelectedListener(listener);
+                        setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
         String url = UrlManager.with(UrlConstant.COINS_LIST_API).getUrl();
 
         GsonRequest<CoinsList> request = new GsonRequest<>(url,
@@ -303,9 +335,9 @@ public class MainActivity extends AppCompatActivity
                 AnalyticsManager.logEvent("view_about");
                 return true;
 
-            case R.id.nav_share:
-                sendInvite();
-                AnalyticsManager.logEvent("view_share");
+            case R.id.nav_feedback:
+                Utils.openFeedback(this);
+                AnalyticsManager.logEvent("view_feedback");
                 return true;
 
             case R.id.nav_sponsor:
@@ -349,15 +381,28 @@ public class MainActivity extends AppCompatActivity
             if(requestCode == SETTINGS){
                 if(resultCode == RESULT_FIRST_USER){
                     updateUserDetails();
-                    App.getInstance().onPurchaseHistoryRestored();
+                    refreshData();
+                    App.getInstance().reloadSubscription();
                 }
-            }
-            else if (requestCode == REQUEST_INVITE) {
+            } else if(requestCode == LOGIN){
+                if(resultCode == RESULT_FIRST_USER){
+                    updateUserDetails();
+                    refreshData();
+                    App.getInstance().reloadSubscription();
+                }
+            } else if (requestCode == REQUEST_INVITE) {
                 if (resultCode == RESULT_OK) {
                     Utils.showSnackBar(this, "Invitations sent!");
                 }
             }
             super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void refreshData() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if(null != fragment && fragment instanceof AlertFragment){
+            AlertFragment.show(getSupportFragmentManager());
         }
     }
 
@@ -430,11 +475,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void openLoginActivity() {
-        if(!FirebaseHelper.isLoggedIn()) {
-            AnalyticsManager.logEvent("view_login");
-            Intent login = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(login);
-        }
+        Utils.openLoginActivity(this);
+        AnalyticsManager.logEvent("view_login");
     }
 
     @Override

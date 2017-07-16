@@ -1,23 +1,30 @@
 package dev.dworks.apps.acrypto;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
+import android.text.TextUtils;
+import android.widget.Toast;
 
-import com.android.volley.Response;
 import com.android.volley.VolleyLog;
-import com.android.volley.error.VolleyError;
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
+import com.github.javiersantos.appupdater.AppUpdater;
+import com.github.javiersantos.appupdater.enums.Display;
+import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -29,21 +36,16 @@ import java.util.Locale;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
-import dev.dworks.apps.acrypto.entity.CoinsList;
-import dev.dworks.apps.acrypto.entity.Currencies;
-import dev.dworks.apps.acrypto.entity.Symbols;
+import dev.dworks.apps.acrypto.entity.DefaultData;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
-import dev.dworks.apps.acrypto.misc.UrlConstant;
-import dev.dworks.apps.acrypto.misc.UrlManager;
-import dev.dworks.apps.acrypto.network.GsonRequest;
-import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
-import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
-import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
+	import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
+	import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -70,13 +72,13 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	private String defaultCurrencyCode;
 	public boolean isSubsUpdateSupported;
 	public boolean isOneTimePurchaseSupported;
-	public boolean isBillingInitialized;
 	private BillingProcessor bp;
 	private boolean isSubscribedMonthly;
 	private boolean autoRenewing;
 	private boolean isSubscriptionActive;
 	private SkuDetails skuDetails;
 	private FirebaseRemoteConfig mFirebaseRemoteConfig;
+	private DefaultData defaultData;
 
 	@Override
 	public void onCreate() {
@@ -109,75 +111,81 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 		LocalBurst.initialize(getApplicationContext());
-
-    	try {
-            final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
-    		APP_VERSION = info.versionName;
-    		APP_VERSION_CODE = info.versionCode;
-		} catch (NameNotFoundException e) {
-			APP_VERSION = "Unknown";
-			APP_VERSION_CODE = 0;
-			e.printStackTrace();
-		}
+		loadDefaultData();
 		loadCoinSymbols();
 		loadCurrencyList();
 		loadCoinDetails();
 		loadCoinIgnore();
+
+		FirebaseHelper.checkInstanceIdValidity();
+		checkForAppUpdates();
+	}
+
+	private void checkForAppUpdates() {
+
+		try {
+			final PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
+			APP_VERSION = info.versionName;
+			APP_VERSION_CODE = info.versionCode;
+			String currentVersion = PreferenceUtils.getStringPrefs(this, Utils.APP_VERSION, "");
+			if(TextUtils.isEmpty(currentVersion) || !currentVersion.equals(APP_VERSION)) {
+				PreferenceUtils.set(this, Utils.APP_VERSION, APP_VERSION);
+				FirebaseHelper.updateUserAppVersion(APP_VERSION);
+			}
+		} catch (PackageManager.NameNotFoundException e) {
+			APP_VERSION = "Unknown";
+			APP_VERSION_CODE = 0;
+			e.printStackTrace();
+		}
+        AppUpdater appUpdater = new AppUpdater(this)
+				.setUpdateFrom(UpdateFrom.GOOGLE_PLAY)
+				.setDisplay(Display.DIALOG);
+        appUpdater.start();
 	}
 
 	private void loadCurrencyList() {
 		currencyStrings = new ArrayList<>();
 		currencyChars = new ArrayList<>();
-		String url = UrlManager.with(UrlConstant.CURRENCY_API).getUrl();
-		GsonRequest<Currencies> request = new GsonRequest<>(url,
-				Currencies.class,
-				"",
-				new Response.Listener<Currencies>() {
-					@Override
-					public void onResponse(Currencies list) {
 
-						for (Currencies.Currency currency: list.currencies) {
-							currencyStrings.add(currency.code);
-							currencyChars.add(currency.code);
+		currencyStrings = new ArrayList<>();
+		currencyChars = new ArrayList<>();
+		FirebaseHelper.getFirebaseDatabaseReference().child("master/currency").orderByChild("order")
+				.addListenerForSingleValueEvent(new ValueEventListener() {
+					@Override
+					public void onDataChange(DataSnapshot dataSnapshot) {
+						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+							String currency = childSnapshot.getKey();
+							currencyStrings.add(currency);
+							currencyChars.add(currency);
 						}
 					}
-				},
-				new Response.ErrorListener() {
+
 					@Override
-					public void onErrorResponse(VolleyError volleyError) {
+					public void onCancelled(DatabaseError databaseError) {
 
 					}
 				});
-		request.setDontExpireCache();
-		request.setShouldCache(true);
-		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "currency");
 	}
 
 	private void loadCoinSymbols() {
-		String url = UrlManager.with(UrlConstant.SYMBOLS_API).getUrl();
 
-		GsonRequest<Symbols> request = new GsonRequest<>(url,
-				Symbols.class,
-				"",
-				new Response.Listener<Symbols>() {
+		FirebaseHelper.getFirebaseDatabaseReference().child("master/symbols")
+				.addListenerForSingleValueEvent(new ValueEventListener() {
 					@Override
-					public void onResponse(Symbols list) {
+					public void onDataChange(DataSnapshot dataSnapshot) {
 						symbols = new ArrayMap<>();
-
-						for (Symbols.Symbol sym: list.symbols) {
-							symbols.put(sym.code, sym.symbol);
+						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+							String currency = childSnapshot.getKey();
+							String symbol = (String) childSnapshot.getValue();
+							symbols.put(currency, symbol);
 						}
 					}
-				},
-				new Response.ErrorListener() {
+
 					@Override
-					public void onErrorResponse(VolleyError volleyError) {
+					public void onCancelled(DatabaseError databaseError) {
 
 					}
 				});
-		request.setDontExpireCache();
-		request.setShouldCache(true);
-		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "symbols");
 	}
 
 	private void loadCoinDetails() {
@@ -186,31 +194,30 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		coinDetails = gson.fromJson(symbolsString, CoinDetailSample.class);
 	}
 
+	private void loadDefaultData() {
+		defaultData = new DefaultData();
+		String data = Utils.getStringAsset(this, "coins_top.json");
+		Gson gson = new Gson();
+		defaultData = gson.fromJson(data, DefaultData.class);
+	}
+
 	private void loadCoinIgnore() {
-		String url = UrlManager.with(UrlConstant.COINS_IGNORE_API).getUrl();
-
-		GsonRequest<CoinsList> request = new GsonRequest<>(url,
-				CoinsList.class,
-				"",
-				new Response.Listener<CoinsList>() {
+		FirebaseHelper.getFirebaseDatabaseReference().child("master/coins_ignore")
+				.addListenerForSingleValueEvent(new ValueEventListener() {
 					@Override
-					public void onResponse(CoinsList list) {
+					public void onDataChange(DataSnapshot dataSnapshot) {
 						coinsIgnore = new ArrayList<>();
-
-						for (CoinsList.Currency currency: list.coins_list) {
-							coinsIgnore.add(currency.code);
+						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
+							String currency = childSnapshot.getKey();
+							coinsIgnore.add(currency);
 						}
 					}
-				},
-				new Response.ErrorListener() {
+
 					@Override
-					public void onErrorResponse(VolleyError volleyError) {
+					public void onCancelled(DatabaseError databaseError) {
 
 					}
 				});
-		request.setDontExpireCache();
-		request.setShouldCache(true);
-		VolleyPlusHelper.with(getApplicationContext()).updateToRequestQueue(request, "coins_ignore");
 	}
 
 	public ArrayMap<String, String> getSymbols(){
@@ -225,6 +232,13 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 			return new ArrayList<>();
 		}
 		return coinsIgnore;
+	}
+
+	public DefaultData getDefaultData(){
+		if(null == defaultData) {
+			return new DefaultData();
+		}
+		return defaultData;
 	}
 
 	public CoinDetailSample getCoinDetails(){
@@ -277,11 +291,6 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		return defaultCurrencyCode;
 	}
 
-
-	public void setBillingInitialized(boolean billingInitialized) {
-		isBillingInitialized = billingInitialized;
-	}
-
 	public void setOneTimePurchaseSupported(boolean oneTimePurchaseSupported) {
 		isOneTimePurchaseSupported = oneTimePurchaseSupported;
 	}
@@ -329,11 +338,19 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 
 	@Override
 	public void onBillingInitialized() {
-		setBillingInitialized(true);
+		if(!isBillingSupported()){
+			return;
+		}
 		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
 		setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
 		bp.loadOwnedPurchasesFromGoogle();
+		reloadSubscription();
+	}
 
+	public void reloadSubscription() {
+		if(!isBillingSupported()){
+			return;
+		}
 		skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
 		isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
 		if (isSubscribedMonthly) {
@@ -344,7 +361,6 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 		selfHack();
 		LocalBurst.getInstance().emit(BILLING_ACTION);
 		FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
-
 	}
 
 	private void selfHack() {
@@ -363,7 +379,7 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 
 	@Override
 	public void onPurchaseHistoryRestored() {
-
+		reloadSubscription();
 	}
 
 	@Override
@@ -371,6 +387,9 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 	}
 
 	public BillingProcessor getBillingProcessor() {
+		if(!isBillingSupported()){
+			return null;
+		}
 		if(null == bp) {
 			bp = BillingProcessor.newBillingProcessor(this,
 					getString(R.string.license_key), getString(R.string.merchant_id), this);
@@ -417,5 +436,13 @@ public class App extends Application implements BillingProcessor.IBillingHandler
 
 	public boolean getTrailStatus(){
 		return mFirebaseRemoteConfig.getBoolean(TRAIL_STATUS);
+	}
+
+	public void subscribe(Activity activity, String productId){
+		if(isBillingSupported()) {
+			getBillingProcessor().subscribe(activity, productId);
+		} else {
+			Toast.makeText(activity, "Billing not supported", Toast.LENGTH_SHORT).show();
+		}
 	}
 }

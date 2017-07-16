@@ -144,6 +144,14 @@ public class AlertFragment extends RecyclerFragment
         addAlert.setVisibility(Utils.getVisibility(itemCount < 10));
     }
 
+    @Override
+    public void onCancelled() {
+        setListShown(true);
+        int itemCount = mAdapter.getItemCount();
+        setEmptyText(itemCount == 0 ? "No Alerts" : "");
+        addAlert.setVisibility(Utils.getVisibility(itemCount < 10));
+    }
+
     public Query getQuery() {
         return FirebaseHelper.getFirebaseDatabaseReference().child("/user_alerts/price")
                 .child(FirebaseHelper.getCurrentUserId());
@@ -191,6 +199,12 @@ public class AlertFragment extends RecyclerFragment
             bundle.putString("source", TAG);
             AnalyticsManager.logEvent("view_login", bundle);
         }
+    }
+
+    @Override
+    public void refreshData(Bundle bundle) {
+        super.refreshData(bundle);
+        mAdapter.notifyDataSetChanged();
     }
 
     private void openAlertDetails(PriceAlert priceAlert, String refKey) {

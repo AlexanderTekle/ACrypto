@@ -1,12 +1,10 @@
 package dev.dworks.apps.acrypto.common;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -124,27 +122,16 @@ public class ActionBarFragment extends Fragment {
     }
 
     protected void showReason() {
-        new AlertDialog.Builder(getActivity(),
-                R.style.AppCompatAlertDialogStyle)
-                .setTitle(R.string.paid_reason)
-                .setMessage(R.string.paid_reason_description)
-                .setPositiveButton("I'll Subscribe", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Bundle bundle = new Bundle();
-                        bundle.putString("source", "reason");
-                        bundle.putString("type", "monthly");
-                        AnalyticsManager.logEvent("view_subscription", bundle);
-                        subscribe();
-                    }
-                })
-                .setNegativeButton("Got It", null)
-                .show();
+        Utils.showReason(getActivity());
     }
 
     protected void subscribe() {
+        Bundle bundle = new Bundle();
+        bundle.putString("source", "subscription");
+        bundle.putString("type", "monthly");
+        AnalyticsManager.logEvent("subscribe", bundle);
         if (FirebaseHelper.isLoggedIn()) {
-            App.getInstance().getBillingProcessor().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
+            App.getInstance().subscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
         } else {
             openLogin();
         }
