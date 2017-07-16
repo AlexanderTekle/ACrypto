@@ -36,16 +36,8 @@ android {
         }
     }
 
-    flavorDimensions "release", "default"
+    flavorDimensions "release"
     productFlavors {
-        main {
-            applicationId "dev.dworks.apps.acrypto"
-            dimension "default"
-        }
-        underground {
-            applicationId "dev.dworks.apps.acrypto.underground"
-            dimension "default"
-        }
         google {
             dimension "release"
         }
@@ -54,13 +46,6 @@ android {
         }
         other {
             dimension "release"
-        }
-    }
-    variantFilter { variant ->
-        def names = variant.flavors*.name
-
-        if (names.contains("underground") && (names.contains("google") || names.contains("other"))) {
-            variant.ignore = true
         }
     }
 
