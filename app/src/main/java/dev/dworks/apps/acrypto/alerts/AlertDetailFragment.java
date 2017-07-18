@@ -445,7 +445,7 @@ public class AlertDetailFragment extends ActionBarFragment
         setEditingEnabled(false);
         DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
                 .child("/user_alerts/price")
-                .child(FirebaseHelper.getCurrentUserId())
+                .child(FirebaseHelper.getCurrentUid())
                 .child(refKey);
         reference.removeValue(new DatabaseReference.CompletionListener() {
             @Override
@@ -476,7 +476,7 @@ public class AlertDetailFragment extends ActionBarFragment
                 getCurrentCurrencyToSymbol(), status, getCondition(), getFrequency(),
                 "value", getValue());
         DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
-                .child("/user_alerts/price").child(FirebaseHelper.getCurrentUserId());
+                .child("/user_alerts/price").child(FirebaseHelper.getCurrentUid());
 
         DatabaseReference alertReference;
         if(TextUtils.isEmpty(refKey)){

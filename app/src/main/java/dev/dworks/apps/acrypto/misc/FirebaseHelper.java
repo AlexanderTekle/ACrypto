@@ -2,7 +2,6 @@ package dev.dworks.apps.acrypto.misc;
 
 import android.text.TextUtils;
 
-import com.anjlab.android.iab.v3.TransactionDetails;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -11,11 +10,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.entity.User;
 
 import static dev.dworks.apps.acrypto.App.APP_VERSION;
@@ -53,9 +52,9 @@ public class FirebaseHelper {
         return FirebaseAuth.getInstance().getCurrentUser();
     }
 
-    public static String getCurrentUserId(){
+    public static String getCurrentUid(){
         if(null != getCurrentUser()) {
-            return getCurrentUser().getUid();
+            return getCurrentUser().getUid().replace(".","-");
         } else {
             return "";
         }
@@ -83,37 +82,36 @@ public class FirebaseHelper {
         User user = new User(
                 firebaseUser.getDisplayName(),
                 firebaseUser.getEmail(),
-                firebaseUser.getUid(),
+                FirebaseHelper.getCurrentUid(),
                 firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString()
         );
 
+        String uid = FirebaseHelper.getCurrentUid();
         String photoUrl = firebaseUser.getPhotoUrl() == null ? "" : firebaseUser.getPhotoUrl().toString();
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("displayName", firebaseUser.getDisplayName());
         childUpdates.put("email", firebaseUser.getEmail());
-        childUpdates.put("uid", firebaseUser.getUid());
+        childUpdates.put("uid", uid);
         childUpdates.put("photoUrl", photoUrl);
         childUpdates.put("appVersion", APP_VERSION);
         childUpdates.put("nativeCurrency", getUserCurrencyFrom());
 
-        String instanceId = FirebaseInstanceId.getInstance().getToken();
+/*        String instanceId = FirebaseInstanceId.getInstance().getToken();
         if (instanceId != null) {
             childUpdates.put("instanceId", instanceId);
-        }
+        }*/
 
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(firebaseUser.getUid()).updateChildren(childUpdates);
+                .child(uid).updateChildren(childUpdates);
 
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(firebaseUser.getUid())
+                .child(uid)
                 .child("createdAt").setValue(ServerValue.TIMESTAMP);
 
-
-
+        App.getInstance().updateInstanceId();
     }
 
-    public static void updateUserSubscription(String productId, TransactionDetails details) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    public static void updateUserSubscription(String productId) {
         if(!isLoggedIn()){
             return;
         }
@@ -121,24 +119,22 @@ public class FirebaseHelper {
         childUpdates.put("subscriptionStatus", 1);
         childUpdates.put("subscriptionId", productId);
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(firebaseUser.getUid())
+                .child(FirebaseHelper.getCurrentUid())
                 .updateChildren(childUpdates);
     }
 
     public static void updateUserAppVersion(String version) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if(!isLoggedIn()){
             return;
         }
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("appVersion", version);
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(firebaseUser.getUid())
+                .child(FirebaseHelper.getCurrentUid())
                 .updateChildren(childUpdates);
     }
 
     public static void updateUserSubscription(boolean active) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if(!isLoggedIn()){
             return;
         }
@@ -146,47 +142,43 @@ public class FirebaseHelper {
         childUpdates.put("subscriptionStatus", active ? 1 : 0);
         AnalyticsManager.setProperty("IsSubscribed", String.valueOf(active));
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(firebaseUser.getUid())
+                .child(FirebaseHelper.getCurrentUid())
                 .updateChildren(childUpdates);
     }
 
     public static void updateNativeCurrency(String currency) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if(!isLoggedIn()){
             return;
         }
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("nativeCurrency", currency);
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
-                .child(firebaseUser.getUid())
+                .child(FirebaseHelper.getCurrentUid())
                 .updateChildren(childUpdates);
     }
 
-    public static void updateInstanceId() {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+    public static void updateInstanceId(String registrationId) {
         if(!isLoggedIn()){
             return;
         }
-        String instanceId = FirebaseInstanceId.getInstance().getToken();
         FirebaseDatabase.getInstance().getReference()
                 .child(USERS)
-                .child(firebaseUser.getUid())
+                .child(FirebaseHelper.getCurrentUid())
                 .child("instanceId")
-                .setValue(instanceId);
+                .setValue(registrationId);
     }
 
     public static void checkInstanceIdValidity(){
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         if(!isLoggedIn()){
             return;
         }
-        FirebaseHelper.getFirebaseDatabaseReference("users/"+firebaseUser.getUid())
+        FirebaseHelper.getFirebaseDatabaseReference("users/"+FirebaseHelper.getCurrentUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if(TextUtils.isEmpty(user.instanceId)){
-                    updateInstanceId();
+                    App.getInstance().updateInstanceId();
                 }
             }
 

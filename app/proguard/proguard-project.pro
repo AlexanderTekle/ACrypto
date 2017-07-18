@@ -90,6 +90,17 @@
 -dontwarn cat.ereza.customactivityoncrash.**
 -dontwarn org.joda.time.**
 
+-dontwarn com.amazon.**
+-keep class com.amazon.** {*;}
+-keepattributes *Annotation*
+
+##-dontwarn com.amazon.device.messaging.**
+-dontwarn com.amazon.android.framework.**
+-keep class com.amazon.android.framework.** {*;}
+-keep class com.amazon.device.messaging.** {*;}
+-keep public class * extends com.amazon.device.messaging.ADMMessageReceiver
+-keep public class * extends com.amazon.device.messaging.ADMMessageHandlerBase
+
 # Application classes that will be serialized/deserialized over Gson
 # or have been blown up by ProGuard in the past
 

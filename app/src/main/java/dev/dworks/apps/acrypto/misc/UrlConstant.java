@@ -14,6 +14,7 @@ public class UrlConstant {
     public static final String COINS_LIST_API = ACRYPTO_BASE_API_URL + "/coins_list";
     public static final String COINS_IGNORE_API = ACRYPTO_BASE_API_URL + "/coins_ignore";
     public static final String SYMBOLS_API = ACRYPTO_BASE_API_URL + "/symbols";
+    public static final String AMAZON_TOKEN_API = ACRYPTO_BASE_API_URL + "/amazontoken";
 
     public static final String BASE_API_URL = "https://min-api.cryptocompare.com";
     public static final String BASE_URL = "https://www.cryptocompare.com";

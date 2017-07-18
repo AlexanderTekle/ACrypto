@@ -86,7 +86,7 @@ import dev.dworks.apps.acrypto.view.Spinner;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
-import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
+import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
 
 /**
  * Created by HaKr on 20-Sep-14.
@@ -234,7 +234,7 @@ public class Utils {
         Snackbar snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE);
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
-                    .setActionTextColor(view.getResources().getColor(R.color.colorPrimary));
+                    .setActionTextColor(view.getResources().getColor(R.color.colorAccent));
         }
         snackbar.show();
     }
@@ -243,7 +243,7 @@ public class Utils {
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content), text, Snackbar.LENGTH_INDEFINITE);
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
-                    .setActionTextColor(activity.getResources().getColor(R.color.colorPrimary));
+                    .setActionTextColor(activity.getResources().getColor(R.color.colorAccent));
         }
         snackbar.show();
     }
@@ -269,7 +269,7 @@ public class Utils {
 
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
-                    .setActionTextColor(activity.getResources().getColor(R.color.colorPrimary));
+                    .setActionTextColor(activity.getResources().getColor(R.color.colorAccent));
         }
         snackbar.show();
     }
@@ -278,7 +278,7 @@ public class Utils {
         Snackbar snackbar = Snackbar.make(view, "Can't connect to Internet", Snackbar.LENGTH_INDEFINITE);
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
-                    .setActionTextColor(view.getResources().getColor(R.color.colorPrimary));
+                    .setActionTextColor(view.getResources().getColor(R.color.colorAccent));
         }
         snackbar.show();
     }
@@ -561,7 +561,7 @@ public class Utils {
                 .setSubject("ACrypto Support")
                 .setType("text/email")
                 .setChooserTitle("Contact Support")
-                .setText("ACrypto app version v"+App.APP_VERSION)
+                .setText("ACrypto app version v"+ App.APP_VERSION)
                 .startChooser();
     }
 
@@ -572,7 +572,7 @@ public class Utils {
                 .setSubject("ACrypto Feedback")
                 .setType("text/email")
                 .setChooserTitle("Send Feedback")
-                .setText("ACrypto app version v"+App.APP_VERSION)
+                .setText("ACrypto app version v"+ App.APP_VERSION)
                 .startChooser();
     }
 

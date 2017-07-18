@@ -41,6 +41,7 @@
     <string name="default_currency">USD</string>
 
     <string name="error_google_sign_in">Can\'t sign in using Google</string>
+    <string name="error_amazon_sign_in">Can\'t sign in using Amazon</string>
     <string name="tab_text_1">Info</string>
     <string name="tab_text_2">Exchanges</string>
     <string name="tab_text_3">Charts</string>

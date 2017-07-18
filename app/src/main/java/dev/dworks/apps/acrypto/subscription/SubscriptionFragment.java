@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 import dev.dworks.apps.acrypto.App;
-import dev.dworks.apps.acrypto.BuildConfig;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.entity.Subscriptions;
@@ -33,8 +32,6 @@ import dev.dworks.apps.acrypto.view.SimpleDividerItemDecoration;
 public class SubscriptionFragment extends ActionBarFragment implements View.OnClickListener {
 
     private static final String TAG = "Subscription";
-    public static final String SUBSCRIPTION_MONTHLY_ID = getSubscriptionMain() + ".subs.m1";
-
     private Utils.OnFragmentInteractionListener mListener;
     private Button mSubscribe;
     private RecyclerView mRecyclerView;
@@ -184,10 +181,5 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
                 AnalyticsManager.logEvent("view_subscription_reason", bundle);
                 break;
         }
-    }
-
-    private static String getSubscriptionMain() {
-        return BuildConfig.APPLICATION_ID +
-                (BuildConfig.DEBUG ? ".test" : "");
     }
 }

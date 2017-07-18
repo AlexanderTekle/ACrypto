@@ -5,27 +5,21 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
 import android.support.v7.app.AlertDialog;
-
-import com.google.android.gms.auth.api.Auth;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.DialogFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
-import dev.dworks.apps.acrypto.misc.SignInClient;
 
 import static android.app.Activity.RESULT_FIRST_USER;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_USER_CURRENCY;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 
 
-public class GeneralPreferenceFragment extends PreferenceFragment
+public class GeneralPreferenceFragment extends GeneralPreferenceFlavourFragment
         implements Preference.OnPreferenceClickListener, Preference.OnPreferenceChangeListener {
-
-    private SignInClient mSignInClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,22 +45,9 @@ public class GeneralPreferenceFragment extends PreferenceFragment
             }
         });
 
-        mSignInClient = new SignInClient(getActivity());
         if(!FirebaseHelper.isLoggedIn()){
             preferenceCategory.removePreference(logoutPreference);
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mSignInClient.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mSignInClient.onStop();
     }
 
     @Override
@@ -91,9 +72,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        FirebaseHelper.logout();
-                        Auth.GoogleSignInApi.signOut(mSignInClient.getGoogleApiClient());
-                        FirebaseHelper.signInAnonymously();
+                        logout();
                         getActivity().setResult(RESULT_FIRST_USER);
                         getActivity().finish();
 
@@ -101,5 +80,12 @@ public class GeneralPreferenceFragment extends PreferenceFragment
                 })
                 .setNegativeButton("Cancel", null);
         DialogFragment.showThemedDialog(builder);
+    }
+
+    @Override
+    protected void logout() {
+        super.logout();
+        FirebaseHelper.logout();
+        FirebaseHelper.signInAnonymously();
     }
 }

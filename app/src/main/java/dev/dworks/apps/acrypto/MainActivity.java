@@ -1,7 +1,6 @@
 package dev.dworks.apps.acrypto;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -27,15 +26,10 @@ import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.appinvite.AppInviteInvitation;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.appinvite.FirebaseAppInvite;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import java.util.ArrayList;
 
@@ -76,7 +70,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final int SETTINGS = 47;
     public static final int LOGIN = 619;
-    private static final int REQUEST_INVITE = 99;
+    public static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
 
@@ -106,7 +100,6 @@ public class MainActivity extends AppCompatActivity
         FirebaseHelper.signInAnonymously();
         App.getInstance().initializeBilling();
         App.getInstance().fetchTrailStatus();
-        getInvite();
         broadcast = LocalBurst.getInstance();
         initControls();
 
@@ -234,7 +227,7 @@ public class MainActivity extends AppCompatActivity
         String name = "Guest";
         if(FirebaseHelper.isLoggedIn()) {
             name = user.getDisplayName();
-            url = user.getPhotoUrl().toString();
+            url = user.getPhotoUrl() == null ? "" : user.getPhotoUrl().toString();
         }
         mName.setText(name);
         mPicture.setImageUrl(url, VolleyPlusHelper.with(this).getImageLoader());
@@ -488,32 +481,5 @@ public class MainActivity extends AppCompatActivity
         navigationView.getMenu().clear();
         navigationView.inflateMenu(App.getInstance().isSubscribedMonthly() && FirebaseHelper.isLoggedIn()
                 ? R.menu.activity_main_drawer_pro : R.menu.activity_main_drawer);
-    }
-
-    private void getInvite(){
-        FirebaseDynamicLinks.getInstance().getDynamicLink(getIntent())
-                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
-                    @Override
-                    public void onSuccess(PendingDynamicLinkData data) {
-                        if (data == null) {
-                            return;
-                        }
-                        Uri deepLink = data.getLink();
-                        FirebaseAppInvite invite = FirebaseAppInvite.getInvitation(data);
-                        if (invite != null) {
-                            String invitationId = invite.getInvitationId();
-                        }
-
-                    }
-                });
-    }
-    private void sendInvite() {
-        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
-                .setMessage(getString(R.string.invitation_message))
-                //.setDeepLink(Uri.parse(getString(R.string.invitation_deep_link)))
-                //.setCustomImage(Uri.parse(getString(R.string.invitation_custom_image)))
-                .setCallToActionText(getString(R.string.invitation_cta))
-                .build();
-        startActivityForResult(intent, REQUEST_INVITE);
     }
 }

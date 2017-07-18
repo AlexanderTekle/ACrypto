@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+ apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
@@ -8,8 +8,8 @@ android {
         applicationId "dev.dworks.apps.acrypto"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 12
-        versionName "0.8"
+        versionCode 13
+        versionName "0.9"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -61,19 +61,14 @@ ext {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:cardview-v7:${supportLibVersion}"
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:customtabs:${supportLibVersion}"
-    compile "com.google.firebase:firebase-messaging:${gmsVersion}"
-    compile "com.google.firebase:firebase-auth:${gmsVersion}"
     compile "com.google.firebase:firebase-crash:${gmsVersion}"
     compile "com.google.firebase:firebase-perf:${gmsVersion}"
     compile "com.google.firebase:firebase-database:${gmsVersion}"
     compile "com.google.firebase:firebase-ads:${gmsVersion}"
-    compile "com.google.firebase:firebase-config:${gmsVersion}"
-    compile "com.google.firebase:firebase-invites:${gmsVersion}"
     compile 'com.firebaseui:firebase-ui-auth:2.0.1'
     compile 'com.firebaseui:firebase-ui-database:2.0.1'
     compile 'com.google.code.gson:gson:2.8.1'
@@ -83,10 +78,16 @@ dependencies {
     compile 'org.fabiomsr:moneytextview:1.1.0'
     compile 'com.jaredrummler:material-spinner:1.1.0'
     compile 'com.zsoltsafrany:needle:1.0.0'
-    compile 'com.anjlab.android.iab.v3:library:1.0.42'
     compile 'com.github.lykmapipo:local-burst:v0.2.0'
     compile 'com.github.javiersantos:AppUpdater:2.6.1'
     compile 'de.psdev.licensesdialog:licensesdialog:1.8.2'
+    googleCompile "com.google.firebase:firebase-invites:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-config:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-messaging:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-auth:${gmsVersion}"
+    googleCompile 'com.anjlab.android.iab.v3:library:1.0.42'
+    amazonCompile fileTree(include: ['*.jar'], dir: 'libs')
+    amazonCompile 'com.github.eggheadgames:android-in-app-payments:+'
 }
 
 def props = new Properties()

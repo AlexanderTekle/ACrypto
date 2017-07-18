@@ -35,4 +35,6 @@ demo/apk/
 local.properties
 keystore.properties
 app/google-services.json
-app/src/main/res/values/secrets.xml
+app/src/main/res/values/secrets.xml # payment info
+app/src/main/assets/api_key.txt #login with amazon
+app/src/debug/assets/api_key.txt
