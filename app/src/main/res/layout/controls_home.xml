@@ -107,37 +107,21 @@
                     android:gravity="center"
                     android:orientation="horizontal">
 
-                    <FrameLayout
+                    <org.fabiomsr.moneytextview.MoneyTextView
+                        android:id="@+id/valueChange"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center">
-
-                        <org.fabiomsr.moneytextview.MoneyTextView
-                            android:id="@+id/valueChange"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center|left"
-                            android:visibility="visible"
-                            app:amount="0"
-                            app:baseTextColor="@android:color/white"
-                            app:baseTextSize="22sp"
-                            app:decimalDigitsTextSize="22sp"
-                            app:decimalSeparator="."
-                            app:includeDecimalSeparator="true"
-                            app:symbol="$"
-                            app:symbolGravity="start|top"
-                            app:symbolTextSize="16sp" />
-
-                        <dev.dworks.apps.acrypto.view.MaterialProgressBar
-                            android:id="@+id/priceprogress"
-                            style="@style/MaterialProgress.Small"
-                            android:layout_gravity="center"
-                            android:layout_marginBottom="-10dp"
-                            android:layout_marginLeft="-10dp"
-                            android:layout_marginRight="-10dp"
-                            android:layout_marginTop="-10dp"
-                            android:visibility="gone" />
-                    </FrameLayout>
+                        android:layout_gravity="center|left"
+                        android:visibility="visible"
+                        app:amount="0"
+                        app:baseTextColor="@android:color/white"
+                        app:baseTextSize="22sp"
+                        app:decimalDigitsTextSize="22sp"
+                        app:decimalSeparator="."
+                        app:includeDecimalSeparator="true"
+                        app:symbol="$"
+                        app:symbolGravity="start|top"
+                        app:symbolTextSize="16sp" />
 
                     <TextView
                         android:id="@+id/volume"

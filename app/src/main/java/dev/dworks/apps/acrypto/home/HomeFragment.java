@@ -27,7 +27,6 @@ import android.widget.TextView;
 import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
-import com.android.volley.request.StringRequest;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -49,8 +48,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -119,7 +116,6 @@ public class HomeFragment extends ActionBarFragment
 
     private int currentTimestamp = TIMESTAMP_DAYS;
     private int currentTimeseries = TIMESERIES_DAY;
-    private long changeTimestamp = 0;
     private String timeDifference = "Since";
 
     private LineChart mChart;
@@ -142,7 +138,6 @@ public class HomeFragment extends ActionBarFragment
     private ScrollView mScrollView;
     private String mName;
     private boolean showFromIntent = false;
-    private ProgressBar mPriceProgress;
 
     public static void show(FragmentManager fm, String name) {
         final Bundle args = new Bundle();
@@ -219,7 +214,6 @@ public class HomeFragment extends ActionBarFragment
         mTimeseries.setOnCheckedChangeListener(this);
 
         mChartProgress = (ProgressBar) view.findViewById(R.id.chartprogress);
-        mPriceProgress = (ProgressBar) view.findViewById(R.id.priceprogress);
         mChart = (LineChart) view.findViewById(R.id.linechart);
         mBarChart = (BarChart) view.findViewById(R.id.barchart);
         initLineChart();
@@ -422,7 +416,7 @@ public class HomeFragment extends ActionBarFragment
         request.setCacheMinutes(5, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "Home");
-        fetchDifferenceData();
+        //fetchDifferenceData();
     }
 
     private void fetchCurrencyFromData() {
@@ -501,48 +495,6 @@ public class HomeFragment extends ActionBarFragment
         request.setCacheMinutes(1440, 1440);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "exchange");
-    }
-
-    private void fetchDifferenceData() {
-        showDiffValue(false);
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("fsym", getCurrentCurrencyFrom());
-        params.put("tsyms", getCurrentCurrencyTo());
-        params.put("ts", String.valueOf(changeTimestamp));
-
-        String url = UrlManager.with(UrlConstant.HISTORY_PRICE_HISTORICAL_URL)
-                .setDefaultParams(params).getUrl();
-
-        StringRequest request = new StringRequest(url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            JSONObject currencyFrom = jsonObject.getJSONObject(getCurrentCurrencyFrom());
-                            diffValue = currencyFrom.getDouble(getCurrentCurrencyTo());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        setDefaultValues();
-                        showDiffValue(true);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        showDiffValue(true);
-                        setPriceValue(mValueChange, 0);
-                        mTimeDuration.setText("");
-                    }
-                });
-        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "diff");
-    }
-
-    private void showDiffValue(boolean show) {
-        mPriceProgress.setVisibility(Utils.getVisibility(!show));
-        mValueChange.setVisibility(Utils.getVisibility(show));
-        mTimeDuration.setVisibility(Utils.getVisibility(show));
     }
 
     public void setDefaultValues(){
@@ -730,11 +682,15 @@ public class HomeFragment extends ActionBarFragment
         ArrayList<Entry> entries = new ArrayList<>();
         ArrayList<BarEntry> barEntries = new ArrayList<>();
         Prices.Price lastPrice = new Prices.Price();
+        Prices.Price firstPrice = new Prices.Price();
         int i = 0;
         for (Prices.Price price : response.price){
             Entry entry = new Entry((float) getMillisFromTimestamp(price.time), (float) price.close);
             entry.setData(price);
             entries.add(entry);
+            if(i == 0){
+                firstPrice = price;
+            }
             lastPrice = price;
 
             BarEntry barEntry = new BarEntry(i,
@@ -745,6 +701,7 @@ public class HomeFragment extends ActionBarFragment
 
         //Price Chart
         currentValue = Double.valueOf(lastPrice.close);
+        diffValue = Double.valueOf(firstPrice.close);
         setDefaultValues();
 
         LineDataSet set1 = new LineDataSet(entries, "Price");
@@ -841,7 +798,7 @@ public class HomeFragment extends ActionBarFragment
                 break;
             case R.id.timeseries_year5:
                 currentTimeseries = TIMESERIES_ALL;
-                type = "year";
+                type = "year5";
                 break;
         }
         Bundle bundle = new Bundle();
@@ -889,7 +846,6 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("limit", "10")
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_TIME;
-                changeTimestamp = getTimestamp(0, 0, 1);
                 timeDifference = "a minute ago";
                 break;
             case TIMESERIES_HOUR:
@@ -898,7 +854,6 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("limit", "60")
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_TIME;
-                changeTimestamp = getTimestamp(0, 1, 0);
                 timeDifference = "an hour ago";
                 break;
             case TIMESERIES_DAY:
@@ -907,7 +862,6 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("limit", "144")
                         .setParam("aggregate", "10").getUrl();
                 currentTimestamp = TIMESTAMP_TIME;
-                changeTimestamp = getTimestamp(1);
                 timeDifference = "yesterday";
                 break;
             case TIMESERIES_WEEK:
@@ -916,7 +870,6 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("limit", "168")
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_DAYS;
-                changeTimestamp = getTimestamp(7);
                 timeDifference = "last week";
                 break;
             case TIMESERIES_MONTH:
@@ -925,7 +878,6 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("limit", "120")
                         .setParam("aggregate", "6").getUrl();
                 currentTimestamp = TIMESTAMP_DATE;
-                changeTimestamp = getTimestamp(30);
                 timeDifference = "last month";
                 break;
             case TIMESERIES_YEAR:
@@ -934,7 +886,6 @@ public class HomeFragment extends ActionBarFragment
                         .setParam("limit", "365")
                         .setParam("aggregate", "1").getUrl();
                 currentTimestamp = TIMESTAMP_MONTH;
-                changeTimestamp = getTimestamp(365);
                 timeDifference = "last year";
                 break;
             case TIMESERIES_ALL:
@@ -942,8 +893,6 @@ public class HomeFragment extends ActionBarFragment
                         .setDefaultParams(getDefaultParams())
                         .setParam("limit", "1825")
                         .setParam("aggregate", "1").getUrl();
-                currentTimestamp = TIMESTAMP_MONTH;
-                changeTimestamp = getTimestamp(1825);
                 timeDifference = "5 years";
                 break;
         }
