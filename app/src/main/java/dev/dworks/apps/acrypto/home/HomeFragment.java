@@ -81,7 +81,6 @@ import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
-import static dev.dworks.apps.acrypto.utils.Utils.getTimestamp;
 import static dev.dworks.apps.acrypto.utils.Utils.getValueDifferenceColor;
 import static dev.dworks.apps.acrypto.utils.Utils.setDateTimeValue;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
@@ -279,7 +278,7 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void setMarketSpinner() {
-        mExchangeSpinner.setText(SettingsActivity.getExchange());
+        mExchangeSpinner.setText(getCurrentExchange());
         mExchangeSpinner.getPopupWindow().setWidth(500);
         mExchangeSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Exchanges.Exchange>() {
 
@@ -483,7 +482,7 @@ public class HomeFragment extends ActionBarFragment
                     public void onResponse(Exchanges prices) {
                         mExchangeSpinner.setItems(prices.getAllData());
                         Utils.setSpinnerValue(mExchangeSpinner, ALL_EXCHANGES,
-                                SettingsActivity.getExchange());
+                                getCurrentExchange());
                     }
                 },
                 new Response.ErrorListener() {

@@ -201,6 +201,7 @@ public class CoinFragment extends RecyclerFragment
         if(mCurrency.equals("USD")){
             ignoreCurrencies.add("EUR");
             ignoreCurrencies.add("GBP");
+            ignoreCurrencies.add("AUD");
         } else if (mCurrency.equals("JPY")){
             ignoreCurrencies.add("USD");
         } else  if (mCurrency.equals("GBP")){

@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto.alerts;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -62,6 +63,8 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CONDITION_DEFAUL
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.FREQUENCY_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
@@ -497,8 +500,12 @@ public class AlertDetailFragment extends ActionBarFragment
     }
 
     public String getCurrentCurrencyTo(){
-        return TextUtils.isEmpty(curencyTo)
-                ? ( isTopAltCoin() ? CURRENCY_TO_DEFAULT : CURRENCY_FROM_DEFAULT) : curencyTo;
+        return TextUtils.isEmpty(curencyTo) ? getDefaultCurrencyTo() : curencyTo;
+    }
+
+    private String getDefaultCurrencyTo(){
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(getCurrencyToKey(), isTopAltCoin() ? getUserCurrencyFrom() : CURRENCY_FROM_DEFAULT);
     }
 
     public boolean isTopAltCoin(){
@@ -516,6 +523,7 @@ public class AlertDetailFragment extends ActionBarFragment
     public String getCurrentCurrencyToSymbol(){
         return getCurrencySymbol(getCurrentCurrencyTo());
     }
+
     public String getCurrentCurrencyFromSymbol(){
         return getCurrencySymbol(getCurrentCurrencyFrom());
     }

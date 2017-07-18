@@ -40,8 +40,6 @@ public class Exchanges extends BaseEntity {
             ArrayList<Exchange> finalList = new ArrayList<>();
             finalList.add(allExchange);
             return finalList;
-        } else if(data.size() == 1){
-            return data;
         } else {
             Exchange allExchange = new Exchange(ALL_EXCHANGES);
             ArrayList<Exchange> finalList = new ArrayList<>();
