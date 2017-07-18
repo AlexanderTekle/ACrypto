@@ -12,7 +12,7 @@ import com.anjlab.android.iab.v3.TransactionDetails;
 import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -232,6 +232,6 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 
 	public void updateInstanceId(){
 		String instanceId = FirebaseInstanceId.getInstance().getToken();
-		updateInstanceId(instanceId);
+		FirebaseHelper.updateInstanceId(instanceId);
 	}
 }
