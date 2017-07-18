@@ -2,7 +2,11 @@
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp(functions.config().firebase);
+const serviceAccount = require('./service-account.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`
+});
 const cors = require('cors')({origin: true});
 const request = require('request');
 const rp = require('request-promise');
@@ -212,6 +216,43 @@ app.get('/crons/alerts/price', (req, res) => {
   .catch(error => {
     reportError(error, {type: 'http_request', context: 'price alert cron'});
     res.sendStatus(500);
+  });
+});
+
+// GET /api/amazontoken
+// Triggers price alert check for testing
+app.get('/amazontoken', (req, res) => {
+  const userId = req.query.userid;
+  const accessToken = req.query.accesstoken;
+  if(!userId || !accessToken){
+    return res.status(400).json({error: 'Something is missing'});
+  }
+  return rp(generateAmazonApiRequest(accessToken),
+  {resolveWithFullResponse: true}).then(response => {
+    if (response.statusCode === 200) {
+      const result = JSON.parse(response.body);
+      const name = result.name;
+      const uid = result.user_id;
+      const email = result.email;
+      if(uid != userId){
+        return res.status(403).json({error: 'Unauthorized'});
+      }
+      // Create a Firebase account and get the Custom Auth Token.
+      createFirebaseAccount(uid, name, email).then(firebaseToken => {
+        if(!firebaseToken){
+          return res.status(409).json({error: 'Already exists', email});
+        }
+        return res.status(200).json({firebase_token: firebaseToken});
+      }).catch(error => {
+        reportError(error, { type: 'auth', context: 'fiebase account'});
+        return res.status(500).json({error: 'Server error', error});
+      });
+    } else {
+      return res.status(response.statusCode).json({error: response.body});
+    }
+  }).catch(error => {
+    reportError(error, { type: 'http_request', context: 'amazon profile'});
+    return res.status(403).json({error: 'Authentication error: Cannot verify access token', error});
   });
 });
 
@@ -511,3 +552,39 @@ exports.updateOnPriceAlertStatus = functions.database.ref('/user_alerts/price/{u
     }
   });
 });
+
+// Generate a Request option to access Amazon APIs
+function generateAmazonApiRequest(accessToken) {
+  return "https://api.amazon.com/user/profile?access_token=" + accessToken;
+}
+
+function createFirebaseAccount(uid, displayName, email){
+  const userId = uid.split('.').join('-');
+  // Create or update the user account.
+  const userCreationTask = admin.auth().updateUser(userId, {
+    displayName: displayName,
+    email: email
+  }).then(result => {
+    return result;
+  })
+  .catch(error => {
+    if (error.code === 'auth/user-not-found') {
+      return admin.auth().createUser({
+        uid: userId,
+        displayName: displayName,
+        email: email
+      });
+    } else if (error.code === 'auth/email-already-exists') {
+      return "";
+    }
+    throw error;
+  });
+
+  return userCreationTask.then(result => {
+    // Create a Firebase custom auth token.
+    return admin.auth().createCustomToken(userId).then((token) => {
+      console.log('Created Custom token for UID "', userId, '" Token:', token);
+      return token;
+    });
+  });
+}
