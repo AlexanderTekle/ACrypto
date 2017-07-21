@@ -211,18 +211,18 @@ public class TimeUtils {
         long nowOrd = localTime / MILLIS_IN_A_DAY;
 
         if (dayOrd == nowOrd) {
-            return TODAY + formatCloseDate(new Date(timestamp));
+            return formatCloseDate(new Date(timestamp));
         } else if (dayOrd == nowOrd - 1) {
-            return YESTERDAY + formatCloseDate(new Date(timestamp));
+            return formatCloseDate(new Date(timestamp));
         } else if (dayOrd == nowOrd + 1) {
-            return TOMORROW + formatCloseDate(new Date(timestamp));
+            return formatCloseDate(new Date(timestamp));
         } else {
             return formatShortDateHeader(new Date(timestamp));
         }
     }
 
     public static String formatCloseDate(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat(", dd MMM yyyy", DEFAULT_LOCALE);
+        SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy", DEFAULT_LOCALE);
         String dateFormat = format.format(date);
         return dateFormat;
     }

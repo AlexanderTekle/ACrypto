@@ -57,7 +57,7 @@ android {
 
 ext {
     supportLibVersion = '25.4.0'
-    gmsVersion = '11.0.1'
+    gmsVersion = '11.0.2'
 }
 
 dependencies {
@@ -65,12 +65,11 @@ dependencies {
     compile "com.android.support:cardview-v7:${supportLibVersion}"
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:customtabs:${supportLibVersion}"
-    compile "com.google.firebase:firebase-crash:${gmsVersion}"
     compile "com.google.firebase:firebase-perf:${gmsVersion}"
     compile "com.google.firebase:firebase-database:${gmsVersion}"
     compile "com.google.firebase:firebase-ads:${gmsVersion}"
-    compile 'com.firebaseui:firebase-ui-auth:2.0.1'
-    compile 'com.firebaseui:firebase-ui-database:2.0.1'
+    compile 'com.firebaseui:firebase-ui-auth:2.1.0'
+    compile 'com.firebaseui:firebase-ui-database:2.1.0'
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'dev.dworks.libs:volleyplus:0.1.4'
     compile 'cat.ereza:customactivityoncrash:2.1.0'
@@ -81,6 +80,7 @@ dependencies {
     compile 'com.github.lykmapipo:local-burst:v0.2.0'
     compile 'com.github.javiersantos:AppUpdater:2.6.1'
     compile 'de.psdev.licensesdialog:licensesdialog:1.8.2'
+    googleCompile "com.google.firebase:firebase-crash:${gmsVersion}"
     googleCompile "com.google.firebase:firebase-invites:${gmsVersion}"
     googleCompile "com.google.firebase:firebase-config:${gmsVersion}"
     googleCompile "com.google.firebase:firebase-messaging:${gmsVersion}"

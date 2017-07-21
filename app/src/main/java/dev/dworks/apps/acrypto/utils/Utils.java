@@ -109,8 +109,14 @@ public class Utils {
 
     public static final String APP_VERSION = "app_version";
 
+    public static final String REQUIRED = "Required";
+
     //Home
     public static final String BUNDLE_NAME = "bundle_name";
+
+    //Portfolio
+    public static final String BUNDLE_PORTFOLIO = "bundle_portfolio";
+    public static final String BUNDLE_PORTFOLIO_COIN = "bundle_portfolio_coin";
 
     //Alert
     public static final String BUNDLE_ALERT = "bundle_alert";
@@ -488,6 +494,17 @@ public class Utils {
         textView.setSymbol(symbol);
     }
 
+    public static void setTotalPriceValue(MoneyTextView textView, double value, String symbol){
+        String valueText = String.valueOf((int) Math.abs(value));
+        if(valueText.length() >= 6){
+            textView.setDecimalFormat(new RoundedNumberFormat());
+        } else {
+            textView.setDecimalFormat(getMoneyTotalFormat(symbol));
+        }
+        textView.setAmount((float) value);
+        textView.setSymbol(symbol);
+    }
+
     public static void setPriceValue(MoneyTextView textView, double value, String symbol){
         textView.setDecimalFormat(getMoneyFormat(symbol));
         textView.setAmount((float) Math.abs(value));
@@ -526,6 +543,19 @@ public class Utils {
 
     public static DecimalFormat getMoneyFormat(String symbol){
         String precisionFormat = "###,##0.###";
+
+        if("Ƀ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        } else if("Ξ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
+        decimalFormat.setDecimalSeparatorAlwaysShown(false);
+        return decimalFormat;
+    }
+
+    public static DecimalFormat getMoneyTotalFormat(String symbol){
+        String precisionFormat = "###,##0";
 
         if("Ƀ".compareTo(symbol) == 0){
             precisionFormat = "###,##0.00000000";
@@ -634,7 +664,14 @@ public class Utils {
         if(value == 0){
             return " - ";
         }
-        return String.format("%.2f", Math.abs(value)) + "% " + (value > 0 ? "↑" : "↓");
+        boolean roundoff = false;
+        if(value >  500){
+            roundoff = true;
+            value = 500;
+        }
+        return String.format("%.2f", Math.abs(value))
+                + (roundoff ? "+" : "" )
+                + "% " + (value > 0 ? "↑" : "↓");
     }
 
     public static String getDisplayPercentageRounded(double valueOne, double valueTwo){

@@ -20,8 +20,6 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.error.VolleyError;
 import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -37,14 +35,11 @@ import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
 import dev.dworks.apps.acrypto.common.SpinnerInteractionListener;
-import dev.dworks.apps.acrypto.entity.CoinsList;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
-import dev.dworks.apps.acrypto.misc.UrlConstant;
-import dev.dworks.apps.acrypto.misc.UrlManager;
-import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.portfolio.PortfolioFragment;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.subscription.SubscriptionFragment;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
@@ -190,33 +185,6 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 });
-        String url = UrlManager.with(UrlConstant.COINS_LIST_API).getUrl();
-
-        GsonRequest<CoinsList> request = new GsonRequest<>(url,
-                CoinsList.class,
-                "",
-                new Response.Listener<CoinsList>() {
-                    @Override
-                    public void onResponse(CoinsList coinsList) {
-                        ArrayAdapter<CoinsList.Currency> dataAdapter = new ArrayAdapter<CoinsList.Currency>(MainActivity.this,
-                                R.layout.item_spinner , coinsList.coins_list);
-                        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        spinner.setAdapter(dataAdapter);
-                        SpinnerInteractionListener listener = new SpinnerInteractionListener(MainActivity.this);
-                        spinner.setOnTouchListener(listener);
-                        spinner.setOnItemSelectedListener(listener);
-                        setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-
-                    }
-                });
-        request.setDontExpireCache();
-        request.setShouldCache(true);
-        VolleyPlusHelper.with(this).updateToRequestQueue(request, "coins_list");
     }
 
     private void updateUserDetails() {
@@ -314,7 +282,7 @@ public class MainActivity extends AppCompatActivity
                 item.setChecked(true);
                 drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
-                Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
+                PortfolioFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_portfolio");
                 return true;
 
@@ -394,8 +362,12 @@ public class MainActivity extends AppCompatActivity
 
     private void refreshData() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
-        if(null != fragment && fragment instanceof AlertFragment){
-            AlertFragment.show(getSupportFragmentManager());
+        if (null != fragment) {
+            if (fragment instanceof AlertFragment) {
+                AlertFragment.show(getSupportFragmentManager());
+            } else if (fragment instanceof PortfolioFragment) {
+                PortfolioFragment.show(getSupportFragmentManager());
+            }
         }
     }
 

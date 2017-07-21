@@ -28,8 +28,6 @@ public class GsonRequest<T> extends BaseRequest<T> {
     private final Map<String, String> params;
     private final Listener<T> listener;
     private final String auth;
-    private int cacheSoftMinutes = 5;
-    private int cacheMinutes = 60;
 
     public GsonRequest(String url, Class<T> clazz, String auth,
                        Listener<T> listener, ErrorListener errorListener) {
@@ -86,7 +84,9 @@ public class GsonRequest<T> extends BaseRequest<T> {
                     response.data, VolleyPlusHelper.parseCharset(response.headers));
             Cache.Entry entry;
             if(shouldCache()){
-                entry = VolleyPlusHelper.parseIgnoreCacheHeaders(response, cacheSoftMinutes * 60 * 1000, cacheMinutes * 60 * 1000);
+                entry = VolleyPlusHelper.parseIgnoreCacheHeaders(response,
+                        getCacheSoftMinutes() * 60 * 1000,
+                        getCacheMinutes() * 60 * 1000);
             } else {
                 entry = HttpHeaderParser.parseCacheHeaders(response);
             }
@@ -98,15 +98,4 @@ public class GsonRequest<T> extends BaseRequest<T> {
         }
     }
 
-    public GsonRequest setDontExpireCache() {
-        this.cacheSoftMinutes = 0;
-        this.cacheMinutes = 0;
-        return this;
-    }
-
-    public GsonRequest setCacheMinutes(int cacheSoftMinutes, int cacheMinutes) {
-        this.cacheSoftMinutes = cacheSoftMinutes;
-        this.cacheMinutes = cacheMinutes;
-        return this;
-    }
 }

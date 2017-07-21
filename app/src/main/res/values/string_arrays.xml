@@ -9,4 +9,9 @@
         <item>&lt;</item>
         <item>&gt;</item>
     </string-array>
+
+    <string-array name="portfolio_price_type">
+        <item>Per Unit</item>
+        <item>Total Value</item>
+    </string-array>
 </resources>

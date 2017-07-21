@@ -49,6 +49,10 @@
             android:name=".alerts.AlertDetailActivity"
             android:label="Alert Details"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".portfolio.PortfolioCoinDetailActivity"
+            android:label="Portfolio Coin Details"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

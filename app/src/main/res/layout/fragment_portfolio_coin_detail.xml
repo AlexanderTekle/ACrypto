@@ -42,57 +42,6 @@
                 android:orientation="vertical"
                 android:padding="@dimen/activity_margin">
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="10dp"
-                        android:gravity="center"
-                        android:minHeight="80dp"
-                        android:orientation="vertical">
-
-                        <org.fabiomsr.moneytextview.MoneyTextView
-                            android:id="@+id/currentValue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            app:amount="0"
-                            app:baseTextColor="@android:color/black"
-                            app:baseTextSize="25sp"
-                            app:decimalDigitsTextSize="25sp"
-                            app:decimalSeparator="."
-                            app:includeDecimalSeparator="true"
-                            app:symbol="$"
-                            app:symbolGravity="start"
-                            app:symbolTextSize="25sp" />
-
-                        <TextView
-                            android:id="@+id/message"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
-                            android:layout_marginTop="5dp"
-                            android:text="Current Value"
-                            android:textColor="?android:attr/textColorSecondary"
-                            android:textSize="12sp" />
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_margin="10dp"
-                            android:background="@drawable/rectangle_dark" />
-                    </LinearLayout>
-
-                    <dev.dworks.apps.acrypto.view.MaterialProgressBar
-                        android:id="@+id/priceprogress"
-                        style="@style/MaterialProgress.Small"
-                        android:layout_gravity="center"
-                        android:visibility="gone" />
-                </FrameLayout>
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -102,7 +51,7 @@
                         android:id="@+id/icon"
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
-                        android:layout_gravity="center"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginRight="16dp"
                         app:srcCompat="@drawable/ic_menu_coins"
                         tools:src="@drawable/ic_menu_coins" />
@@ -117,11 +66,51 @@
                         android:theme="@style/spinnerStyle"
                         app:ms_dropdown_max_height="@dimen/spinner_max_height" />
 
-                    <TextView
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingLeft="@dimen/grid_item_padding"
+                        android:paddingStart="@dimen/grid_item_padding">
+
+                        <EditText
+                            android:id="@+id/amount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:hint="Amount"
+                            android:inputType="numberDecimal" />
+                    </android.support.design.widget.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="/"
-                        android:textSize="24sp" />
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="16dp">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/circular_background_grey"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:id="@+id/symbol"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textColor="?android:attr/textColorPrimaryInverse"
+                            android:textSize="12sp"
+                            tools:text="$" />
+
+                    </FrameLayout>
 
                     <dev.dworks.apps.acrypto.view.Spinner
                         android:id="@+id/currencyToSpinner"
@@ -132,6 +121,23 @@
                         android:padding="@dimen/activity_margin"
                         android:theme="@style/spinnerStyle"
                         app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingLeft="@dimen/grid_item_padding"
+                        android:paddingStart="@dimen/grid_item_padding">
+
+                        <EditText
+                            android:id="@+id/price"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:hint="Price"
+                            android:inputType="numberDecimal" />
+                    </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -143,7 +149,46 @@
                     <ImageView
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="16dp"
+                        android:tint="@color/accent_grey"
+                        app:srcCompat="@drawable/ic_time" />
+
+                    <TextView
+                        android:id="@+id/boughtAt"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:textSize="14sp"
+                        android:paddingLeft="22dp"
+                        android:maxLines="1"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        style="@style/Base.Widget.AppCompat.Spinner"
+                        tools:text="24/4/2017" />
+
+                    <dev.dworks.apps.acrypto.view.Spinner
+                        android:id="@+id/priceTypeSpinner"
+                        android:layout_width="130dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:maxLines="1"
+                        android:padding="@dimen/activity_margin"
+                        android:theme="@style/spinnerStyle"
+                        app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginRight="16dp"
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_exchange" />
@@ -167,66 +212,24 @@
                     <ImageView
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
-                        android:layout_gravity="center"
+                        android:layout_gravity="center_vertical"
                         android:layout_marginRight="16dp"
                         android:tint="@color/accent_grey"
-                        app:srcCompat="@drawable/ic_frequency" />
-
-                    <dev.dworks.apps.acrypto.view.Spinner
-                        android:id="@+id/frequencySpinner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:padding="@dimen/activity_margin"
-                        android:theme="@style/spinnerStyle"
-                        app:ms_dropdown_max_height="@dimen/spinner_max_height" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="@dimen/icon_size"
-                        android:layout_height="@dimen/icon_size"
-                        android:layout_gravity="center"
-                        android:layout_marginRight="16dp"
-                        android:tint="@color/accent_grey"
-                        app:srcCompat="@drawable/ic_paid" />
-
-                    <dev.dworks.apps.acrypto.view.Spinner
-                        android:id="@+id/conditionSpinner"
-                        android:layout_width="100dp"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:padding="@dimen/activity_margin"
-                        android:theme="@style/spinnerStyle"
-                        app:ms_dropdown_max_height="@dimen/spinner_max_height" />
-
-                    <TextView
-                        android:id="@+id/symbol"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
-                        android:textSize="18sp"
-                        tools:text="$" />
+                        app:srcCompat="@drawable/ic_notes" />
 
                     <android.support.design.widget.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:paddingLeft="@dimen/grid_item_padding"
-                        android:paddingStart="@dimen/grid_item_padding">
+                        android:paddingLeft="16dp">
 
                         <EditText
-                            android:id="@+id/value"
+                            android:id="@+id/notes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:hint="Price"
-                            android:inputType="numberDecimal" />
+                            android:hint="Notes"
+                            android:inputType="textLongMessage"
+                            android:textAppearance="?android:attr/textAppearanceSmall" />
                     </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
 

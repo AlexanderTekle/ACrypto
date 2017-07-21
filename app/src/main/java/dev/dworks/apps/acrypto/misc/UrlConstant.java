@@ -27,6 +27,7 @@ public class UrlConstant {
     //public static final String COINLIST_URL =  "https://api.coinmarketcap.com/v1/ticker/";
     public static final String COINDETAILS_URL =  BASE_URL + "/api/data/coinsnapshot/";
     public static final String EXCHANGELIST_URL = BASE_API_URL + "/data/top/exchanges";
+    public static final String SUBSPAIRS_URL = BASE_API_URL + "/data/subsPairs";
     public static final String CONVERSION_URL = "https://query.yahooapis.com/v1/public/yql?q=%s&format=json&env=store://datatables.org/alltableswithkeys";
 
     public static String getArbitrageToUrl() {

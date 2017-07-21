@@ -9,6 +9,9 @@ import dev.dworks.apps.acrypto.utils.LogUtils;
 
 abstract class BaseRequest<T> extends Request<T> {
 
+	private int cacheSoftMinutes = 5;
+	private int cacheMinutes = 60;
+
 	BaseRequest(int method, String url, ErrorListener listener) {
 		super(method, url, listener);
 		setShouldCache(false);
@@ -24,4 +27,24 @@ abstract class BaseRequest<T> extends Request<T> {
 			LogUtils.sendFailureLog(error, getUrl(), getMethod(), null);
         }
     }
+
+	public BaseRequest<T> setDontExpireCache() {
+		this.cacheSoftMinutes = 0;
+		this.cacheMinutes = 0;
+		return this;
+	}
+
+	public BaseRequest<T> setCacheMinutes(int cacheSoftMinutes, int cacheMinutes) {
+		this.cacheSoftMinutes = cacheSoftMinutes;
+		this.cacheMinutes = cacheMinutes;
+		return this;
+	}
+
+	public int getCacheMinutes() {
+		return cacheMinutes;
+	}
+
+	public int getCacheSoftMinutes() {
+		return cacheSoftMinutes;
+	}
 }

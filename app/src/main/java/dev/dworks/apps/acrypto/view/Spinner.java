@@ -186,6 +186,7 @@ public class Spinner extends AppCompatTextView {
         if(event.getAction() == 1 && this.isEnabled() && this.isClickable()) {
             if(!this.popupWindow.isShowing()) {
                 this.expand();
+                performClick();
             } else {
                 this.collapse();
             }

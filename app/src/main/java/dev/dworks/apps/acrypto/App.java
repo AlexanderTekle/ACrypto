@@ -22,8 +22,10 @@ import java.util.Currency;
 import java.util.Locale;
 
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
+import dev.dworks.apps.acrypto.entity.CoinPairs;
 import dev.dworks.apps.acrypto.entity.DefaultData;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
+import dev.dworks.apps.acrypto.misc.LruCoinPairCache;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -51,6 +53,7 @@ public class App extends AppFlavour {
 	private ArrayList<CharSequence> currencyChars;
 	private String defaultCurrencyCode;
 	private DefaultData defaultData;
+	private LruCoinPairCache coinPairCache = new LruCoinPairCache();
 
 	@Override
 	public void onCreate() {
@@ -240,5 +243,13 @@ public class App extends AppFlavour {
 			} catch (Exception e) { }
 		}
 		return defaultCurrencyCode;
+	}
+
+	public CoinPairs.CoinPair getCachedCoinPair(String key) {
+		return coinPairCache.getCoinDetail(key);
+	}
+
+	public void putCoinPairCache(String key, CoinPairs.CoinPair coinPair) {
+		this.coinPairCache.putCoinDetail(key, coinPair);
 	}
 }
