@@ -12,6 +12,10 @@
             android:icon="@drawable/ic_menu_coins"
             android:title="Coins" />
         <item
+            android:id="@+id/nav_news"
+            android:icon="@drawable/ic_news"
+            android:title="News" />
+        <item
             android:id="@+id/nav_arbitrage"
             android:icon="@drawable/ic_arbitrage"
             android:title="Arbitrage" />

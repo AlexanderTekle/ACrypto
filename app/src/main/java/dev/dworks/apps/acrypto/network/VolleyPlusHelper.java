@@ -111,6 +111,26 @@ public class VolleyPlusHelper {
 
             mImageLoader = new SimpleImageLoader(mContext, cacheParams);
             mImageLoader.setDefaultDrawables(drawables);
+            mImageLoader.setMaxImageSize(hasMoreHeap() ? SCALE_DOWN_SIZE_SMALL: IMAGE_SIZE_BIG);
+            mImageLoader.setFadeInImage(mCrossfade);
+            mImageLoader.setContetResolver(mContext.getContentResolver());
+        }
+
+        return mImageLoader;
+    }
+
+    public SimpleImageLoader getNewsImageLoader(){
+        if(null == mImageLoader){
+            ImageCacheParams cacheParams = new ImageCacheParams(mContext,
+                    TextUtils.isEmpty(mCacheDir) ? IMAGE_BG_CACHE_DIR :  mCacheDir);
+            cacheParams.setMemCacheSizePercent(0.5f);
+
+            ArrayList<Drawable> drawables = new ArrayList<>();
+            drawables.add(AppCompatDrawableManager.get().getDrawable(mContext,
+                    mPlaceHolder == 0 ? R.drawable.ic_coins : mPlaceHolder));
+
+            mImageLoader = new SimpleImageLoader(mContext, cacheParams);
+            mImageLoader.setDefaultDrawables(drawables);
             mImageLoader.setMaxImageSize(hasMoreHeap() ? IMAGE_SIZE_BIG: IMAGE_SIZE);
             mImageLoader.setFadeInImage(mCrossfade);
             mImageLoader.setContetResolver(mContext.getContentResolver());

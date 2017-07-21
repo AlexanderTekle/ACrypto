@@ -193,7 +193,7 @@ public class TimeUtils {
         } else if (dayOrd == nowOrd + 1) {
             return TOMORROW;
         } else {
-            return DATE_FORMAT_NOTIFICATION.format(new Date(timestamp));
+            return formatShortDateHeader(new Date(timestamp));
         }
     }
 

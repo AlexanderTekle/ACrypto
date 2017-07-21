@@ -57,6 +57,8 @@ import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -113,6 +115,9 @@ public class Utils {
 
     //Home
     public static final String BUNDLE_NAME = "bundle_name";
+
+    //News
+    public static final String BUNDLE_NEWS = "bundle_news";
 
     //Portfolio
     public static final String BUNDLE_PORTFOLIO = "bundle_portfolio";
@@ -883,5 +888,19 @@ public class Utils {
             Intent login = new Intent(activity, LoginActivity.class);
             activity.startActivityForResult(login, MainActivity.LOGIN);
         }
+    }
+
+    public static String getDomainName(String url) {
+        String hostname = null;
+        try {
+            URI uri = new URI(url);
+            hostname = uri.getHost();
+            if (hostname != null) {
+                return hostname.startsWith("www.") ? hostname.substring(4) : hostname;
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return hostname;
     }
 }

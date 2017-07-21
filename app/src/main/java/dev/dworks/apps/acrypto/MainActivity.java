@@ -39,6 +39,7 @@ import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.news.NewsFragment;
 import dev.dworks.apps.acrypto.portfolio.PortfolioFragment;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.subscription.SubscriptionFragment;
@@ -284,6 +285,14 @@ public class MainActivity extends AppCompatActivity
                 spinner.setVisibility(View.GONE);
                 PortfolioFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_portfolio");
+                return true;
+
+            case R.id.nav_news:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                NewsFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_news");
                 return true;
 
             case R.id.nav_settings:
