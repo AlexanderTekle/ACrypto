@@ -30,8 +30,11 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.text.TextUtilsCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,6 +97,9 @@ import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
  * Created by HaKr on 20-Sep-14.
  */
 public class Utils {
+
+    public static final String AUTH_HEADER =  "X-AUTH-TOKEN";
+    public static final String CLIENT_HEADER =  "X-CLIENT-VERSION";
 
     @IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
     @Retention(RetentionPolicy.SOURCE)

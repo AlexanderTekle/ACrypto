@@ -32,18 +32,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.google.firebase.database.DataSnapshot;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
-
-import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.DialogFragment;
+import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.entity.Portfolio;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
+import dev.dworks.apps.acrypto.misc.UrlConstant;
+import dev.dworks.apps.acrypto.misc.UrlManager;
+import dev.dworks.apps.acrypto.network.MasterGsonRequest;
+import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.Spinner;
@@ -93,11 +96,11 @@ public class PortfolioDetailFragment extends DialogFragment {
         view.findViewById(R.id.info).setVisibility(Utils.getVisibility(isNew()));
         mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
         mCurrencyToSpinner.getPopupWindow().setWidth(300);
-        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
 
             @Override
-            public void onItemSelected(Spinner view, int position, long id, String item) {
-                curencyTo = item;
+            public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
+                curencyTo = item.code;
             }
         });
 
@@ -174,26 +177,29 @@ public class PortfolioDetailFragment extends DialogFragment {
     }
 
     private void fetchCurrencyToData() {
-        FirebaseHelper.getFirebaseDatabaseReference("master/currency")
-                .orderByChild("order")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<String> coins = new ArrayList<>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                            String coin = childSnapshot.getKey();
-                            coins.add(coin);
-                        }
-                        coins.add(CURRENCY_FROM_DEFAULT);
-                        mCurrencyToSpinner.setItems(coins);
-                        Utils.setSpinnerValue(mCurrencyToSpinner, CURRENCY_TO_DEFAULT, getCurrentCurrencyTo());
-                    }
 
+        String url = UrlManager.with(UrlConstant.CURRENCY_API).getUrl();
+
+        MasterGsonRequest<Currencies> request = new MasterGsonRequest<>(url,
+                Currencies.class,
+                new Response.Listener<Currencies>() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onResponse(Currencies currencies) {
+                        currencies.currencies.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+                        mCurrencyToSpinner.setItems(currencies.currencies);
+                        Utils.setSpinnerValue(mCurrencyToSpinner, CURRENCY_TO_DEFAULT,
+                                getCurrentCurrencyTo());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
 
                     }
                 });
+        request.setMasterExpireCache();
+        request.setShouldCache(true);
+        VolleyPlusMasterHelper.with(getActivity()).updateToRequestQueue(request, "currency_to");
     }
 
     public String getCurrentCurrencyTo(){

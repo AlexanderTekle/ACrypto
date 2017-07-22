@@ -6,15 +6,14 @@ import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
 import android.text.TextUtils;
 
+import com.android.volley.Response;
 import com.android.volley.VolleyLog;
+import com.android.volley.error.VolleyError;
 import com.github.javiersantos.appupdater.AppUpdater;
 import com.github.javiersantos.appupdater.enums.Display;
 import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.github.lykmapipo.localburst.LocalBurst;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -23,9 +22,16 @@ import java.util.Locale;
 
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.CoinPairs;
+import dev.dworks.apps.acrypto.entity.CoinsList;
+import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.entity.DefaultData;
+import dev.dworks.apps.acrypto.entity.Symbols;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.LruCoinPairCache;
+import dev.dworks.apps.acrypto.misc.UrlConstant;
+import dev.dworks.apps.acrypto.misc.UrlManager;
+import dev.dworks.apps.acrypto.network.MasterGsonRequest;
+import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -100,45 +106,54 @@ public class App extends AppFlavour {
 		currencyStrings = new ArrayList<>();
 		currencyChars = new ArrayList<>();
 
-		currencyStrings = new ArrayList<>();
-		currencyChars = new ArrayList<>();
-		FirebaseHelper.getFirebaseDatabaseReference().child("master/currency").orderByChild("order")
-				.addListenerForSingleValueEvent(new ValueEventListener() {
+		String url = UrlManager.with(UrlConstant.CURRENCY_API).getUrl();
+		MasterGsonRequest<Currencies> request = new MasterGsonRequest<>(url,
+				Currencies.class,
+				new Response.Listener<Currencies>() {
 					@Override
-					public void onDataChange(DataSnapshot dataSnapshot) {
-						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-							String currency = childSnapshot.getKey();
-							currencyStrings.add(currency);
-							currencyChars.add(currency);
+					public void onResponse(Currencies list) {
+
+						for (Currencies.Currency currency: list.currencies) {
+							currencyStrings.add(currency.code);
+							currencyChars.add(currency.code);
 						}
 					}
-
+				},
+				new Response.ErrorListener() {
 					@Override
-					public void onCancelled(DatabaseError databaseError) {
+					public void onErrorResponse(VolleyError volleyError) {
 
 					}
 				});
+		request.setMasterExpireCache();
+		request.setShouldCache(true);
+		VolleyPlusMasterHelper.with(getApplicationContext()).updateToRequestQueue(request, "currency");
 	}
 
 	private void loadCoinSymbols() {
+		String url = UrlManager.with(UrlConstant.SYMBOLS_API).getUrl();
 
-		FirebaseHelper.getFirebaseDatabaseReference().child("master/symbols")
-				.addListenerForSingleValueEvent(new ValueEventListener() {
+		MasterGsonRequest<Symbols> request = new MasterGsonRequest<>(url,
+				Symbols.class,
+				new Response.Listener<Symbols>() {
 					@Override
-					public void onDataChange(DataSnapshot dataSnapshot) {
+					public void onResponse(Symbols list) {
 						symbols = new ArrayMap<>();
-						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-							String currency = childSnapshot.getKey();
-							String symbol = (String) childSnapshot.getValue();
-							symbols.put(currency, symbol);
+
+						for (Symbols.Symbol sym: list.symbols) {
+							symbols.put(sym.code, sym.symbol);
 						}
 					}
-
+				},
+				new Response.ErrorListener() {
 					@Override
-					public void onCancelled(DatabaseError databaseError) {
+					public void onErrorResponse(VolleyError volleyError) {
 
 					}
 				});
+		request.setMasterExpireCache();
+		request.setShouldCache(true);
+		VolleyPlusMasterHelper.with(getApplicationContext()).updateToRequestQueue(request, "symbols");
 	}
 
 	private void loadCoinDetails() {
@@ -155,22 +170,29 @@ public class App extends AppFlavour {
 	}
 
 	private void loadCoinIgnore() {
-		FirebaseHelper.getFirebaseDatabaseReference().child("master/coins_ignore")
-				.addListenerForSingleValueEvent(new ValueEventListener() {
+		String url = UrlManager.with(UrlConstant.COINS_IGNORE_API).getUrl();
+
+		MasterGsonRequest<CoinsList> request = new MasterGsonRequest<>(url,
+				CoinsList.class,
+				new Response.Listener<CoinsList>() {
 					@Override
-					public void onDataChange(DataSnapshot dataSnapshot) {
+					public void onResponse(CoinsList list) {
 						coinsIgnore = new ArrayList<>();
-						for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-							String currency = childSnapshot.getKey();
-							coinsIgnore.add(currency);
+
+						for (CoinsList.Currency currency: list.coins_list) {
+							coinsIgnore.add(currency.code);
 						}
 					}
-
+				},
+				new Response.ErrorListener() {
 					@Override
-					public void onCancelled(DatabaseError databaseError) {
+					public void onErrorResponse(VolleyError volleyError) {
 
 					}
 				});
+		request.setMasterExpireCache();
+		request.setShouldCache(true);
+		VolleyPlusMasterHelper.with(getApplicationContext()).updateToRequestQueue(request, "coins_ignore");
 	}
 
 	public ArrayMap<String, String> getSymbols(){

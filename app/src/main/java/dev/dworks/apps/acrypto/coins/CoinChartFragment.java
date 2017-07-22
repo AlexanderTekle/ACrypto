@@ -368,7 +368,7 @@ public class CoinChartFragment extends ActionBarFragment
 
                     }
                 });
-        request.setCacheMinutes(1440, 1440);
+        request.setMasterExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG+"exchanges");
     }

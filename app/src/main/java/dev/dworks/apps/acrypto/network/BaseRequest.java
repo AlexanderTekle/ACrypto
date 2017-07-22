@@ -6,6 +6,7 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.error.VolleyError;
 
 import dev.dworks.apps.acrypto.utils.LogUtils;
+import dev.dworks.apps.acrypto.utils.Utils;
 
 abstract class BaseRequest<T> extends Request<T> {
 
@@ -31,6 +32,12 @@ abstract class BaseRequest<T> extends Request<T> {
 	public BaseRequest<T> setDontExpireCache() {
 		this.cacheSoftMinutes = 0;
 		this.cacheMinutes = 0;
+		return this;
+	}
+
+	public BaseRequest<T> setMasterExpireCache() {
+		this.cacheSoftMinutes = Utils.getMasterDataCacheTime();
+		this.cacheMinutes = Utils.getMasterDataCacheTime();
 		return this;
 	}
 

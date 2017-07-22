@@ -109,7 +109,7 @@ public class NewsFragment extends RecyclerFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(5, 60);
+        request.setCacheMinutes(60, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).addToRequestQueue(request, TAG);
 
