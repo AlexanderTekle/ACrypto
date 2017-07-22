@@ -75,6 +75,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_PORTFOLIO_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.REQUIRED;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
+import static dev.dworks.apps.acrypto.utils.Utils.setDecimalValue;
 
 public class PortfolioCoinDetailFragment extends ActionBarFragment
         implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
@@ -188,7 +189,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
             notes = mPortfolioCoin.notes;
 
             mAmount.setText(String.valueOf(amount));
-            mPrice.setText(String.valueOf(price));
+            setDecimalValue(mPrice, price, Utils.getCurrencySymbol(curencyTo));
             mNotes.setText(notes);
             Utils.setSpinnerValue(mPriceTypeSpinner, DEFAULT_PRICE_TYPE, getPriceType());
             if(boughtAt != 0) {

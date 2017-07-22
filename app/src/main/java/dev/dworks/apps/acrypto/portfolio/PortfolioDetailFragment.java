@@ -51,7 +51,6 @@ import dev.dworks.apps.acrypto.view.Spinner;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_PORTFOLIO;
-import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.REQUIRED;
 
 /**
@@ -65,14 +64,12 @@ public class PortfolioDetailFragment extends DialogFragment {
     private String curencyTo;
     private String name;
     private String description;
-    private String refKey;
     private EditText mDescription;
 
-    public static void show(FragmentManager fm, Portfolio portfolio, String refKey) {
+    public static void show(FragmentManager fm, Portfolio portfolio) {
         final PortfolioDetailFragment dialog = new PortfolioDetailFragment();
         final Bundle args = new Bundle();
         args.putSerializable(BUNDLE_PORTFOLIO, portfolio);
-        args.putSerializable(BUNDLE_REF_KEY, refKey);
         dialog.setArguments(args);
         dialog.show(fm, TAG);
     }
@@ -81,7 +78,6 @@ public class PortfolioDetailFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPortfolio = (Portfolio)getArguments().getSerializable(BUNDLE_PORTFOLIO);
-        refKey = getArguments().getString(BUNDLE_REF_KEY);
     }
 
     @Override
@@ -94,6 +90,7 @@ public class PortfolioDetailFragment extends DialogFragment {
         final View view = dialogInflater.inflate(R.layout.dialog_portfolio_detail, null, false);
         mName = (AppCompatEditText) view.findViewById(R.id.name);
         mDescription = (EditText) view.findViewById(R.id.description);
+        view.findViewById(R.id.info).setVisibility(Utils.getVisibility(isNew()));
         mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
         mCurrencyToSpinner.getPopupWindow().setWidth(300);
         mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
@@ -110,20 +107,50 @@ public class PortfolioDetailFragment extends DialogFragment {
             curencyTo = mPortfolio.currency;
             mName.setText(name);
             mDescription.setText(description);
+            mCurrencyToSpinner.setEnabled(false);
         }
         fetchCurrencyToData();
         builder.setTitle( (isNew() ? "New" : "Edit") + " Portfolio");
         builder.setView(view);
 
-        builder.setPositiveButton(isNew() ? "ADD" : "SAVE", new OnClickListener() {
+        builder.setPositiveButton(isNew() ? "ADD" : "UPDATE", new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 save();
             }
         });
+        if(!isNew()) {
+            builder.setNeutralButton("DELETE", new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    delete();
+                }
+            });
+        }
         builder.setNegativeButton(android.R.string.cancel, null);
 
         return builder.create();
+    }
+
+    private void delete() {
+        if(!Utils.isNetConnected(getActivity())){
+            Utils.showNoInternetSnackBar(getActivity(), null);
+            return;
+        }
+
+        DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
+                .child("portfolios")
+                .child(FirebaseHelper.getCurrentUid())
+                .child(mPortfolio.id);
+        reference.removeValue(new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if(null == databaseError && null != getActivity()){
+                    AnalyticsManager.logEvent("portfolio_deleted");
+                    dismiss();
+                }
+            }
+        });
     }
 
     @Override
@@ -191,18 +218,18 @@ public class PortfolioDetailFragment extends DialogFragment {
                 .child(FirebaseHelper.getCurrentUid());
 
         DatabaseReference databaseReference;
-        if(TextUtils.isEmpty(refKey)){
+        if(isNew()){
             databaseReference = reference.push();
             portfolio.id = databaseReference.getKey();
         } else {
-            databaseReference = reference.child(refKey);
-            portfolio.id = refKey;
+            databaseReference = reference.child(mPortfolio.id);
+            portfolio.id = mPortfolio.id;
         }
         databaseReference.setValue(portfolio, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(null == databaseError && null != getActivity()){
-                    AnalyticsManager.logEvent(TextUtils.isEmpty(refKey) ? "portfolio_added" : "portfolio_edited");
+                    AnalyticsManager.logEvent(isNew() ? "portfolio_added" : "portfolio_edited");
                 }
             }
         });

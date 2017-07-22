@@ -516,10 +516,8 @@ public class Utils {
         textView.setSymbol(symbol);
     }
 
-    public static void setDecimalValue(MoneyTextView textView, double value, String symbol){
-        textView.setDecimalFormat(getDecimalFormat(symbol));
-        textView.setAmount((float) Math.abs(value));
-        textView.setSymbol(symbol);
+    public static void setDecimalValue(TextView textView, double value, String symbol){
+        textView.setText(getDecimalFormat(symbol).format(Math.abs(value)));
     }
 
     public static void setDateTimeValue(TextView textView, long timeInMillis){
@@ -560,7 +558,7 @@ public class Utils {
     }
 
     public static DecimalFormat getMoneyTotalFormat(String symbol){
-        String precisionFormat = "###,##0";
+        String precisionFormat = "###,##0.###";
 
         if("Ƀ".compareTo(symbol) == 0){
             precisionFormat = "###,##0.00000000";

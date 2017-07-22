@@ -158,7 +158,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
-            inflater.inflate(R.menu.refresh, menu);
+            inflater.inflate(R.menu.portfolio_details, menu);
         }
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -169,8 +169,12 @@ public class PortfolioCoinFragment extends RecyclerFragment
             case R.id.action_refresh:
                 removeUrlCache();
                 fetchPairsData();
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("portfolio_refreshed", bundle);
+                AnalyticsManager.logEvent("portfolio_refreshed");
+                break;
+
+            case R.id.action_edit_portfolio:
+                AnalyticsManager.logEvent("edit_portfolio");
+                PortfolioDetailFragment.show(getChildFragmentManager(), mPortfolio);
                 break;
         }
         return super.onOptionsItemSelected(item);

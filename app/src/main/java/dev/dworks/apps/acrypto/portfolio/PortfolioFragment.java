@@ -189,7 +189,7 @@ public class PortfolioFragment extends ActionBarFragment {
         switch (item.getItemId()){
             case R.id.action_add_portfolio:
                 if(FirebaseHelper.isLoggedIn()) {
-                    PortfolioDetailFragment.show(getChildFragmentManager(), null, null);
+                    PortfolioDetailFragment.show(getChildFragmentManager(), (Portfolio) null);
                 } else {
                     openLogin();
                 }

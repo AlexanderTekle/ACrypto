@@ -93,5 +93,15 @@
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="30dp"
+            android:padding="10dp"
+            android:text="* The selected currency will be the default currency of this portfolio"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textIsSelectable="false" />
     </LinearLayout>
 </FrameLayout>
