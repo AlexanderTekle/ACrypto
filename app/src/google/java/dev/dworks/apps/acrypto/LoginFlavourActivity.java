@@ -91,7 +91,7 @@ public abstract class LoginFlavourActivity extends AppCompatActivity {
     protected abstract void showProgress();
 
     protected void handleGoogleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
+        if (null != result && result.isSuccess()) {
             // Google Sign In was successful, authenticate with Firebase
             GoogleSignInAccount account = result.getSignInAccount();
             firebaseAuthWithGoogle(account);

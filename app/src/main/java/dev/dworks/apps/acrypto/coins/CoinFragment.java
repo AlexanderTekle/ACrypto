@@ -256,6 +256,9 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onItemClick(View view, int position) {
+        if(position >= mAdapter.getItemCount() ){
+            return;
+        }
         Coins.CoinDetail item = Coins.getCoin(mAdapter.getItem(position));
         Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
         intent.putExtra(BUNDLE_COIN, item);
