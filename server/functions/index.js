@@ -588,3 +588,15 @@ function createFirebaseAccount(uid, displayName, email){
     });
   });
 }
+
+exports.deletePortfolioCoins = functions.database.ref('/portfolios/{uid}/{portfolioId}').onDelete(event => {
+  const uid = event.params.uid;
+  const portfolioId = event.params.portfolioId;
+
+  return admin.database().ref(`/portfolio_coins/${uid}/${portfolioId}`).remove().then(result => {
+    logInfo("Delete portfolio coins", {user: uid, key : portfolioId});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'delete portfolio coins'});
+  });
+});
