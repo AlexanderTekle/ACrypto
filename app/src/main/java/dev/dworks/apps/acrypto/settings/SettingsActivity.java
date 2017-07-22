@@ -16,6 +16,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     public static final String TAG = "Settings";
     public static final String CURRENCY_FROM_DEFAULT = "BTC";
+    public static final String CURRENCY_FROM_SECOND_DEFAULT = "ETH";
     public static final String CURRENCY_TO_DEFAULT = "USD";
     public static final String CURRENCY_ONE_DEFAULT = "USD";
     public static final String CURRENCY_TWO_DEFAULT = "INR";

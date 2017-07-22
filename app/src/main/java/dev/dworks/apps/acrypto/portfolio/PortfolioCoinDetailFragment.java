@@ -66,6 +66,7 @@ import static dev.dworks.apps.acrypto.home.HomeFragment.LIMIT_ALT;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.CONVERSION_URL;
 import static dev.dworks.apps.acrypto.portfolio.PortfolioFragment.DEFAULT_PRICE_TYPE;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_SECOND_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
@@ -174,6 +175,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         calendarBoughtAt = Calendar.getInstance();
 
         curencyTo = mPortfolio.currency;
+        curencyFrom = curencyTo.equals(CURRENCY_FROM_DEFAULT) ? CURRENCY_FROM_SECOND_DEFAULT : CURRENCY_FROM_DEFAULT;
 
         if(null != mPortfolioCoin) {
             curencyFrom = mPortfolioCoin.coin;
@@ -317,8 +319,10 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
                             String coin = childSnapshot.getKey();
                             coins.add(coin);
                         }
-                        mCurrencyFromSpinner.setItems(coins);
-                        Utils.setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT,
+                        mCurrencyFromSpinner.setItems(getCurrencyFromList(coins));
+                        Utils.setSpinnerValue(mCurrencyFromSpinner,
+                                getCurrentCurrencyTo().equals(CURRENCY_FROM_DEFAULT) ?
+                                        CURRENCY_FROM_SECOND_DEFAULT : CURRENCY_FROM_DEFAULT,
                                 getCurrentCurrencyFrom());
                     }
 
@@ -641,7 +645,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("fsym", getCurrentCurrencyTo());
         params.put("tsyms", mPortfolio.currency);
-        //params.put("ts", String.valueOf(changeTimestamp));
+        params.put("ts", String.valueOf(getBoughtAt()/1000));
 
         String url = UrlManager.with(UrlConstant.HISTORY_PRICE_HISTORICAL_URL)
                 .setDefaultParams(params).getUrl();
@@ -653,8 +657,8 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
                         double diffValue = 0;
                         try {
                             JSONObject jsonObject = new JSONObject(response);
-                            JSONObject currencyFrom = jsonObject.getJSONObject(getCurrentCurrencyFrom());
-                            diffValue = currencyFrom.getDouble(getCurrentCurrencyTo());
+                            JSONObject currencyFrom = jsonObject.getJSONObject(getCurrentCurrencyTo());
+                            diffValue = currencyFrom.getDouble(mPortfolio.currency);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
