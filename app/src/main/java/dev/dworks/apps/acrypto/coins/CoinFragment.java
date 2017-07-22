@@ -132,7 +132,7 @@ public class CoinFragment extends RecyclerFragment
 
     private String getUrl() {
         return UrlManager.with(UrlConstant.COINLIST_URL)
-                .setParam("limit", "60")
+                .setParam("limit", "100")
                 .setParam("symbol", mCurrency)
                 .getUrl();
     }
