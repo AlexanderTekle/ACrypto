@@ -901,4 +901,10 @@ public class Utils {
         }
         return hostname;
     }
+
+    public static final Spannable getColoredString(Context context, CharSequence text, int color) {
+        Spannable spannable = new SpannableString(text);
+        spannable.setSpan(new ForegroundColorSpan(color), 0, spannable.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannable;
+    }
 }
