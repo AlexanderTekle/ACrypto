@@ -87,9 +87,9 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if(TextUtils.isEmpty(getNotificationType(extras))){
-                HomeFragment.show(getSupportFragmentManager(), null);
+                showHome(null);
             } else {
-                handleExtras(extras);
+                handleExtras(false, extras);
             }
         }
 
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        handleExtras(intent.getExtras());
+        handleExtras(true, intent.getExtras());
     }
 
     private void initControls() {
@@ -392,20 +392,21 @@ public class MainActivity extends AppCompatActivity
         spinner.setSelection(index);
     }
 
-    private void handleExtras(Bundle extras) {
+    private void handleExtras(boolean newIntent, Bundle extras) {
         String type = getNotificationType(extras);
         if(TextUtils.isEmpty(type)){
+            if(!newIntent){
+                showHome(null);
+            }
             return;
         }
         if(type.equals(TYPE_ALERT)){
             String name = getAlertName(extras);
-            if(!TextUtils.isEmpty(name)){
-                HomeFragment.show(getSupportFragmentManager(), name);
-                Bundle bundle = new Bundle();
-                bundle.putString("source", "notification");
-                AnalyticsManager.logEvent("view_home", bundle);
-            }
-        } else if (type.equals(TYPE_URL)){
+            showHome(name);
+            Bundle bundle = new Bundle();
+            bundle.putString("source", "notification");
+            AnalyticsManager.logEvent("view_home", bundle);
+        } else if(type.equals(TYPE_URL)){
             String url = getNotificationUrl(extras);
             if(!TextUtils.isEmpty(url)){
                 Utils.openCustomTabUrl(this, url);
@@ -418,6 +419,14 @@ public class MainActivity extends AppCompatActivity
         } else {
             //Do nothing
         }
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (null == fragment) {
+            showHome(null);
+        }
+    }
+
+    private void showHome(String name) {
+        HomeFragment.show(getSupportFragmentManager(), name);
     }
 
     private void initAd() {

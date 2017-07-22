@@ -180,8 +180,9 @@ public class TimeUtils {
         long localTimestamp, localTime;
         long now = System.currentTimeMillis();
 
-        localTimestamp = timestamp;
-        localTime = now;
+        TimeZone tz = TimeZone.getDefault();
+        localTimestamp = timestamp + tz.getOffset(timestamp);
+        localTime = now + tz.getOffset(now);
 
         long dayOrd = localTimestamp / MILLIS_IN_A_DAY;
         long nowOrd = localTime / MILLIS_IN_A_DAY;
