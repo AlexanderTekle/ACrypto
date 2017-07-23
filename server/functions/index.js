@@ -207,7 +207,7 @@ app.get('/symbols', (req, res) => {
   });
 });
 
-// GET /api/crons/alert_price
+// GET /api/crons/alerts/price
 // Triggers price alert check
 app.get('/crons/alerts/price', (req, res) => {
   return admin.database().ref(`/crons/alerts/price`).set(admin.database.ServerValue.TIMESTAMP).then(result => {
@@ -220,7 +220,7 @@ app.get('/crons/alerts/price', (req, res) => {
 });
 
 // GET /api/amazontoken
-// Triggers price alert check for testing
+// Returns custome token for amazon login
 app.get('/amazontoken', (req, res) => {
   const userId = req.query.userid;
   const accessToken = req.query.accesstoken;
@@ -253,6 +253,30 @@ app.get('/amazontoken', (req, res) => {
   }).catch(error => {
     reportError(error, { type: 'http_request', context: 'amazon profile'});
     return res.status(403).json({error: 'Authentication error: Cannot verify access token', error});
+  });
+});
+
+// GET /api/crons/alerts/news
+// Triggers news alerts
+app.get('/crons/alerts/news', (req, res) => {
+  return admin.database().ref(`/crons/alerts/news`).set(admin.database.ServerValue.TIMESTAMP).then(result => {
+    return res.status(200).json({news: 'triggered'});
+  })
+  .catch(error => {
+    reportError(error, {type: 'http_request', context: 'news alert cron'});
+    res.sendStatus(500);
+  });
+});
+
+// GET /api/crons/process/news
+// Triggers news processing
+app.get('/crons/process/news', (req, res) => {
+  return admin.database().ref(`/crons/process/news/lastUpdated`).set(admin.database.ServerValue.TIMESTAMP).then(result => {
+    return res.status(200).json({news: 'processed'});
+  })
+  .catch(error => {
+    reportError(error, {type: 'http_request', context: 'news process cron'});
+    res.sendStatus(500);
   });
 });
 
@@ -600,3 +624,98 @@ exports.deletePortfolioCoins = functions.database.ref('/portfolios/{uid}/{portfo
     return reportError(error, {user: uid, type: 'database_write', context: 'delete portfolio coins'});
   });
 });
+
+// Inserts latest news
+exports.newsProcessJob = functions.database.ref('/crons/process/news').onUpdate(event => {
+  const snapshot = event.data;
+  const newsId = snapshot.current.val().id;
+  return processNewsJob(newsId);
+});
+
+function createNewsUrl(newsId) {
+  return 'https://api.btckan.com/news/m_brief?lang=en&before_id='+newsId;
+}
+
+function processNewsJob(newsId){
+  return rp(createNewsUrl(newsId),
+  {resolveWithFullResponse: true}).then(response => {
+    if (response.statusCode === 200) {
+      const jsonData = JSON.parse(response.body);
+      if(jsonData.result != 'success'){
+        logInfo('Cant fetch news', {newsId: newsId});
+      }
+
+      var lastNewsItem = jsonData.data.news[0];
+      if(!lastNewsItem){
+        logInfo("No new news", {newsId: newsId});
+        return;
+      }
+      for(var newsItem of jsonData.data.news) {
+        newsItem.set('notificationStatus', 0);
+        admin.database().ref(`/news/data`).child(newsItem.id).update(newsItem);
+
+      }
+      return admin.database().ref(`/crons/process/news/id`).set(lastNewsItem.id).then(result => {
+        logInfo("News updated", {newsId: lastNewsItem.id});
+      })
+      .catch(error => {
+        return reportError(error, {type: 'database_write', context: 'process news'});
+      });
+    }
+    throw response.body;
+  }).catch(error => {
+    return reportError(error, {type: 'http_request', context: 'news fetching'});
+  });
+}
+
+// Sends Alerts for news
+exports.newsAlertJob = functions.database.ref('/crons/alerts/news').onUpdate(event => {;
+  return sendNewsAlerts();
+});
+
+function sendNewsAlerts() {
+  return admin.database().ref('/news/data').limitToLast(1).once('value').then(snapshot => {
+    snapshot.forEach(function(dataSnapshot) {
+      const newsId = dataSnapshot.key;
+      const link = dataSnapshot.val().source_source_link;
+      const content = dataSnapshot.val().title;
+      // Notification details.
+      const payload = {
+        notification: {
+          title: 'ACrypto News',
+          body: content,
+          sound: 'default',
+          tag: newsId
+        },
+        data: {
+          title: 'ACrypto News',
+          body: content,
+          url: link,
+          sound: 'default',
+          type: "url"
+        }
+      };
+      // Set the message as high priority and have it expire after 24 hours.
+      const options = {
+        priority: "high",
+        timeToLive: 60 * 30
+      };
+      const topic = "news_all";
+      return admin.messaging().sendToTopic(topic, payload, options).then(response => {
+        logInfo("Successfully sent news alert", {newsId: newsId, topic : topic});
+        return admin.database().ref(`/news/data/${newsId}/notificationStatus`).set(1).then(result => {
+          logInfo("Updated news status", {newsId: newsId});
+        })
+        .catch(error => {
+          return reportError(error, {newsId: newsId, topic : topic, type: 'database_write', context: 'update news status'});
+        });
+      })
+      .catch(error => {
+        return reportError(error, {newsId: newsId, topic : topic, type: 'fcm_topic'});
+      });
+    });
+  })
+  .catch(error => {
+    return reportError(error, {type: 'database_query', context: 'news alerts'});
+  });
+}
