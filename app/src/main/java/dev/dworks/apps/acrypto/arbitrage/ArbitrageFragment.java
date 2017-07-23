@@ -205,10 +205,10 @@ public class ArbitrageFragment extends ActionBarFragment{
             }
         });
 
-        mCurrencyTwoSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
+        mCurrencyTwoSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
 
-            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
-                SettingsActivity.setCurrencyTwo(item);
+            @Override public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
+                SettingsActivity.setCurrencyTwo(item.code);
                 refreshData();
                 Bundle bundle = new Bundle();
                 bundle.putString("coin", getCurrentCurrencyFrom());

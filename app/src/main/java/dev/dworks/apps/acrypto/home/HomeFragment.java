@@ -333,7 +333,7 @@ public class HomeFragment extends ActionBarFragment
         mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedNumber(value, getCurrentCurrencyToSymbol());
+                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol());
             }
         });
 
@@ -396,6 +396,7 @@ public class HomeFragment extends ActionBarFragment
 
     private void fetchData(boolean refreshAll) {
         String url = getUrl();
+        mPrice = null;
         mChartProgress.setVisibility(View.VISIBLE);
         mChart.highlightValue(null);
         mBarChart.highlightValue(null);
@@ -556,7 +557,6 @@ public class HomeFragment extends ActionBarFragment
         }
         if (!Utils.isNetConnected(getActivity())) {
             setEmptyData("No Internet");
-            mControls.setVisibility(View.INVISIBLE);
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -566,7 +566,6 @@ public class HomeFragment extends ActionBarFragment
         }
         else{
             setEmptyData("Something went wrong!");
-            mControls.setVisibility(View.INVISIBLE);
             Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -610,6 +609,10 @@ public class HomeFragment extends ActionBarFragment
 
     private void setEmptyData(String message){
         mChartProgress.setVisibility(View.GONE);
+        if(null != mPrice){
+            return;
+        }
+        mControls.setVisibility(View.INVISIBLE);
         mChart.setNoDataText(message);
         mChart.clear();
         mChart.invalidate();

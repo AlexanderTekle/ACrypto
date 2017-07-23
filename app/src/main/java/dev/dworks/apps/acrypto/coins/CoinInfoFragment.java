@@ -177,7 +177,7 @@ public class CoinInfoFragment extends ActionBarFragment
         mChartProgress.setVisibility(View.VISIBLE);
         mParentLayout.setVisibility(View.INVISIBLE);
         mEmpty.setVisibility(View.GONE);
-
+        mCoinDetails = null;
         GsonRequest<CoinDetails> request = new GsonRequest<>(getUrl(),
                 CoinDetails.class,
                 "",
@@ -252,11 +252,13 @@ public class CoinInfoFragment extends ActionBarFragment
     }
 
     private void setEmptyData(String message){
+        mChartProgress.setVisibility(View.GONE);
+        if(null != mCoinDetails){
+            return;
+        }
         mParentLayout.setVisibility(View.INVISIBLE);
         mEmpty.setVisibility(View.VISIBLE);
         mEmpty.setText(message);
-
-        mChartProgress.setVisibility(View.GONE);
     }
 
     @Override

@@ -236,6 +236,9 @@ public class Utils {
     }
 
     public static void showSnackBar(Activity activity, String text){
+        if(null == activity){
+            return;
+        }
         showSnackBar(activity.findViewById(android.R.id.content), text, Snackbar.LENGTH_SHORT);
     }
 
@@ -257,6 +260,9 @@ public class Utils {
     }
 
     public static void showRetrySnackBar(Activity activity, String text, View.OnClickListener listener){
+        if(null == activity){
+            return;
+        }
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content), text, Snackbar.LENGTH_INDEFINITE);
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
@@ -274,6 +280,9 @@ public class Utils {
     }
 
     public static void showSnackBar(Activity activity, String text, int duration, String action, View.OnClickListener listener){
+        if(null == activity){
+            return;
+        }
         Snackbar.make(activity.findViewById(android.R.id.content), text, duration).setAction(action, listener).show();
     }
 
@@ -550,6 +559,20 @@ public class Utils {
         return decimalFormat;
     }
 
+    public static DecimalFormat getIntegerFormat(String symbol){
+        String precisionFormat = "###,##0";
+
+        if("Ƀ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        } else if("Ξ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
+        decimalFormat.setDecimalSeparatorAlwaysShown(false);
+        return decimalFormat;
+    }
+
+
     public static DecimalFormat getMoneyFormat(String symbol){
         String precisionFormat = "###,##0.###";
 
@@ -729,6 +752,11 @@ public class Utils {
         return roundedNumberFormat.format(value);
     }
 
+    public static String getFormattedInteger(double value, String symbol){
+        DecimalFormat decimalFormat = getIntegerFormat(symbol);
+        return decimalFormat.format(value);
+    }
+
     public static String getFormattedNumber(double value, String symbol){
         DecimalFormat decimalFormat = getMoneyFormat(symbol);
         return decimalFormat.format(value);
@@ -801,7 +829,7 @@ public class Utils {
         return ConnectionResult.SUCCESS == GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
     }
 
-    public static int getMasterDataCacheTime() {
+    public static long getMasterDataCacheTime() {
         return 1440*30;
     }
 

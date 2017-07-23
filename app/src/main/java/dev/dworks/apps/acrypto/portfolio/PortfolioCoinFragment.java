@@ -113,7 +113,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setLayoutManager(new LinearLayoutManager(view.getContext()));
+        setLayoutManager(new LinearLayoutManager(getActivity()));
         setHasFixedSize(true);
         addPortfolioCoin = (FloatingActionButton) view.findViewById(R.id.add_portfolio_coin);
         addPortfolioCoin.setOnClickListener(this);
@@ -225,11 +225,20 @@ public class PortfolioCoinFragment extends RecyclerFragment
     }
 
     @Override
+    public void onDestroyView() {
+        if (mAdapter != null) {
+            mAdapter.unregisterAdapterDataObserver(dataObserver);
+            getListView().setAdapter(null);
+        }
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
-        super.onDestroy();
         if (mAdapter != null) {
             mAdapter.cleanup();
         }
+        super.onDestroy();
     }
 
     @Override
@@ -316,7 +325,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         setListShown(true);
-                        Utils.showRetrySnackBar(getActivity(), "Couldnt fetch the current price.", new View.OnClickListener() {
+                        Utils.showRetrySnackBar(getActivity(), "Couldnt fetch the latest prices", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 fetchPairsData();

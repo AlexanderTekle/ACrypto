@@ -506,7 +506,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
         set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
         set1.setCircleColorHole(getColor(this, R.color.colorPrimaryLight));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
-        set1.setFillAlpha(255);
+        set1.setFillAlpha(200);
         set1.setHighlightLineWidth(1);
 
         set1.setDrawValues(false);

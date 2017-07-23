@@ -10,8 +10,8 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 abstract class BaseRequest<T> extends Request<T> {
 
-	private int cacheSoftMinutes = 5;
-	private int cacheMinutes = 60;
+	private long cacheSoftMinutes = 5;
+	private long cacheMinutes = 60;
 
 	BaseRequest(int method, String url, ErrorListener listener) {
 		super(method, url, listener);
@@ -41,17 +41,17 @@ abstract class BaseRequest<T> extends Request<T> {
 		return this;
 	}
 
-	public BaseRequest<T> setCacheMinutes(int cacheSoftMinutes, int cacheMinutes) {
+	public BaseRequest<T> setCacheMinutes(long cacheSoftMinutes, long cacheMinutes) {
 		this.cacheSoftMinutes = cacheSoftMinutes;
 		this.cacheMinutes = cacheMinutes;
 		return this;
 	}
 
-	public int getCacheMinutes() {
+	public long getCacheMinutes() {
 		return cacheMinutes;
 	}
 
-	public int getCacheSoftMinutes() {
+	public long getCacheSoftMinutes() {
 		return cacheSoftMinutes;
 	}
 }
