@@ -207,6 +207,30 @@ app.get('/symbols', (req, res) => {
   });
 });
 
+// GET /api/news
+// Get the news
+app.get('/news', (req, res) => {
+
+  return admin.database().ref(`/news/data`)
+  .orderByChild('publish_time').limitToLast(30)
+  .once('value')
+  .then(snapshot => {
+    var value = snapshot.val();
+    if (value) {
+      var messages = [];
+      snapshot.forEach(childSnapshot => {
+        messages.push(childSnapshot.val());
+      });
+      return res.status(200).json({news: messages.reverse()});
+    } else {
+      res.status(401).json({error: 'No data found'});
+    }
+  }).catch(error => {
+    reportError(error, {type: 'http_request', context: req.url});
+    res.sendStatus(500);
+  });
+});
+
 // GET /api/crons/alerts/price
 // Triggers price alert check
 app.get('/crons/alerts/price', (req, res) => {
@@ -651,7 +675,7 @@ function processNewsJob(newsId){
         return;
       }
       for(var newsItem of jsonData.data.news) {
-        newsItem.set('notificationStatus', 0);
+        newsItem.notificationStatus = 0;
         admin.database().ref(`/news/data`).child(newsItem.id).update(newsItem);
 
       }
@@ -674,7 +698,8 @@ exports.newsAlertJob = functions.database.ref('/crons/alerts/news').onUpdate(eve
 });
 
 function sendNewsAlerts() {
-  return admin.database().ref('/news/data').limitToLast(1).once('value').then(snapshot => {
+  return admin.database().ref('/news/data')
+  .orderByChild('notificationStatus').equalTo(0).limitToFirst(1).once('value').then(snapshot => {
     snapshot.forEach(function(dataSnapshot) {
       const newsId = dataSnapshot.key;
       const link = dataSnapshot.val().source_source_link;
