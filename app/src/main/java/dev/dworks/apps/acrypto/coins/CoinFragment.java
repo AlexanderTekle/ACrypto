@@ -118,6 +118,7 @@ public class CoinFragment extends RecyclerFragment
         setListShown(false);
         String url = getUrl();
 
+        mCoins = null;
         GsonRequest<Coins> request = new GsonRequest<>(
                 url,
                 Coins.class,
@@ -139,9 +140,8 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        setListShown(true);
         if (!Utils.isNetConnected(getActivity())) {
-            setEmptyText("No Internet");
+            setEmptyData("No Internet");
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -150,7 +150,7 @@ public class CoinFragment extends RecyclerFragment
             });
         }
         else{
-            setEmptyText("Something went wrong!");
+            setEmptyData("Something went wrong!");
             Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -163,6 +163,15 @@ public class CoinFragment extends RecyclerFragment
     @Override
     public void onResponse(Coins response) {
         loadData(response);
+    }
+
+    public void setEmptyData(String mesasge){
+        setListShown(true);
+        if(null != mCoins){
+            return;
+        }
+        mAdapter.clear();
+        setEmptyText(mesasge);
     }
 
     public void refreshData(String currency) {

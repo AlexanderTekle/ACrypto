@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,7 +24,7 @@ import dev.dworks.apps.acrypto.entity.News;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
-import dev.dworks.apps.acrypto.network.GsonRequest;
+import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -37,11 +36,12 @@ import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class NewsFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
-        Response.Listener<News>, Response.ErrorListener, RecyclerView.RecyclerListener{
+        Response.Listener<News>, Response.ErrorListener {
 
     private static final String TAG = "News";
     private Utils.OnFragmentInteractionListener mListener;
     private NewsAdapter mAdapter;
+    private News mNews;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -103,16 +103,15 @@ public class NewsFragment extends RecyclerFragment
         setListShown(false);
         String url = getUrl();
 
-        GsonRequest<News> request = new GsonRequest<>(
+        mNews = null;
+        MasterGsonRequest<News> request = new MasterGsonRequest<>(
                 url,
                 News.class,
-                "",
                 this,
                 this);
         request.setCacheMinutes(60, 60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).addToRequestQueue(request, TAG);
-
     }
 
     private String getUrl() {
@@ -122,9 +121,8 @@ public class NewsFragment extends RecyclerFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        setListShown(true);
         if (!Utils.isNetConnected(getActivity())) {
-            setEmptyText("No Internet");
+            setEmptyData("No Internet");
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -133,7 +131,7 @@ public class NewsFragment extends RecyclerFragment
             });
         }
         else{
-            setEmptyText("Something went wrong!");
+            setEmptyData("Something went wrong!");
             Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -145,7 +143,17 @@ public class NewsFragment extends RecyclerFragment
 
     @Override
     public void onResponse(News response) {
+        mNews = response;
         loadData(response);
+    }
+
+    public void setEmptyData(String mesasge){
+        setListShown(true);
+        if(null != mNews){
+            return;
+        }
+        mAdapter.clear();
+        setEmptyText(mesasge);
     }
 
     public void refreshData(String currency) {
@@ -155,7 +163,7 @@ public class NewsFragment extends RecyclerFragment
 
     private void loadData(News news) {
         mAdapter.clear();
-        if(null != news && news.code == 200) {
+        if(null != news) {
             mAdapter.setData(news.getData());
             setEmptyText("");
         } else {
@@ -193,9 +201,7 @@ public class NewsFragment extends RecyclerFragment
         if(null == mAdapter) {
             mAdapter = new NewsAdapter(getActivity(), this);
         }
-        getListView().setRecyclerListener(this);
         setListAdapter(mAdapter);
-
         fetchDataTask();
     }
 
@@ -238,17 +244,5 @@ public class NewsFragment extends RecyclerFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
-    }
-
-    @Override
-    public void onViewRecycled(RecyclerView.ViewHolder holder) {
-        final View price = holder.itemView.findViewById(R.id.price);
-        if (price != null) {
-            final NewsAdapter.LinkPreviewTask oldTask = (NewsAdapter.LinkPreviewTask) price.getTag();
-            if (oldTask != null) {
-                oldTask.preempt();
-                price.setTag(null);
-            }
-        }
     }
 }

@@ -1,9 +1,6 @@
 package dev.dworks.apps.acrypto.news;
 
 import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,24 +9,13 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.toolbox.VolleyTickle;
-
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.News;
-import dev.dworks.apps.acrypto.misc.ProviderExecutor;
-import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.misc.linkpreview.CacheUtils;
-import dev.dworks.apps.acrypto.misc.linkpreview.Link;
-import dev.dworks.apps.acrypto.misc.linkpreview.ParseUtils;
-import dev.dworks.apps.acrypto.network.StringRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
-import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
@@ -181,81 +167,11 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> im
             News.NewsData item = mData.get(position);
             String url = "";
             title.setText(item.title);
-            time.setText(TimeUtils.formatHumanFriendlyShortDate(item.publicated * 1000));
+            //time.setText(TimeUtils.formatHumanFriendlyShortDate(item.publicated * 1000));
+            time.setText(item.publish_time);
             channel.setText(Utils.getDomainName(item.link));
-
-            final LinkPreviewTask oldTask = (LinkPreviewTask) imageView.getTag();
-            if (oldTask != null) {
-                oldTask.preempt();
-                imageView.setTag(null);
-            }
-            Link link = mCache.get(item.link);
-            if (null != link) {
-                imageView.setImageUrl(link.getImage(),
-                        VolleyPlusHelper.with(imageView.getContext()).getNewsImageLoader());
-            } else {
-                imageView.setImageDrawable(null);
-                final LinkPreviewTask task = new LinkPreviewTask(imageView, item.link);
-                imageView.setTag(task);
-                ProviderExecutor.forAuthority("preview").execute(task);
-            }
-        }
-    }
-
-    public class LinkPreviewTask extends AsyncTask<Uri, Void, Link>
-            implements ProviderExecutor.Preemptable {
-        private final ImageView imageView;
-        private final String mUrl;
-        private final CancellationSignal mSignal;
-
-        public LinkPreviewTask(ImageView sizeView, String url) {
-            imageView = sizeView;
-            mUrl = url;
-            mSignal = new CancellationSignal();
-        }
-
-        @Override
-        public void preempt() {
-            cancel(false);
-            mSignal.cancel();
-        }
-
-        @Override
-        protected Link doInBackground(Uri... params) {
-            if (isCancelled())
-                return null;
-
-            return loadLink();
-        }
-
-        private Link loadLink() {
-            String url = UrlManager.with(mUrl).getUrl();
-
-            StringRequest request = new StringRequest(url, null,null);
-            NetworkResponse response = VolleyPlusHelper.with().startTickle(request);
-            if (response.statusCode == 200 || response.statusCode == 201) {
-                String data = VolleyTickle.parseResponse(response);
-                try {
-                    Link link = ParseUtils.getLinkData(new URL(mUrl), data);
-                    return link;
-                } catch (IOException var5) {
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Link result) {
-            if (isCancelled()) {
-                result = null;
-            }
-            if (imageView.getTag() == this && result != null) {
-                imageView.setTag(null);
-                imageView.setVisibility(View.VISIBLE);
-                imageView.setImageUrl(result.getImage(),
-                        VolleyPlusHelper.with(imageView.getContext()).getNewsImageLoader());
-                mCache.put(mUrl, result);
-            }
+            imageView.setImageUrl(item.thumb,
+                    VolleyPlusHelper.with(imageView.getContext()).getNewsImageLoader());
         }
     }
 }
