@@ -26,6 +26,7 @@ import static android.support.v4.app.NotificationCompat.VISIBILITY_PRIVATE;
 
 public class NotificationUtils {
 
+    public static final String TOPIC_NEWS_ALL = "news_all";
     public static final String TYPE_ALERT = "alert";
     public static final String TYPE_GENERIC = "generic";
     public static final String TYPE_URL = "url";

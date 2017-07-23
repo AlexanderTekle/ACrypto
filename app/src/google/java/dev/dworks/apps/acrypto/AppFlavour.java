@@ -13,6 +13,7 @@ import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.perf.FirebasePerformance;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -20,7 +21,9 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
+import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TOPIC_NEWS_ALL;
 import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 /**
@@ -31,6 +34,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	private static final String TRAIL_STATUS = "trail_status";
 	public static final String SUBSCRIPTION_MONTHLY_ID = getSubscriptionMain() + ".subs.m1";
 	public static final String BILLING_ACTION = "BillingInitialized";
+	private static final String INITIAL_SUBSCRIPTION_COMPLETED = "intial_subscription_completed";
 
 	public boolean isSubsUpdateSupported;
 	public boolean isOneTimePurchaseSupported;
@@ -68,6 +72,16 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				.build();
 		mFirebaseRemoteConfig.setConfigSettings(configSettings);
 		mFirebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
+
+		initialMessagingSubscription();
+	}
+
+	protected void initialMessagingSubscription(){
+		if (isGPSAvailable(this)
+				&& !PreferenceUtils.getBooleanPrefs(this, INITIAL_SUBSCRIPTION_COMPLETED)) {
+			FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_NEWS_ALL);
+			PreferenceUtils.set(this, INITIAL_SUBSCRIPTION_COMPLETED, true);
+		}
 	}
 
 	public void setOneTimePurchaseSupported(boolean oneTimePurchaseSupported) {
