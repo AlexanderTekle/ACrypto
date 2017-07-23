@@ -34,6 +34,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String KEY_CURRENCY_LIST = "currency_list";
     public static final String KEY_ARBITRAGE_CURRENCY_FROM = "arbitrage_currency_from";
     public static final String KEY_EXCHANGE = "exchange";
+    public static final String KEY_NEWS_ALERT_STATUS = "newsAlertStatus";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

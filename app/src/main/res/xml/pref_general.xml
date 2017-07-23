@@ -13,6 +13,15 @@
             android:title="@string/pref_title_logout" />
     </PreferenceCategory>
     <PreferenceCategory
+        android:key="notifications"
+        android:title="Notifications">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="newsAlertStatus"
+            android:persistent="true"
+            android:title="Get notified of the latest news" />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:key="about"
         android:title="About">
         <Preference

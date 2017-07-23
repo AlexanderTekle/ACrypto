@@ -2,10 +2,13 @@ package dev.dworks.apps.acrypto.settings;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.support.v7.app.AlertDialog;
+
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
@@ -16,6 +19,7 @@ import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import static android.app.Activity.RESULT_FIRST_USER;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_USER_CURRENCY;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TOPIC_NEWS_ALL;
 
 
 public class GeneralPreferenceFragment extends GeneralPreferenceFlavourFragment
@@ -41,6 +45,20 @@ public class GeneralPreferenceFragment extends GeneralPreferenceFlavourFragment
             public boolean onPreferenceClick(Preference preference) {
                 AnalyticsManager.logEvent("logout");
                 showLogoutDialog();
+                return true;
+            }
+        });
+
+        CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(SettingsActivity.KEY_NEWS_ALERT_STATUS);
+        checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                boolean status = Boolean.valueOf(newValue.toString());
+                if(status){
+                    FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_NEWS_ALL);
+                } else {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC_NEWS_ALL);
+                }
                 return true;
             }
         });
