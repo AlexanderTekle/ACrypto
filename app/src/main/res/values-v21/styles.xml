@@ -8,4 +8,12 @@
     <style name="PopupTheme" parent="@style/Widget.AppCompat.Spinner.DropDown.ActionBar">
     </style>
 
+    <style name="SpinnerStyle" parent="AppTheme">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:minWidth">30dp</item>
+        <item name="colorControlNormal">@color/colorAccent</item>
+        <item name="colorControlActivated">@color/colorPrimaryDark</item>
+        <item name="colorControlHighlight">@color/colorPrimaryLight</item>
+    </style>
+
 </resources>

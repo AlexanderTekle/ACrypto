@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity
                 new Response.Listener<CoinsList>() {
                     @Override
                     public void onResponse(CoinsList coinsList) {
-                        spinner.setItems(coinsList.coins_list);
+                        spinner.setItems(coinsList.coins_list, R.layout.item_spinner_dark);
                         ((SimpleSpinner.ArrayAdapter)spinner.getAdapter()).setDropDownViewResource(R.layout.item_spinner_light);
                         spinner.setSelection(SettingsActivity.getCurrencyList());
                         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

@@ -6,7 +6,6 @@
 package dev.dworks.apps.acrypto.misc.linkpreview;
 
 import android.content.Context;
-import android.os.Environment;
 
 import com.android.volley.misc.DiskLruCache;
 
@@ -82,7 +81,7 @@ public class CacheUtils {
     }
 
     public static File getDiskCacheDir(Context context, String uniqueName) {
-        String cachePath = !"mounted".equals(Environment.getExternalStorageState()) && Environment.isExternalStorageRemovable()?context.getCacheDir().getPath():context.getExternalCacheDir().getPath();
+        String cachePath = context.getCacheDir().getPath();
         return new File(cachePath + File.separator + uniqueName);
     }
 }

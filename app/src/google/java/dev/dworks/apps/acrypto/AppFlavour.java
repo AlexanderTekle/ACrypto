@@ -158,7 +158,8 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 
 	private void selfHack() {
 		if (null != FirebaseHelper.getCurrentUser() && FirebaseHelper.isLoggedIn()) {
-			if (FirebaseHelper.getCurrentUser().getEmail().equals("heart.break.kid.b4u@gmail.com")) {
+			if (FirebaseHelper.getCurrentUser().getEmail().equals("heart.break.kid.b4u@gmail.com")
+					|| FirebaseHelper.getCurrentUser().getEmail().equals("hakr@dworks.in")) {
 				isSubscriptionActive = true;
 				isSubscribedMonthly = true;
 			}
@@ -167,7 +168,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 
 	@Override
 	public void onProductPurchased(String productId, TransactionDetails details) {
-		FirebaseHelper.updateUserSubscription(productId);
+		reloadSubscription();
 	}
 
 	@Override

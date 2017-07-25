@@ -32,13 +32,11 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> im
     final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
-    CacheUtils mCache;
 
     public NewsAdapter(Context context,
                        RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
-        this.mCache = new CacheUtils(context);
     }
 
     public void setData(ArrayList<News.NewsData> contents) {
