@@ -83,8 +83,8 @@
     "symbol": "VERI"
   },
   "ICN": {
-    "name": "iCoin",
-    "order": 389,
+    "name": "Iconomi",
+    "order": 17,
     "symbol": "ICN"
   },
   "STEEM": {
@@ -184,7 +184,7 @@
   },
   "BAT": {
     "name": "BatCoin",
-    "order": 875,
+    "order": 37,
     "symbol": "BAT"
   },
   "OMG": {
@@ -1001,5 +1001,45 @@
     "name": "Sphere",
     "order": 200,
     "symbol": "SPHR"
+  },
+  "SEC": {
+    "name": "SafeExchangeCoin",
+    "order": 201,
+    "symbol": "SEC"
+  },
+  "NBT": {
+    "name": "NumBits",
+    "order": 202,
+    "symbol": "NBT"
+  },
+  "LGD": {
+    "name": "Legends Crytpocurrency",
+    "order": 203,
+    "symbol": "LGD"
+  },
+  "TRUST": {
+    "name": "Trust",
+    "order": 204,
+    "symbol": "TRUST"
+  },
+  "NAUT": {
+    "name": "Nautilus Coin",
+    "order": 205,
+    "symbol": "NAUT"
+  },
+  "BYC": {
+    "name": "ByteCent",
+    "order": 206,
+    "symbol": "BYC"
+  },
+  "UNB": {
+    "name": "UnbreakableCoin",
+    "order": 207,
+    "symbol": "UNB"
+  },
+  "PINK": {
+    "name": "PinkCoin",
+    "order": 207,
+    "symbol": "PINK"
   }
 }

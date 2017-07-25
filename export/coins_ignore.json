@@ -89,5 +89,9 @@
   "MEN" : true,
   "BTCHC" : true,
   "DDC" : true,
-  "TERI" : true
+  "TERI" : true,
+  "SIGT" : true,
+  "KPL" : true,
+  "LINDA" : true,
+  "TER" : true
 }
