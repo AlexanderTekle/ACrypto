@@ -16,6 +16,7 @@ import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.News;
 import dev.dworks.apps.acrypto.misc.linkpreview.CacheUtils;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
@@ -168,7 +169,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> im
             String url = "";
             title.setText(item.title);
             //time.setText(TimeUtils.formatHumanFriendlyShortDate(item.publicated * 1000));
-            time.setText(item.publish_time);
+            time.setText(TimeUtils.getNewsTimestamp(item.publish_time));
             channel.setText(Utils.getDomainName(item.link));
             imageView.setImageUrl(item.thumb,
                     VolleyPlusHelper.with(imageView.getContext()).getNewsImageLoader());

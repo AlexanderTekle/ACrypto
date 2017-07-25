@@ -98,11 +98,10 @@ public class TimeUtils {
 
     public static String getTimeAgo(long time) {
         long now = System.currentTimeMillis();
-        if (time < 1000000000000L) {
-            // if timestamp given in seconds, convert to millis
-            time *= 1000;
-        }
-        final long diff = now - time;
+        TimeZone tz = TimeZone.getDefault();
+        long localTimestamp = time + tz.getOffset(time);
+        long localTime = now + tz.getOffset(now);
+        final long diff = localTime - localTimestamp;
         if (diff < MINUTE) {
             return "just now";
         } else {
@@ -175,7 +174,6 @@ public class TimeUtils {
      * Returns "Today", "Tomorrow", "Yesterday", or a short date format.
      */
     public static String formatHumanFriendlyShortDate(long timestamp) {
-
 
         long localTimestamp, localTime;
         long now = System.currentTimeMillis();
@@ -381,5 +379,15 @@ public class TimeUtils {
         formattedDate = dateFormat.format(date);
         //formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
         return formattedDate;
+    }
+
+    public static String getNewsTimestamp(String timestamp) {
+        Date date = null;
+        try {
+            date = DATE_FORMAT_NOTIFICATION.parse(timestamp);
+        } catch (ParseException e) {
+            LogUtils.logException(e);
+        }
+        return getTimeAgo(date.getTime());
     }
 }
