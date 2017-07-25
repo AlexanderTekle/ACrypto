@@ -406,7 +406,7 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
     const subscriptionStatus = userSnapshot.val().subscriptionStatus;
     const priceAlertSnapshot = results[1];
     if(subscriptionStatus != 1){
-      //return logInfo("Subscription expired", {user: userId});
+      return logInfo("Subscription expired", {user: userId});
     }
     //we removed an invalid instanceId, so just return
     if(!instanceId){
@@ -742,5 +742,33 @@ function sendNewsAlerts() {
   })
   .catch(error => {
     return reportError(error, {type: 'database_query', context: 'news alerts'});
+  });
+}
+
+// upsate /alerts based on subscription change
+exports.userSubscriptionChange = functions.database.ref('/users/{uid}/subscriptionStatus').onUpdate(event => {;
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const subscriptionStatus = snapshot.current.val();
+
+  return updateAlerts(uid, subscriptionStatus);
+});
+
+function updateAlerts(uid, subscriptionStatus) {
+  return admin.database().ref(`/user_alerts/price/${uid}`).once('value').then(snapshot => {
+    snapshot.forEach(function(dataSnapshot) {
+      const name = dataSnapshot.val().name;
+      if(subscriptionStatus == 1){
+          logInfo("Added alert on subscription status change", {user: uid, key : name});
+          admin.database().ref(`/alerts/price/${name}/${uid}`).set(true);
+      } else {
+          logInfo("Removed alert on subscription status change", {user: uid, key : name});
+          admin.database().ref(`/alerts/price/${name}/${uid}`).remove();
+      }
+    });
+    return;
+  })
+  .catch(error => {
+    return reportError(error, {type: 'database_query', context: 'user subscription change'});
   });
 }
