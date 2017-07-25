@@ -107,15 +107,15 @@
                         app:srcCompat="@drawable/ic_menu_coins"
                         tools:src="@drawable/ic_menu_coins" />
 
-                    <dev.dworks.apps.acrypto.view.Spinner
+                    <dev.dworks.apps.acrypto.view.SearchableSpinner
                         android:id="@+id/currencyFromSpinner"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:padding="@dimen/activity_margin"
-                        android:theme="@style/spinnerStyle"
-                        app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+                        android:paddingLeft="16dp"
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose a Coin" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -123,15 +123,16 @@
                         android:text="/"
                         android:textSize="24sp" />
 
-                    <dev.dworks.apps.acrypto.view.Spinner
+                    <dev.dworks.apps.acrypto.view.SearchableSpinner
                         android:id="@+id/currencyToSpinner"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:padding="@dimen/activity_margin"
-                        android:theme="@style/spinnerStyle"
-                        app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+                        android:paddingLeft="10dp"
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose a Currency" />
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -148,14 +149,14 @@
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_exchange" />
 
-                    <dev.dworks.apps.acrypto.view.Spinner
+                    <dev.dworks.apps.acrypto.view.SearchableSpinner
                         android:id="@+id/exchangeSpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:maxLines="1"
-                        android:padding="@dimen/activity_margin"
-                        android:theme="@style/spinnerStyle"
-                        app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+                        android:paddingLeft="10dp"
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose an Exchange" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -172,14 +173,12 @@
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_frequency" />
 
-                    <dev.dworks.apps.acrypto.view.Spinner
+                    <dev.dworks.apps.acrypto.view.SimpleSpinner
                         android:id="@+id/frequencySpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:padding="@dimen/activity_margin"
-                        android:theme="@style/spinnerStyle"
-                        app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+                        android:paddingLeft="@dimen/activity_margin"
+                        android:theme="@style/SpinnerStyle" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -193,19 +192,18 @@
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center"
                         android:layout_marginRight="16dp"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="10dp"
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_paid" />
 
-                    <dev.dworks.apps.acrypto.view.Spinner
+                    <dev.dworks.apps.acrypto.view.SimpleSpinner
                         android:id="@+id/conditionSpinner"
                         android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:maxLines="1"
-                        android:padding="@dimen/activity_margin"
-                        android:theme="@style/spinnerStyle"
-                        app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+                        android:paddingLeft="@dimen/activity_margin"
+                        android:theme="@style/SpinnerStyle" />
 
                     <TextView
                         android:id="@+id/symbol"

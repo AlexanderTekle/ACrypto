@@ -29,6 +29,7 @@ import android.support.v7.widget.AppCompatEditText;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -49,10 +50,9 @@ import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.Utils;
-import dev.dworks.apps.acrypto.view.Spinner;
+import dev.dworks.apps.acrypto.view.SearchableSpinner;
 
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_PORTFOLIO;
 import static dev.dworks.apps.acrypto.utils.Utils.REQUIRED;
 
@@ -63,7 +63,7 @@ public class PortfolioDetailFragment extends DialogFragment {
     private static final String TAG = "PortfolioDetail";
     private AppCompatEditText mName;
     private Portfolio mPortfolio;
-    private Spinner mCurrencyToSpinner;
+    private SearchableSpinner mCurrencyToSpinner;
     private String curencyTo;
     private String name;
     private String description;
@@ -94,13 +94,17 @@ public class PortfolioDetailFragment extends DialogFragment {
         mName = (AppCompatEditText) view.findViewById(R.id.name);
         mDescription = (EditText) view.findViewById(R.id.description);
         view.findViewById(R.id.info).setVisibility(Utils.getVisibility(isNew()));
-        mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
-        mCurrencyToSpinner.getPopupWindow().setWidth(300);
-        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
+        mCurrencyToSpinner = (SearchableSpinner) view.findViewById(R.id.currencyToSpinner);
+        mCurrencyToSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Currencies.Currency currency = (Currencies.Currency) parent.getSelectedItem();
+                curencyTo = currency.code;
+            }
 
             @Override
-            public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
-                curencyTo = item.code;
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
@@ -187,8 +191,7 @@ public class PortfolioDetailFragment extends DialogFragment {
                     public void onResponse(Currencies currencies) {
                         currencies.currencies.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
                         mCurrencyToSpinner.setItems(currencies.currencies);
-                        Utils.setSpinnerValue(mCurrencyToSpinner, CURRENCY_TO_DEFAULT,
-                                getCurrentCurrencyTo());
+                        mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
                 },
                 new Response.ErrorListener() {

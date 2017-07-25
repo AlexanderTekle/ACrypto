@@ -23,13 +23,13 @@
             app:subtitleTextAppearance="@style/ToolbarSubTitle"
             app:titleTextAppearance="@style/ToolbarTitle">
 
-            <Spinner
+            <dev.dworks.apps.acrypto.view.SimpleSpinner
                 android:id="@+id/stack"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:overlapAnchor="true" />
+                app:overlapAnchor="true" />
 
         </android.support.v7.widget.Toolbar>
 

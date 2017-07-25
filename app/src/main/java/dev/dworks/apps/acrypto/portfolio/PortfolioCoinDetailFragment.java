@@ -15,9 +15,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -59,17 +61,16 @@ import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.utils.Utils.OnFragmentInteractionListener;
 import dev.dworks.apps.acrypto.view.ImageView;
-import dev.dworks.apps.acrypto.view.Spinner;
+import dev.dworks.apps.acrypto.view.SearchableSpinner;
+import dev.dworks.apps.acrypto.view.SimpleSpinner;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.View.GONE;
 import static dev.dworks.apps.acrypto.entity.Exchanges.SELECT_EXCHANGES;
-import static dev.dworks.apps.acrypto.home.HomeFragment.LIMIT_ALT;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.CONVERSION_URL;
 import static dev.dworks.apps.acrypto.portfolio.PortfolioFragment.DEFAULT_PRICE_TYPE;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_SECOND_DEFAULT;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_PORTFOLIO;
@@ -80,15 +81,16 @@ import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.setDecimalValue;
 
 public class PortfolioCoinDetailFragment extends ActionBarFragment
-        implements DatePickerDialog.OnDateSetListener, View.OnClickListener {
+        implements DatePickerDialog.OnDateSetListener, View.OnClickListener,
+        AdapterView.OnItemSelectedListener, View.OnTouchListener {
 
     private static final String TAG = "PortfolioCoinDetails";
 
     private OnFragmentInteractionListener mListener;
-    private Spinner mCurrencyFromSpinner;
-    private Spinner mCurrencyToSpinner;
-    private Spinner mExchangeSpinner;
-    private Spinner mPriceTypeSpinner;
+    private SearchableSpinner mCurrencyFromSpinner;
+    private SearchableSpinner mCurrencyToSpinner;
+    private SearchableSpinner mExchangeSpinner;
+    private SimpleSpinner mPriceTypeSpinner;
     private EditText mPrice;
     private EditText mAmount;
     private ImageView mIcon;
@@ -163,17 +165,17 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         getActionBarActivity().setSupportActionBar(toolbar);
 
         mProgress = view.findViewById(R.id.progress);
-        mCurrencyFromSpinner = (Spinner) view.findViewById(R.id.currencyFromSpinner);
-        mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
-        mExchangeSpinner = (Spinner) view.findViewById(R.id.exchangeSpinner);
-        mPriceTypeSpinner = (Spinner) view.findViewById(R.id.priceTypeSpinner);
+        mCurrencyFromSpinner = (SearchableSpinner) view.findViewById(R.id.currencyFromSpinner);
+        mCurrencyToSpinner = (SearchableSpinner) view.findViewById(R.id.currencyToSpinner);
+        mExchangeSpinner = (SearchableSpinner) view.findViewById(R.id.exchangeSpinner);
+        mPriceTypeSpinner = (SimpleSpinner) view.findViewById(R.id.priceTypeSpinner);
         mPrice = (EditText) view.findViewById(R.id.price);
         mAmount = (EditText) view.findViewById(R.id.amount);
         mSymbol = (TextView) view.findViewById(R.id.symbol);
         mBoughtAt = (TextView) view.findViewById(R.id.boughtAt);
         mNotes = (TextView) view.findViewById(R.id.notes);
         mIcon = (ImageView) view.findViewById(R.id.icon);
-        setSpinners();
+        setupViews();
 
         calendarBoughtAt = Calendar.getInstance();
 
@@ -193,7 +195,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
             mAmount.setText(String.valueOf(amount));
             setDecimalValue(mPrice, price, Utils.getCurrencySymbol(curencyTo));
             mNotes.setText(notes);
-            Utils.setSpinnerValue(mPriceTypeSpinner, DEFAULT_PRICE_TYPE, getPriceType());
+            mPriceTypeSpinner.setSelection(getPriceType());
             if(boughtAt != 0) {
                 calendarBoughtAt.setTimeInMillis(mPortfolioCoin.boughtAt);
             }
@@ -233,15 +235,18 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         mIcon.setImageUrl(url, VolleyPlusHelper.with(getActivity()).getImageLoader());
     }
 
-    private void setSpinners() {
-        setCurrencyFromSpinner();
-        setCurrencyToSpinner();
-        setExchangeSpinner();
-        setPriceTypeSpinner();
-        setBoughtAt();
-    }
+    private void setupViews() {
+        mCurrencyFromSpinner.setOnItemSelectedListener(this);
+        mCurrencyFromSpinner.setOnTouchListener(this);
+        mCurrencyToSpinner.setOnItemSelectedListener(this);
+        mCurrencyToSpinner.setOnTouchListener(this);
+        mExchangeSpinner.setOnItemSelectedListener(this);
+        mExchangeSpinner.setOnTouchListener(this);
 
-    private void setBoughtAt() {
+        List<String> list = Arrays.asList(getResources().getStringArray(R.array.portfolio_price_type));
+        mPriceTypeSpinner.setItems(new ArrayList(list));
+        mPriceTypeSpinner.setOnItemSelectedListener(this);
+        mPriceTypeSpinner.setOnTouchListener(this);
         mBoughtAt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -249,62 +254,6 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
                 datePickerDialog.show();
             }
         });
-    }
-
-    private void setPriceTypeSpinner() {
-        List<String> list = Arrays.asList(getResources().getStringArray(R.array.portfolio_price_type));
-        mPriceTypeSpinner.getPopupWindow().setWidth(400);
-        mPriceTypeSpinner.setItems(list);
-        mPriceTypeSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
-            @Override
-            public void onItemSelected(Spinner view, int position, long id, String item) {
-                priceType = item;
-            }
-        });
-        mPriceTypeSpinner.setOnClickListener(this);
-    }
-
-    private void setCurrencyFromSpinner() {
-        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<CoinDetails.Coin>() {
-
-            @Override
-            public void onItemSelected(Spinner view, int position, long id, CoinDetails.Coin item) {
-                curencyFrom = item.code;
-                currencyExchange = "";
-                loadIcon();
-                fetchData();
-            }
-        });
-        mCurrencyFromSpinner.setOnClickListener(this);
-    }
-
-    private void setCurrencyToSpinner() {
-        mCurrencyToSpinner.getPopupWindow().setWidth(300);
-        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
-
-            @Override
-            public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
-                curencyTo = item.code;
-                currencyExchange = "";
-                loadSymbol();
-                fetchData();
-            }
-        });
-        mCurrencyToSpinner.setOnClickListener(this);
-    }
-
-    private void setExchangeSpinner() {
-        mExchangeSpinner.setText(getCurrentExchange());
-        mExchangeSpinner.getPopupWindow().setWidth(800);
-        mExchangeSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Exchanges.Exchange>() {
-
-            @Override
-            public void onItemSelected(Spinner var1, int var2, long var3, Exchanges.Exchange exchange) {
-                currencyExchange = exchange.exchange;
-            }
-        });
-        mExchangeSpinner.setOnClickListener(this);
     }
 
     private void fetchData() {
@@ -322,10 +271,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Coins coins) {
                         mCurrencyFromSpinner.setItems(getCurrencyFromList(coins.coins));
-                        Utils.setSpinnerValue(mCurrencyFromSpinner,
-                                getCurrentCurrencyTo().equals(CURRENCY_FROM_DEFAULT) ?
-                                        CURRENCY_FROM_SECOND_DEFAULT : CURRENCY_FROM_DEFAULT,
-                                getCurrentCurrencyFrom());
+                        mCurrencyFromSpinner.setSelection(getCurrentCurrencyFrom());
                     }
                 },
                 new Response.ErrorListener() {
@@ -348,9 +294,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Currencies currencies) {
                         mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
-                        Utils.setSpinnerValue(mCurrencyToSpinner,
-                                (isTopAltCoin() ? CURRENCY_TO_DEFAULT : CURRENCY_FROM_DEFAULT),
-                                getCurrentCurrencyTo());
+                        mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
                 },
                 new Response.ErrorListener() {
@@ -380,7 +324,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Exchanges prices) {
                         mExchangeSpinner.setItems(prices.getSelectionData());
-                        Utils.setSpinnerValue(mExchangeSpinner, SELECT_EXCHANGES, getCurrentExchange());
+                        mExchangeSpinner.setSelection(getCurrentExchange());
                     }
                 },
                 new Response.ErrorListener() {
@@ -521,7 +465,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     }
 
     public boolean isTopAltCoin(){
-        return mCurrencyFromSpinner.getSelectedIndex() <= LIMIT_ALT;
+        return App.getInstance().getDefaultData().coins_top.contains(getCurrentCurrencyFrom());
     }
 
     public String getCurrentCurrencyFrom(){
@@ -721,5 +665,44 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     @Override
     public void onClick(View view) {
         hideKeyboard();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Bundle bundle = new Bundle();
+        switch (parent.getId()){
+            case R.id.currencyFromSpinner:
+                CoinDetails.Coin coin = (CoinDetails.Coin) parent.getSelectedItem();
+                curencyFrom = coin.code;
+                currencyExchange = "";
+                loadIcon();
+                fetchData();
+                break;
+            case R.id.currencyToSpinner:
+                Currencies.Currency currency = (Currencies.Currency) parent.getSelectedItem();
+                curencyTo = currency.code;
+                currencyExchange = "";
+                loadSymbol();
+                fetchData();
+                break;
+            case R.id.exchangeSpinner:
+                Exchanges.Exchange exchange = (Exchanges.Exchange) parent.getSelectedItem();
+                currencyExchange = exchange.exchange;
+                break;
+            case R.id.priceTypeSpinner:
+                priceType = (String) parent.getSelectedItem();
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        this.onClick(v);
+        return false;
     }
 }

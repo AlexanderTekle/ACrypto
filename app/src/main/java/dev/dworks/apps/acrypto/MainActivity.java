@@ -14,9 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +29,6 @@ import com.google.firebase.auth.FirebaseUser;
 import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
-import dev.dworks.apps.acrypto.common.SpinnerInteractionListener;
 import dev.dworks.apps.acrypto.entity.CoinsList;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -48,6 +45,7 @@ import dev.dworks.apps.acrypto.subscription.SubscriptionFragment;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
+import dev.dworks.apps.acrypto.view.SimpleSpinner;
 
 import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
@@ -76,7 +74,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mName;
     private View mheaderLayout;
     private BezelImageView mPicture;
-    private Spinner spinner;
+    private SimpleSpinner spinner;
     private InterstitialAd mInterstitialAd;
     private LocalBurst broadcast;
     private NavigationView navigationView;
@@ -121,7 +119,7 @@ public class MainActivity extends AppCompatActivity
     private void initControls() {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        spinner = (Spinner) findViewById(R.id.stack);
+        spinner = (SimpleSpinner) findViewById(R.id.stack);
 
         loadCoinsList();
         setSupportActionBar(toolbar);
@@ -170,14 +168,28 @@ public class MainActivity extends AppCompatActivity
                 new Response.Listener<CoinsList>() {
                     @Override
                     public void onResponse(CoinsList coinsList) {
-                        ArrayAdapter<CoinsList.Currency> dataAdapter = new ArrayAdapter<CoinsList.Currency>(MainActivity.this,
-                                R.layout.item_spinner , coinsList.coins_list);
-                        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        spinner.setAdapter(dataAdapter);
-                        SpinnerInteractionListener listener = new SpinnerInteractionListener(MainActivity.this);
-                        spinner.setOnTouchListener(listener);
-                        spinner.setOnItemSelectedListener(listener);
-                        setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
+                        spinner.setItems(coinsList.coins_list);
+                        ((SimpleSpinner.ArrayAdapter)spinner.getAdapter()).setDropDownViewResource(R.layout.item_spinner_light);
+                        spinner.setSelection(SettingsActivity.getCurrencyList());
+                        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                String item = parent.getItemAtPosition(position).toString();
+                                SettingsActivity.setCurrencyList(item);
+                                CoinFragment fragment = CoinFragment.get(getSupportFragmentManager());
+                                if (null != fragment) {
+                                    fragment.refreshData(item);
+                                }
+                                Bundle bundle = new Bundle();
+                                bundle.putString("currency", item);
+                                AnalyticsManager.logEvent("currency_filtered", bundle);
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
                     }
                 },
                 new Response.ErrorListener() {
@@ -381,18 +393,6 @@ public class MainActivity extends AppCompatActivity
                 PortfolioFragment.show(getSupportFragmentManager());
             }
         }
-    }
-
-    public void setSpinnerToValue(Spinner spinner, String value) {
-        int index = 0;
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelection(index);
     }
 
     private void handleExtras(boolean newIntent, Bundle extras) {

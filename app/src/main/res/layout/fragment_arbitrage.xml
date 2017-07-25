@@ -16,41 +16,33 @@
             android:background="@color/colorPrimaryDark"
             android:orientation="horizontal">
 
-            <dev.dworks.apps.acrypto.view.Spinner
+            <dev.dworks.apps.acrypto.view.SearchableSpinner
                 android:id="@+id/currencyFromSpinner"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
                 android:maxLines="1"
-                android:textColor="@android:color/white"
-                android:theme="@style/spinnerStyle"
-                app:ms_arrow_tint="@android:color/white"
-                app:ms_dropdown_max_height="@dimen/spinner_max_height"
-                app:ms_text_color="?android:attr/textColorPrimary" />
+                android:paddingLeft="16dp"
+                app:titleText="Choose a Coin"
+                android:theme="@style/SpinnerStyle"/>
 
-            <dev.dworks.apps.acrypto.view.Spinner
+            <dev.dworks.apps.acrypto.view.SearchableSpinner
                 android:id="@+id/currencyOneSpinner"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:textColor="@android:color/white"
-                android:theme="@style/spinnerStyle"
-                app:ms_arrow_tint="@android:color/white"
-                app:ms_dropdown_max_height="@dimen/spinner_max_height"
-                app:ms_text_color="?android:attr/textColorPrimary" />
+                android:paddingLeft="10dp"
+                app:titleText="Choose From Currency"
+                android:theme="@style/SpinnerStyle" />
 
-
-            <dev.dworks.apps.acrypto.view.Spinner
+            <dev.dworks.apps.acrypto.view.SearchableSpinner
                 android:id="@+id/currencyTwoSpinner"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
                 android:maxLines="1"
-                android:textColor="@android:color/white"
-                android:theme="@style/spinnerStyle"
-                app:ms_arrow_tint="@android:color/white"
-                app:ms_dropdown_max_height="@dimen/spinner_max_height"
-                app:ms_text_color="?android:attr/textColorPrimary" />
+                android:paddingLeft="10dp"
+                app:titleText="Choose To Currency"
+                android:theme="@style/SpinnerStyle" />
+
         </LinearLayout>
 
         <android.support.design.widget.TabLayout

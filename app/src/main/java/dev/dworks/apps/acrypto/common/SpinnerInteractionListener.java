@@ -1,22 +1,16 @@
 package dev.dworks.apps.acrypto.common;
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 
-import dev.dworks.apps.acrypto.coins.CoinFragment;
-import dev.dworks.apps.acrypto.misc.AnalyticsManager;
-import dev.dworks.apps.acrypto.settings.SettingsActivity;
-
 public class SpinnerInteractionListener implements AdapterView.OnItemSelectedListener, View.OnTouchListener {
 
     boolean userSelect = false;
-    AppCompatActivity mActivity;
+    private final AdapterView.OnItemSelectedListener mOnItemSelectedListener;
 
-    public SpinnerInteractionListener(AppCompatActivity appCompatActivity){
-        mActivity = appCompatActivity;
+    public SpinnerInteractionListener(AdapterView.OnItemSelectedListener onItemSelectedListener){
+        mOnItemSelectedListener = onItemSelectedListener;
     }
 
     @Override
@@ -28,21 +22,16 @@ public class SpinnerInteractionListener implements AdapterView.OnItemSelectedLis
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (userSelect) {
-            String item = parent.getItemAtPosition(position).toString();
-            SettingsActivity.setCurrencyList(item);
-            CoinFragment fragment = CoinFragment.get(mActivity.getSupportFragmentManager());
-            if (null != fragment) {
-                fragment.refreshData(item);
-            }
+            mOnItemSelectedListener.onItemSelected(parent, view, position, id);
             userSelect = false;
-            Bundle bundle = new Bundle();
-            bundle.putString("currency", item);
-            AnalyticsManager.logEvent("currency_filtered", bundle);
         }
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-
+        if (userSelect) {
+            mOnItemSelectedListener.onNothingSelected(parent);
+            userSelect = false;
+        }
     }
 }

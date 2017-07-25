@@ -10,6 +10,7 @@ import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
@@ -26,29 +27,24 @@ import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
-import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.LockableViewPager;
+import dev.dworks.apps.acrypto.view.SearchableSpinner;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
-import dev.dworks.apps.acrypto.view.Spinner;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageCoinsUrl;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageFromUrl;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageToUrl;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_ONE_DEFAULT;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TWO_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
-import static dev.dworks.apps.acrypto.utils.Utils.setSpinnerValue;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
-public class ArbitrageFragment extends ActionBarFragment{
+public class ArbitrageFragment extends ActionBarFragment implements AdapterView.OnItemSelectedListener{
 
     public static final String TAG = "Arbitrage";
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private LockableViewPager mViewPager;
-    private Spinner mCurrencyOneSpinner;
-    private Spinner mCurrencyTwoSpinner;
-    private Spinner mCurrencyFromSpinner;
+    private SearchableSpinner mCurrencyOneSpinner;
+    private SearchableSpinner mCurrencyTwoSpinner;
+    private SearchableSpinner mCurrencyFromSpinner;
     private TabLayout tabLayout;
 
     public static void show(FragmentManager fm) {
@@ -109,9 +105,9 @@ public class ArbitrageFragment extends ActionBarFragment{
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        mCurrencyFromSpinner = (Spinner) view.findViewById(R.id.currencyFromSpinner);
-        mCurrencyOneSpinner = (Spinner) view.findViewById(R.id.currencyOneSpinner);
-        mCurrencyTwoSpinner = (Spinner) view.findViewById(R.id.currencyTwoSpinner);
+        mCurrencyFromSpinner = (SearchableSpinner) view.findViewById(R.id.currencyFromSpinner);
+        mCurrencyOneSpinner = (SearchableSpinner) view.findViewById(R.id.currencyOneSpinner);
+        mCurrencyTwoSpinner = (SearchableSpinner) view.findViewById(R.id.currencyTwoSpinner);
         setSpinners();
         tabLayout.getTabAt(1).setText(getCurrentCurrencyOne() + " " + "Exchanges");
         tabLayout.getTabAt(2).setText(getCurrentCurrencyTwo() + " " + "Exchanges");
@@ -125,8 +121,11 @@ public class ArbitrageFragment extends ActionBarFragment{
     }
 
     private void setSpinners() {
-        setCurrencyToSpinner();
+        mCurrencyFromSpinner.setOnItemSelectedListener(this);
+        mCurrencyOneSpinner.setOnItemSelectedListener(this);
+        mCurrencyTwoSpinner.setOnItemSelectedListener(this);
         setCurrencyFromSpinner();
+        setCurrencyToSpinner();
     }
 
     private void setCurrencyFromSpinner() {
@@ -137,9 +136,8 @@ public class ArbitrageFragment extends ActionBarFragment{
                 new Response.Listener<Coins>() {
                     @Override
                     public void onResponse(Coins coins) {
-                        mCurrencyFromSpinner.setItems(coins.coins);
-                        setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT,
-                                getCurrentCurrencyFrom());
+                        mCurrencyFromSpinner.setItems(coins.coins, R.layout.item_spinner_dark);
+                        mCurrencyFromSpinner.setSelection(getCurrentCurrencyFrom());
                     }
                 },
                 new Response.ErrorListener() {
@@ -151,25 +149,9 @@ public class ArbitrageFragment extends ActionBarFragment{
         request.setMasterExpireCache();
         request.setShouldCache(true);
         VolleyPlusMasterHelper.with(getActivity()).updateToRequestQueue(request, "coins_arbitrage");
-
-        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<CoinDetails.Coin>() {
-
-            @Override public void onItemSelected(Spinner view, int position, long id, CoinDetails.Coin item) {
-                SettingsActivity.setArbitrageCurrencyFrom(item.code);
-                reloadCurrencyTwo();
-                refreshData();
-                Bundle bundle = new Bundle();
-                bundle.putString("coin", getCurrentCurrencyFrom());
-                AnalyticsManager.logEvent("coin_filtered", bundle);
-            }
-        });
     }
 
     private void setCurrencyToSpinner() {
-        mCurrencyOneSpinner.getPopupWindow().setWidth(300);
-        mCurrencyTwoSpinner.getPopupWindow().setWidth(300);
-
         String url = getArbitrageFromUrl();
 
         MasterGsonRequest<Currencies> request = new MasterGsonRequest<>(url,
@@ -177,8 +159,8 @@ public class ArbitrageFragment extends ActionBarFragment{
                 new Response.Listener<Currencies>() {
                     @Override
                     public void onResponse(Currencies currencies) {
-                        mCurrencyOneSpinner.setItems(currencies.currencies);
-                        Utils.setSpinnerValue(mCurrencyOneSpinner, CURRENCY_ONE_DEFAULT, getCurrentCurrencyOne());
+                        mCurrencyOneSpinner.setItems(currencies.currencies, R.layout.item_spinner_dark);
+                        mCurrencyOneSpinner.setSelection(getCurrentCurrencyOne());
                     }
                 },
                 new Response.ErrorListener() {
@@ -190,32 +172,7 @@ public class ArbitrageFragment extends ActionBarFragment{
         request.setMasterExpireCache();
         request.setShouldCache(true);
         VolleyPlusMasterHelper.with(getActivity()).updateToRequestQueue(request, "currency_arbitrage_from");
-
         reloadCurrencyTwo();
-        mCurrencyOneSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
-
-            @Override public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
-                SettingsActivity.setCurrencyOne(item.code);
-                reloadCurrencyTwo();
-                refreshData();
-                Bundle bundle = new Bundle();
-                bundle.putString("coin", getCurrentCurrencyFrom());
-                bundle.putString("currency_one", getCurrentCurrencyOneTwoName());
-                AnalyticsManager.logEvent("currency_filtered", bundle);
-            }
-        });
-
-        mCurrencyTwoSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
-
-            @Override public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
-                SettingsActivity.setCurrencyTwo(item.code);
-                refreshData();
-                Bundle bundle = new Bundle();
-                bundle.putString("coin", getCurrentCurrencyFrom());
-                bundle.putString("currency_two", getCurrentCurrencyOneTwoName());
-                AnalyticsManager.logEvent("currency_filtered", bundle);
-            }
-        });
     }
 
     private void reloadCurrencyTwo(){
@@ -226,9 +183,8 @@ public class ArbitrageFragment extends ActionBarFragment{
                 new Response.Listener<Currencies>() {
                     @Override
                     public void onResponse(Currencies currencies) {
-                        mCurrencyTwoSpinner.setItems(getCurrencyTwoList(currencies.currencies));
-                        setSpinnerValue(mCurrencyTwoSpinner, CURRENCY_TWO_DEFAULT,
-                                getCurrentCurrencyTwo());
+                        mCurrencyTwoSpinner.setItems(getCurrencyTwoList(currencies.currencies), R.layout.item_spinner_dark);
+                        mCurrencyTwoSpinner.setSelection(getCurrentCurrencyTwo());
                     }
                 },
                 new Response.ErrorListener() {
@@ -313,6 +269,43 @@ public class ArbitrageFragment extends ActionBarFragment{
                 break;
         }
         return bundle;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Bundle bundle = new Bundle();
+        switch (parent.getId()){
+            case R.id.currencyFromSpinner:
+                CoinDetails.Coin coin = (CoinDetails.Coin) parent.getSelectedItem();
+                SettingsActivity.setArbitrageCurrencyFrom(coin.code);
+                reloadCurrencyTwo();
+                refreshData();
+                bundle.putString("coin", getCurrentCurrencyFrom());
+                AnalyticsManager.logEvent("coin_filtered", bundle);
+                break;
+            case R.id.currencyOneSpinner:
+                Currencies.Currency currency = (Currencies.Currency) parent.getSelectedItem();
+                SettingsActivity.setCurrencyOne(currency.code);
+                reloadCurrencyTwo();
+                refreshData();
+                bundle.putString("coin", getCurrentCurrencyFrom());
+                bundle.putString("currency_one", getCurrentCurrencyOneTwoName());
+                AnalyticsManager.logEvent("currency_filtered", bundle);
+                break;
+            case R.id.currencyTwoSpinner:
+                Currencies.Currency currency2 = (Currencies.Currency) parent.getSelectedItem();
+                SettingsActivity.setCurrencyTwo(currency2.code);
+                refreshData();
+                bundle.putString("coin", getCurrentCurrencyFrom());
+                bundle.putString("currency_two", getCurrentCurrencyOneTwoName());
+                AnalyticsManager.logEvent("currency_filtered", bundle);
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     public class SectionsPagerAdapter extends SmartFragmentStatePagerAdapter {

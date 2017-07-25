@@ -75,7 +75,6 @@ dependencies {
     compile 'cat.ereza:customactivityoncrash:2.1.0'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
     compile 'org.fabiomsr:moneytextview:1.1.0'
-    compile 'com.jaredrummler:material-spinner:1.1.0'
     compile 'com.zsoltsafrany:needle:1.0.0'
     compile 'com.github.lykmapipo:local-burst:v0.2.0'
     compile 'com.github.javiersantos:AppUpdater:2.6.1'

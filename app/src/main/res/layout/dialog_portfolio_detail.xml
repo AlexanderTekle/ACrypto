@@ -56,12 +56,12 @@
                 android:tint="@color/accent_grey"
                 app:srcCompat="@drawable/ic_paid" />
 
-            <dev.dworks.apps.acrypto.view.Spinner
+            <dev.dworks.apps.acrypto.view.SearchableSpinner
                 android:id="@+id/currencyToSpinner"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
-                android:theme="@style/spinnerStyle"
-                app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+                app:titleText="Choose a Currency"
+                android:theme="@style/SpinnerStyle" />
         </LinearLayout>
 
         <LinearLayout

@@ -40,7 +40,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -87,7 +86,6 @@ import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
-import dev.dworks.apps.acrypto.view.Spinner;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
@@ -831,22 +829,6 @@ public class Utils {
 
     public static long getMasterDataCacheTime() {
         return 1440*30;
-    }
-
-    public static void setSpinnerValue(Spinner spinner, String defaultValue, String value) {
-        int index = 0;
-        if (value.compareTo(defaultValue) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
     }
 
     public static String toTitleCase(String str) {

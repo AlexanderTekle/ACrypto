@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
@@ -68,11 +69,11 @@ import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
-import dev.dworks.apps.acrypto.view.Spinner;
+import dev.dworks.apps.acrypto.view.SearchableSpinner;
 
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
+import static dev.dworks.apps.acrypto.entity.Exchanges.NO_EXCHANGES;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
@@ -91,7 +92,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class HomeFragment extends ActionBarFragment
         implements Response.Listener<Prices>, Response.ErrorListener,
-        OnChartValueSelectedListener, RadioGroup.OnCheckedChangeListener {
+        OnChartValueSelectedListener, RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "Home";
     public static final int LIMIT_ALT = 10;
@@ -128,9 +129,9 @@ public class HomeFragment extends ActionBarFragment
     private double diffValue;
     private View mControls;
     private TextView mLastUpdate;
-    private Spinner mCurrencyToSpinner;
-    private Spinner mExchangeSpinner;
-    private Spinner mCurrencyFromSpinner;
+    private SearchableSpinner mCurrencyToSpinner;
+    private SearchableSpinner mExchangeSpinner;
+    private SearchableSpinner mCurrencyFromSpinner;
     private BarChart mBarChart;
     private Prices mPrice;
     private TextView mVolume;
@@ -186,6 +187,10 @@ public class HomeFragment extends ActionBarFragment
         fetchData();
     }
 
+    private void reloadCurrencyTo() {
+
+    }
+
     private void initControls(View view) {
 
         mControls = view.findViewById(R.id.controls);
@@ -198,9 +203,9 @@ public class HomeFragment extends ActionBarFragment
         mLastUpdate = (TextView) view.findViewById(R.id.lastupdated);
         mVolume = (TextView) view.findViewById(R.id.volume);
 
-        mCurrencyFromSpinner = (Spinner) view.findViewById(R.id.currencyFromSpinner);
-        mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
-        mExchangeSpinner = (Spinner) view.findViewById(R.id.exchangeSpinner);
+        mCurrencyFromSpinner = (SearchableSpinner) view.findViewById(R.id.currencyFromSpinner);
+        mCurrencyToSpinner = (SearchableSpinner) view.findViewById(R.id.currencyToSpinner);
+        mExchangeSpinner = (SearchableSpinner) view.findViewById(R.id.exchangeSpinner);
 
         setSpinners();
 
@@ -220,9 +225,9 @@ public class HomeFragment extends ActionBarFragment
     }
 
     private void setSpinners() {
-        setCurrencyFromSpinner();
-        setCurrencyToSpinner();
-        setMarketSpinner();
+        mCurrencyFromSpinner.setOnItemSelectedListener(this);
+        mCurrencyToSpinner.setOnItemSelectedListener(this);
+        mExchangeSpinner.setOnItemSelectedListener(this);
 
         if(showFromIntent()){
             SettingsActivity.setCurrencyFrom(getNameFromIntent()[0]);
@@ -240,57 +245,6 @@ public class HomeFragment extends ActionBarFragment
 
     private String[] getNameFromIntent() {
         return mName.split("-");
-    }
-
-    private void setCurrencyFromSpinner() {
-        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<CoinDetails.Coin>() {
-
-            @Override public void onItemSelected(Spinner view, int position, long id, CoinDetails.Coin item) {
-                SettingsActivity.setCurrencyFrom(item.code);
-                reloadCurrencyTo();
-                fetchData(true);
-                Bundle bundle = new Bundle();
-                bundle.putString("currency", getCurrentCurrencyName());
-                AnalyticsManager.logEvent("coin_filtered", bundle);
-            }
-        });
-    }
-
-
-    private void reloadCurrencyTo(){
-        //fetchCurrencyToData();
-    }
-
-    private void setCurrencyToSpinner() {
-        mCurrencyToSpinner.getPopupWindow().setWidth(300);
-        reloadCurrencyTo();
-        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Currencies.Currency>() {
-
-            @Override public void onItemSelected(Spinner view, int position, long id, Currencies.Currency item) {
-                SettingsActivity.setCurrencyTo(item.code);
-                fetchData(true);
-                Bundle bundle = new Bundle();
-                bundle.putString("currency", getCurrentCurrencyName());
-                AnalyticsManager.logEvent("currency_filtered", bundle);
-            }
-        });
-    }
-
-    private void setMarketSpinner() {
-        mExchangeSpinner.setText(getCurrentExchange());
-        mExchangeSpinner.getPopupWindow().setWidth(500);
-        mExchangeSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Exchanges.Exchange>() {
-
-            @Override
-            public void onItemSelected(Spinner var1, int var2, long var3, Exchanges.Exchange exchange) {
-                SettingsActivity.setExchange(exchange.exchange);
-                fetchData(false);
-                Bundle bundle = new Bundle();
-                bundle.putString("currency", getCurrentCurrencyName());
-                AnalyticsManager.logEvent("exchange_filtered", bundle);
-            }
-        });
     }
 
     private ArrayList<Currencies.Currency> getCurrencyToList(ArrayList<Currencies.Currency> currencies) {
@@ -402,12 +356,12 @@ public class HomeFragment extends ActionBarFragment
         mBarChart.highlightValue(null);
         diffValue = -1;
 
-        fetchCurrencyFromData();
-        fetchCurrencyToData();
+
         if(refreshAll) {
+            fetchCurrencyFromData();
+            fetchCurrencyToData();
             fetchExchangeData();
         }
-
         GsonRequest<Prices> request = new GsonRequest<>(url,
                 Prices.class,
                 "",
@@ -427,8 +381,7 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Coins coins) {
                         mCurrencyFromSpinner.setItems(coins.coins);
-                        Utils.setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT,
-                                getCurrentCurrencyFrom());
+                        mCurrencyFromSpinner.setSelection(getCurrentCurrencyFrom());
                     }
                 },
                 new Response.ErrorListener() {
@@ -451,9 +404,7 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Currencies currencies) {
                         mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
-                        Utils.setSpinnerValue(mCurrencyToSpinner,
-                                (isTopAltCoin() ? CURRENCY_TO_DEFAULT : CURRENCY_FROM_DEFAULT),
-                                getCurrentCurrencyTo());
+                        mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
                 },
                 new Response.ErrorListener() {
@@ -483,8 +434,13 @@ public class HomeFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Exchanges prices) {
                         mExchangeSpinner.setItems(prices.getAllData());
-                        Utils.setSpinnerValue(mExchangeSpinner, ALL_EXCHANGES,
-                                getCurrentExchange());
+                        mExchangeSpinner.setSelection(getCurrentExchange());
+                        if(prices.getAllData().size() == 1
+                                && prices.getAllData().get(0).toString().equals(NO_EXCHANGES)){
+                            mExchangeSpinner.setEnabled(false);
+                        }else {
+                            mExchangeSpinner.setEnabled(true);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -832,7 +788,8 @@ public class HomeFragment extends ActionBarFragment
         params.put("limit", "24");
         params.put("aggregate", "1");
         final String exchange = getCurrentExchange();
-        if(!TextUtils.isEmpty(exchange) && !exchange.equals(ALL_EXCHANGES)) {
+        if(!TextUtils.isEmpty(exchange) && !(exchange.equals(ALL_EXCHANGES)
+                || exchange.equals(NO_EXCHANGES))) {
             params.put("e", exchange);
         }
         params.put("tryConversion", retry ? "true" : "false");
@@ -969,5 +926,39 @@ public class HomeFragment extends ActionBarFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Bundle bundle = new Bundle();
+        switch (parent.getId()){
+            case R.id.currencyFromSpinner:
+                CoinDetails.Coin coin = (CoinDetails.Coin) parent.getSelectedItem();
+                SettingsActivity.setCurrencyFrom(coin.code);
+                reloadCurrencyTo();
+                fetchData(true);
+                bundle.putString("currency", getCurrentCurrencyName());
+                AnalyticsManager.logEvent("coin_filtered", bundle);
+                break;
+            case R.id.currencyToSpinner:
+                Currencies.Currency currency = (Currencies.Currency) parent.getSelectedItem();
+                SettingsActivity.setCurrencyTo(currency.code);
+                fetchData(true );
+                bundle.putString("currency", getCurrentCurrencyName());
+                AnalyticsManager.logEvent("currency_filtered", bundle);
+                break;
+            case R.id.exchangeSpinner:
+                Exchanges.Exchange exchange = (Exchanges.Exchange) parent.getSelectedItem();
+                SettingsActivity.setExchange(exchange.exchange);
+                fetchData(false);
+                bundle.putString("currency", getCurrentCurrencyName());
+                AnalyticsManager.logEvent("exchange_filtered", bundle);
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
