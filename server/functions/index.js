@@ -611,8 +611,8 @@ exports.updateOnPriceAlertStatus = functions.database.ref('/user_alerts/price/{u
         logInfo("Added alert on status change", {user: uid, key : name});
         return admin.database().ref(`/alerts/price/${name}/${uid}`).set(true);
     } else {
-        logInfo("Removed alert on status change", {user: uid, key : name});
-        return admin.database().ref(`/alerts/price/${name}/${uid}`).remove();
+        //logInfo("Removed alert on status change", {user: uid, key : name});
+        //return admin.database().ref(`/alerts/price/${name}/${uid}`).remove();
     }
   });
 });
