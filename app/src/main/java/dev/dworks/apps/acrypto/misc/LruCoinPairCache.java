@@ -5,7 +5,7 @@ import android.support.v4.util.LruCache;
 import dev.dworks.apps.acrypto.entity.CoinPairs;
 
 public class LruCoinPairCache {
-    private static final int DEFAULT_SIZE = 20;
+    private static final int DEFAULT_SIZE = 200;
     private LruCache<String, CoinPairs.CoinPair> mLruCache;
 
     public LruCoinPairCache() {

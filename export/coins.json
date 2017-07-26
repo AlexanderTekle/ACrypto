@@ -1039,7 +1039,12 @@
   },
   "PINK": {
     "name": "PinkCoin",
-    "order": 207,
+    "order": 208,
     "symbol": "PINK"
+  },
+  "ZCL": {
+    "name": "ZClassic",
+    "order": 209,
+    "symbol": "ZCL"
   }
 }
