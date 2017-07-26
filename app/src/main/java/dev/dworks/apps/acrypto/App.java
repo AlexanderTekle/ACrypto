@@ -9,9 +9,6 @@ import android.text.TextUtils;
 import com.android.volley.Response;
 import com.android.volley.VolleyLog;
 import com.android.volley.error.VolleyError;
-import com.github.javiersantos.appupdater.AppUpdater;
-import com.github.javiersantos.appupdater.enums.Display;
-import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
@@ -96,10 +93,6 @@ public class App extends AppFlavour {
 			APP_VERSION_CODE = 0;
 			e.printStackTrace();
 		}
-        AppUpdater appUpdater = new AppUpdater(this)
-				.setUpdateFrom(UpdateFrom.GOOGLE_PLAY)
-				.setDisplay(Display.DIALOG);
-        appUpdater.start();
 	}
 
 	private void loadCurrencyList() {
