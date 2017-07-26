@@ -17,7 +17,8 @@ import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
-import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
+import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
+
 
 public class ActionBarFragment extends Fragment {
     private AppCompatActivity mActivity;

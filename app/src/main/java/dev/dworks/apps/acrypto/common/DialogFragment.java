@@ -35,7 +35,7 @@ public class DialogFragment extends AppCompatDialogFragment {
         Utils.tintButton(getButton(dialog, DialogInterface.BUTTON_NEUTRAL));
     }
 
-    private static Button getButton(Dialog dialog, int which){
+    public static Button getButton(Dialog dialog, int which){
         return ((AlertDialog)dialog).getButton(which);
     }
 

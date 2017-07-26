@@ -1,149 +1,1050 @@
 {
-  "BTC" : {
-    "name" : "Bitcoin",
-    "order" : 1,
+  "BTC": {
+    "name": "Bitcoin",
+    "order": 1,
+    "symbol": "BTC",
     "arbitrage" : 1
   },
-  "ETH" : {
-    "name" : "Ethereum",
-    "order" : 2,
+  "ETH": {
+    "name": "Ethereum",
+    "order": 2,
+    "symbol": "ETH",
     "arbitrage" : 1
   },
-  "LTC" : {
-    "name" : "Litecoin",
-    "order" : 3
-  },
-  "XRP" : {
-    "name" : "Ripple",
-    "order" : 4,
+  "XRP": {
+    "name": "Ripple",
+    "order": 3,
+    "symbol": "XRP",
     "arbitrage" : 1
   },
-  "DASH" : {
-    "name" : "DigitalCash",
-    "order" : 5
+  "LTC": {
+    "name": "Litecoin",
+    "order": 4,
+    "symbol": "LTC"
   },
-  "ETC" : {
-    "name" : "Ethereum Classic",
-    "order" : 6
+  "DASH": {
+    "name": "Dash",
+    "order": 5,
+    "symbol": "DASH"
   },
-  "XMR" : {
-    "name" : "Monero",
-    "order" : 7
+  "ETC": {
+    "name": "Ethereum Classic",
+    "order": 6,
+    "symbol": "ETC"
   },
-  "ZEC" : {
-    "name" : "ZCash",
-    "order" : 8
+  "XEM": {
+    "name": "NEM",
+    "order": 7,
+    "symbol": "XEM"
   },
-  "GNO" : {
-    "name" : "Gnosis",
-    "order" : 9
+  "IOTA": {
+    "name": "IOTA",
+    "order": 8,
+    "symbol": "IOTA"
   },
-  "STRAT" : {
-    "name" : "Stratis",
-    "order" : 10
+  "XMR": {
+    "name": "Monero",
+    "order": 9,
+    "symbol": "XMR"
   },
-  "REP" : {
-    "name" : "Augur",
-    "order" : 11
+  "STRAT": {
+    "name": "Stratis",
+    "order": 10,
+    "symbol": "STRAT"
   },
-  "LSK" : {
-    "name" : "Lisk",
-    "order" : 12
+  "EOS": {
+    "name": "EOS",
+    "order": 11,
+    "symbol": "EOS"
   },
-  "PPC" : {
-    "name" : "PeerCoin",
-    "order" : 13
+  "BTS": {
+    "name": "BitShares",
+    "order": 12,
+    "symbol": "BTS"
   },
-  "NMC" : {
-    "name" : "NameCoin",
-    "order" : 14
+  "ANS": {
+    "name": "AntShares",
+    "order": 13,
+    "symbol": "ANS"
   },
-  "OBITS" : {
-    "name" : "ObitsCoin",
-    "order" : 15
+  "BCC": {
+    "name": "BitConnect",
+    "order": 14,
+    "symbol": "BCC"
   },
-  "EMC" : {
-    "name" : "Emercoin",
-    "order" : 16
+  "ZEC": {
+    "name": "Zcash",
+    "order": 15,
+    "symbol": "ZEC"
   },
-  "PIVX" : {
-    "name" : "Private Instant Verified Transaction",
-    "order" : 17
+  "VERI": {
+    "name": "Veritaseum",
+    "order": 16,
+    "symbol": "VERI"
   },
-  "NXT" : {
-    "name" : "Nxt",
-    "order" : 18
+  "ICN": {
+    "name": "Iconomi",
+    "order": 17,
+    "symbol": "ICN"
   },
-  "DOGE" : {
-    "name" : "Dogecoin",
-    "order" : 18
+  "STEEM": {
+    "name": "Steem",
+    "order": 18,
+    "symbol": "STEEM"
   },
-  "STEEM" : {
-    "name" : "Steem",
-    "order" : 19
+  "QTUM": {
+    "name": "Qtum",
+    "order": 19,
+    "symbol": "QTUM"
   },
-  "BCN" : {
-    "name" : "ByteCoin",
-    "order" : 20
+  "WAVES": {
+    "name": "Waves",
+    "order": 20,
+    "symbol": "WAVES"
   },
-  "GNT" : {
-    "name" : "Golem Network Token",
-    "order" : 21
+  "USDT": {
+    "name": "Tether",
+    "order": 21,
+    "symbol": "USDT"
   },
-  "WAVES" : {
-    "name" : "Waves",
-    "order" : 22
+  "BCN": {
+    "name": "Bytecoin",
+    "order": 22,
+    "symbol": "BCN"
   },
-  "XEM" : {
-    "name" : "NEM",
-    "order" : 23
+  "SC": {
+    "name": "Siacoin",
+    "order": 23,
+    "symbol": "SC"
   },
-  "XLM" : {
-    "name" : "Stellar",
-    "order" : 24
+  "SNT": {
+    "name": "Status",
+    "order": 24,
+    "symbol": "SNT"
   },
-  "SC" : {
-    "name" : "SiaCoin",
-    "order" : 25
+  "GNO": {
+    "name": "Gnosis",
+    "order": 25,
+    "symbol": "GNO"
   },
-  "FCT" : {
-    "name" : "Factom",
-    "order" : 26
+  "GNT": {
+    "name": "Golem",
+    "order": 26,
+    "symbol": "GNT"
   },
-  "BAT" : {
-    "name" : "Basic Attention Token",
-    "order" : 27
+  "LSK": {
+    "name": "Lisk",
+    "order": 27,
+    "symbol": "LSK"
   },
-  "ANT" : {
-    "name" : "Aragon",
-    "order" : 28
+  "REP": {
+    "name": "Augur",
+    "order": 28,
+    "symbol": "REP"
   },
-  "MAID" : {
-    "name" : "MaidSafe Coin",
-    "order" : 29
+  "XLM": {
+    "name": "Stellar Lumens",
+    "order": 29,
+    "symbol": "XLM"
   },
-  "XZC" : {
-    "name" : "ZCoin",
-    "order" : 30
+  "DOGE": {
+    "name": "Dogecoin",
+    "order": 30,
+    "symbol": "DOGE"
   },
-  "UBQ" : {
-    "name" : "Ubiq",
-    "order" : 31
+  "GBYTE": {
+    "name": "Byteball",
+    "order": 31,
+    "symbol": "GBYTE"
   },
-  "SJCX" : {
-    "name" : "StorjCoin",
-    "order" : 32
+  "DGB": {
+    "name": "DigiByte",
+    "order": 32,
+    "symbol": "DGB"
   },
-  "XDN" : {
-    "name" : "DigitalNote",
-    "order" : 33
+  "FCT": {
+    "name": "Factom",
+    "order": 33,
+    "symbol": "FCT"
   },
-  "DGB" : {
-    "name" : "DigiByte",
-    "order" : 34
+  "MAID": {
+    "name": "MaidSafeCoin",
+    "order": 34,
+    "symbol": "MAID"
   },
-  "DCR" : {
-    "name" : "Decred",
-    "order" : 35
+  "GAME": {
+    "name": "GameCredits",
+    "order": 35,
+    "symbol": "GAME"
+  },
+  "DCR": {
+    "name": "Decred",
+    "order": 36,
+    "symbol": "DCR"
+  },
+  "BAT": {
+    "name": "BatCoin",
+    "order": 37,
+    "symbol": "BAT"
+  },
+  "OMG": {
+    "name": "OmiseGo",
+    "order": 38,
+    "symbol": "OMG"
+  },
+  "ARDR": {
+    "name": "Ardor",
+    "order": 39,
+    "symbol": "ARDR"
+  },
+  "NXT": {
+    "name": "Nxt",
+    "order": 40,
+    "symbol": "NXT"
+  },
+  "DGD": {
+    "name": "DigixDAO",
+    "order": 41,
+    "symbol": "DGD"
+  },
+  "PIVX": {
+    "name": "PIVX",
+    "order": 42,
+    "symbol": "PIVX"
+  },
+  "KMD": {
+    "name": "Komodo",
+    "order": 43,
+    "symbol": "KMD"
+  },
+  "PAY": {
+    "name": "TenX",
+    "order": 44,
+    "symbol": "PAY"
+  },
+  "MCAP": {
+    "name": "MCAP",
+    "order": 45,
+    "symbol": "MCAP"
+  },
+  "BNT": {
+    "name": "Bancor",
+    "order": 46,
+    "symbol": "BNT"
+  },
+  "MTL": {
+    "name": "Metal",
+    "order": 47,
+    "symbol": "MTL"
+  },
+  "PPT": {
+    "name": "Populous",
+    "order": 48,
+    "symbol": "PPT"
+  },
+  "SNGLS": {
+    "name": "SingularDTV",
+    "order": 49,
+    "symbol": "SNGLS"
+  },
+  "BDL": {
+    "name": "Bitdeal",
+    "order": 50,
+    "symbol": "BDL"
+  },
+  "1ST": {
+    "name": "FirstBlood",
+    "order": 51,
+    "symbol": "1ST"
+  },
+  "MGO": {
+    "name": "MobileGo",
+    "order": 52,
+    "symbol": "MGO"
+  },
+  "ANT": {
+    "name": "Aragon",
+    "order": 53,
+    "symbol": "ANT"
+  },
+  "BTCD": {
+    "name": "BitcoinDark",
+    "order": 54,
+    "symbol": "BTCD"
+  },
+  "SYS": {
+    "name": "SysCoin",
+    "order": 55,
+    "symbol": "SYS"
+  },
+  "CVC": {
+    "name": "Civic",
+    "order": 56,
+    "symbol": "CVC"
+  },
+  "LKK": {
+    "name": "Lykke",
+    "order": 57,
+    "symbol": "LKK"
+  },
+  "ARK": {
+    "name": "Ark",
+    "order": 58,
+    "symbol": "ARK"
+  },
+  "DCT": {
+    "name": "DECENT",
+    "order": 59,
+    "symbol": "DCT"
+  },
+  "UBQ": {
+    "name": "Ubiq",
+    "order": 60,
+    "symbol": "UBQ"
+  },
+  "NXS": {
+    "name": "Nexus",
+    "order": 61,
+    "symbol": "NXS"
+  },
+  "PART": {
+    "name": "Particl",
+    "order": 62,
+    "symbol": "PART"
+  },
+  "FUN": {
+    "name": "FunFair",
+    "order": 63,
+    "symbol": "FUN"
+  },
+  "PPC": {
+    "name": "Peercoin",
+    "order": 64,
+    "symbol": "PPC"
+  },
+  "EMC": {
+    "name": "Emercoin",
+    "order": 65,
+    "symbol": "EMC"
+  },
+  "XVG": {
+    "name": "Verge",
+    "order": 66,
+    "symbol": "XVG"
+  },
+  "LEO": {
+    "name": "LEOcoin",
+    "order": 67,
+    "symbol": "LEO"
+  },
+  "EDG": {
+    "name": "Edgeless",
+    "order": 68,
+    "symbol": "EDG"
+  },
+  "ROUND": {
+    "name": "Round",
+    "order": 69,
+    "symbol": "ROUND"
+  },
+  "NMR": {
+    "name": "Numeraire",
+    "order": 70,
+    "symbol": "NMR"
+  },
+  "XAS": {
+    "name": "Asch",
+    "order": 71,
+    "symbol": "XAS"
+  },
+  "WINGS": {
+    "name": "Wings",
+    "order": 72,
+    "symbol": "WINGS"
+  },
+  "RDD": {
+    "name": "ReddCoin",
+    "order": 73,
+    "symbol": "RDD"
+  },
+  "DICE": {
+    "name": "Etheroll",
+    "order": 74,
+    "symbol": "DICE"
+  },
+  "RLC": {
+    "name": "iExec RLC",
+    "order": 75,
+    "symbol": "RLC"
+  },
+  "LBC": {
+    "name": "LBRY Credits",
+    "order": 76,
+    "symbol": "LBC"
+  },
+  "BLOCK": {
+    "name": "Blocknet",
+    "order": 77,
+    "symbol": "BLOCK"
+  },
+  "STORJ": {
+    "name": "Storj",
+    "order": 78,
+    "symbol": "STORJ"
+  },
+  "PPY": {
+    "name": "Peerplays",
+    "order": 79,
+    "symbol": "PPY"
+  },
+  "NMC": {
+    "name": "Namecoin",
+    "order": 80,
+    "symbol": "NMC"
+  },
+  "COE": {
+    "name": "CoEval",
+    "order": 81,
+    "symbol": "COE"
+  },
+  "MLN": {
+    "name": "Melon",
+    "order": 82,
+    "symbol": "MLN"
+  },
+  "VSL": {
+    "name": "vSlice",
+    "order": 83,
+    "symbol": "VSL"
+  },
+  "MONA": {
+    "name": "MonaCoin",
+    "order": 84,
+    "symbol": "MONA"
+  },
+  "QRL": {
+    "name": "Quantum Resistant Ledger",
+    "order": 85,
+    "symbol": "QRL"
+  },
+  "NLG": {
+    "name": "Gulden",
+    "order": 86,
+    "symbol": "NLG"
+  },
+  "XCP": {
+    "name": "Counterparty",
+    "order": 87,
+    "symbol": "XCP"
+  },
+  "XAUR": {
+    "name": "Xaurum",
+    "order": 88,
+    "symbol": "XAUR"
+  },
+  "CLOAK": {
+    "name": "CloakCoin",
+    "order": 89,
+    "symbol": "CLOAK"
+  },
+  "HMQ": {
+    "name": "Humaniq",
+    "order": 90,
+    "symbol": "HMQ"
+  },
+  "BAY": {
+    "name": "BitBay",
+    "order": 91,
+    "symbol": "BAY"
+  },
+  "SIB": {
+    "name": "SIBCoin",
+    "order": 92,
+    "symbol": "SIB"
+  },
+  "FAIR": {
+    "name": "FairCoin",
+    "order": 93,
+    "symbol": "FAIR"
+  },
+  "POT": {
+    "name": "PotCoin",
+    "order": 94,
+    "symbol": "POT"
+  },
+  "VIA": {
+    "name": "Viacoin",
+    "order": 95,
+    "symbol": "VIA"
+  },
+  "AMP": {
+    "name": "Synereo",
+    "order": 96,
+    "symbol": "AMP"
+  },
+  "OMNI": {
+    "name": "Omni",
+    "order": 97,
+    "symbol": "OMNI"
+  },
+  "SKY": {
+    "name": "Skycoin",
+    "order": 98,
+    "symbol": "SKY"
+  },
+  "XEL": {
+    "name": "Elastic",
+    "order": 99,
+    "symbol": "XEL"
+  },
+  "QAU": {
+    "name": "Quantum",
+    "order": 100,
+    "symbol": "QAU"
+  },
+  "VTC": {
+    "name": "Vertcoin",
+    "order": 101,
+    "symbol": "VTC"
+  },
+  "BLK": {
+    "name": "BlackCoin",
+    "order": 102,
+    "symbol": "BLK"
+  },
+  "ION": {
+    "name": "ION",
+    "order": 103,
+    "symbol": "ION"
+  },
+  "XZC": {
+    "name": "ZCoin",
+    "order": 104,
+    "symbol": "XZC"
+  },
+  "SOAR": {
+    "name": "Soarcoin",
+    "order": 105,
+    "symbol": "SOAR"
+  },
+  "OBITS": {
+    "name": "OBITS",
+    "order": 106,
+    "symbol": "OBITS"
+  },
+  "TAAS": {
+    "name": "TaaS",
+    "order": 107,
+    "symbol": "TAAS"
+  },
+  "ADT": {
+    "name": "The Aladin",
+    "order": 818,
+    "symbol": "ADT"
+  },
+  "EDR": {
+    "name": "E-Dinar Coin",
+    "order": 109,
+    "symbol": "EDR"
+  },
+  "YBC": {
+    "name": "YbCoin",
+    "order": 110,
+    "symbol": "YBC"
+  },
+  "BURST": {
+    "name": "Burst",
+    "order": 111,
+    "symbol": "BURST"
+  },
+  "MYST": {
+    "name": "Mysterium",
+    "order": 112,
+    "symbol": "MYST"
+  },
+  "TKN": {
+    "name": "TokenCard",
+    "order": 113,
+    "symbol": "TKN"
+  },
+  "XRL": {
+    "name": "Rialto",
+    "order": 114,
+    "symbol": "XRL"
+  },
+  "RADS": {
+    "name": "Radium",
+    "order": 115,
+    "symbol": "RADS"
+  },
+  "CHC": {
+    "name": "ChainCoin",
+    "order": 116,
+    "symbol": "CHC"
+  },
+  "XDN": {
+    "name": "DigitalNote",
+    "order": 117,
+    "symbol": "XDN"
+  },
+  "GOLOS": {
+    "name": "Golos",
+    "order": 118,
+    "symbol": "GOLOS"
+  },
+  "NAV": {
+    "name": "NAV Coin",
+    "order": 119,
+    "symbol": "NAV"
+  },
+  "SNM": {
+    "name": "SONM",
+    "order": 120,
+    "symbol": "SNM"
+  },
+  "EXP": {
+    "name": "Expanse",
+    "order": 121,
+    "symbol": "EXP"
+  },
+  "TRST": {
+    "name": "WeTrust",
+    "order": 122,
+    "symbol": "TRST"
+  },
+  "IOC": {
+    "name": "I/O Coin",
+    "order": 123,
+    "symbol": "IOC"
+  },
+  "ECOB": {
+    "name": "Ecobit",
+    "order": 124,
+    "symbol": "ECOB"
+  },
+  "FRST": {
+    "name": "FirstCoin",
+    "order": 125,
+    "symbol": "FRST"
+  },
+  "GRC": {
+    "name": "GridCoin",
+    "order": 126,
+    "symbol": "GRC"
+  },
+  "NEOS": {
+    "name": "NeosCoin",
+    "order": 127,
+    "symbol": "NEOS"
+  },
+  "EAC": {
+    "name": "EarthCoin",
+    "order": 128,
+    "symbol": "EAC"
+  },
+  "DTB": {
+    "name": "Databits",
+    "order": 129,
+    "symbol": "DTB"
+  },
+  "PLBT": {
+    "name": "Polybius",
+    "order": 130,
+    "symbol": "PLBT"
+  },
+  "UNY": {
+    "name": "Unity Ingot",
+    "order": 131,
+    "symbol": "UNY"
+  },
+  "CFI": {
+    "name": "Cofound.it",
+    "order": 132,
+    "symbol": "CFI"
+  },
+  "PTOY": {
+    "name": "Patientory",
+    "order": 133,
+    "symbol": "PTOY"
+  },
+  "CRW": {
+    "name": "Crown",
+    "order": 134,
+    "symbol": "CRW"
+  },
+  "NVC": {
+    "name": "Novacoin",
+    "order": 135,
+    "symbol": "NVC"
+  },
+  "VOX": {
+    "name": "Voxels",
+    "order": 136,
+    "symbol": "VOX"
+  },
+  "SAN": {
+    "name": "Santiment Network Token",
+    "order": 137,
+    "symbol": "SAN"
+  },
+  "AGRS": {
+    "name": "Agoras Tokens",
+    "order": 138,
+    "symbol": "AGRS"
+  },
+  "SLS": {
+    "name": "SaluS",
+    "order": 139,
+    "symbol": "SLS"
+  },
+  "WGR": {
+    "name": "Wagerr",
+    "order": 140,
+    "symbol": "WGR"
+  },
+  "WCT": {
+    "name": "Waves Community Token",
+    "order": 141,
+    "symbol": "WCT"
+  },
+  "NXC": {
+    "name": "Nexium",
+    "order": 142,
+    "symbol": "NXC"
+  },
+  "ECN": {
+    "name": "E-coin",
+    "order": 143,
+    "symbol": "ECN"
+  },
+  "ENRG": {
+    "name": "Energycoin",
+    "order": 144,
+    "symbol": "ENRG"
+  },
+  "MOON": {
+    "name": "Mooncoin",
+    "order": 145,
+    "symbol": "MOON"
+  },
+  "SAFEX": {
+    "name": "Safe Exchange Coin",
+    "order": 146,
+    "symbol": "SAFEX"
+  },
+  "BCAP": {
+    "name": "BCAP",
+    "order": 147,
+    "symbol": "BCAP"
+  },
+  "MUE": {
+    "name": "MonetaryUnit",
+    "order": 148,
+    "symbol": "MUE"
+  },
+  "TIME": {
+    "name": "Chronobank",
+    "order": 149,
+    "symbol": "TIME"
+  },
+  "MUSE": {
+    "name": "MUSE",
+    "order": 150,
+    "symbol": "MUSE"
+  },
+  "MCO": {
+    "name": "Monaco",
+    "order": 151,
+    "symbol": "MCO"
+  },
+  "SPR": {
+    "name": "SpreadCoin",
+    "order": 152,
+    "symbol": "SPR"
+  },
+  "GUP": {
+    "name": "Matchpool",
+    "order": 153,
+    "symbol": "GUP"
+  },
+  "BASH": {
+    "name": "LuckChain",
+    "order": 154,
+    "symbol": "BASH"
+  },
+  "CLAM": {
+    "name": "Clams",
+    "order": 155,
+    "symbol": "CLAM"
+  },
+  "SHIFT": {
+    "name": "Shift",
+    "order": 156,
+    "symbol": "SHIFT"
+  },
+  "GRS": {
+    "name": "Groestlcoin",
+    "order": 157,
+    "symbol": "GRS"
+  },
+  "IFC": {
+    "name": "Infinitecoin",
+    "order": 158,
+    "symbol": "IFC"
+  },
+  "DBIX": {
+    "name": "DubaiCoin",
+    "order": 159,
+    "symbol": "DBIX"
+  },
+  "NVST": {
+    "name": "NVO",
+    "order": 160,
+    "symbol": "NVST"
+  },
+  "HEAT": {
+    "name": "HEAT",
+    "order": 161,
+    "symbol": "HEAT"
+  },
+  "PLU": {
+    "name": "Pluton",
+    "order": 162,
+    "symbol": "PLU"
+  },
+  "RISE": {
+    "name": "Rise",
+    "order": 163,
+    "symbol": "RISE"
+  },
+  "RBY": {
+    "name": "Rubycoin",
+    "order": 164,
+    "symbol": "RBY"
+  },
+  "BCY": {
+    "name": "Bitcrystals",
+    "order": 165,
+    "symbol": "BCY"
+  },
+  "NLC2": {
+    "name": "NoLimitCoin",
+    "order": 166,
+    "symbol": "NLC2"
+  },
+  "QRK": {
+    "name": "Quark",
+    "order": 167,
+    "symbol": "QRK"
+  },
+  "WDC": {
+    "name": "WorldCoin",
+    "order": 168,
+    "symbol": "WDC"
+  },
+  "FTC": {
+    "name": "Feathercoin",
+    "order": 169,
+    "symbol": "FTC"
+  },
+  "MEC": {
+    "name": "Megacoin",
+    "order": 170,
+    "symbol": "MEC"
+  },
+  "PEPECASH": {
+    "name": "Pepe Cash",
+    "order": 171,
+    "symbol": "PEPECASH"
+  },
+  "BITCNY": {
+    "name": "bitCNY",
+    "order": 172,
+    "symbol": "BITCNY"
+  },
+  "NOTE": {
+    "name": "DNotes",
+    "order": 173,
+    "symbol": "NOTE"
+  },
+  "UNO": {
+    "name": "Unobtanium",
+    "order": 174,
+    "symbol": "UNO"
+  },
+  "VRC": {
+    "name": "VeriCoin",
+    "order": 175,
+    "symbol": "VRC"
+  },
+  "FLDC": {
+    "name": "FoldingCoin",
+    "order": 176,
+    "symbol": "FLDC"
+  },
+  "LMC": {
+    "name": "LoMoCoin",
+    "order": 177,
+    "symbol": "LMC"
+  },
+  "XBC": {
+    "name": "Bitcoin Plus",
+    "order": 178,
+    "symbol": "XBC"
+  },
+  "DAXX": {
+    "name": "DaxxCoin",
+    "order": 179,
+    "symbol": "DAXX"
+  },
+  "NET": {
+    "name": "NetCoin",
+    "order": 385,
+    "symbol": "NET"
+  },
+  "XPM": {
+    "name": "Primecoin",
+    "order": 181,
+    "symbol": "XPM"
+  },
+  "XBY": {
+    "name": "XtraBYtes",
+    "order": 182,
+    "symbol": "XBY"
+  },
+  "MGC": {
+    "name": "GulfCoin",
+    "order": 810,
+    "symbol": "MGC"
+  },
+  "SWT": {
+    "name": "Swarm City",
+    "order": 184,
+    "symbol": "SWT"
+  },
+  "GAM": {
+    "name": "Gambit",
+    "order": 185,
+    "symbol": "GAM"
+  },
+  "FLO": {
+    "name": "FlorinCoin",
+    "order": 186,
+    "symbol": "FLO"
+  },
+  "DGC": {
+    "name": "Digitalcoin",
+    "order": 187,
+    "symbol": "DGC"
+  },
+  "ETT": {
+    "name": "EncryptoTel",
+    "order": 188,
+    "symbol": "ETT"
+  },
+  "EB3": {
+    "name": "EB3 Coin",
+    "order": 189,
+    "symbol": "EB3"
+  },
+  "XCN": {
+    "name": "Cryptonite",
+    "order": 190,
+    "symbol": "XCN"
+  },
+  "VASH": {
+    "name": "VPNCoin",
+    "order": 191,
+    "symbol": "VASH"
+  },
+  "AEON": {
+    "name": "Aeon",
+    "order": 192,
+    "symbol": "AEON"
+  },
+  "LUN": {
+    "name": "Lunyr",
+    "order": 193,
+    "symbol": "LUN"
+  },
+  "BELA": {
+    "name": "BelaCoin",
+    "order": 194,
+    "symbol": "BELA"
+  },
+  "DMD": {
+    "name": "Diamond",
+    "order": 195,
+    "symbol": "DMD"
+  },
+  "INCNT": {
+    "name": "Incent",
+    "order": 196,
+    "symbol": "INCNT"
+  },
+  "ZEN": {
+    "name": "ZenCash",
+    "order": 197,
+    "symbol": "ZEN"
+  },
+  "EMC2": {
+    "name": "Einsteinium",
+    "order": 198,
+    "symbol": "EMC2"
+  },
+  "PASC": {
+    "name": "Pascal Coin",
+    "order": 199,
+    "symbol": "PASC"
+  },
+  "SPHR": {
+    "name": "Sphere",
+    "order": 200,
+    "symbol": "SPHR"
+  },
+  "SEC": {
+    "name": "SafeExchangeCoin",
+    "order": 201,
+    "symbol": "SEC"
+  },
+  "NBT": {
+    "name": "NumBits",
+    "order": 202,
+    "symbol": "NBT"
+  },
+  "LGD": {
+    "name": "Legends Crytpocurrency",
+    "order": 203,
+    "symbol": "LGD"
+  },
+  "TRUST": {
+    "name": "Trust",
+    "order": 204,
+    "symbol": "TRUST"
+  },
+  "NAUT": {
+    "name": "Nautilus Coin",
+    "order": 205,
+    "symbol": "NAUT"
+  },
+  "BYC": {
+    "name": "ByteCent",
+    "order": 206,
+    "symbol": "BYC"
+  },
+  "UNB": {
+    "name": "UnbreakableCoin",
+    "order": 207,
+    "symbol": "UNB"
+  },
+  "PINK": {
+    "name": "PinkCoin",
+    "order": 208,
+    "symbol": "PINK"
+  },
+  "ZCL": {
+    "name": "ZClassic",
+    "order": 209,
+    "symbol": "ZCL"
   }
 }

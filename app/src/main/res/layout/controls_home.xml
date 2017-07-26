@@ -14,32 +14,33 @@
         android:background="@android:color/white"
         android:orientation="horizontal">
 
-        <dev.dworks.apps.acrypto.view.Spinner
+        <dev.dworks.apps.acrypto.view.SearchableSpinner
             android:id="@+id/currencyFromSpinner"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
             android:maxLines="1"
-            android:theme="@style/spinnerStyle"
-            app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+            android:paddingLeft="10dp"
+            app:titleText="Choose a Coin"
+            android:theme="@style/SpinnerStyle"/>
 
-        <dev.dworks.apps.acrypto.view.Spinner
+        <dev.dworks.apps.acrypto.view.SearchableSpinner
             android:id="@+id/currencyToSpinner"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:theme="@style/spinnerStyle"
-            app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+            android:paddingLeft="10dp"
+            app:titleText="Choose a Currency"
+            android:theme="@style/SpinnerStyle" />
 
-
-        <dev.dworks.apps.acrypto.view.Spinner
+        <dev.dworks.apps.acrypto.view.SearchableSpinner
             android:id="@+id/exchangeSpinner"
-            android:layout_width="160dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
+            android:layout_marginLeft="10dp"
             android:maxLines="1"
-            android:theme="@style/spinnerStyle"
-            app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+            android:minWidth="130dp"
+            app:titleText="Choose an Exchange"
+            android:theme="@style/SpinnerStyle" />
     </LinearLayout>
 
     <LinearLayout
@@ -107,37 +108,21 @@
                     android:gravity="center"
                     android:orientation="horizontal">
 
-                    <FrameLayout
+                    <org.fabiomsr.moneytextview.MoneyTextView
+                        android:id="@+id/valueChange"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center">
-
-                        <org.fabiomsr.moneytextview.MoneyTextView
-                            android:id="@+id/valueChange"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center|left"
-                            android:visibility="visible"
-                            app:amount="0"
-                            app:baseTextColor="@android:color/white"
-                            app:baseTextSize="22sp"
-                            app:decimalDigitsTextSize="22sp"
-                            app:decimalSeparator="."
-                            app:includeDecimalSeparator="true"
-                            app:symbol="$"
-                            app:symbolGravity="start|top"
-                            app:symbolTextSize="16sp" />
-
-                        <dev.dworks.apps.acrypto.view.MaterialProgressBar
-                            android:id="@+id/priceprogress"
-                            style="@style/MaterialProgress.Small"
-                            android:layout_gravity="center"
-                            android:layout_marginBottom="-10dp"
-                            android:layout_marginLeft="-10dp"
-                            android:layout_marginRight="-10dp"
-                            android:layout_marginTop="-10dp"
-                            android:visibility="gone" />
-                    </FrameLayout>
+                        android:layout_gravity="center|left"
+                        android:visibility="visible"
+                        app:amount="0"
+                        app:baseTextColor="@android:color/white"
+                        app:baseTextSize="22sp"
+                        app:decimalDigitsTextSize="22sp"
+                        app:decimalSeparator="."
+                        app:includeDecimalSeparator="true"
+                        app:symbol="$"
+                        app:symbolGravity="start|top"
+                        app:symbolTextSize="16sp" />
 
                     <TextView
                         android:id="@+id/volume"
@@ -156,10 +141,10 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal|left"
                     android:layout_marginTop="5dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
-                    android:maxLines="1"
-                    android:ellipsize="end"
                     tools:text="since last week" />
             </LinearLayout>
         </LinearLayout>

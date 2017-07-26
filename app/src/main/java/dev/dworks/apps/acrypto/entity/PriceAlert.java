@@ -16,6 +16,7 @@ public class PriceAlert implements Serializable{
     public String type;
     public double value;
     public String nameStatusIndex;
+    public String notes;
 
     public PriceAlert(){
 

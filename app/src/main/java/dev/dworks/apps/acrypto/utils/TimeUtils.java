@@ -98,11 +98,10 @@ public class TimeUtils {
 
     public static String getTimeAgo(long time) {
         long now = System.currentTimeMillis();
-        if (time < 1000000000000L) {
-            // if timestamp given in seconds, convert to millis
-            time *= 1000;
-        }
-        final long diff = now - time;
+        TimeZone tz = TimeZone.getDefault();
+        long localTimestamp = time + tz.getOffset(time);
+        long localTime = now + tz.getOffset(now);
+        final long diff = localTime - localTimestamp;
         if (diff < MINUTE) {
             return "just now";
         } else {
@@ -176,12 +175,12 @@ public class TimeUtils {
      */
     public static String formatHumanFriendlyShortDate(long timestamp) {
 
-
         long localTimestamp, localTime;
         long now = System.currentTimeMillis();
 
-        localTimestamp = timestamp;
-        localTime = now;
+        TimeZone tz = TimeZone.getDefault();
+        localTimestamp = timestamp + tz.getOffset(timestamp);
+        localTime = now + tz.getOffset(now);
 
         long dayOrd = localTimestamp / MILLIS_IN_A_DAY;
         long nowOrd = localTime / MILLIS_IN_A_DAY;
@@ -193,7 +192,7 @@ public class TimeUtils {
         } else if (dayOrd == nowOrd + 1) {
             return TOMORROW;
         } else {
-            return DATE_FORMAT_NOTIFICATION.format(new Date(timestamp));
+            return formatShortDateHeader(new Date(timestamp));
         }
     }
 
@@ -211,18 +210,18 @@ public class TimeUtils {
         long nowOrd = localTime / MILLIS_IN_A_DAY;
 
         if (dayOrd == nowOrd) {
-            return TODAY + formatCloseDate(new Date(timestamp));
+            return formatCloseDate(new Date(timestamp));
         } else if (dayOrd == nowOrd - 1) {
-            return YESTERDAY + formatCloseDate(new Date(timestamp));
+            return formatCloseDate(new Date(timestamp));
         } else if (dayOrd == nowOrd + 1) {
-            return TOMORROW + formatCloseDate(new Date(timestamp));
+            return formatCloseDate(new Date(timestamp));
         } else {
             return formatShortDateHeader(new Date(timestamp));
         }
     }
 
     public static String formatCloseDate(Date date) {
-        SimpleDateFormat format = new SimpleDateFormat(", dd MMM yyyy", DEFAULT_LOCALE);
+        SimpleDateFormat format = new SimpleDateFormat("dd MMM yyyy", DEFAULT_LOCALE);
         String dateFormat = format.format(date);
         return dateFormat;
     }
@@ -380,5 +379,15 @@ public class TimeUtils {
         formattedDate = dateFormat.format(date);
         //formattedDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(date);
         return formattedDate;
+    }
+
+    public static String getNewsTimestamp(String timestamp) {
+        Date date = null;
+        try {
+            date = DATE_FORMAT_NOTIFICATION.parse(timestamp);
+        } catch (ParseException e) {
+            LogUtils.logException(e);
+        }
+        return getTimeAgo(date.getTime());
     }
 }

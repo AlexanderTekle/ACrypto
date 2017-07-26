@@ -30,14 +30,16 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.text.TextUtilsCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.Button;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +59,8 @@ import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -82,16 +86,18 @@ import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
-import dev.dworks.apps.acrypto.view.Spinner;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
-import static dev.dworks.apps.acrypto.subscription.SubscriptionFragment.SUBSCRIPTION_MONTHLY_ID;
+import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
 
 /**
  * Created by HaKr on 20-Sep-14.
  */
 public class Utils {
+
+    public static final String AUTH_HEADER =  "X-AUTH-TOKEN";
+    public static final String CLIENT_HEADER =  "X-CLIENT-VERSION";
 
     @IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
     @Retention(RetentionPolicy.SOURCE)
@@ -109,8 +115,17 @@ public class Utils {
 
     public static final String APP_VERSION = "app_version";
 
+    public static final String REQUIRED = "Required";
+
     //Home
     public static final String BUNDLE_NAME = "bundle_name";
+
+    //News
+    public static final String BUNDLE_NEWS = "bundle_news";
+
+    //Portfolio
+    public static final String BUNDLE_PORTFOLIO = "bundle_portfolio";
+    public static final String BUNDLE_PORTFOLIO_COIN = "bundle_portfolio_coin";
 
     //Alert
     public static final String BUNDLE_ALERT = "bundle_alert";
@@ -219,6 +234,9 @@ public class Utils {
     }
 
     public static void showSnackBar(Activity activity, String text){
+        if(null == activity){
+            return;
+        }
         showSnackBar(activity.findViewById(android.R.id.content), text, Snackbar.LENGTH_SHORT);
     }
 
@@ -234,16 +252,19 @@ public class Utils {
         Snackbar snackbar = Snackbar.make(view, text, Snackbar.LENGTH_INDEFINITE);
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
-                    .setActionTextColor(view.getResources().getColor(R.color.colorPrimary));
+                    .setActionTextColor(view.getResources().getColor(R.color.colorAccent));
         }
         snackbar.show();
     }
 
     public static void showRetrySnackBar(Activity activity, String text, View.OnClickListener listener){
+        if(null == activity){
+            return;
+        }
         Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content), text, Snackbar.LENGTH_INDEFINITE);
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
-                    .setActionTextColor(activity.getResources().getColor(R.color.colorPrimary));
+                    .setActionTextColor(activity.getResources().getColor(R.color.colorAccent));
         }
         snackbar.show();
     }
@@ -257,6 +278,9 @@ public class Utils {
     }
 
     public static void showSnackBar(Activity activity, String text, int duration, String action, View.OnClickListener listener){
+        if(null == activity){
+            return;
+        }
         Snackbar.make(activity.findViewById(android.R.id.content), text, duration).setAction(action, listener).show();
     }
 
@@ -269,7 +293,7 @@ public class Utils {
 
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
-                    .setActionTextColor(activity.getResources().getColor(R.color.colorPrimary));
+                    .setActionTextColor(activity.getResources().getColor(R.color.colorAccent));
         }
         snackbar.show();
     }
@@ -278,7 +302,7 @@ public class Utils {
         Snackbar snackbar = Snackbar.make(view, "Can't connect to Internet", Snackbar.LENGTH_INDEFINITE);
         if (null != listener) {
             snackbar.setAction("RETRY", listener)
-                    .setActionTextColor(view.getResources().getColor(R.color.colorPrimary));
+                    .setActionTextColor(view.getResources().getColor(R.color.colorAccent));
         }
         snackbar.show();
     }
@@ -488,16 +512,25 @@ public class Utils {
         textView.setSymbol(symbol);
     }
 
+    public static void setTotalPriceValue(MoneyTextView textView, double value, String symbol){
+        String valueText = String.valueOf((int) Math.abs(value));
+        if(valueText.length() >= 6){
+            textView.setDecimalFormat(new RoundedNumberFormat());
+        } else {
+            textView.setDecimalFormat(getMoneyTotalFormat(symbol));
+        }
+        textView.setAmount((float) value);
+        textView.setSymbol(symbol);
+    }
+
     public static void setPriceValue(MoneyTextView textView, double value, String symbol){
         textView.setDecimalFormat(getMoneyFormat(symbol));
         textView.setAmount((float) Math.abs(value));
         textView.setSymbol(symbol);
     }
 
-    public static void setDecimalValue(MoneyTextView textView, double value, String symbol){
-        textView.setDecimalFormat(getDecimalFormat(symbol));
-        textView.setAmount((float) Math.abs(value));
-        textView.setSymbol(symbol);
+    public static void setDecimalValue(TextView textView, double value, String symbol){
+        textView.setText(getDecimalFormat(symbol).format(Math.abs(value)));
     }
 
     public static void setDateTimeValue(TextView textView, long timeInMillis){
@@ -524,7 +557,34 @@ public class Utils {
         return decimalFormat;
     }
 
+    public static DecimalFormat getIntegerFormat(String symbol){
+        String precisionFormat = "###,##0";
+
+        if("Ƀ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        } else if("Ξ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
+        decimalFormat.setDecimalSeparatorAlwaysShown(false);
+        return decimalFormat;
+    }
+
+
     public static DecimalFormat getMoneyFormat(String symbol){
+        String precisionFormat = "###,##0.###";
+
+        if("Ƀ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        } else if("Ξ".compareTo(symbol) == 0){
+            precisionFormat = "###,##0.00000000";
+        }
+        DecimalFormat decimalFormat = new DecimalFormat(precisionFormat);
+        decimalFormat.setDecimalSeparatorAlwaysShown(false);
+        return decimalFormat;
+    }
+
+    public static DecimalFormat getMoneyTotalFormat(String symbol){
         String precisionFormat = "###,##0.###";
 
         if("Ƀ".compareTo(symbol) == 0){
@@ -561,7 +621,7 @@ public class Utils {
                 .setSubject("ACrypto Support")
                 .setType("text/email")
                 .setChooserTitle("Contact Support")
-                .setText("ACrypto app version v"+App.APP_VERSION)
+                .setText("ACrypto app version v"+ App.APP_VERSION)
                 .startChooser();
     }
 
@@ -572,7 +632,7 @@ public class Utils {
                 .setSubject("ACrypto Feedback")
                 .setType("text/email")
                 .setChooserTitle("Send Feedback")
-                .setText("ACrypto app version v"+App.APP_VERSION)
+                .setText("ACrypto app version v"+ App.APP_VERSION)
                 .startChooser();
     }
 
@@ -634,7 +694,14 @@ public class Utils {
         if(value == 0){
             return " - ";
         }
-        return String.format("%.2f", Math.abs(value)) + "% " + (value > 0 ? "↑" : "↓");
+        boolean roundoff = false;
+        if(value >  500){
+            roundoff = true;
+            value = 500;
+        }
+        return String.format("%.2f", Math.abs(value))
+                + (roundoff ? "+" : "" )
+                + "% " + (value > 0 ? "↑" : "↓");
     }
 
     public static String getDisplayPercentageRounded(double valueOne, double valueTwo){
@@ -681,6 +748,11 @@ public class Utils {
     public static String roundDouble(Double value){
         RoundedNumberFormat roundedNumberFormat = new RoundedNumberFormat();
         return roundedNumberFormat.format(value);
+    }
+
+    public static String getFormattedInteger(double value, String symbol){
+        DecimalFormat decimalFormat = getIntegerFormat(symbol);
+        return decimalFormat.format(value);
     }
 
     public static String getFormattedNumber(double value, String symbol){
@@ -755,24 +827,8 @@ public class Utils {
         return ConnectionResult.SUCCESS == GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context);
     }
 
-    public static int getMasterDataCacheTime() {
+    public static long getMasterDataCacheTime() {
         return 1440*30;
-    }
-
-    public static void setSpinnerValue(Spinner spinner, String defaultValue, String value) {
-        int index = 0;
-        if (value.compareTo(defaultValue) == 0) {
-            spinner.setSelectedIndex(index);
-            return;
-        }
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
-            }
-        }
-        spinner.setSelectedIndex(index + 1);
     }
 
     public static String toTitleCase(String str) {
@@ -846,5 +902,25 @@ public class Utils {
             Intent login = new Intent(activity, LoginActivity.class);
             activity.startActivityForResult(login, MainActivity.LOGIN);
         }
+    }
+
+    public static String getDomainName(String url) {
+        String hostname = null;
+        try {
+            URI uri = new URI(url);
+            hostname = uri.getHost();
+            if (hostname != null) {
+                return hostname.startsWith("www.") ? hostname.substring(4) : hostname;
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return hostname;
+    }
+
+    public static final Spannable getColoredString(Context context, CharSequence text, int color) {
+        Spannable spannable = new SpannableString(text);
+        spannable.setSpan(new ForegroundColorSpan(color), 0, spannable.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannable;
     }
 }

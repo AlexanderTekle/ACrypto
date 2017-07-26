@@ -2,30 +2,28 @@ package dev.dworks.apps.acrypto.settings;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
 import android.support.v7.app.AlertDialog;
 
-import com.google.android.gms.auth.api.Auth;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.DialogFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
-import dev.dworks.apps.acrypto.misc.SignInClient;
 
 import static android.app.Activity.RESULT_FIRST_USER;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_USER_CURRENCY;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TOPIC_NEWS_ALL;
 
 
-public class GeneralPreferenceFragment extends PreferenceFragment
+public class GeneralPreferenceFragment extends GeneralPreferenceFlavourFragment
         implements Preference.OnPreferenceClickListener, Preference.OnPreferenceChangeListener {
-
-    private SignInClient mSignInClient;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,22 +49,23 @@ public class GeneralPreferenceFragment extends PreferenceFragment
             }
         });
 
-        mSignInClient = new SignInClient(getActivity());
+        CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(SettingsActivity.KEY_NEWS_ALERT_STATUS);
+        checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                boolean status = Boolean.valueOf(newValue.toString());
+                if(status){
+                    FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_NEWS_ALL);
+                } else {
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC_NEWS_ALL);
+                }
+                return true;
+            }
+        });
+
         if(!FirebaseHelper.isLoggedIn()){
             preferenceCategory.removePreference(logoutPreference);
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mSignInClient.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mSignInClient.onStop();
     }
 
     @Override
@@ -91,9 +90,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        FirebaseHelper.logout();
-                        Auth.GoogleSignInApi.signOut(mSignInClient.getGoogleApiClient());
-                        FirebaseHelper.signInAnonymously();
+                        logout();
                         getActivity().setResult(RESULT_FIRST_USER);
                         getActivity().finish();
 
@@ -101,5 +98,12 @@ public class GeneralPreferenceFragment extends PreferenceFragment
                 })
                 .setNegativeButton("Cancel", null);
         DialogFragment.showThemedDialog(builder);
+    }
+
+    @Override
+    protected void logout() {
+        super.logout();
+        FirebaseHelper.logout();
+        FirebaseHelper.signInAnonymously();
     }
 }

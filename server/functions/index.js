@@ -2,7 +2,11 @@
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-admin.initializeApp(functions.config().firebase);
+const serviceAccount = require('./service-account.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`
+});
 const cors = require('cors')({origin: true});
 const request = require('request');
 const rp = require('request-promise');
@@ -203,7 +207,31 @@ app.get('/symbols', (req, res) => {
   });
 });
 
-// GET /api/crons/alert_price
+// GET /api/news
+// Get the news
+app.get('/news', (req, res) => {
+
+  return admin.database().ref(`/news/data`)
+  .orderByChild('publish_time').limitToLast(30)
+  .once('value')
+  .then(snapshot => {
+    var value = snapshot.val();
+    if (value) {
+      var messages = [];
+      snapshot.forEach(childSnapshot => {
+        messages.push(childSnapshot.val());
+      });
+      return res.status(200).json({news: messages.reverse()});
+    } else {
+      res.status(401).json({error: 'No data found'});
+    }
+  }).catch(error => {
+    reportError(error, {type: 'http_request', context: req.url});
+    res.sendStatus(500);
+  });
+});
+
+// GET /api/crons/alerts/price
 // Triggers price alert check
 app.get('/crons/alerts/price', (req, res) => {
   return admin.database().ref(`/crons/alerts/price`).set(admin.database.ServerValue.TIMESTAMP).then(result => {
@@ -211,6 +239,67 @@ app.get('/crons/alerts/price', (req, res) => {
   })
   .catch(error => {
     reportError(error, {type: 'http_request', context: 'price alert cron'});
+    res.sendStatus(500);
+  });
+});
+
+// GET /api/amazontoken
+// Returns custome token for amazon login
+app.get('/amazontoken', (req, res) => {
+  const userId = req.query.userid;
+  const accessToken = req.query.accesstoken;
+  if(!userId || !accessToken){
+    return res.status(400).json({error: 'Something is missing'});
+  }
+  return rp(generateAmazonApiRequest(accessToken),
+  {resolveWithFullResponse: true}).then(response => {
+    if (response.statusCode === 200) {
+      const result = JSON.parse(response.body);
+      const name = result.name;
+      const uid = result.user_id;
+      const email = result.email;
+      if(uid != userId){
+        return res.status(403).json({error: 'Unauthorized'});
+      }
+      // Create a Firebase account and get the Custom Auth Token.
+      createFirebaseAccount(uid, name, email).then(firebaseToken => {
+        if(!firebaseToken){
+          return res.status(409).json({error: 'Already exists', email});
+        }
+        return res.status(200).json({firebase_token: firebaseToken});
+      }).catch(error => {
+        reportError(error, { type: 'auth', context: 'fiebase account'});
+        return res.status(500).json({error: 'Server error', error});
+      });
+    } else {
+      return res.status(response.statusCode).json({error: response.body});
+    }
+  }).catch(error => {
+    reportError(error, { type: 'http_request', context: 'amazon profile'});
+    return res.status(403).json({error: 'Authentication error: Cannot verify access token', error});
+  });
+});
+
+// GET /api/crons/alerts/news
+// Triggers news alerts
+app.get('/crons/alerts/news', (req, res) => {
+  return admin.database().ref(`/crons/alerts/news`).set(admin.database.ServerValue.TIMESTAMP).then(result => {
+    return res.status(200).json({news: 'triggered'});
+  })
+  .catch(error => {
+    reportError(error, {type: 'http_request', context: 'news alert cron'});
+    res.sendStatus(500);
+  });
+});
+
+// GET /api/crons/process/news
+// Triggers news processing
+app.get('/crons/process/news', (req, res) => {
+  return admin.database().ref(`/crons/process/news/lastUpdated`).set(admin.database.ServerValue.TIMESTAMP).then(result => {
+    return res.status(200).json({news: 'processed'});
+  })
+  .catch(error => {
+    reportError(error, {type: 'http_request', context: 'news process cron'});
     res.sendStatus(500);
   });
 });
@@ -236,24 +325,40 @@ app.get('/tests/crons/alerts/price', (req, res) => {
 });
 
 app.get('/tests/query', (req, res) => {
-  return admin.database().ref(`/user_alerts/price`).once('value').then(alertSnapshot => {
+  return admin.database().ref(`/users`).once('value').then(alertSnapshot => {
     var messages = [];
+    var countTotal = 0;
     var count = 0;
+    var countV8 = 0;
+    var countV9 = 0;
+    var countEmail = 0;
+    var countSubs = 0;
     alertSnapshot.forEach(function(dataSnapshot) {
-      dataSnapshot.forEach(function(data) {
-        const userId = dataSnapshot.key;
-        const key = data.key;
-        const name = data.val().name;
-        const status = data.val().status;
-        const nameStatusIndex = data.val().nameStatusIndex;
-        if(!nameStatusIndex){
-          count++;
-          messages.push({user: userId, comboKey:name });
-          admin.database().ref(`/user_alerts/price/${userId}/${key}/nameStatusIndex`).set(name + status);
-        }
-      });
+      const userId = dataSnapshot.key;
+      const appVersion = dataSnapshot.val().appVersion;
+      const subscriptionStatus = dataSnapshot.val().subscriptionStatus;
+      const email = dataSnapshot.val().email;
+      if(appVersion){
+        count++;
+        if(appVersion == '0.8') countV8++;
+        if(appVersion == '0.9') countV9++;
+      }
+      if(email){
+        countEmail++;
+      }
+      if(subscriptionStatus){
+        countSubs++;
+      }
+      countTotal++;
     });
-    return res.status(200).json({count: count, query: messages});
+    return res.status(200).json({
+      countTotal : countTotal,
+      email : countEmail,
+      subscription : countSubs,
+      countV: count,
+      countV8 : countV8,
+      countV9 : countV9
+    });
   });
 });
 
@@ -317,7 +422,7 @@ function sendAlertNotifications(comboKey, userId, currentPrice) {
     const subscriptionStatus = userSnapshot.val().subscriptionStatus;
     const priceAlertSnapshot = results[1];
     if(subscriptionStatus != 1){
-      //return logInfo("Subscription expired", {user: userId});
+      return logInfo("Subscription expired", {user: userId});
     }
     //we removed an invalid instanceId, so just return
     if(!instanceId){
@@ -511,3 +616,175 @@ exports.updateOnPriceAlertStatus = functions.database.ref('/user_alerts/price/{u
     }
   });
 });
+
+// Generate a Request option to access Amazon APIs
+function generateAmazonApiRequest(accessToken) {
+  return "https://api.amazon.com/user/profile?access_token=" + accessToken;
+}
+
+function createFirebaseAccount(uid, displayName, email){
+  const userId = uid.split('.').join('-');
+  // Create or update the user account.
+  const userCreationTask = admin.auth().updateUser(userId, {
+    displayName: displayName,
+    email: email
+  }).then(result => {
+    return result;
+  })
+  .catch(error => {
+    if (error.code === 'auth/user-not-found') {
+      return admin.auth().createUser({
+        uid: userId,
+        displayName: displayName,
+        email: email
+      });
+    } else if (error.code === 'auth/email-already-exists') {
+      return "";
+    }
+    throw error;
+  });
+
+  return userCreationTask.then(result => {
+    // Create a Firebase custom auth token.
+    return admin.auth().createCustomToken(userId).then((token) => {
+      console.log('Created Custom token for UID "', userId, '" Token:', token);
+      return token;
+    });
+  });
+}
+
+exports.deletePortfolioCoins = functions.database.ref('/portfolios/{uid}/{portfolioId}').onDelete(event => {
+  const uid = event.params.uid;
+  const portfolioId = event.params.portfolioId;
+
+  return admin.database().ref(`/portfolio_coins/${uid}/${portfolioId}`).remove().then(result => {
+    logInfo("Delete portfolio coins", {user: uid, key : portfolioId});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'delete portfolio coins'});
+  });
+});
+
+// Inserts latest news
+exports.newsProcessJob = functions.database.ref('/crons/process/news').onUpdate(event => {
+  const snapshot = event.data;
+  const newsId = snapshot.current.val().id;
+  return processNewsJob(newsId);
+});
+
+function createNewsUrl(newsId) {
+  return 'https://api.btckan.com/news/m_brief?lang=en&before_id='+newsId;
+}
+
+function processNewsJob(newsId){
+  return rp(createNewsUrl(newsId),
+  {resolveWithFullResponse: true}).then(response => {
+    if (response.statusCode === 200) {
+      const jsonData = JSON.parse(response.body);
+      if(jsonData.result != 'success'){
+        logInfo('Cant fetch news', {newsId: newsId});
+      }
+
+      var lastNewsItem = jsonData.data.news[0];
+      if(!lastNewsItem){
+        logInfo("No new news", {newsId: newsId});
+        return;
+      }
+      for(var newsItem of jsonData.data.news) {
+        newsItem.notificationStatus = 0;
+        admin.database().ref(`/news/data`).child(newsItem.id).update(newsItem);
+
+      }
+      return admin.database().ref(`/crons/process/news/id`).set(lastNewsItem.id).then(result => {
+        logInfo("News updated", {newsId: lastNewsItem.id});
+      })
+      .catch(error => {
+        return reportError(error, {type: 'database_write', context: 'process news'});
+      });
+    }
+    throw response.body;
+  }).catch(error => {
+    return reportError(error, {type: 'http_request', context: 'news fetching'});
+  });
+}
+
+// Sends Alerts for news
+exports.newsAlertJob = functions.database.ref('/crons/alerts/news').onUpdate(event => {;
+  return sendNewsAlerts();
+});
+
+function sendNewsAlerts() {
+  return admin.database().ref('/news/data')
+  .orderByChild('notificationStatus').equalTo(0).limitToFirst(1).once('value').then(snapshot => {
+    snapshot.forEach(function(dataSnapshot) {
+      const newsId = dataSnapshot.key;
+      const link = dataSnapshot.val().source_source_link;
+      const content = dataSnapshot.val().title;
+      // Notification details.
+      const payload = {
+        notification: {
+          title: 'News',
+          body: content,
+          sound: 'default',
+          tag: newsId
+        },
+        data: {
+          title: 'News',
+          body: content,
+          url: link,
+          sound: 'default',
+          type: "url"
+        }
+      };
+      // Set the message as high priority and have it expire after 24 hours.
+      const options = {
+        priority: "high",
+        timeToLive: 60 * 30
+      };
+      const topic = "news_all";
+      return admin.messaging().sendToTopic(topic, payload, options).then(response => {
+        logInfo("Successfully sent news alert", {newsId: newsId, topic : topic});
+        return admin.database().ref(`/news/data/${newsId}/notificationStatus`).set(1).then(result => {
+          logInfo("Updated news status", {newsId: newsId});
+        })
+        .catch(error => {
+          return reportError(error, {newsId: newsId, topic : topic, type: 'database_write', context: 'update news status'});
+        });
+      })
+      .catch(error => {
+        return reportError(error, {newsId: newsId, topic : topic, type: 'fcm_topic'});
+      });
+    });
+  })
+  .catch(error => {
+    return reportError(error, {type: 'database_query', context: 'news alerts'});
+  });
+}
+
+// upsate /alerts based on subscription change
+exports.userSubscriptionChange = functions.database.ref('/users/{uid}/subscriptionStatus').onUpdate(event => {;
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const subscriptionStatus = snapshot.current.val();
+
+  return updateAlerts(uid, subscriptionStatus);
+});
+
+function updateAlerts(uid, subscriptionStatus) {
+  return admin.database().ref(`/user_alerts/price/${uid}`).once('value').then(snapshot => {
+    snapshot.forEach(function(dataSnapshot) {
+      const name = dataSnapshot.val().name;
+      if(subscriptionStatus == 1){
+          logInfo("Added alert on subscription status change", {user: uid, key : name});
+          admin.database().ref(`/alerts/price/${name}/${uid}`).set(true);
+      } else {
+          logInfo("Removed alert on subscription status change", {user: uid, key : name});
+          admin.database().ref(`/alerts/price/${name}/${uid}`).remove();
+      }
+    });
+    return;
+  })
+  .catch(error => {
+    return reportError(error, {type: 'database_query', context: 'user subscription change'});
+  });
+}

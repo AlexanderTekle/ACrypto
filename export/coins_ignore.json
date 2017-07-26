@@ -1,5 +1,4 @@
 {
-  "AUD" : true,
   "CRPC" : true,
   "EDR2" : true,
   "MIU" : true,
@@ -83,11 +82,16 @@
   "TSUKASA" : true,
   "TSUKASAVIX" : true,
   "MIZUKI" : true,
-  "OTX" : true,
+  "YAMAGUCHIA" : true,
   "MPK" : true,
   "UTA" : true,
-  "FNC" : true,
-  "PPY" : true,
   "PCSH" : true,
-  "MCO" : true
+  "MEN" : true,
+  "BTCHC" : true,
+  "DDC" : true,
+  "TERI" : true,
+  "SIGT" : true,
+  "KPL" : true,
+  "LINDA" : true,
+  "TER" : true
 }

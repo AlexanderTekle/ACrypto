@@ -6,8 +6,12 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.error.VolleyError;
 
 import dev.dworks.apps.acrypto.utils.LogUtils;
+import dev.dworks.apps.acrypto.utils.Utils;
 
 abstract class BaseRequest<T> extends Request<T> {
+
+	private long cacheSoftMinutes = 5;
+	private long cacheMinutes = 60;
 
 	BaseRequest(int method, String url, ErrorListener listener) {
 		super(method, url, listener);
@@ -24,4 +28,30 @@ abstract class BaseRequest<T> extends Request<T> {
 			LogUtils.sendFailureLog(error, getUrl(), getMethod(), null);
         }
     }
+
+	public BaseRequest<T> setDontExpireCache() {
+		this.cacheSoftMinutes = 0;
+		this.cacheMinutes = 0;
+		return this;
+	}
+
+	public BaseRequest<T> setMasterExpireCache() {
+		this.cacheSoftMinutes = Utils.getMasterDataCacheTime();
+		this.cacheMinutes = Utils.getMasterDataCacheTime();
+		return this;
+	}
+
+	public BaseRequest<T> setCacheMinutes(long cacheSoftMinutes, long cacheMinutes) {
+		this.cacheSoftMinutes = cacheSoftMinutes;
+		this.cacheMinutes = cacheMinutes;
+		return this;
+	}
+
+	public long getCacheMinutes() {
+		return cacheMinutes;
+	}
+
+	public long getCacheSoftMinutes() {
+		return cacheSoftMinutes;
+	}
 }

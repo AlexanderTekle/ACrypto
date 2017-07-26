@@ -57,6 +57,10 @@ public class CoinDetails extends BaseEntity {
         @Expose
         public ArrayList<Coins.CoinDetail> exchanges = null;
 
+        public Coin(String code) {
+            this.code = code;
+        }
+
         @Override
         public String toString() {
             return code;

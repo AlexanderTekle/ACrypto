@@ -19,17 +19,17 @@
             android:elevation="8dp"
             app:contentInsetLeft="@dimen/second_keyline_default"
             app:contentInsetStart="@dimen/second_keyline_default"
-            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:subtitleTextAppearance="@style/ToolbarSubTitle"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:titleTextAppearance="@style/ToolbarTitle">
 
-            <Spinner
+            <dev.dworks.apps.acrypto.view.SimpleSpinner
                 android:id="@+id/stack"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:theme="@style/SpinnerStyle"
                 android:visibility="gone"
-                android:overlapAnchor="true" />
+                app:overlapAnchor="true" />
 
         </android.support.v7.widget.Toolbar>
 

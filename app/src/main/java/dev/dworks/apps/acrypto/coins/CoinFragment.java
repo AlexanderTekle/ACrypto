@@ -118,6 +118,7 @@ public class CoinFragment extends RecyclerFragment
         setListShown(false);
         String url = getUrl();
 
+        mCoins = null;
         GsonRequest<Coins> request = new GsonRequest<>(
                 url,
                 Coins.class,
@@ -132,16 +133,15 @@ public class CoinFragment extends RecyclerFragment
 
     private String getUrl() {
         return UrlManager.with(UrlConstant.COINLIST_URL)
-                .setParam("limit", "60")
+                .setParam("limit", "100")
                 .setParam("symbol", mCurrency)
                 .getUrl();
     }
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        setListShown(true);
         if (!Utils.isNetConnected(getActivity())) {
-            setEmptyText("No Internet");
+            setEmptyData("No Internet");
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -150,7 +150,7 @@ public class CoinFragment extends RecyclerFragment
             });
         }
         else{
-            setEmptyText("Something went wrong!");
+            setEmptyData("Something went wrong!");
             Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -163,6 +163,15 @@ public class CoinFragment extends RecyclerFragment
     @Override
     public void onResponse(Coins response) {
         loadData(response);
+    }
+
+    public void setEmptyData(String mesasge){
+        setListShown(true);
+        if(null != mCoins){
+            return;
+        }
+        mAdapter.clear();
+        setEmptyText(mesasge);
     }
 
     public void refreshData(String currency) {
@@ -201,6 +210,7 @@ public class CoinFragment extends RecyclerFragment
         if(mCurrency.equals("USD")){
             ignoreCurrencies.add("EUR");
             ignoreCurrencies.add("GBP");
+            ignoreCurrencies.add("AUD");
         } else if (mCurrency.equals("JPY")){
             ignoreCurrencies.add("USD");
         } else  if (mCurrency.equals("GBP")){
@@ -255,6 +265,9 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onItemClick(View view, int position) {
+        if(position >= mAdapter.getItemCount() ){
+            return;
+        }
         Coins.CoinDetail item = Coins.getCoin(mAdapter.getItem(position));
         Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
         intent.putExtra(BUNDLE_COIN, item);

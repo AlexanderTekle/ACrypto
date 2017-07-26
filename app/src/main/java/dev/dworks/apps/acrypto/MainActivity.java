@@ -1,7 +1,6 @@
 package dev.dworks.apps.acrypto;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -15,47 +14,41 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
+import com.github.javiersantos.appupdater.AppUpdater;
+import com.github.javiersantos.appupdater.enums.Display;
+import com.github.javiersantos.appupdater.enums.UpdateFrom;
 import com.github.lykmapipo.localburst.LocalBurst;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.appinvite.AppInviteInvitation;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.appinvite.FirebaseAppInvite;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
-
-import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
-import dev.dworks.apps.acrypto.common.SpinnerInteractionListener;
 import dev.dworks.apps.acrypto.entity.CoinsList;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
-import dev.dworks.apps.acrypto.network.GsonRequest;
+import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
+import dev.dworks.apps.acrypto.news.NewsFragment;
+import dev.dworks.apps.acrypto.portfolio.PortfolioFragment;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.subscription.SubscriptionFragment;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
+import dev.dworks.apps.acrypto.view.SimpleSpinner;
 
 import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
@@ -76,7 +69,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final int SETTINGS = 47;
     public static final int LOGIN = 619;
-    private static final int REQUEST_INVITE = 99;
+    public static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
 
@@ -84,7 +77,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mName;
     private View mheaderLayout;
     private BezelImageView mPicture;
-    private Spinner spinner;
+    private SimpleSpinner spinner;
     private InterstitialAd mInterstitialAd;
     private LocalBurst broadcast;
     private NavigationView navigationView;
@@ -97,16 +90,15 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if(TextUtils.isEmpty(getNotificationType(extras))){
-                HomeFragment.show(getSupportFragmentManager(), null);
+                showHome(null);
             } else {
-                handleExtras(extras);
+                handleExtras(false, extras);
             }
         }
 
         FirebaseHelper.signInAnonymously();
         App.getInstance().initializeBilling();
         App.getInstance().fetchTrailStatus();
-        getInvite();
         broadcast = LocalBurst.getInstance();
         initControls();
 
@@ -119,18 +111,26 @@ public class MainActivity extends AppCompatActivity
         }
 
         initAd();
+        checkLatestVersion();
+    }
+
+    private void checkLatestVersion() {
+        AppUpdater appUpdater = new AppUpdater(this)
+                .setUpdateFrom(UpdateFrom.GOOGLE_PLAY)
+                .setDisplay(Display.DIALOG);
+        appUpdater.start();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        handleExtras(intent.getExtras());
+        handleExtras(true, intent.getExtras());
     }
 
     private void initControls() {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        spinner = (Spinner) findViewById(R.id.stack);
+        spinner = (SimpleSpinner) findViewById(R.id.stack);
 
         loadCoinsList();
         setSupportActionBar(toolbar);
@@ -172,47 +172,35 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadCoinsList() {
-        FirebaseHelper.getFirebaseDatabaseReference().child("master/coins_list").orderByChild("order")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<String> coins = new ArrayList<String>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                            String currency = childSnapshot.getKey();
-                            coins.add(currency);
-                        }
-
-                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(MainActivity.this,
-                                R.layout.item_spinner , coins);
-                        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        spinner.setAdapter(dataAdapter);
-                        SpinnerInteractionListener listener = new SpinnerInteractionListener(MainActivity.this);
-                        spinner.setOnTouchListener(listener);
-                        spinner.setOnItemSelectedListener(listener);
-                        setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
         String url = UrlManager.with(UrlConstant.COINS_LIST_API).getUrl();
 
-        GsonRequest<CoinsList> request = new GsonRequest<>(url,
+        MasterGsonRequest<CoinsList> request = new MasterGsonRequest<>(url,
                 CoinsList.class,
-                "",
                 new Response.Listener<CoinsList>() {
                     @Override
                     public void onResponse(CoinsList coinsList) {
-                        ArrayAdapter<CoinsList.Currency> dataAdapter = new ArrayAdapter<CoinsList.Currency>(MainActivity.this,
-                                R.layout.item_spinner , coinsList.coins_list);
-                        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        spinner.setAdapter(dataAdapter);
-                        SpinnerInteractionListener listener = new SpinnerInteractionListener(MainActivity.this);
-                        spinner.setOnTouchListener(listener);
-                        spinner.setOnItemSelectedListener(listener);
-                        setSpinnerToValue(spinner, SettingsActivity.getCurrencyList());
+                        spinner.setItems(coinsList.coins_list, R.layout.item_spinner_dark);
+                        ((SimpleSpinner.ArrayAdapter)spinner.getAdapter()).setDropDownViewResource(R.layout.item_spinner_light);
+                        spinner.setSelection(SettingsActivity.getCurrencyList());
+                        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                String item = parent.getItemAtPosition(position).toString();
+                                SettingsActivity.setCurrencyList(item);
+                                CoinFragment fragment = CoinFragment.get(getSupportFragmentManager());
+                                if (null != fragment) {
+                                    fragment.refreshData(item);
+                                }
+                                Bundle bundle = new Bundle();
+                                bundle.putString("currency", item);
+                                AnalyticsManager.logEvent("currency_filtered", bundle);
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> parent) {
+
+                            }
+                        });
                     }
                 },
                 new Response.ErrorListener() {
@@ -221,9 +209,9 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 });
-        request.setDontExpireCache();
+        request.setMasterExpireCache();
         request.setShouldCache(true);
-        VolleyPlusHelper.with(this).updateToRequestQueue(request, "coins_list");
+        VolleyPlusMasterHelper.with(this).updateToRequestQueue(request, "coins_list");
     }
 
     private void updateUserDetails() {
@@ -234,7 +222,7 @@ public class MainActivity extends AppCompatActivity
         String name = "Guest";
         if(FirebaseHelper.isLoggedIn()) {
             name = user.getDisplayName();
-            url = user.getPhotoUrl().toString();
+            url = user.getPhotoUrl() == null ? "" : user.getPhotoUrl().toString();
         }
         mName.setText(name);
         mPicture.setImageUrl(url, VolleyPlusHelper.with(this).getImageLoader());
@@ -321,8 +309,16 @@ public class MainActivity extends AppCompatActivity
                 item.setChecked(true);
                 drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
-                Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
+                PortfolioFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_portfolio");
+                return true;
+
+            case R.id.nav_news:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                NewsFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_news");
                 return true;
 
             case R.id.nav_settings:
@@ -401,37 +397,30 @@ public class MainActivity extends AppCompatActivity
 
     private void refreshData() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
-        if(null != fragment && fragment instanceof AlertFragment){
-            AlertFragment.show(getSupportFragmentManager());
-        }
-    }
-
-    public void setSpinnerToValue(Spinner spinner, String value) {
-        int index = 0;
-        SpinnerAdapter adapter = spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).toString().equals(value)) {
-                index = i;
-                break; // terminate loop
+        if (null != fragment) {
+            if (fragment instanceof AlertFragment) {
+                AlertFragment.show(getSupportFragmentManager());
+            } else if (fragment instanceof PortfolioFragment) {
+                PortfolioFragment.show(getSupportFragmentManager());
             }
         }
-        spinner.setSelection(index);
     }
 
-    private void handleExtras(Bundle extras) {
+    private void handleExtras(boolean newIntent, Bundle extras) {
         String type = getNotificationType(extras);
         if(TextUtils.isEmpty(type)){
+            if(!newIntent){
+                showHome(null);
+            }
             return;
         }
         if(type.equals(TYPE_ALERT)){
             String name = getAlertName(extras);
-            if(!TextUtils.isEmpty(name)){
-                HomeFragment.show(getSupportFragmentManager(), name);
-                Bundle bundle = new Bundle();
-                bundle.putString("source", "notification");
-                AnalyticsManager.logEvent("view_home", bundle);
-            }
-        } else if (type.equals(TYPE_URL)){
+            showHome(name);
+            Bundle bundle = new Bundle();
+            bundle.putString("source", "notification");
+            AnalyticsManager.logEvent("view_home", bundle);
+        } else if(type.equals(TYPE_URL)){
             String url = getNotificationUrl(extras);
             if(!TextUtils.isEmpty(url)){
                 Utils.openCustomTabUrl(this, url);
@@ -444,6 +433,14 @@ public class MainActivity extends AppCompatActivity
         } else {
             //Do nothing
         }
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (null == fragment) {
+            showHome(null);
+        }
+    }
+
+    private void showHome(String name) {
+        HomeFragment.show(getSupportFragmentManager(), name);
     }
 
     private void initAd() {
@@ -488,32 +485,5 @@ public class MainActivity extends AppCompatActivity
         navigationView.getMenu().clear();
         navigationView.inflateMenu(App.getInstance().isSubscribedMonthly() && FirebaseHelper.isLoggedIn()
                 ? R.menu.activity_main_drawer_pro : R.menu.activity_main_drawer);
-    }
-
-    private void getInvite(){
-        FirebaseDynamicLinks.getInstance().getDynamicLink(getIntent())
-                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
-                    @Override
-                    public void onSuccess(PendingDynamicLinkData data) {
-                        if (data == null) {
-                            return;
-                        }
-                        Uri deepLink = data.getLink();
-                        FirebaseAppInvite invite = FirebaseAppInvite.getInvitation(data);
-                        if (invite != null) {
-                            String invitationId = invite.getInvitationId();
-                        }
-
-                    }
-                });
-    }
-    private void sendInvite() {
-        Intent intent = new AppInviteInvitation.IntentBuilder(getString(R.string.invitation_title))
-                .setMessage(getString(R.string.invitation_message))
-                //.setDeepLink(Uri.parse(getString(R.string.invitation_deep_link)))
-                //.setCustomImage(Uri.parse(getString(R.string.invitation_custom_image)))
-                .setCallToActionText(getString(R.string.invitation_cta))
-                .build();
-        startActivityForResult(intent, REQUEST_INVITE);
     }
 }

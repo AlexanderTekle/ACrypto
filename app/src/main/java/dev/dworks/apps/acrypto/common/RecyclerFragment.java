@@ -170,6 +170,7 @@ public class RecyclerFragment extends ActionBarFragment {
         mListShown = false;
         mProgressContainer = mListContainer = null;
         mStandardEmptyView = null;
+        mLayoutManager = null;
         super.onDestroyView();
     }
 
@@ -211,7 +212,7 @@ public class RecyclerFragment extends ActionBarFragment {
             mList.setItemAnimator(mItemAnimator);
         }
     }
-    
+
     public void setLayoutManager(LayoutManager layoutManager){
     	mLayoutManager = layoutManager;
         if (mList != null) {

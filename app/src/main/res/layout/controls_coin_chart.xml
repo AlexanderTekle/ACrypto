@@ -61,23 +61,15 @@
                 android:orientation="horizontal"
                 android:visibility="visible">
 
-                <dev.dworks.apps.acrypto.view.Spinner
-                    android:id="@+id/currencyToSpinner"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:theme="@style/spinnerStyle"
-                    android:visibility="gone"
-                    app:ms_dropdown_max_height="@dimen/spinner_max_height" />
-
-                <dev.dworks.apps.acrypto.view.Spinner
+                <dev.dworks.apps.acrypto.view.SearchableSpinner
                     android:id="@+id/exchangeSpinner"
-                    android:layout_width="160dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginLeft="10dp"
                     android:maxLines="1"
-                    android:theme="@style/spinnerStyle"
-                    app:ms_dropdown_max_height="@dimen/spinner_max_height" />
+                    android:minWidth="130dp"
+                    app:titleText="Choose an Exchange"
+                    android:theme="@style/SpinnerStyle" />
             </LinearLayout>
 
         </LinearLayout>

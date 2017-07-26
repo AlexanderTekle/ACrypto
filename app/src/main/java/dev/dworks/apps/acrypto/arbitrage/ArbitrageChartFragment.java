@@ -10,7 +10,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
-import android.text.Html;
+import android.text.Spannable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -58,11 +59,13 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.CONVERSION_URL;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
+import static dev.dworks.apps.acrypto.utils.Utils.getColoredString;
 import static dev.dworks.apps.acrypto.utils.Utils.getDisplayCurrency;
 import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageRounded;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
+import static dev.dworks.apps.acrypto.utils.Utils.getValueDifferenceColor;
 import static dev.dworks.apps.acrypto.utils.Utils.setDateTimeValue;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
@@ -320,9 +323,11 @@ public class ArbitrageChartFragment extends ActionBarFragment
                 getCurrentCurrencyFrom(),
                 getDisplayCurrency(currentValueOne) + " " + getCurrentCurrencyOne(),
                 getDisplayCurrency((currentValueTwo * mConversionRate)) + " " + getCurrentCurrencyTwo(),
-                diff < 0 ?  "loss" : "profit",
-                getDisplayCurrency(Math.abs(diff)) + " " +  getCurrentCurrencyOne());
-        mArbitrageSummary.setText(Html.fromHtml(text));
+                diff < 0 ?  "loss" : "profit");
+        Spannable profitText = getColoredString(getActivity(),
+                " ~"+getDisplayCurrency(Math.abs(diff)) + " " +  getCurrentCurrencyOne(),
+                ContextCompat.getColor(getActivity(), getValueDifferenceColor(diff)));
+        mArbitrageSummary.setText(TextUtils.concat(Utils.getFromHtml(text), profitText));
         mArbitrageLayout.setVisibility(View.VISIBLE);
     }
 
@@ -501,7 +506,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
         set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
         set1.setCircleColorHole(getColor(this, R.color.colorPrimaryLight));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
-        set1.setFillAlpha(255);
+        set1.setFillAlpha(200);
         set1.setHighlightLineWidth(1);
 
         set1.setDrawValues(false);

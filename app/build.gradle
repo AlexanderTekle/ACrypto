@@ -8,8 +8,8 @@ android {
         applicationId "dev.dworks.apps.acrypto"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 12
-        versionName "0.8"
+        versionCode 14
+        versionName "0.9"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -36,16 +36,8 @@ android {
         }
     }
 
-    flavorDimensions "release", "default"
+    flavorDimensions "release"
     productFlavors {
-        main {
-            applicationId "dev.dworks.apps.acrypto"
-            dimension "default"
-        }
-        underground {
-            applicationId "dev.dworks.apps.acrypto.underground"
-            dimension "default"
-        }
         google {
             dimension "release"
         }
@@ -54,13 +46,6 @@ android {
         }
         other {
             dimension "release"
-        }
-    }
-    variantFilter { variant ->
-        def names = variant.flavors*.name
-
-        if (names.contains("underground") && (names.contains("google") || names.contains("other"))) {
-            variant.ignore = true
         }
     }
 
@@ -72,36 +57,37 @@ android {
 
 ext {
     supportLibVersion = '25.4.0'
-    gmsVersion = '11.0.1'
+    gmsVersion = '11.0.2'
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:cardview-v7:${supportLibVersion}"
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.android.support:customtabs:${supportLibVersion}"
-    compile "com.google.firebase:firebase-messaging:${gmsVersion}"
-    compile "com.google.firebase:firebase-auth:${gmsVersion}"
-    compile "com.google.firebase:firebase-crash:${gmsVersion}"
     compile "com.google.firebase:firebase-perf:${gmsVersion}"
     compile "com.google.firebase:firebase-database:${gmsVersion}"
     compile "com.google.firebase:firebase-ads:${gmsVersion}"
-    compile "com.google.firebase:firebase-config:${gmsVersion}"
-    compile "com.google.firebase:firebase-invites:${gmsVersion}"
-    compile 'com.firebaseui:firebase-ui-auth:2.0.1'
-    compile 'com.firebaseui:firebase-ui-database:2.0.1'
+    compile 'com.firebaseui:firebase-ui-auth:2.1.0'
+    compile 'com.firebaseui:firebase-ui-database:2.1.0'
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'dev.dworks.libs:volleyplus:0.1.4'
     compile 'cat.ereza:customactivityoncrash:2.1.0'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.2'
     compile 'org.fabiomsr:moneytextview:1.1.0'
-    compile 'com.jaredrummler:material-spinner:1.1.0'
     compile 'com.zsoltsafrany:needle:1.0.0'
-    compile 'com.anjlab.android.iab.v3:library:1.0.42'
     compile 'com.github.lykmapipo:local-burst:v0.2.0'
     compile 'com.github.javiersantos:AppUpdater:2.6.1'
     compile 'de.psdev.licensesdialog:licensesdialog:1.8.2'
+    compile 'org.jsoup:jsoup:1.10.3'
+    googleCompile "com.google.firebase:firebase-crash:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-invites:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-config:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-messaging:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-auth:${gmsVersion}"
+    googleCompile 'com.anjlab.android.iab.v3:library:1.0.42'
+    amazonCompile fileTree(include: ['*.jar'], dir: 'libs')
+    amazonCompile 'com.github.eggheadgames:android-in-app-payments:+'
 }
 
 def props = new Properties()

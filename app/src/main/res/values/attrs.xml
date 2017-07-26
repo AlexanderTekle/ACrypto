@@ -10,17 +10,21 @@
     </declare-styleable>
 
     <declare-styleable name="CompatTextView">
-        <attr name="compoundDrawableWidth" format="dimension"/>
-        <attr name="compoundDrawableHeight" format="dimension"/>
-        <attr name="drawableStart" format="reference"/>
-        <attr name="drawableTop" format="reference"/>
-        <attr name="drawableEnd" format="reference"/>
-        <attr name="drawableBottom" format="reference"/>
+        <attr name="compoundDrawableWidth" format="dimension" />
+        <attr name="compoundDrawableHeight" format="dimension" />
+        <attr name="drawableStart" format="reference" />
+        <attr name="drawableTop" format="reference" />
+        <attr name="drawableEnd" format="reference" />
+        <attr name="drawableBottom" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="BezelImageView">
         <attr name="maskDrawable" format="reference" />
         <attr name="borderDrawable" format="reference" />
         <attr name="desaturateOnPress" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="SearchableSpinner">
+        <attr name="hintText" format="string" />
+        <attr name="titleText" format="string" />
     </declare-styleable>
 </resources>

@@ -10,6 +10,7 @@ import java.util.ArrayList;
  */
 
 public class Exchanges extends BaseEntity {
+    public static final String SELECT_EXCHANGES = "Exchange";
     public static final String ALL_EXCHANGES = "All Exchanges";
     public static final String NO_EXCHANGES = "No Exchange";
 
@@ -40,8 +41,6 @@ public class Exchanges extends BaseEntity {
             ArrayList<Exchange> finalList = new ArrayList<>();
             finalList.add(allExchange);
             return finalList;
-        } else if(data.size() == 1){
-            return data;
         } else {
             Exchange allExchange = new Exchange(ALL_EXCHANGES);
             ArrayList<Exchange> finalList = new ArrayList<>();
@@ -49,5 +48,17 @@ public class Exchanges extends BaseEntity {
             finalList.addAll(data);
             return finalList;
         }
+    }
+
+
+    public ArrayList<Exchange> getSelectionData(){
+        if(data.size() != 0){
+            Exchange allExchange = new Exchange(SELECT_EXCHANGES);
+            ArrayList<Exchange> finalList = new ArrayList<>();
+            finalList.add(allExchange);
+            finalList.addAll(data);
+            return finalList;
+        }
+        return data;
     }
 }

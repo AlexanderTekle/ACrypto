@@ -16,7 +16,7 @@
   "PLN": "zł",
   "AUD": "A$",
   "CNY": "CN¥",
-  "RUB": "Ɍ",
+  "RUB": "₽",
   "HKD": "H$",
   "NZD": "NZ$",
   "JPY": "¥",
@@ -35,5 +35,6 @@
   "SEK": "Kr",
   "CHF": "Fr",
   "NOK": "Kr",
-  "THB": "฿"
+  "THB": "฿",
+  "VND": "₫"
 }

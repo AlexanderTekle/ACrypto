@@ -7,12 +7,16 @@
   "EUR" : {
     "name" : "Euro",
     "order" : 2,
-    "arbitrage_from" : 1
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 12
   },
   "GBP" : {
     "name" : "Great British Pound",
     "order" : 3,
-    "arbitrage_from" : 1
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 13
   },
   "CAD" : {
     "name" : "Canadian Dollar",
@@ -56,14 +60,16 @@
   "JPY" : {
     "name" : "Japanese Yen",
     "order" : 11,
-    "arbitrage_from" : 1
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 14
   },
   "SGD" : {
     "name" : "Singapore Dollar",
     "order" : 12,
     "arbitrage_from" : 1,
     "arbitrage_to" : 1,
-    "order_arbitrage_to" : 9
+    "order_arbitrage_to" : 10
   },
   "DKK" : {
     "name" : "Danish Krone",
@@ -95,7 +101,9 @@
   "CHF" : {
     "name" : "Swiss Franc",
     "order" : 25,
-    "arbitrage_from" : 1
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 11
   },
   "KRW" : {
     "name" : "South Koren Won",

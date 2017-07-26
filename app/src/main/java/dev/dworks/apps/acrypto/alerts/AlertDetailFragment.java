@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto.alerts;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -16,16 +17,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
 import org.json.JSONException;
@@ -39,7 +39,9 @@ import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
+import dev.dworks.apps.acrypto.entity.CoinDetails;
 import dev.dworks.apps.acrypto.entity.Coins;
+import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.entity.Exchanges;
 import dev.dworks.apps.acrypto.entity.PriceAlert;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -47,39 +49,41 @@ import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
+import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
-import dev.dworks.apps.acrypto.settings.SettingsActivity;
+import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.utils.Utils.OnFragmentInteractionListener;
 import dev.dworks.apps.acrypto.view.ImageView;
-import dev.dworks.apps.acrypto.view.Spinner;
+import dev.dworks.apps.acrypto.view.SearchableSpinner;
+import dev.dworks.apps.acrypto.view.SimpleSpinner;
 
 import static android.view.View.GONE;
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.entity.Exchanges.NO_EXCHANGES;
-import static dev.dworks.apps.acrypto.home.HomeFragment.LIMIT_ALT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CONDITION_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
-import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_TO_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.FREQUENCY_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getDecimalFormat;
 
 public class AlertDetailFragment extends ActionBarFragment
-        implements Response.Listener<String>, Response.ErrorListener {
+        implements Response.Listener<String>, Response.ErrorListener, AdapterView.OnItemSelectedListener  {
 
     private static final String TAG = "AlertDetails";
     private static final String REQUIRED = "Required";
 
     private OnFragmentInteractionListener mListener;
     private PriceAlert mPriceAlert;
-    private Spinner mCurrencyFromSpinner;
-    private Spinner mCurrencyToSpinner;
-    private Spinner mExchangeSpinner;
-    private Spinner mFrequencySpinner;
-    private Spinner mConditionSpinner;
+    private SearchableSpinner mCurrencyFromSpinner;
+    private SearchableSpinner mCurrencyToSpinner;
+    private SearchableSpinner mExchangeSpinner;
+    private SimpleSpinner mFrequencySpinner;
+    private SimpleSpinner mConditionSpinner;
     private EditText mValue;
     private ImageView mIcon;
     private TextView mSymbol;
@@ -147,11 +151,11 @@ public class AlertDetailFragment extends ActionBarFragment
 
         mProgress = view.findViewById(R.id.progress);
         mPriceProgress = view.findViewById(R.id.priceprogress);
-        mCurrencyFromSpinner = (Spinner) view.findViewById(R.id.currencyFromSpinner);
-        mCurrencyToSpinner = (Spinner) view.findViewById(R.id.currencyToSpinner);
-        mExchangeSpinner = (Spinner) view.findViewById(R.id.exchangeSpinner);
-        mFrequencySpinner = (Spinner) view.findViewById(R.id.frequencySpinner);
-        mConditionSpinner = (Spinner) view.findViewById(R.id.conditionSpinner);
+        mCurrencyFromSpinner = (SearchableSpinner) view.findViewById(R.id.currencyFromSpinner);
+        mCurrencyToSpinner = (SearchableSpinner) view.findViewById(R.id.currencyToSpinner);
+        mExchangeSpinner = (SearchableSpinner) view.findViewById(R.id.exchangeSpinner);
+        mFrequencySpinner = (SimpleSpinner) view.findViewById(R.id.frequencySpinner);
+        mConditionSpinner = (SimpleSpinner) view.findViewById(R.id.conditionSpinner);
         mValue = (EditText) view.findViewById(R.id.value);
         mSymbol = (TextView) view.findViewById(R.id.symbol);
         mIcon = (ImageView) view.findViewById(R.id.icon);
@@ -172,8 +176,9 @@ public class AlertDetailFragment extends ActionBarFragment
 
             canLoadValue = TextUtils.isEmpty(refKey);
             loadValue(true);
-            Utils.setSpinnerValue(mConditionSpinner, CONDITION_DEFAULT, getCondition());
-            Utils.setSpinnerValue(mFrequencySpinner, FREQUENCY_DEFAULT, getFrequency());
+
+            mFrequencySpinner.setSelection(getFrequency());
+            mConditionSpinner.setSelection(getCondition());
         }
         loadSymbol();
         loadIcon();
@@ -219,73 +224,16 @@ public class AlertDetailFragment extends ActionBarFragment
     }
 
     private void setSpinners() {
-        setCurrencyFromSpinner();
-        setCurrencyToSpinner();
-        setExchangeSpinner();
-        setFrequencySpinner();
-        setConditionSpinner();
-    }
+        mCurrencyFromSpinner.setOnItemSelectedListener(this);
+        mCurrencyToSpinner.setOnItemSelectedListener(this);
+        mExchangeSpinner.setOnItemSelectedListener(this);
 
-    private void setConditionSpinner() {
-        List<String> list = Arrays.asList(getResources().getStringArray(R.array.alert_condition));
-        mConditionSpinner.getPopupWindow().setWidth(300);
-        mConditionSpinner.setItems(list);
-        mConditionSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
-            @Override
-            public void onItemSelected(Spinner view, int position, long id, String item) {
-                condition = item;
-            }
-        });
-    }
-
-    private void setFrequencySpinner() {
-        List<String> list = Arrays.asList(getResources().getStringArray(R.array.alert_frequency));
-        mFrequencySpinner.getPopupWindow().setWidth(800);
-        mFrequencySpinner.setItems(list);
-        mFrequencySpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
-            @Override
-            public void onItemSelected(Spinner view, int position, long id, String item) {
-                frequency = item;
-            }
-        });
-    }
-
-    private void setCurrencyFromSpinner() {
-        mCurrencyFromSpinner.getPopupWindow().setWidth(300);
-        mCurrencyFromSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
-
-            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
-                curencyFrom = item;
-                currencyExchange = "";
-                loadIcon();
-                fetchData();
-            }
-        });
-    }
-
-    private void setCurrencyToSpinner() {
-        mCurrencyToSpinner.getPopupWindow().setWidth(300);
-        mCurrencyToSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<String>() {
-
-            @Override public void onItemSelected(Spinner view, int position, long id, String item) {
-                curencyTo = item;
-                currencyExchange = "";
-                loadSymbol();
-                fetchData();
-            }
-        });
-    }
-
-    private void setExchangeSpinner() {
-        mExchangeSpinner.setText(SettingsActivity.getExchange());
-        mExchangeSpinner.getPopupWindow().setWidth(800);
-        mExchangeSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener<Exchanges.Exchange>() {
-
-            @Override
-            public void onItemSelected(Spinner var1, int var2, long var3, Exchanges.Exchange exchange) {
-                currencyExchange = exchange.exchange;
-            }
-        });
+        List<String> frequencyList = Arrays.asList(getResources().getStringArray(R.array.alert_frequency));
+        mFrequencySpinner.setItems(new ArrayList(frequencyList));
+        mFrequencySpinner.setOnItemSelectedListener(this);
+        List<String> conditionList = Arrays.asList(getResources().getStringArray(R.array.alert_condition));
+        mConditionSpinner.setItems(new ArrayList(conditionList));
+        mConditionSpinner.setOnItemSelectedListener(this);
     }
 
     private void fetchData() {
@@ -313,49 +261,50 @@ public class AlertDetailFragment extends ActionBarFragment
     }
 
     private void fetchCurrencyFromData() {
-        FirebaseHelper.getFirebaseDatabaseReference("master/coins")
-                .orderByChild("order")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<String> coins = new ArrayList<>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                            String coin = childSnapshot.getKey();
-                            coins.add(coin);
-                        }
-                        mCurrencyFromSpinner.setItems(coins);
-                        Utils.setSpinnerValue(mCurrencyFromSpinner, CURRENCY_FROM_DEFAULT,
-                                getCurrentCurrencyFrom());
-                    }
 
+        String url = UrlManager.with(UrlConstant.COINS_API).getUrl();
+
+        MasterGsonRequest<Coins> request = new MasterGsonRequest<>(url,
+                Coins.class,
+                new Response.Listener<Coins>() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onResponse(Coins coins) {
+                        mCurrencyFromSpinner.setItems(coins.coins);
+                        mCurrencyFromSpinner.setSelection(getCurrentCurrencyFrom());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
 
                     }
                 });
+        request.setMasterExpireCache();
+        request.setShouldCache(true);
+        VolleyPlusMasterHelper.with(getActivity()).updateToRequestQueue(request, "currency_from");
     }
 
     private void fetchCurrencyToData() {
-        FirebaseHelper.getFirebaseDatabaseReference("master/currency")
-                .orderByChild("order")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        ArrayList<String> coins = new ArrayList<>();
-                        for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                            String coin = childSnapshot.getKey();
-                            coins.add(coin);
-                        }
-                        mCurrencyToSpinner.setItems(getCurrencyToList(coins));
-                        Utils.setSpinnerValue(mCurrencyToSpinner, (isTopAltCoin() ? CURRENCY_TO_DEFAULT
-                                : CURRENCY_FROM_DEFAULT), getCurrentCurrencyTo());
-                    }
+        String url = UrlManager.with(UrlConstant.CURRENCY_API).getUrl();
 
+        MasterGsonRequest<Currencies> request = new MasterGsonRequest<>(url,
+                Currencies.class,
+                new Response.Listener<Currencies>() {
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onResponse(Currencies currencies) {
+                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
+                        mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
 
                     }
                 });
+        request.setMasterExpireCache();
+        request.setShouldCache(true);
+        VolleyPlusMasterHelper.with(getActivity()).updateToRequestQueue(request, "currency_to");
     }
 
     private void fetchExchangeData() {
@@ -374,7 +323,13 @@ public class AlertDetailFragment extends ActionBarFragment
                     @Override
                     public void onResponse(Exchanges prices) {
                         mExchangeSpinner.setItems(prices.getAllData());
-                        Utils.setSpinnerValue(mExchangeSpinner, ALL_EXCHANGES, getCurrentExchange());
+                        mExchangeSpinner.setSelection(getCurrentExchange());
+                        if(prices.getAllData().size() == 1
+                                && prices.getAllData().get(0).toString().equals(NO_EXCHANGES)){
+                            mExchangeSpinner.setEnabled(false);
+                        }else {
+                            mExchangeSpinner.setEnabled(true);
+                        }
                     }
                 },
                 new Response.ErrorListener() {
@@ -445,7 +400,7 @@ public class AlertDetailFragment extends ActionBarFragment
         setEditingEnabled(false);
         DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
                 .child("/user_alerts/price")
-                .child(FirebaseHelper.getCurrentUserId())
+                .child(FirebaseHelper.getCurrentUid())
                 .child(refKey);
         reference.removeValue(new DatabaseReference.CompletionListener() {
             @Override
@@ -476,7 +431,7 @@ public class AlertDetailFragment extends ActionBarFragment
                 getCurrentCurrencyToSymbol(), status, getCondition(), getFrequency(),
                 "value", getValue());
         DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
-                .child("/user_alerts/price").child(FirebaseHelper.getCurrentUserId());
+                .child("/user_alerts/price").child(FirebaseHelper.getCurrentUid());
 
         DatabaseReference alertReference;
         if(TextUtils.isEmpty(refKey)){
@@ -497,12 +452,16 @@ public class AlertDetailFragment extends ActionBarFragment
     }
 
     public String getCurrentCurrencyTo(){
-        return TextUtils.isEmpty(curencyTo)
-                ? ( isTopAltCoin() ? CURRENCY_TO_DEFAULT : CURRENCY_FROM_DEFAULT) : curencyTo;
+        return TextUtils.isEmpty(curencyTo) ? getDefaultCurrencyTo() : curencyTo;
+    }
+
+    private String getDefaultCurrencyTo(){
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(getCurrencyToKey(), isTopAltCoin() ? getUserCurrencyFrom() : CURRENCY_FROM_DEFAULT);
     }
 
     public boolean isTopAltCoin(){
-        return mCurrencyFromSpinner.getSelectedIndex() <= LIMIT_ALT;
+        return App.getInstance().getDefaultData().coins_top.contains(getCurrentCurrencyFrom());
     }
 
     public String getCurrentCurrencyFrom(){
@@ -516,6 +475,7 @@ public class AlertDetailFragment extends ActionBarFragment
     public String getCurrentCurrencyToSymbol(){
         return getCurrencySymbol(getCurrentCurrencyTo());
     }
+
     public String getCurrentCurrencyFromSymbol(){
         return getCurrencySymbol(getCurrentCurrencyFrom());
     }
@@ -546,14 +506,14 @@ public class AlertDetailFragment extends ActionBarFragment
                 || getCurrentExchange().equals(NO_EXCHANGES) ? "" : getCurrentExchange());
     }
 
-    private ArrayList<String> getCurrencyToList(ArrayList<String> currencies) {
-        ArrayList<String> list = new ArrayList<>();
+    private ArrayList<Currencies.Currency> getCurrencyToList(ArrayList<Currencies.Currency> currencies) {
+        ArrayList<Currencies.Currency> list = new ArrayList<>();
         if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
             if(isTopAltCoin()){
                 list.addAll(currencies);
-                list.add(CURRENCY_FROM_DEFAULT);
+                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
             } else {
-                list.add(CURRENCY_FROM_DEFAULT);
+                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
                 list.addAll(currencies);
             }
         } else {
@@ -627,5 +587,41 @@ public class AlertDetailFragment extends ActionBarFragment
             e.printStackTrace();
             setEmptyData("Something went wrong!");
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Bundle bundle = new Bundle();
+        switch (parent.getId()){
+            case R.id.currencyFromSpinner:
+                CoinDetails.Coin coin = (CoinDetails.Coin) parent.getSelectedItem();
+                curencyFrom = coin.code;
+                currencyExchange = "";
+                loadIcon();
+                fetchData();
+                break;
+            case R.id.currencyToSpinner:
+                Currencies.Currency currency = (Currencies.Currency) parent.getSelectedItem();
+                curencyTo = currency.code;
+                currencyExchange = "";
+                loadSymbol();
+                fetchData();
+                break;
+            case R.id.exchangeSpinner:
+                Exchanges.Exchange exchange = (Exchanges.Exchange) parent.getSelectedItem();
+                currencyExchange = exchange.exchange;
+                break;
+            case R.id.frequencySpinner:
+                frequency = (String) parent.getSelectedItem();
+                break;
+            case R.id.conditionSpinner:
+                condition = (String) parent.getSelectedItem();
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
