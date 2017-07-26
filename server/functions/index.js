@@ -325,24 +325,40 @@ app.get('/tests/crons/alerts/price', (req, res) => {
 });
 
 app.get('/tests/query', (req, res) => {
-  return admin.database().ref(`/user_alerts/price`).once('value').then(alertSnapshot => {
+  return admin.database().ref(`/users`).once('value').then(alertSnapshot => {
     var messages = [];
+    var countTotal = 0;
     var count = 0;
+    var countV8 = 0;
+    var countV9 = 0;
+    var countEmail = 0;
+    var countSubs = 0;
     alertSnapshot.forEach(function(dataSnapshot) {
-      dataSnapshot.forEach(function(data) {
-        const userId = dataSnapshot.key;
-        const key = data.key;
-        const name = data.val().name;
-        const status = data.val().status;
-        const nameStatusIndex = data.val().nameStatusIndex;
-        if(!nameStatusIndex){
-          count++;
-          messages.push({user: userId, comboKey:name });
-          admin.database().ref(`/user_alerts/price/${userId}/${key}/nameStatusIndex`).set(name + status);
-        }
-      });
+      const userId = dataSnapshot.key;
+      const appVersion = dataSnapshot.val().appVersion;
+      const subscriptionStatus = dataSnapshot.val().subscriptionStatus;
+      const email = dataSnapshot.val().email;
+      if(appVersion){
+        count++;
+        if(appVersion == '0.8') countV8++;
+        if(appVersion == '0.9') countV9++;
+      }
+      if(email){
+        countEmail++;
+      }
+      if(subscriptionStatus){
+        countSubs++;
+      }
+      countTotal++;
     });
-    return res.status(200).json({count: count, query: messages});
+    return res.status(200).json({
+      countTotal : countTotal,
+      email : countEmail,
+      subscription : countSubs,
+      countV: count,
+      countV8 : countV8,
+      countV9 : countV9
+    });
   });
 });
 
@@ -707,13 +723,13 @@ function sendNewsAlerts() {
       // Notification details.
       const payload = {
         notification: {
-          title: 'ACrypto News',
+          title: 'News',
           body: content,
           sound: 'default',
           tag: newsId
         },
         data: {
-          title: 'ACrypto News',
+          title: 'News',
           body: content,
           url: link,
           sound: 'default',
