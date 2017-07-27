@@ -36,27 +36,43 @@ public class NotificationUtils {
 
         int color = ContextCompat.getColor(context, R.color.colorPrimary);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        String tag = remoteMessage.getNotification().getTag();
+        int iconResId = 0;
+        String title = "";
+        String body = "";
+        String tag = "";
+        Bundle dataBundle = getDataBundle(remoteMessage);
+        if(remoteMessage.getNotification() != null){
+            iconResId = IconUtils.getDrawableResource(context, remoteMessage.getNotification().getIcon());
+            title = remoteMessage.getNotification().getTitle();
+            body = remoteMessage.getNotification().getBody();
+            tag = remoteMessage.getNotification().getTag();
+        } else {
+            iconResId = IconUtils.getDrawableResource(context, dataBundle.getString("icon"));
+            title = dataBundle.getString("title");
+            body = dataBundle.getString("body");
+            tag = dataBundle.getString("tag");
+        }
+
         tag = TextUtils.isEmpty(tag)
                 ? remoteMessage.getMessageId() : tag;
 
         Intent intent = new Intent(context, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtras(getDataBundle(remoteMessage));
+        intent.putExtras(dataBundle);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context, tag.hashCode() , intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_stat_notify)
-                .setContentTitle(remoteMessage.getNotification().getTitle())
-                .setContentText(remoteMessage.getNotification().getBody())
+                .setSmallIcon(iconResId)
+                .setContentTitle(title)
+                .setContentText(body)
                 .setAutoCancel(true)
                 .setColor(color)
                 .setSound(defaultSoundUri)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVisibility(VISIBILITY_PRIVATE)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(remoteMessage.getNotification().getBody()))
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
                 .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager =

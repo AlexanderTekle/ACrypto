@@ -23,8 +23,11 @@ public class MessagingService extends FirebaseMessagingService {
         } else {
             Bundle bundle = getDataBundle(remoteMessage);
             String type = getNotificationType(bundle);
-            if (TextUtils.isEmpty(type) || !type.equals(TYPE_DATA)) {
+            if(TextUtils.isEmpty(type)){
                 return;
+            }
+            if (!type.equals(TYPE_DATA)) {
+                NotificationUtils.sendNotification(this, remoteMessage);
             }
         }
     }

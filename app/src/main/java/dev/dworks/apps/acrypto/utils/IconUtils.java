@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.text.TextUtils;
 import android.util.TypedValue;
 
 import dev.dworks.apps.acrypto.R;
@@ -50,11 +51,27 @@ public class IconUtils {
         return applyTintList(context, drawableId, outValue.resourceId);
     }
 
-    private static Drawable getDrawable(Context context, int drawableId){
+    private static Drawable getDrawable(Context context, int drawableId) {
         try {
             return ContextCompat.getDrawable(context, drawableId);
-        } catch (Resources.NotFoundException e){
+        } catch (Resources.NotFoundException e) {
             return ContextCompat.getDrawable(context, R.drawable.ic_coins);
         }
+    }
+
+    public static Drawable getDrawable(Context context, String name) {
+        int resId = context.getResources().getIdentifier(name,
+                "drawable", context.getPackageName());
+        return getDrawable(context, resId == 0 ? R.drawable.ic_stat_notify : resId);
+    }
+
+    public static int getDrawableResource(Context context, String name) {
+        final int defaultResId = R.drawable.ic_stat_notify;
+        if(TextUtils.isEmpty(name)){
+            return defaultResId;
+        }
+        int resId = context.getResources().getIdentifier(name,
+                "drawable", context.getPackageName());
+        return resId == 0 ? defaultResId : resId;
     }
 }

@@ -475,7 +475,8 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
       name: comboKey,
       sound: 'default',
       icon: 'ic_alerts',
-      type: "alert"
+      type: "alert",
+      tag: comboKey
     }
   };
   // Set the message as high priority and have it expire after 24 hours.
@@ -719,6 +720,7 @@ function sendNewsAlerts() {
   return admin.database().ref('/news/data')
   .orderByChild('notificationStatus').equalTo(0).limitToLast(1).once('value').then(snapshot => {
     snapshot.forEach(function(dataSnapshot) {
+      const topic = "news_all";
       const newsId = dataSnapshot.key;
       const link = dataSnapshot.val().source_source_link;
       const content = dataSnapshot.val().title;
@@ -729,7 +731,7 @@ function sendNewsAlerts() {
           body: content,
           sound: 'default',
           icon: 'ic_news',
-          tag: newsId
+          tag: topic
         },
         data: {
           title: 'News',
@@ -737,7 +739,8 @@ function sendNewsAlerts() {
           url: link,
           sound: 'default',
           icon: 'ic_news',
-          type: "url"
+          type: "url",
+          tag: topic
         }
       };
       // Set the message as high priority and have it expire after 24 hours.
@@ -745,7 +748,6 @@ function sendNewsAlerts() {
         priority: "high",
         timeToLive: 60 * 30
       };
-      const topic = "news_all";
       return admin.messaging().sendToTopic(topic, payload, options).then(response => {
         logInfo("Successfully sent news alert", {newsId: newsId, topic : topic});
         return admin.database().ref(`/news/data/${newsId}/notificationStatus`).set(1).then(result => {
