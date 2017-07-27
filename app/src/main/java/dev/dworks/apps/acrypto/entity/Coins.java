@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Created by HaKr on 16/05/17.
  */
 
-public class Coins extends BaseEntity implements Serializable{
+public class Coins extends BaseEntity {
     public static final String BASE_URL = "https://files.coinmarketcap.com/static/img/coins/64x64/"; //bitcoin.png
 
     @SerializedName("Data")

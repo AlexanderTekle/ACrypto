@@ -3,6 +3,7 @@ package dev.dworks.apps.acrypto.entity;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -18,7 +19,7 @@ public class Exchanges extends BaseEntity {
     @Expose
     public ArrayList<Exchange> data = new ArrayList<>();
 
-    public static class Exchange {
+    public static class Exchange implements Serializable {
         public String exchange;
         public String fromSymbol;
         public String toSymbol;

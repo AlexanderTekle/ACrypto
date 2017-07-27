@@ -5,14 +5,13 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -26,45 +25,40 @@ import dev.dworks.apps.acrypto.common.DialogFragment;
 public class SearchableListDialog extends DialogFragment implements
         SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 
+    private static final String TAG = "SearchableListDialog";
     private static final String ITEMS = "items";
+    private static final String TITLE = "title";
 
     private ArrayAdapter listAdapter;
     private ListView _listViewItems;
     private SearchableItem _searchableItem;
     private OnSearchTextChanged _onSearchTextChanged;
     private SearchView _searchView;
-    private String _strTitle;
     private String _strPositiveButtonText;
     private DialogInterface.OnClickListener _onClickListener;
+    private List mItems;
+    private String mTitle;
 
     public SearchableListDialog() {
 
     }
 
-    public static SearchableListDialog newInstance(List items) {
-        SearchableListDialog multiSelectExpandableFragment = new
-                SearchableListDialog();
-
-        Bundle args = new Bundle();
-        args.putSerializable(ITEMS, (Serializable) items);
-
-        multiSelectExpandableFragment.setArguments(args);
-
-        return multiSelectExpandableFragment;
+    public static SearchableListDialog show(FragmentManager fm, List items, String title) {
+        final SearchableListDialog dialog = new SearchableListDialog();
+        final Bundle args = new Bundle();
+        args.putSerializable(ITEMS,  (Serializable) items);
+        args.putString(TITLE, title);
+        dialog.setArguments(args);
+        dialog.show(fm, TAG);
+        return dialog;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams
-                .SOFT_INPUT_STATE_HIDDEN);
-        return super.onCreateView(inflater, container, savedInstanceState);
+        setRetainInstance(true);
+        mItems = (List) getArguments().getSerializable(ITEMS);
+        mTitle = getArguments().getString(TITLE);
     }
 
     @Override
@@ -72,16 +66,6 @@ public class SearchableListDialog extends DialogFragment implements
 
         // Getting the layout inflater to inflate the view in an alert dialog.
         LayoutInflater inflater = LayoutInflater.from(getActivity());
-
-        // Crash on orientation change #7
-        // Change Start
-        // Description: As the instance was re initializing to null on rotating the device,
-        // getting the instance from the saved instance
-        if (null != savedInstanceState) {
-            _searchableItem = (SearchableItem) savedInstanceState.getSerializable("item");
-        }
-        // Change End
-
         View rootView = inflater.inflate(R.layout.dialog_searchable_list, null);
         setData(rootView);
 
@@ -91,44 +75,18 @@ public class SearchableListDialog extends DialogFragment implements
         String strPositiveButton = _strPositiveButtonText == null ? "CLOSE" : _strPositiveButtonText;
         alertDialog.setPositiveButton(strPositiveButton, _onClickListener);
 
-        String strTitle = _strTitle == null ? "Select Item" : _strTitle;
+        String strTitle = mTitle == null ? "Select Item" : mTitle;
         alertDialog.setTitle(strTitle);
 
         final AlertDialog dialog = alertDialog.create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams
-                .SOFT_INPUT_STATE_HIDDEN);
         return dialog;
     }
 
-    // Crash on orientation change #7
-    // Change Start
-    // Description: Saving the instance of searchable item instance.
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable("item", _searchableItem);
-        super.onSaveInstanceState(outState);
-    }
-    // Change End
-
     public void setTitle(String strTitle) {
-        _strTitle = strTitle;
+        mTitle = strTitle;
     }
-
-    public void setPositiveButton(String strPositiveButtonText) {
-        _strPositiveButtonText = strPositiveButtonText;
-    }
-
-    public void setPositiveButton(String strPositiveButtonText, DialogInterface.OnClickListener onClickListener) {
-        _strPositiveButtonText = strPositiveButtonText;
-        _onClickListener = onClickListener;
-    }
-
     public void setOnSearchableItemClickListener(SearchableItem searchableItem) {
         this._searchableItem = searchableItem;
-    }
-
-    public void setOnSearchTextChangedListener(OnSearchTextChanged onSearchTextChanged) {
-        this._onSearchTextChanged = onSearchTextChanged;
     }
 
     private void setData(View rootView) {
@@ -142,22 +100,14 @@ public class SearchableListDialog extends DialogFragment implements
         _searchView.setOnQueryTextListener(this);
         _searchView.setOnCloseListener(this);
         _searchView.clearFocus();
-        InputMethodManager mgr = (InputMethodManager) getActivity().getSystemService(Context
-                .INPUT_METHOD_SERVICE);
-        mgr.hideSoftInputFromWindow(_searchView.getWindowToken(), 0);
-
-
-        List items = (List) getArguments().getSerializable(ITEMS);
 
         _listViewItems = (ListView) rootView.findViewById(R.id.listItems);
 
         //create the adapter by passing your ArrayList data
-        listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, items);
+        listAdapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, mItems);
         //attach the adapter to the list
         _listViewItems.setAdapter(listAdapter);
-
         _listViewItems.setTextFilterEnabled(true);
-
         _listViewItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

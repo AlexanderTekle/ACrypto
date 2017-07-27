@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Currencies implements Serializable {
     public ArrayList<Currency> currencies = new ArrayList<>();
 
-    public static class Currency {
+    public static class Currency implements Serializable{
         public String code = "";
         public String name = "";
 
