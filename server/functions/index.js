@@ -466,6 +466,7 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
       title: `${fromCurrency}/${toCurrency} Price Alert`,
       body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
       sound: 'default',
+      icon: 'ic_alerts',
       tag: comboKey
     },
     data: {
@@ -473,6 +474,7 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
       body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
       name: comboKey,
       sound: 'default',
+      icon: 'ic_alerts',
       type: "alert"
     }
   };
@@ -715,7 +717,7 @@ exports.newsAlertJob = functions.database.ref('/crons/alerts/news').onUpdate(eve
 
 function sendNewsAlerts() {
   return admin.database().ref('/news/data')
-  .orderByChild('notificationStatus').equalTo(0).limitToFirst(1).once('value').then(snapshot => {
+  .orderByChild('notificationStatus').equalTo(0).limitToLast(1).once('value').then(snapshot => {
     snapshot.forEach(function(dataSnapshot) {
       const newsId = dataSnapshot.key;
       const link = dataSnapshot.val().source_source_link;
@@ -726,6 +728,7 @@ function sendNewsAlerts() {
           title: 'News',
           body: content,
           sound: 'default',
+          icon: 'ic_news',
           tag: newsId
         },
         data: {
@@ -733,6 +736,7 @@ function sendNewsAlerts() {
           body: content,
           url: link,
           sound: 'default',
+          icon: 'ic_news',
           type: "url"
         }
       };
