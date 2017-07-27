@@ -118,7 +118,8 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 
 	@Override
 	public void onBillingInitialized() {
-		if(!isBillingSupported() || null == bp){
+		if(!isBillingSupported() || null == bp
+				|| (bp != null && !bp.isInitialized())){
 			return;
 		}
 		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
@@ -128,7 +129,8 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	}
 
 	public void reloadSubscription() {
-		if(!isBillingSupported() || null == bp){
+		if(!isBillingSupported() || null == bp
+				|| (bp != null && !bp.isInitialized())){
 			return;
 		}
 		skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
