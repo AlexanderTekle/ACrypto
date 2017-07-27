@@ -3,20 +3,15 @@ package dev.dworks.apps.acrypto;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.github.lykmapipo.localburst.LocalBurst;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -43,7 +38,6 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	private boolean autoRenewing;
 	private boolean isSubscriptionActive;
 	private SkuDetails skuDetails;
-	private FirebaseRemoteConfig mFirebaseRemoteConfig;
 	public abstract String getLocaleCurrency();
 
 	@Override
@@ -65,13 +59,6 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
 			}
 		}
-
-		mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-		FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-				.setDeveloperModeEnabled(BuildConfig.DEBUG)
-				.build();
-		mFirebaseRemoteConfig.setConfigSettings(configSettings);
-		mFirebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
 
 		initialMessagingSubscription();
 	}
@@ -213,23 +200,10 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	}
 
 	public void fetchTrailStatus() {
-		long cacheExpiration = 24*3600; // 1 hour in seconds.
-		if (mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()) {
-			cacheExpiration = 0;
-		}
-		mFirebaseRemoteConfig.fetch(cacheExpiration)
-				.addOnCompleteListener(new OnCompleteListener<Void>() {
-					@Override
-					public void onComplete(@NonNull Task<Void> task) {
-						if (task.isSuccessful()) {
-							mFirebaseRemoteConfig.activateFetched();
-						}
-					}
-				});
 	}
 
 	public boolean getTrailStatus(){
-		return mFirebaseRemoteConfig.getBoolean(TRAIL_STATUS);
+		return false;
 	}
 
 	public void subscribe(Activity activity, String productId){

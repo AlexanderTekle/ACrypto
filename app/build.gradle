@@ -81,8 +81,6 @@ dependencies {
     compile 'de.psdev.licensesdialog:licensesdialog:1.8.2'
     compile 'org.jsoup:jsoup:1.10.3'
     googleCompile "com.google.firebase:firebase-crash:${gmsVersion}"
-    googleCompile "com.google.firebase:firebase-invites:${gmsVersion}"
-    googleCompile "com.google.firebase:firebase-config:${gmsVersion}"
     googleCompile "com.google.firebase:firebase-messaging:${gmsVersion}"
     googleCompile "com.google.firebase:firebase-auth:${gmsVersion}"
     googleCompile 'com.anjlab.android.iab.v3:library:1.0.42'
