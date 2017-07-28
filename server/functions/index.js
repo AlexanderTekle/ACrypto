@@ -304,6 +304,18 @@ app.get('/crons/process/news', (req, res) => {
   });
 });
 
+// GET /api/crons/alerts/arbitrage
+// Triggers arbitrage alert check
+app.get('/crons/alerts/arbitrage', (req, res) => {
+  return admin.database().ref(`/crons/alerts/arbitrage`).set(admin.database.ServerValue.TIMESTAMP).then(result => {
+    return res.status(200).json({alerts: 'triggered'});
+  })
+  .catch(error => {
+    reportError(error, {type: 'http_request', context: 'arbitrage alert cron'});
+    res.sendStatus(500);
+  });
+})
+
 // GET /api/test/crons/alert_price
 // Triggers price alert check for testing
 app.get('/tests/crons/alerts/price', (req, res) => {
@@ -793,4 +805,182 @@ function updateAlerts(uid, subscriptionStatus) {
   .catch(error => {
     return reportError(error, {type: 'database_query', context: 'user subscription change'});
   });
+}
+
+// Checks price alerts for users
+exports.arbitrageAlertCheck = functions.database.ref('/crons/alerts/arbitrage').onWrite(event => {
+  return admin.database().ref(`/alerts/arbitrage`).once('value').then(alertSnapshot => {
+    const promises = [];
+    alertSnapshot.forEach(function(dataSnapshot) {
+      promises.push(createArbitrageAlertPromise(dataSnapshot));
+    });
+    return Promise.all(promises);
+  });
+});
+
+function createConversionUrl(toCurrency, fromCurrency){
+  return "https://query.yahooapis.com/v1/public/yql?q="
+  +`select * from yahoo.finance.xchange where pair in ("${toCurrency}${fromCurrency}")`
+  +"&format=json&env=store://datatables.org/alltableswithkeys";
+}
+
+function createArbitrageAlertPromise(snapshot) {
+  const comboKeysArray = snapshot.key.split(':');
+  const comboKeyArray1 = comboKeysArray[0].split('-');
+  const comboKeyArray2 = comboKeysArray[1].split('-');
+  const fromCoin = comboKeyArray1[0];
+  const fromCurrency = comboKeyArray1[1];
+  const fromExchange = comboKeyArray1[2];
+  const toCoin = comboKeyArray2[0];
+  const toCurrency = comboKeyArray2[1];
+  const toExchange = comboKeyArray2[2];
+  const conversionId = toCurrency+"-"+fromCurrency;
+
+  const fromRequest = rp(createPriceUrl(fromCoin, fromCurrency, fromExchange),{resolveWithFullResponse: true});
+  const toRequest = rp(createPriceUrl(toCoin, toCurrency, toExchange),{resolveWithFullResponse: true});
+  const conversionRequest = rp(createConversionUrl(toCurrency, fromCurrency),{resolveWithFullResponse: true});
+
+  return Promise.all([fromRequest, toRequest, conversionRequest]).then( result => {
+      const fromResponse = result[0];
+      const toResponse = result[1];
+      const conversionResponse = result[2];
+      if (fromResponse.statusCode === 200
+        && toResponse.statusCode == 200 && conversionResponse.statusCode == 200) {
+        const fromCurrentPrice = JSON.parse(fromResponse.body)[fromCurrency];
+        const toCurrentPrice = JSON.parse(toResponse.body)[toCurrency];
+        const conversion = JSON.parse(conversionResponse.body).query.results.rate.Rate;
+        const convertedToCurrentPrice = conversion * toCurrentPrice;
+
+        const promises = [];
+        snapshot.forEach(function(data) {
+          promises.push(sendArbitrageNotifications(snapshot.key, data.key, fromCurrentPrice, convertedToCurrentPrice));
+        });
+        return Promise.all(promises);
+      }
+      throw result;
+  }).catch(error => {
+    return reportError(error, { type: 'http_request', context: 'arbitrage fetching'});
+  });
+
+}
+
+function sendArbitrageNotifications(comboKey, userId, fromCurrentPrice, toCurrentPrice) {
+  const getUserPromise = admin.database()
+                          .ref(`/users/${userId}`)
+                          .once('value');
+  const getUserArbitrageAlertsPromise = admin.database()
+                          .ref(`/user_alerts/arbitrage/${userId}`)
+                          .orderByChild('nameStatusIndex')
+                          .equalTo(comboKey+'1')
+                          .once('value');
+  return Promise.all([getUserPromise, getUserArbitrageAlertsPromise]).then(results => {
+    const userSnapshot = results[0];
+    if(!userSnapshot.val()){
+      return logError('User not found', {user: userId})
+    }
+    const instanceId = userSnapshot.val().instanceId;
+    const subscriptionStatus = userSnapshot.val().subscriptionStatus;
+    const arbitrageAlertSnapshot = results[1];
+    if(subscriptionStatus != 1){
+      return logInfo("Subscription expired", {user: userId});
+    }
+    //we removed an invalid instanceId, so just return
+    if(!instanceId){
+      return logInfo("No instanceId", {user: userId});
+    }
+    // Check if there are any device tokens.
+    if (!arbitrageAlertSnapshot.hasChildren()) {
+      // TODO: remove the corresponding /alerts/arbitrage
+      return logInfo("Arbitrage No alerts to send", {user: userId, key : comboKey});
+    }
+    logInfo("Arbitrage Alerts fetched", {user: userId, alert_count: arbitrageAlertSnapshot.numChildren(), key : comboKey});
+    const promises = [];
+    arbitrageAlertSnapshot.forEach(function(dataSnapshot) {
+        promises.push(sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurrentPrice, dataSnapshot));
+    });
+    return Promise.all(promises);
+  })
+  .catch(error => {
+    return reportError(error, {user: userId, type: 'database_query', context: 'user arbitrage alerts'});
+  });
+}
+
+function sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurrentPrice, dataSnapshot) {
+  const comboKey = dataSnapshot.val().name;
+  const comboKeysArray = comboKey.split(':');
+  const comboKeyArray1 = comboKeysArray[0].split('-');
+  const comboKeyArray2 = comboKeysArray[1].split('-');
+  const fromCoin = comboKeyArray1[0];
+  const fromCurrency = comboKeyArray1[1];
+  const fromExchange = comboKeyArray1[2];
+  const toCoin = comboKeyArray2[0];
+  const toCurrency = comboKeyArray2[1];
+  const toExchange = comboKeyArray2[2];
+  const alertPrice = dataSnapshot.val().value;
+  const condition = dataSnapshot.val().condition;
+  const fromSymbol = dataSnapshot.val().fromSymbol;
+  const toSymbol = dataSnapshot.val().toSymbol;
+  const frequency = dataSnapshot.val().frequency;
+
+  if(!arbitrageAlertConditionCheck(fromCurrentPrice, toCurrentPrice, dataSnapshot)) {
+    return;
+  }
+
+  // Notification details.
+  const payload = {
+    notification: {
+      title: `${fromCoin} Arbitrage Alert`,
+      body: getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency),
+      sound: 'default',
+      icon: 'ic_alerts',
+      tag: comboKey
+    },
+    data: {
+      title: `${fromCoin} Arbitrage Alert`,
+      body: getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency),
+      name: comboKey,
+      sound: 'default',
+      icon: 'ic_alerts',
+      type: "alert",
+      tag: comboKey
+    }
+  };
+  // Set the message as high priority and have it expire after 24 hours.
+  var options = {
+    priority: "high",
+    timeToLive: 60 * 10
+  };
+
+  if (frequency == 'Onetime') {
+    dataSnapshot.ref.update({ status: 0, nameStatusIndex: comboKey + "0" });
+  }
+
+  return sendNotification(userId, instanceId, payload, options);
+}
+
+function arbitrageAlertConditionCheck(fromCurrentPrice, toCurrentPrice, dataSnapshot) {
+  var result = false;
+  const alertPrice = dataSnapshot.val().value;
+  const condition = dataSnapshot.val().condition;
+
+  const diffPercentage = getArbitrageDiff(toCurrentPrice, fromCurrentPrice);
+  switch (condition) {
+    case "<":
+      result = diffPercentage < alertPrice;
+      break;
+    case ">":
+      result = diffPercentage > alertPrice;
+      break;
+  }
+  return result;
+}
+
+function getArbitrageDiff(currentPrice, alertPrice) {
+  var diff = (currentPrice - alertPrice) / alertPrice;
+  return round(diff * 100, 2);
+}
+
+function getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency) {
+  const diff = getArbitrageDiff(toCurrentPrice, fromCurrentPrice);
+  return fromCurrency + " to " + toCurrency + " " + Math.abs(diff) + "%"+ (diff > 0 ? " profit" : " loss");
 }
