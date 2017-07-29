@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +32,7 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
     private TextView mReason;
     private String paidReason;
     private LocalBurst broadcast;
+    private SwipeRefreshLayout swipeContainer;
 
     protected AppCompatActivity getActionBarActivity() {
         return mActivity;
@@ -65,6 +67,21 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
         super.onViewCreated(view, savedInstanceState);
         mProLayout = view.findViewById(R.id.pro_layout);
         initProOverlay();
+        setSwipeRefresh(view);
+    }
+
+    private void setSwipeRefresh(View view) {
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        if(null == swipeContainer){
+            return;
+        }
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                onRefreshData();
+            }
+        });
+        swipeContainer.setColorSchemeResources(R.color.colorAccent);
     }
 
     private void initProOverlay() {
@@ -166,5 +183,12 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
     @Override
     public void onBroadcast(String s, Bundle bundle) {
         showProOverlay();
+    }
+
+    public void onRefreshData() {
+        if(null == swipeContainer){
+            return;
+        }
+        swipeContainer.setRefreshing(false);
     }
 }

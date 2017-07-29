@@ -167,9 +167,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchPairsData();
-                AnalyticsManager.logEvent("portfolio_refreshed");
+                onRefreshData();
                 break;
 
             case R.id.action_edit_portfolio:
@@ -349,5 +347,13 @@ public class PortfolioCoinFragment extends RecyclerFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
+    }
+
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchPairsData();
+        AnalyticsManager.logEvent("portfolio_refreshed");
+        super.onRefreshData();
     }
 }

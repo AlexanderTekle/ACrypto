@@ -232,10 +232,7 @@ public class NewsFragment extends RecyclerFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchDataTask();
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("news_refreshed", bundle);
+                onRefreshData();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -244,5 +241,14 @@ public class NewsFragment extends RecyclerFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
+    }
+
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchDataTask();
+        Bundle bundle = new Bundle();
+        AnalyticsManager.logEvent("news_refreshed", bundle);
+        super.onRefreshData();
     }
 }

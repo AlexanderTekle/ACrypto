@@ -615,10 +615,7 @@ public class HomeFragment extends ActionBarFragment
         Bundle bundle = new Bundle();
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchData(false);
-                bundle.putString("currency", getCurrentCurrencyName());
-                AnalyticsManager.logEvent("price_refreshed", bundle);
+                onRefreshData();
                 break;
 
             case R.id.action_view:
@@ -960,5 +957,15 @@ public class HomeFragment extends ActionBarFragment
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchData();
+        Bundle bundle = new Bundle();
+        bundle.putString("currency", getCurrentCurrencyName());
+        AnalyticsManager.logEvent("price_refreshed", bundle);
+        super.onRefreshData();
     }
 }

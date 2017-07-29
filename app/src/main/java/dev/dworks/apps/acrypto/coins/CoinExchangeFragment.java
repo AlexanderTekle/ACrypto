@@ -114,7 +114,7 @@ public class CoinExchangeFragment extends RecyclerFragment
         super.onResume();
     }
 
-    private void fetchDataTask() {
+    private void fetchData() {
         setEmptyText("");
         setListShown(false);
         mCoinDetails = null;
@@ -145,7 +145,7 @@ public class CoinExchangeFragment extends RecyclerFragment
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fetchDataTask();
+                    fetchData();
                 }
             });
         }
@@ -154,7 +154,7 @@ public class CoinExchangeFragment extends RecyclerFragment
             Utils.showRetrySnackBar(getView(), "Cant Connect to ACrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fetchDataTask();
+                    fetchData();
                 }
             });
         }
@@ -224,7 +224,7 @@ public class CoinExchangeFragment extends RecyclerFragment
         if (null != mCoinDetails) {
             loadData(mCoinDetails);
         } else {
-            fetchDataTask();
+            fetchData();
         }
     }
 
@@ -264,10 +264,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchDataTask();
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("coins_refreshed", bundle);
+                onRefreshData();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -286,7 +283,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     public void refreshData(Bundle bundle) {
         mCoin = (Coins.CoinDetail) bundle.getSerializable(BUNDLE_COIN);
         if(getUserVisibleHint()) {
-            fetchDataTask();
+            fetchData();
         }
     }
 
@@ -295,7 +292,16 @@ public class CoinExchangeFragment extends RecyclerFragment
         super.setUserVisibleHint(isVisibleToUser);
         AnalyticsManager.setCurrentScreen(getActivity(), mScreenName);
         if(isVisibleToUser){
-            fetchDataTask();
+            fetchData();
         }
+    }
+
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchData();
+        Bundle bundle = new Bundle();
+        AnalyticsManager.logEvent("coins_refreshed", bundle);
+        super.onRefreshData();
     }
 }

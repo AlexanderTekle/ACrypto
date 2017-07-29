@@ -113,7 +113,7 @@ public class CoinFragment extends RecyclerFragment
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
     }
 
-    private void fetchDataTask() {
+    private void fetchData() {
         setEmptyText("");
         setListShown(false);
         String url = getUrl();
@@ -145,7 +145,7 @@ public class CoinFragment extends RecyclerFragment
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fetchDataTask();
+                    fetchData();
                 }
             });
         }
@@ -154,7 +154,7 @@ public class CoinFragment extends RecyclerFragment
             Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fetchDataTask();
+                    fetchData();
                 }
             });
         }
@@ -177,7 +177,7 @@ public class CoinFragment extends RecyclerFragment
     public void refreshData(String currency) {
         mCurrency = currency;
         mAdapter.clear();
-        fetchDataTask();
+        fetchData();
     }
 
     private void loadData(Coins coins) {
@@ -253,7 +253,7 @@ public class CoinFragment extends RecyclerFragment
         if (null != mCoins) {
             loadData(mCoins);
         } else {
-            fetchDataTask();
+            fetchData();
         }
     }
 
@@ -297,10 +297,7 @@ public class CoinFragment extends RecyclerFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchDataTask();
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("coins_refreshed", bundle);
+                onRefreshData();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -311,4 +308,12 @@ public class CoinFragment extends RecyclerFragment
         cache.remove(getUrl());
     }
 
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchData();
+        Bundle bundle = new Bundle();
+        AnalyticsManager.logEvent("coins_refreshed", bundle);
+        super.onRefreshData();
+    }
 }
