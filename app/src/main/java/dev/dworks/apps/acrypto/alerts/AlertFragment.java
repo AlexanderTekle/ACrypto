@@ -2,47 +2,38 @@ package dev.dworks.apps.acrypto.alerts;
 
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.google.firebase.database.Query;
-
-import java.util.HashMap;
-import java.util.Map;
+import android.widget.TextView;
 
 import dev.dworks.apps.acrypto.R;
-import dev.dworks.apps.acrypto.common.RecyclerFragment;
-import dev.dworks.apps.acrypto.entity.Coins;
-import dev.dworks.apps.acrypto.entity.PriceAlert;
+import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
-import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
-
-import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
-import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
-import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
+import dev.dworks.apps.acrypto.view.LockableViewPager;
 
 /**
- * Created by HaKr on 06/07/17.
+ * Created by HaKr on 28/07/17.
  */
 
-public class AlertFragment extends RecyclerFragment
-        implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
-        View.OnClickListener, RecyclerFragment.onDataChangeListener {
+public class AlertFragment extends ActionBarFragment {
 
     private static final String TAG = "Alerts";
     private Utils.OnFragmentInteractionListener mListener;
-    private AlertAdapter mAdapter;
-    private FloatingActionButton addAlert;
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private LockableViewPager mViewPager;
+    private TextView mEmpty;
+    private TabLayout mTabLayout;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -76,7 +67,6 @@ public class AlertFragment extends RecyclerFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        showAppFeedback(getActivity(), true);
         setHasOptionsMenu(true);
     }
 
@@ -89,10 +79,19 @@ public class AlertFragment extends RecyclerFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setLayoutManager(new LinearLayoutManager(view.getContext()));
-        setHasFixedSize(true);
-        addAlert = (FloatingActionButton) view.findViewById(R.id.add_alert);
-        addAlert.setOnClickListener(this);
+
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
+
+        mViewPager = (LockableViewPager) view.findViewById(R.id.container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setSwipeable(true);
+        mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
+       // mTabLayout.setupWithViewPager(mViewPager);
+
+        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
+        mTabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+
+        mEmpty = (TextView)view.findViewById(R.id.internalEmpty);
     }
 
     @Override
@@ -126,93 +125,35 @@ public class AlertFragment extends RecyclerFragment
             actionBar.setTitle(TAG);
             actionBar.setSubtitle(null);
         }
+    }
 
-        if (null == mAdapter) {
-            mAdapter = new AlertAdapter(getActivity(), getQuery(), this, this);
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
-        mAdapter.setBaseImageUrl(Coins.BASE_URL);
-        setListAdapter(mAdapter);
-        setListShown(false);
-    }
 
-
-    @Override
-    public void onDataChanged() {
-        setListShown(true);
-        int itemCount = mAdapter.getItemCount();
-        setEmptyText(itemCount == 0 ? "No Alerts" : "");
-        addAlert.setVisibility(Utils.getVisibility(itemCount < 10));
-    }
-
-    @Override
-    public void onCancelled() {
-        setListShown(true);
-        int itemCount = mAdapter.getItemCount();
-        setEmptyText(itemCount == 0 ? "No Alerts" : "");
-        addAlert.setVisibility(Utils.getVisibility(itemCount < 10));
-    }
-
-    public Query getQuery() {
-        return FirebaseHelper.getFirebaseDatabaseReference().child("/user_alerts/price")
-                .child(FirebaseHelper.getCurrentUid());
-    }
-
-    @Override
-    public void onItemClick(View view, int position) {
-        openAlertDetails(mAdapter.getItem(position), mAdapter.getRef(position).getKey());
-        AnalyticsManager.logEvent("view_alert_details");
-    }
-
-    @Override
-    public void onItemLongClick(View view, int position) {
-
-    }
-
-    @Override
-    public void onItemViewClick(View view, int position) {
-        int status = ((SwitchCompat)view).isChecked() ? 1 : 0;
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("status", status);
-        childUpdates.put("nameStatusIndex", mAdapter.getItem(position).name+status);
-        mAdapter.getRef(position).updateChildren(childUpdates);
-        Bundle bundle = new Bundle();
-        bundle.putBoolean("enabled", status == 1);
-        AnalyticsManager.logEvent("alert_status_updated", bundle);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mAdapter != null) {
-            mAdapter.cleanup();
-        }
-    }
-
-    @Override
-    public void onClick(View view) {
-        if(FirebaseHelper.isLoggedIn()) {
-            openAlertDetails(null, null);
-            AnalyticsManager.logEvent("add_alert");
-        } else {
-            openLogin();
+        @Override
+        public Fragment getItem(int position) {
             Bundle bundle = new Bundle();
-            bundle.putString("source", TAG);
-            AnalyticsManager.logEvent("view_login", bundle);
+            switch (position){
+                case 1:
+                    bundle.putString("type", "arbitrage");
+                    AnalyticsManager.logEvent("alerts_viewed", bundle);
+                    return AlertArbitrageFragment.newInstance();
+            }
+            bundle.putString("type", "price");
+            AnalyticsManager.logEvent("alerts_viewed", bundle);
+            return AlertPriceFragment.newInstance();
         }
-    }
 
-    @Override
-    public void refreshData(Bundle bundle) {
-        super.refreshData(bundle);
-        mAdapter.notifyDataSetChanged();
-    }
-
-    private void openAlertDetails(PriceAlert priceAlert, String refKey) {
-        Intent intent = new Intent(getActivity(), AlertDetailActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(BUNDLE_ALERT, priceAlert);
-        bundle.putString(BUNDLE_REF_KEY, refKey);
-        intent.putExtras(bundle);
-        startActivity(intent);
+        @Override
+        public int getCount() {
+            return 2;
+        }
     }
 }

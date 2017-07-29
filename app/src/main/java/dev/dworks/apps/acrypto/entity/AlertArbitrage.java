@@ -6,8 +6,9 @@ import java.io.Serializable;
  * Created by HaKr on 06-Jul-17.
  */
 
-public class PriceAlert implements Serializable{
+public class AlertArbitrage implements Serializable{
     public String name;
+    public String fromCoin;
     public String fromSymbol;
     public String toSymbol;
     public int status;
@@ -18,13 +19,14 @@ public class PriceAlert implements Serializable{
     public String nameStatusIndex;
     public String notes;
 
-    public PriceAlert(){
+    public AlertArbitrage(){
 
     }
 
-    public PriceAlert(String name, String fromSymbol, String toSymbol, int status,
-                      String condition, String frequency, String type,double value){
+    public AlertArbitrage(String name, String fromCoin, String fromSymbol, String toSymbol, int status,
+                          String condition, String frequency, String type, double value){
         this.name = name;
+        this.fromCoin = fromCoin;
         this.fromSymbol = fromSymbol;
         this.toSymbol = toSymbol;
         this.status = status;

@@ -356,7 +356,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     }
 
 
-    public static String getCurrentCurrencyOneSymbol(){
+    public String getCurrentCurrencyOneSymbol(){
         return Utils.getCurrencySymbol(getCurrentCurrencyOne());
     }
 

@@ -30,6 +30,7 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.firebase.auth.FirebaseUser;
 
 import dev.dworks.apps.acrypto.alerts.AlertFragment;
+import dev.dworks.apps.acrypto.alerts.AlertPriceFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
 import dev.dworks.apps.acrypto.entity.CoinsList;
@@ -398,8 +399,8 @@ public class MainActivity extends AppCompatActivity
     private void refreshData() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
         if (null != fragment) {
-            if (fragment instanceof AlertFragment) {
-                AlertFragment.show(getSupportFragmentManager());
+            if (fragment instanceof AlertPriceFragment) {
+                AlertPriceFragment.show(getSupportFragmentManager());
             } else if (fragment instanceof PortfolioFragment) {
                 PortfolioFragment.show(getSupportFragmentManager());
             }

@@ -58,7 +58,7 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
     public PortfolioCoinAdapter(Context context, Query ref,
                                 OnItemClickListener onItemClickListener,
                                 RecyclerFragment.onDataChangeListener onDataChangeListener) {
-        super(PortfolioCoin.class, R.layout.item_list_price_alert, RecyclerView.ViewHolder.class, ref);
+        super(PortfolioCoin.class, R.layout.item_list_alert_price, RecyclerView.ViewHolder.class, ref);
         this.onItemClickListener = onItemClickListener;
         this.onDataChangeListener = onDataChangeListener;
         this.context = context;

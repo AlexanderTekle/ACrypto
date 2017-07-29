@@ -20,7 +20,7 @@ import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.common.RecyclerFragment.RecyclerItemClickListener.OnItemClickListener;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
-import dev.dworks.apps.acrypto.entity.PriceAlert;
+import dev.dworks.apps.acrypto.entity.AlertPrice;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
@@ -33,7 +33,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
  * Created by HaKr on 06/07/17.
  */
 
-public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapter.ViewHolder> {
+public class AlertPriceAdapter extends FirebaseRecyclerAdapter<AlertPrice, AlertPriceAdapter.ViewHolder> {
 
     private final Context context;
     final OnItemClickListener onItemClickListener;
@@ -42,18 +42,18 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
     static final int TYPE_CELL = 1;
     private String mBaseImageUrl;
 
-    public AlertAdapter(Context context, Query ref,
-                        OnItemClickListener onItemClickListener,
-                        RecyclerFragment.onDataChangeListener onDataChangeListener) {
-        super(PriceAlert.class, R.layout.item_list_price_alert, AlertAdapter.ViewHolder.class, ref);
+    public AlertPriceAdapter(Context context, Query ref,
+                             OnItemClickListener onItemClickListener,
+                             RecyclerFragment.onDataChangeListener onDataChangeListener) {
+        super(AlertPrice.class, R.layout.item_list_alert_price, AlertPriceAdapter.ViewHolder.class, ref);
         this.onItemClickListener = onItemClickListener;
         this.onDataChangeListener = onDataChangeListener;
         this.context = context;
     }
 
     @Override
-    protected void populateViewHolder(AlertAdapter.ViewHolder holder, PriceAlert priceAlert, int position) {
-        holder.setData(priceAlert, position);
+    protected void populateViewHolder(AlertPriceAdapter.ViewHolder holder, AlertPrice alertPrice, int position) {
+        holder.setData(alertPrice, position);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
         switch (viewType) {
             case TYPE_CELL: {
                 view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.item_list_price_alert, parent, false);
+                        .inflate(R.layout.item_list_alert_price, parent, false);
                 return new ViewHolder(view) {
                 };
             }
@@ -77,7 +77,7 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
         return null;
     }
 
-    public AlertAdapter setBaseImageUrl(String baseImageUrl) {
+    public AlertPriceAdapter setBaseImageUrl(String baseImageUrl) {
         this.mBaseImageUrl = baseImageUrl;
         return this;
     }
@@ -130,9 +130,9 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
             status_switch = (SwitchCompat) v.findViewById(R.id.status_switch);
         }
 
-        public void setData(PriceAlert priceAlert, int position) {
+        public void setData(AlertPrice alertPrice, int position) {
             mPosition = position;
-            String[] nameArray = priceAlert.name.split("-");
+            String[] nameArray = alertPrice.name.split("-");
             name.setText(nameArray[0] + "/" + nameArray[1]);
             String url = "";
             try {
@@ -148,13 +148,13 @@ public class AlertAdapter extends FirebaseRecyclerAdapter<PriceAlert, AlertAdapt
                 exchange.setText(null);
                 exchange.setVisibility(View.GONE);
             }
-            value.setAmount((float) priceAlert.value);
-            Utils.setPriceValue(value, priceAlert.value, priceAlert.toSymbol);
+            value.setAmount((float) alertPrice.value);
+            Utils.setPriceValue(value, alertPrice.value, alertPrice.toSymbol);
             icon.setImageUrl(url, VolleyPlusHelper.with(icon.getContext()).getImageLoader());
 
-            setType(priceAlert.frequency);
-            setCondition(priceAlert.condition);
-            status_switch.setChecked(priceAlert.status == 1);
+            setType(alertPrice.frequency);
+            setCondition(alertPrice.condition);
+            status_switch.setChecked(alertPrice.status == 1);
             status_switch.setOnCheckedChangeListener(this);
         }
 

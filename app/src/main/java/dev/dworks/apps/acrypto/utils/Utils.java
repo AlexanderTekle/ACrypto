@@ -128,6 +128,7 @@ public class Utils {
     public static final String BUNDLE_PORTFOLIO_COIN = "bundle_portfolio_coin";
 
     //Alert
+    public static final String BUNDLE_ALERT_TYPE = "bundle_alert_type";
     public static final String BUNDLE_ALERT = "bundle_alert";
     public static final String BUNDLE_REF_KEY = "bundle_ref_key";
 
