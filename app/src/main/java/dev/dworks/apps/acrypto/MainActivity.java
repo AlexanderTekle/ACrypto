@@ -30,7 +30,6 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.firebase.auth.FirebaseUser;
 
 import dev.dworks.apps.acrypto.alerts.AlertFragment;
-import dev.dworks.apps.acrypto.alerts.AlertPriceFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
 import dev.dworks.apps.acrypto.entity.CoinsList;
@@ -73,8 +72,9 @@ public class MainActivity extends AppCompatActivity
     public static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
+    private static final String LAST_FRAGMENT_ID = "last_fragment_id";
 
-    private int currentPositionId;
+    private int lastFragmentId;
     private TextView mName;
     private View mheaderLayout;
     private BezelImageView mPicture;
@@ -88,20 +88,20 @@ public class MainActivity extends AppCompatActivity
         setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if(TextUtils.isEmpty(getNotificationType(extras))){
-                showHome(null);
-            } else {
-                handleExtras(false, extras);
-            }
-        }
-
         FirebaseHelper.signInAnonymously();
         App.getInstance().initializeBilling();
         App.getInstance().fetchTrailStatus();
         broadcast = LocalBurst.getInstance();
         initControls();
+        lastFragmentId = PreferenceUtils.getIntegerPrefs(getApplicationContext(), LAST_FRAGMENT_ID);
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(TextUtils.isEmpty(getNotificationType(extras))){
+                showLastFragment(lastFragmentId);
+            } else {
+                handleExtras(false, extras);
+            }
+        }
 
         // TODO Remove after some time
         if(App.APP_VERSION_CODE == 11
@@ -155,8 +155,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         updateNavigation();
 
-        currentPositionId = R.id.nav_home;
-        navigationView.setCheckedItem(currentPositionId);
+        lastFragmentId = R.id.nav_home;
+        navigationView.setCheckedItem(lastFragmentId);
 
         View header = navigationView.getHeaderView(0);
         mName = (TextView) header.findViewById(R.id.name);
@@ -248,78 +248,20 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        currentPositionId = item.getItemId();
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        lastFragmentId = item.getItemId();
         AnalyticsManager.setCurrentScreen(this, TAG);
         switch (item.getItemId()) {
             case R.id.nav_home:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                HomeFragment.show(getSupportFragmentManager(), "");
-                AnalyticsManager.logEvent("view_home");
-                return true;
             case R.id.nav_coins:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.VISIBLE);
-                CoinFragment.show(getSupportFragmentManager(), SettingsActivity.getCurrencyList());
-                AnalyticsManager.logEvent("view_coins");
-                return true;
-
             case R.id.nav_arbitrage:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                ArbitrageFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_arbitrage");
-                return true;
-
             case R.id.nav_alerts:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                AlertFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_alerts");
-                return true;
-
             case R.id.nav_subscription:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                SubscriptionFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_subscription");
-                return true;
-
             case R.id.nav_charts:
-
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
-                AnalyticsManager.logEvent("view_charts");
-                return true;
-
             case R.id.nav_portfolio:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                PortfolioFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_portfolio");
-                return true;
-
             case R.id.nav_news:
-
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                NewsFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_news");
+                PreferenceUtils.set(getApplicationContext(), LAST_FRAGMENT_ID, lastFragmentId);
+                item.setChecked(true);
+                showLastFragment(lastFragmentId);
                 return true;
 
             case R.id.nav_settings:
@@ -399,8 +341,8 @@ public class MainActivity extends AppCompatActivity
     private void refreshData() {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
         if (null != fragment) {
-            if (fragment instanceof AlertPriceFragment) {
-                AlertPriceFragment.show(getSupportFragmentManager());
+            if (fragment instanceof AlertFragment) {
+                AlertFragment.show(getSupportFragmentManager());
             } else if (fragment instanceof PortfolioFragment) {
                 PortfolioFragment.show(getSupportFragmentManager());
             }
@@ -411,7 +353,7 @@ public class MainActivity extends AppCompatActivity
         String type = getNotificationType(extras);
         if(TextUtils.isEmpty(type)){
             if(!newIntent){
-                showHome(null);
+                showLastFragment(lastFragmentId);
             }
             return;
         }
@@ -436,12 +378,85 @@ public class MainActivity extends AppCompatActivity
         }
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
         if (null == fragment) {
-            showHome(null);
+            showLastFragment(lastFragmentId);
         }
     }
 
     private void showHome(String name) {
         HomeFragment.show(getSupportFragmentManager(), name);
+    }
+
+    private void showLastFragment(int lastFragmentId){
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        AnalyticsManager.setCurrentScreen(this, TAG);
+        switch (lastFragmentId) {
+            case R.id.nav_home:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                showHome(null);
+                AnalyticsManager.logEvent("view_home");
+                break;
+            case R.id.nav_coins:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.VISIBLE);
+                CoinFragment.show(getSupportFragmentManager(), SettingsActivity.getCurrencyList());
+                AnalyticsManager.logEvent("view_coins");
+                break;
+
+            case R.id.nav_arbitrage:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                ArbitrageFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_arbitrage");
+                break;
+
+            case R.id.nav_alerts:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                AlertFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_alerts");
+                break;
+
+            case R.id.nav_subscription:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                SubscriptionFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_subscription");
+                break;
+
+            case R.id.nav_charts:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
+                AnalyticsManager.logEvent("view_charts");
+                break;
+
+            case R.id.nav_portfolio:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                PortfolioFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_portfolio");
+                break;
+
+            case R.id.nav_news:
+
+                drawer.closeDrawers();
+                spinner.setVisibility(View.GONE);
+                NewsFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_news");
+                break;
+            default:
+                showHome(null);
+                break;
+        }
     }
 
     private void initAd() {

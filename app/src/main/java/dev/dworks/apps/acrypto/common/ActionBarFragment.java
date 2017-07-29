@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.github.lykmapipo.localburst.LocalBurst;
+
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
@@ -18,15 +20,17 @@ import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
+import static dev.dworks.apps.acrypto.AppFlavour.BILLING_ACTION;
 
 
-public class ActionBarFragment extends Fragment {
+public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcastListener {
     private AppCompatActivity mActivity;
     private boolean mIsRecreated;
     private View mProLayout;
     private Button mSubscribe;
     private TextView mReason;
     private String paidReason;
+    private LocalBurst broadcast;
 
     protected AppCompatActivity getActionBarActivity() {
         return mActivity;
@@ -37,6 +41,7 @@ public class ActionBarFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mIsRecreated = savedInstanceState != null;
         paidReason = getString(R.string.paid_reason);
+        broadcast = LocalBurst.getInstance();
     }
 
     @Override
@@ -90,10 +95,26 @@ public class ActionBarFragment extends Fragment {
 
     }
 
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        broadcast.removeListeners(this);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         showProOverlay();
+        broadcast.on(BILLING_ACTION, this);
+        broadcast.on(LocalBurst.DEFAULT_ACTION, this);
+    }
+
+    @Override
+    public void onDestroy() {
+        App.getInstance().releaseBillingProcessor();
+        broadcast.removeListeners(this);
+        super.onDestroy();
     }
 
     public void showProOverlay() {
@@ -140,5 +161,10 @@ public class ActionBarFragment extends Fragment {
 
     protected void openLogin(){
         ((MainActivity) getActivity()).openLoginActivity();
+    }
+
+    @Override
+    public void onBroadcast(String s, Bundle bundle) {
+        showProOverlay();
     }
 }
