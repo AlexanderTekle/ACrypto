@@ -723,6 +723,15 @@ public class Utils {
         return String.format("%.2f", Math.abs(value)) +  "% " + (value > 0 ? "▲" : "▼");
     }
 
+    public static String getDisplayShortPercentage(double valueOne, double valueTwo){
+        valueOne = valueOne == 0 ? 1 : valueOne;
+        double value = ((valueTwo - valueOne)/valueOne) * 100;
+        if(value == 0){
+            return " - ";
+        }
+        return String.format("%.2f", Math.abs(value)) +  "%";
+    }
+
     public static String getCurrencySymbol(String currencyTo){
         String currencyToSymbol = "";
         try {

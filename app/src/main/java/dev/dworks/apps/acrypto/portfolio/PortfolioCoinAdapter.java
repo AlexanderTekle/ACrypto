@@ -293,7 +293,7 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
                 double diff = currentPriceValue - openPriceValue;
 
                 Utils.setPriceValue(currentPrice, currentPriceValue, getCurrencySymbol(coin.currency));
-                currentPriceChange.setText(Utils.getDisplayPercentage(openPriceValue, currentPriceValue));
+                currentPriceChange.setText(Utils.getDisplayShortPercentage(openPriceValue, currentPriceValue));
                 currentPriceChange.setTextColor(ContextCompat.getColor(currentPriceChange.getContext(),
                         getValueDifferenceColor(diff)));
 

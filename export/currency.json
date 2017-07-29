@@ -21,7 +21,9 @@
   "CAD" : {
     "name" : "Canadian Dollar",
     "order" : 4,
-    "arbitrage_from" : 1
+    "arbitrage_from" : 1,
+    "arbitrage_to" : 1,
+    "order_arbitrage_to" : 15
   },
   "PLN" : {
     "name" : "Polish Zloty",
