@@ -1,20 +1,21 @@
 package dev.dworks.apps.acrypto.news;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.NativeExpressAdView;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.News;
-import dev.dworks.apps.acrypto.misc.linkpreview.CacheUtils;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
@@ -24,29 +25,31 @@ import dev.dworks.apps.acrypto.view.ImageView;
  * Created by HaKr on 21/07/17.
  */
 
-public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> implements Filterable {
+public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    ArrayList<News.NewsData> mData;
-    ArrayList<News.NewsData> mOrigData;
+    public static final int AD_POSITION = 10;
+    private final float scale;
+    List<Object> mData;
 
     final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
+    static final int TYPE_AD = 2;
 
     public NewsAdapter(Context context,
                        RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
+        scale = context.getResources().getDisplayMetrics().density;
     }
 
-    public void setData(ArrayList<News.NewsData> contents) {
+    public void setData(List<Object> contents) {
         this.mData = contents;
-        this.mOrigData = contents;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return TYPE_CELL;
+        return ( position % AD_POSITION == 0 && position != 0) ? TYPE_AD : TYPE_CELL;
     }
 
     @Override
@@ -55,80 +58,38 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> im
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
 
         switch (viewType) {
             case TYPE_CELL: {
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_list_news, parent, false);
-                return new ViewHolder(view) {
-                };
+                return new ViewHolder(view);
+            }
+
+            case TYPE_AD : {
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.item_list_news_ad, parent, false);
+                return new AdViewHolder(view);
             }
         }
         return null;
     }
 
     @Override
-    public void onBindViewHolder(NewsAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)) {
             case TYPE_CELL:
-                holder.setData(position);
+                ((ViewHolder)holder).setData(position);
+                break;
+            case TYPE_AD:
+                ((AdViewHolder)holder).setData(position);
                 break;
         }
     }
 
-    @Override
-    public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence prefix) {
-                FilterResults results = new FilterResults();
-                ArrayList<News.NewsData> filteredList = new ArrayList<>();
-                if (null == prefix || prefix.length() == 0) {
-                    filteredList.addAll(mOrigData);
-                } else {
-                    String prefixString = prefix.toString().toLowerCase().trim();
-                    final int count = mOrigData.size();
-
-                    for (int i = 0; i < count; i++) {
-                        final News.NewsData value = mOrigData.get(i);
-                        final String valueText = value.toString().toLowerCase();
-
-                        // First match against the whole, non-splitted value
-                        if (valueText.contains(prefixString)) {
-                            filteredList.add(value);
-                        } else {
-                            final String[] words = prefixString.split("\\s+");
-                            for (String word : words) {
-                                if (valueText.contains(word)) {
-                                    filteredList.add(value);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                results.values = filteredList;
-                results.count = filteredList.size();
-                return results;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (results != null && results.count > 0) {
-                    mData.clear();
-                    mData.addAll((ArrayList<News.NewsData>) results.values);
-                } else {
-                    mData.clear();
-                }
-                notifyDataSetChanged();
-
-            }
-        };
-    }
-
-    public News.NewsData getItem(int position) {
+    public Object getItem(int position) {
         return mData.get(position);
     }
 
@@ -137,6 +98,27 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> im
         notifyDataSetChanged();
     }
 
+    public class AdViewHolder extends RecyclerView.ViewHolder {
+
+        private final CardView adCardView;
+
+        public AdViewHolder(View itemView) {
+            super(itemView);
+            adCardView = (CardView) itemView.findViewById(R.id.cardView);
+        }
+
+        public void setData(int position) {
+            NativeExpressAdView adView =
+                    (NativeExpressAdView) mData.get(position);
+            if (adCardView.getChildCount() > 0) {
+                adCardView.removeAllViews();
+            }
+            if (adView.getParent() != null) {
+                ((ViewGroup) adView.getParent()).removeView(adView);
+            }
+            adCardView.addView(adView);
+        }
+    }
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
@@ -163,10 +145,9 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> im
 
         public void setData(int position) {
             mPosition = position;
-            News.NewsData item = mData.get(position);
+            News.NewsData item = (News.NewsData) mData.get(position);
             String url = "";
             title.setText(item.title);
-            //time.setText(TimeUtils.formatHumanFriendlyShortDate(item.publicated * 1000));
             time.setText(TimeUtils.getNewsTimestamp(item.publish_time));
             channel.setText(Utils.getDomainName(item.link));
             imageView.setImageUrl(item.thumb,

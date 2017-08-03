@@ -145,6 +145,9 @@ public class Utils {
 
     public static final String INDICATIVE_IMAGES_MSG_SHOWN = "indicative_images_msg_shown";
 
+    public static final String INTERSTITIAL_APP_UNIT_ID = "ca-app-pub-6407484780907805/5183261278";
+    public static final String NATIVE_APP_UNIT_ID = "ca-app-pub-6407484780907805/1075754433";
+
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(int type, Bundle bundle);
     }
@@ -558,8 +561,11 @@ public class Utils {
         return decimalFormat;
     }
 
-    public static DecimalFormat getIntegerFormat(String symbol){
+    public static DecimalFormat getIntegerFormat(double value, String symbol){
         String precisionFormat = "###,##0";
+        if(value < 1){
+            precisionFormat = "###,##0.###";
+        }
 
         if("Ƀ".compareTo(symbol) == 0){
             precisionFormat = "###,##0.00000000";
@@ -570,7 +576,6 @@ public class Utils {
         decimalFormat.setDecimalSeparatorAlwaysShown(false);
         return decimalFormat;
     }
-
 
     public static DecimalFormat getMoneyFormat(String symbol){
         String precisionFormat = "###,##0.###";
@@ -761,7 +766,7 @@ public class Utils {
     }
 
     public static String getFormattedInteger(double value, String symbol){
-        DecimalFormat decimalFormat = getIntegerFormat(symbol);
+        DecimalFormat decimalFormat = getIntegerFormat(value, symbol);
         return decimalFormat.format(value);
     }
 

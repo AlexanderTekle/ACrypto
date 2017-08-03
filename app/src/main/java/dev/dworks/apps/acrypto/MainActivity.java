@@ -58,6 +58,7 @@ import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_URL;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getAlertName;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationType;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationUrl;
+import static dev.dworks.apps.acrypto.utils.Utils.INTERSTITIAL_APP_UNIT_ID;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -461,7 +462,7 @@ public class MainActivity extends AppCompatActivity
 
     private void initAd() {
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-6407484780907805/5183261278");
+        mInterstitialAd.setAdUnitId(INTERSTITIAL_APP_UNIT_ID);
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdClosed() {
