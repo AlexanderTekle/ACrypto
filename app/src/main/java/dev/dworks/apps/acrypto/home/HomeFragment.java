@@ -95,7 +95,6 @@ public class HomeFragment extends ActionBarFragment
         OnChartValueSelectedListener, RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "Home";
-    public static final int LIMIT_ALT = 10;
     private Utils.OnFragmentInteractionListener mListener;
 
     // time stamp constants
@@ -287,7 +286,10 @@ public class HomeFragment extends ActionBarFragment
         mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol());
+                return getCurrentCurrencyToSymbol() + " "
+                        + (isTopAltCoin() ?
+                        Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol())
+                        : Utils.getFormattedNumber(value, getCurrentCurrencyToSymbol()));
             }
         });
 
@@ -356,8 +358,13 @@ public class HomeFragment extends ActionBarFragment
         mBarChart.highlightValue(null);
         diffValue = -1;
 
-
         if(refreshAll) {
+            mChart.setNoDataText(null);
+            mChart.clear();
+            mChart.invalidate();
+            mBarChart.setNoDataText(null);
+            mBarChart.clear();
+            mBarChart.invalidate();
             fetchCurrencyFromData();
             fetchCurrencyToData();
             fetchExchangeData();
@@ -940,7 +947,7 @@ public class HomeFragment extends ActionBarFragment
             case R.id.currencyToSpinner:
                 Currencies.Currency currency = (Currencies.Currency) parent.getSelectedItem();
                 SettingsActivity.setCurrencyTo(currency.code);
-                fetchData(true );
+                fetchData(true);
                 bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("currency_filtered", bundle);
                 break;

@@ -1046,5 +1046,15 @@
     "name": "ZClassic",
     "order": 209,
     "symbol": "ZCL"
+  },
+  "BCH": {
+    "name": "Bitcoin Cash",
+    "order": 210,
+    "symbol": "BCH"
+  },
+  "GLD": {
+    "name": "GoldCoin",
+    "order": 211,
+    "symbol": "GLD"
   }
 }

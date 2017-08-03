@@ -3955,6 +3955,10 @@
     "DRAGON": {
       "id": "btcdragon",
       "name": "BTCDragon"
+    },
+    "BCH": {
+      "id": "bitcoin-cash",
+      "name": "Bitcoin Cash"
     }
   }
 }
