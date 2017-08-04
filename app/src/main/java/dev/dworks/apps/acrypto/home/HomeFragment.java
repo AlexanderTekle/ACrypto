@@ -665,8 +665,8 @@ public class HomeFragment extends ActionBarFragment
         }
 
         //Price Chart
-        currentValue = Double.valueOf(lastPrice.close);
-        diffValue = Double.valueOf(firstPrice.close);
+        currentValue = lastPrice.close;
+        diffValue = firstPrice.close;
         setDefaultValues();
 
         LineDataSet set1 = new LineDataSet(entries, "Price");

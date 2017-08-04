@@ -57,7 +57,7 @@
                         android:maxLines="1"
                         android:textColor="@android:color/darker_gray"
                         android:textSize="14sp"
-                        android:text="Vol.24H: " />
+                        android:text="@string/vol_24h" />
 
                     <org.fabiomsr.moneytextview.MoneyTextView
                         android:id="@+id/volume"

@@ -23,6 +23,7 @@ android {
             shrinkResources false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    getDefaultProguardFile('proguard-android-optimize.txt'),
                     'proguard/proguard-project.pro'
         }
         release {
@@ -57,7 +58,7 @@ android {
 
 ext {
     supportLibVersion = '26.0.0'
-    gmsVersion = '11.0.2'
+    gmsVersion = '11.0.4'
 }
 
 dependencies {
@@ -68,8 +69,8 @@ dependencies {
     compile "com.google.firebase:firebase-perf:${gmsVersion}"
     compile "com.google.firebase:firebase-database:${gmsVersion}"
     compile "com.google.firebase:firebase-ads:${gmsVersion}"
-    compile 'com.firebaseui:firebase-ui-auth:2.1.0'
-    compile 'com.firebaseui:firebase-ui-database:2.1.0'
+    compile 'com.firebaseui:firebase-ui-auth:2.2.0'
+    compile 'com.firebaseui:firebase-ui-database:2.2.0'
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'dev.dworks.libs:volleyplus:0.1.4'
     compile 'cat.ereza:customactivityoncrash:2.1.0'

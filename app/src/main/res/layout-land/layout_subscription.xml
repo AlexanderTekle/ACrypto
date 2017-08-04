@@ -17,7 +17,7 @@
         android:layout_gravity="center"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
-        android:text="Subscribe "
+        android:text="@string/subscribe"
         android:textColor="@android:color/white"
         android:theme="@style/MyButton"
         tools:text="Subscribe $4.99 / Month" />

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
+    android:focusable="true"
     android:foreground="?android:selectableItemBackground">
 
     <FrameLayout
@@ -84,7 +85,8 @@
                         android:maxLines="1"
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:textSize="14sp"
-                        android:text=" / " />
+                        android:text=" / "
+                        tools:ignore="HardcodedText"/>
 
                     <TextView
                         android:id="@+id/toPair"

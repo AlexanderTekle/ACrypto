@@ -111,7 +111,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
 
                     for (int i = 0; i < count; i++) {
                         final String value = mOrigData.get(i);
-                        final String valueText = value.toString().toLowerCase();
+                        final String valueText = value.toLowerCase();
 
                         // First match against the whole, non-splitted value
                         if (valueText.contains(prefixString)) {

@@ -177,12 +177,8 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 		return bp;
 	}
 
-	public boolean handleActivityResult(int requestCode, int resultCode, Intent data){
-		if(null != bp){
-			return bp.handleActivityResult(requestCode, resultCode, data);
-		} else {
-			return false;
-		}
+	public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
+		return null != bp && bp.handleActivityResult(requestCode, resultCode, data);
 	}
 
 	public void releaseBillingProcessor() {

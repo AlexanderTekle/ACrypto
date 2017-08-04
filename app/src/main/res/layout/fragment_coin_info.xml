@@ -96,7 +96,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -110,7 +111,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="5dp"
-                            android:text="Market Cap."
+                            android:text="@string/market_cap"
                             android:textColor="?android:attr/textColorSecondary"
                             android:textSize="12sp" />
 
@@ -139,7 +140,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="5dp"
-                            android:text="Open Price 24H"
+                            android:text="@string/open_price_24h"
                             android:textColor="?android:attr/textColorSecondary"
                             android:textSize="12sp" />
 
@@ -186,7 +187,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="5dp"
-                            android:text="Volume 24H"
+                            android:text="@string/volume_24h"
                             android:textColor="?android:attr/textColorSecondary"
                             android:textSize="12sp" />
 
@@ -236,7 +237,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="5dp"
-                            android:text="Price 24H"
+                            android:text="@string/price_24h"
                             android:textColor="?android:attr/textColorSecondary"
                             android:textSize="12sp" />
 

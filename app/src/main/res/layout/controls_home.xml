@@ -175,15 +175,14 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10M" />
-
+                    android:text="@string/timeseries_10m" />
 
                 <RadioButton
                     android:id="@+id/timeseries_hour"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1H" />
+                    android:text="@string/timeseries_1h" />
 
                 <RadioButton
                     android:id="@+id/timeseries_day"
@@ -191,35 +190,35 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:text="1D" />
+                    android:text="@string/timeseries_1d" />
 
                 <RadioButton
                     android:id="@+id/timeseries_week"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1W" />
+                    android:text="@string/timeseries_1w" />
 
                 <RadioButton
                     android:id="@+id/timeseries_month"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="30D" />
+                    android:text="@string/timeseries_30d" />
 
                 <RadioButton
                     android:id="@+id/timeseries_year"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1Y" />
+                    android:text="@string/timeseries_1y" />
 
                 <RadioButton
                     android:id="@+id/timeseries_year5"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="5Y" />
+                    android:text="@string/timeseries_5y" />
 
             </RadioGroup>
 

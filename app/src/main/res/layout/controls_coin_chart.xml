@@ -100,7 +100,7 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10M"
+                    android:text="@string/timeseries_10m"
                     android:textColor="@color/colorPrimaryDark" />
 
 
@@ -109,7 +109,7 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1H"
+                    android:text="@string/timeseries_1h"
                     android:textColor="@color/colorPrimaryDark" />
 
                 <RadioButton
@@ -118,7 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:text="1D"
+                    android:text="@string/timeseries_1d"
                     android:textColor="@color/colorPrimaryDark" />
 
                 <RadioButton
@@ -126,7 +126,7 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1W"
+                    android:text="@string/timeseries_1w"
                     android:textColor="@color/colorPrimaryDark" />
 
                 <RadioButton
@@ -134,7 +134,7 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="30D"
+                    android:text="@string/timeseries_30d"
                     android:textColor="@color/colorPrimaryDark" />
 
                 <RadioButton
@@ -142,7 +142,7 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1Y"
+                    android:text="@string/timeseries_1y"
                     android:textColor="@color/colorPrimaryDark" />
 
                 <RadioButton
@@ -150,7 +150,7 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="5Y"
+                    android:text="@string/timeseries_5y"
                     android:textColor="@color/colorPrimaryDark" />
             </RadioGroup>
 

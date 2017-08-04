@@ -181,9 +181,7 @@ public class NewsFragment extends RecyclerFragment
     private void loadData(News news) {
         mAdapter.clear();
         if(null != news) {
-            for ( News.NewsData newsData : news.getData()){
-                mItems.add(newsData);
-            }
+            mItems.addAll(news.getData());
             addNativeExpressAds();
             setUpAndLoadNativeExpressAds();
             mAdapter.setData(mItems);

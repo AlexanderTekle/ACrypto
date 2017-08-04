@@ -32,7 +32,7 @@ public class CoinPairsDeserializer implements JsonDeserializer<CoinPairs> {
         Gson customGson = gsonBuilder.create();
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             try {
-                String key = entry.getKey().toString();
+                String key = entry.getKey();
                 CoinPairs.CoinPair coinPair = customGson.fromJson(entry.getValue(), CoinPairs.CoinPair.class);
                 data.put(key, coinPair);
             }

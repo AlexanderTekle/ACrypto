@@ -42,6 +42,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
+            android:focusable="true"
             android:gravity="center_vertical"
             android:minHeight="?attr/listPreferredItemHeightSmall"
             android:orientation="horizontal"
@@ -52,13 +53,12 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_about"
-                app:tint="@color/tint_grey"
+                android:tint="@color/tint_grey"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="32dp"
                 android:layout_marginStart="32dp"
                 android:orientation="vertical"
                 android:paddingBottom="8dp"
@@ -67,7 +67,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Version"
+                    android:text="@string/version"
                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
                 <TextView
@@ -87,6 +87,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
+            android:focusable="true"
             android:gravity="center_vertical"
             android:minHeight="?attr/listPreferredItemHeightSmall"
             android:orientation="horizontal"
@@ -97,17 +98,16 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_support"
-                app:tint="@color/tint_grey"
+                android:tint="@color/tint_grey"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="32dp"
                 android:layout_marginStart="32dp"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
-                android:text="Why isn't ACrypto Free?"
+                android:text="@string/why_isn_t_acrypto_free"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
         </LinearLayout>
@@ -118,6 +118,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
+            android:focusable="true"
             android:gravity="center_vertical"
             android:minHeight="?attr/listPreferredItemHeightSmall"
             android:orientation="horizontal"
@@ -128,17 +129,16 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_twitter"
-                app:tint="@color/tint_grey"
+                android:tint="@color/tint_grey"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="32dp"
                 android:layout_marginStart="32dp"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
-                android:text="Follow us on Twitter"
+                android:text="@string/follow_us_on_twitter"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
         </LinearLayout>
@@ -150,6 +150,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
+            android:focusable="true"
             android:gravity="center_vertical"
             android:minHeight="?attr/listPreferredItemHeightSmall"
             android:orientation="horizontal"
@@ -160,17 +161,16 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_gplus"
-                app:tint="@color/tint_grey"
+                android:tint="@color/tint_grey"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="32dp"
                 android:layout_marginStart="32dp"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
-                android:text="Join Google Plus Community"
+                android:text="@string/join_google_plus_community"
                 android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
         </LinearLayout>

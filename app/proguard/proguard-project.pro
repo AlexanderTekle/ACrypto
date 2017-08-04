@@ -101,6 +101,7 @@
 -keep public class * extends com.amazon.device.messaging.ADMMessageReceiver
 -keep public class * extends com.amazon.device.messaging.ADMMessageHandlerBase
 
+-dontwarn retrofit2.**
 # Application classes that will be serialized/deserialized over Gson
 # or have been blown up by ProGuard in the past
 

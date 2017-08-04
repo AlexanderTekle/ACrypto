@@ -24,12 +24,12 @@
                 <android.support.design.widget.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Price" />
+                    android:text="@string/price" />
 
                 <android.support.design.widget.TabItem
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Arbitrage" />
+                    android:text="@string/arbitrage" />
 
 
             </android.support.design.widget.TabLayout>
@@ -46,7 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="Add Portfolio"
+        android:text="@string/add_portfolio"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textIsSelectable="false"
         android:visibility="gone" />

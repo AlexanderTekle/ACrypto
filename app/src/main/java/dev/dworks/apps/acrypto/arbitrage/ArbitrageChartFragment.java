@@ -491,8 +491,8 @@ public class ArbitrageChartFragment extends ActionBarFragment
             lastPriceTwo = price;
         }
 
-        currentValueOne = Double.valueOf(lastPriceOne.getClose());
-        currentValueTwo = Double.valueOf(lastPriceTwo.getClose());
+        currentValueOne = lastPriceOne.getClose();
+        currentValueTwo = lastPriceTwo.getClose();
 
         setDefaultValues();
 

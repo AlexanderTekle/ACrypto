@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
+    android:focusable="true"
     android:foreground="?android:selectableItemBackground">
 
     <FrameLayout
@@ -49,7 +50,7 @@
                         android:maxLines="1"
                         android:textColor="@android:color/darker_gray"
                         android:textSize="14sp"
-                        android:text="Vol.24H: " />
+                        android:text="@string/vol_24h" />
 
                     <org.fabiomsr.moneytextview.MoneyTextView
                         android:id="@+id/volume"

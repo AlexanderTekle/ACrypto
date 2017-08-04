@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="?android:attr/listPreferredItemPaddingRight">
@@ -22,20 +23,21 @@
                 android:layout_gravity="center"
                 android:layout_marginEnd="16dp"
                 android:tint="@color/accent_grey"
-                app:srcCompat="@drawable/ic_portfolio" />
+                app:srcCompat="@drawable/ic_portfolio"
+                tools:ignore="ContentDescription" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/grid_item_padding"
-                android:paddingStart="@dimen/grid_item_padding">
+                android:paddingStart="@dimen/grid_item_padding"
+                tools:ignore="RtlSymmetry">
 
                 <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:hint="Portfolio Name"
+                    android:hint="@string/portfolio_name"
                     android:inputType="textCapSentences"
                     android:textAlignment="viewStart" />
 
@@ -54,7 +56,8 @@
                 android:layout_gravity="center"
                 android:layout_marginEnd="16dp"
                 android:tint="@color/accent_grey"
-                app:srcCompat="@drawable/ic_paid" />
+                app:srcCompat="@drawable/ic_paid"
+                tools:ignore="ContentDescription" />
 
             <dev.dworks.apps.acrypto.view.SearchableSpinner
                 android:id="@+id/currencyToSpinner"
@@ -76,7 +79,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="16dp"
                 android:tint="@color/accent_grey"
-                app:srcCompat="@drawable/ic_notes" />
+                app:srcCompat="@drawable/ic_notes"
+                tools:ignore="ContentDescription" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
@@ -87,7 +91,7 @@
                     android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Description"
+                    android:hint="@string/description"
                     android:inputType="textLongMessage"
                     android:textAppearance="?android:attr/textAppearanceSmall" />
             </android.support.design.widget.TextInputLayout>
@@ -100,7 +104,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginStart="30dp"
             android:padding="10dp"
-            android:text="* The selected currency will be the default currency of this portfolio"
+            android:text="@string/portfolio_warning"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textIsSelectable="false" />
     </LinearLayout>

@@ -67,7 +67,7 @@ public class PortfolioCoin implements Serializable {
         if(null == coinPair){
             return  0;
         }
-        double currentPrice = Double.valueOf(coinPair.getCurrentPrice());
+        double currentPrice = coinPair.getCurrentPrice();
         double currentTotal = amount * currentPrice;
         return  currentTotal;
     }
@@ -78,7 +78,7 @@ public class PortfolioCoin implements Serializable {
         if(null == coinPair){
             return  0;
         }
-        double currentPrice = Double.valueOf(coinPair.getCurrentPrice());
+        double currentPrice = coinPair.getCurrentPrice();
         double currentTotal = amount * currentPrice * conversion;
         return  currentTotal;
     }

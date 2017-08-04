@@ -68,9 +68,9 @@ public class CacheUtils {
     private static String bytesToHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
 
-        for(int i = 0; i < bytes.length; ++i) {
-            String hex = Integer.toHexString(255 & bytes[i]);
-            if(hex.length() == 1) {
+        for (byte aByte : bytes) {
+            String hex = Integer.toHexString(255 & aByte);
+            if (hex.length() == 1) {
                 sb.append('0');
             }
 

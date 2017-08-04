@@ -1,4 +1,4 @@
-<resources xmlns:xliff="http://schemas.android.com/tools">
+<resources>
 
     <string-array name="alert_frequency">
         <item>Onetime</item>

@@ -140,7 +140,7 @@ public class AlertArbitrageAdapter extends FirebaseRecyclerAdapter<AlertArbitrag
                 final CoinDetailSample.CoinDetail coinDetail = getCoin(fromPairArray[0]);
                 url = getCoinUrl(coinDetail);
 
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
             String from = fromPairArray[1];
             String to = toPairArray[1];
