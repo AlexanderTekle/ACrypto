@@ -17,6 +17,8 @@ import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
+import needle.Needle;
+import needle.UiRelatedTask;
 
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TOPIC_NEWS_ALL;
 import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
@@ -31,8 +33,6 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	public static final String BILLING_ACTION = "BillingInitialized";
 	private static final String INITIAL_SUBSCRIPTION_COMPLETED = "intial_subscription_completed";
 
-	public boolean isSubsUpdateSupported;
-	public boolean isOneTimePurchaseSupported;
 	private BillingProcessor bp;
 	private boolean isSubscribedMonthly;
 	private boolean autoRenewing;
@@ -71,24 +71,9 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 		}
 	}
 
-	public void setOneTimePurchaseSupported(boolean oneTimePurchaseSupported) {
-		isOneTimePurchaseSupported = oneTimePurchaseSupported;
-	}
-
-	public void setSubsUpdateSupported(boolean subsUpdateSupported) {
-		isSubsUpdateSupported = subsUpdateSupported;
-	}
 
 	public void initializeBilling() {
 		getBillingProcessor();
-	}
-
-	public boolean isOneTimePurchaseSupported() {
-		return isOneTimePurchaseSupported;
-	}
-
-	public boolean isSubsUpdateSupported() {
-		return isSubsUpdateSupported;
 	}
 
 	public boolean isSubscriptionActive() {
@@ -122,8 +107,6 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				|| (bp != null && !bp.isInitialized())){
 			return;
 		}
-		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
-		setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
 		bp.loadOwnedPurchasesFromGoogle();
 		reloadSubscription();
 	}
@@ -133,16 +116,27 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				|| (bp != null && !bp.isInitialized())){
 			return;
 		}
-		skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
-		isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
-		if (isSubscribedMonthly) {
-			TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
-			autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
-		}
-		isSubscriptionActive = isSubscribedMonthly && autoRenewing;
-		selfHack();
-		LocalBurst.getInstance().emit(BILLING_ACTION);
-		FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
+
+		Needle.onBackgroundThread().execute(new UiRelatedTask<Void>() {
+			@Override
+			protected Void doWork() {
+				skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
+				isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
+				if (isSubscribedMonthly) {
+					TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
+					autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
+				}
+				isSubscriptionActive = isSubscribedMonthly && autoRenewing;
+				selfHack();
+				FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
+				return null;
+			}
+
+			@Override
+			protected void thenDoUiRelatedWork(Void result) {
+				LocalBurst.getInstance().emit(BILLING_ACTION);
+			}
+		});
 	}
 
 	private void selfHack() {
