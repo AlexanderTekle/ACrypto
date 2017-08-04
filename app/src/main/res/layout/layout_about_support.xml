@@ -38,7 +38,6 @@
             android:paddingRight="16dp">
 
             <ImageView
-                android:id="@+id/icon_rating"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_star"
