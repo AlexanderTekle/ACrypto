@@ -103,7 +103,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         app:srcCompat="@drawable/ic_menu_coins"
                         tools:src="@drawable/ic_menu_coins" />
 
@@ -113,7 +113,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:paddingLeft="16dp"
+                        android:paddingStart="16dp"
                         android:theme="@style/SpinnerStyle"
                         app:titleText="Choose a Coin" />
 
@@ -129,7 +129,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:paddingLeft="10dp"
+                        android:paddingStart="10dp"
                         android:theme="@style/SpinnerStyle"
                         app:titleText="Choose a Currency" />
 
@@ -145,7 +145,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_exchange" />
 
@@ -154,7 +154,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:maxLines="1"
-                        android:paddingLeft="10dp"
+                        android:paddingStart="10dp"
                         android:theme="@style/SpinnerStyle"
                         app:titleText="Choose an Exchange" />
                 </LinearLayout>
@@ -169,7 +169,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_frequency" />
 
@@ -177,7 +177,7 @@
                         android:id="@+id/frequencySpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="@dimen/activity_margin"
+                        android:paddingStart="@dimen/activity_margin"
                         android:theme="@style/SpinnerStyle" />
                 </LinearLayout>
 
@@ -191,7 +191,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         android:layout_marginTop="10dp"
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_paid" />
@@ -202,14 +202,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:maxLines="1"
-                        android:paddingLeft="@dimen/activity_margin"
+                        android:paddingStart="@dimen/activity_margin"
                         android:theme="@style/SpinnerStyle" />
 
                     <TextView
                         android:id="@+id/symbol"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
+                        android:layout_marginStart="16dp"
                         android:layout_marginTop="10dp"
                         android:textSize="18sp"
                         tools:text="$" />

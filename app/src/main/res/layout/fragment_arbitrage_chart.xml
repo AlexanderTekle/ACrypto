@@ -27,7 +27,7 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="1dp"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/rectangle_dark" />
 
@@ -93,7 +93,7 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="1dp"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:layout_weight="1"
                     android:background="@drawable/rectangle_dark" />
             </LinearLayout>
@@ -108,7 +108,7 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <com.github.mikephil.charting.charts.LineChart
+                    <dev.dworks.apps.acrypto.view.LineChart
                         android:id="@+id/linechart"
                         android:layout_width="match_parent"
                         android:layout_height="200dp" />
@@ -171,7 +171,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:ellipsize="end"
-                        android:paddingLeft="10dp"
+                        android:paddingStart="10dp"
                         android:text="@string/artbitrage_message"
                         android:textAlignment="viewStart"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -184,7 +184,7 @@
                 android:id="@+id/lastupdated"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|right"
+                android:layout_gravity="center_horizontal|end"
                 android:layout_margin="10dp"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"

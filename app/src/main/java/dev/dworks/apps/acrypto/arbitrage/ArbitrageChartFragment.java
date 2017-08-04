@@ -27,7 +27,6 @@ import android.widget.TextView;
 import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -56,6 +55,7 @@ import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.LineChart;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.CONVERSION_URL;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;

@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
             app:titleText="Choose a Coin"
             android:theme="@style/SpinnerStyle"/>
 
@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
             app:titleText="Choose a Currency"
             android:theme="@style/SpinnerStyle" />
 
@@ -36,7 +36,7 @@
             android:id="@+id/exchangeSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:maxLines="1"
             android:minWidth="130dp"
             app:titleText="Choose an Exchange"
@@ -61,13 +61,13 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingRight="20dp">
+                android:paddingEnd="20dp">
 
                 <org.fabiomsr.moneytextview.MoneyTextView
                     android:id="@+id/value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center|right"
+                    android:layout_gravity="center|end"
                     app:amount="0"
                     app:baseTextColor="@android:color/white"
                     app:baseTextSize="22sp"
@@ -82,7 +82,7 @@
                     android:id="@+id/time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|right"
+                    android:layout_gravity="center_horizontal|end"
                     android:layout_marginTop="5dp"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
@@ -100,7 +100,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingLeft="20dp">
+                android:paddingStart="20dp">
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -112,7 +112,7 @@
                         android:id="@+id/valueChange"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center|left"
+                        android:layout_gravity="center|start"
                         android:visibility="visible"
                         app:amount="0"
                         app:baseTextColor="@android:color/white"
@@ -128,7 +128,7 @@
                         android:id="@+id/volume"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center|left"
+                        android:layout_gravity="center|start"
                         android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:visibility="gone"
@@ -139,7 +139,7 @@
                     android:id="@+id/timeDuration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|left"
+                    android:layout_gravity="center_horizontal|start"
                     android:layout_marginTop="5dp"
                     android:ellipsize="end"
                     android:maxLines="1"
@@ -159,7 +159,7 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/rectangle_white" />
 
@@ -226,7 +226,7 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/rectangle_white" />
         </LinearLayout>

@@ -18,8 +18,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start|center_vertical"
             android:paddingBottom="16dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:paddingTop="24dp"
             android:text="Support"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
@@ -34,8 +34,8 @@
             android:gravity="center_vertical"
             android:minHeight="?attr/listPreferredItemHeightSmall"
             android:orientation="horizontal"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
             <ImageView
                 android:layout_width="24dp"
@@ -78,8 +78,8 @@
             android:gravity="center_vertical"
             android:minHeight="?attr/listPreferredItemHeightSmall"
             android:orientation="horizontal"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
             <ImageView
                 android:layout_width="24dp"
@@ -122,8 +122,8 @@
             android:gravity="center_vertical"
             android:minHeight="?attr/listPreferredItemHeightSmall"
             android:orientation="horizontal"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
 
             <ImageView
                 android:layout_width="24dp"

@@ -20,7 +20,7 @@
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
                 android:layout_gravity="center"
-                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
                 android:tint="@color/accent_grey"
                 app:srcCompat="@drawable/ic_portfolio" />
 
@@ -52,7 +52,7 @@
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
                 android:layout_gravity="center"
-                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
                 android:tint="@color/accent_grey"
                 app:srcCompat="@drawable/ic_paid" />
 
@@ -74,7 +74,7 @@
                 android:layout_width="@dimen/icon_size"
                 android:layout_height="@dimen/icon_size"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
                 android:tint="@color/accent_grey"
                 app:srcCompat="@drawable/ic_notes" />
 
@@ -98,7 +98,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
             android:padding="10dp"
             android:text="* The selected currency will be the default currency of this portfolio"
             android:textAppearance="?android:attr/textAppearanceSmall"

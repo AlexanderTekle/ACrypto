@@ -22,14 +22,17 @@ public class SimpleSpinner extends android.support.v7.widget.AppCompatSpinner{
 
     public SimpleSpinner(Context context) {
         super(context);
+        setTextAlignment(TEXT_ALIGNMENT_VIEW_START);
     }
 
     public SimpleSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
+        setTextAlignment(TEXT_ALIGNMENT_VIEW_START);
     }
 
     public SimpleSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        setTextAlignment(TEXT_ALIGNMENT_VIEW_START);
     }
 
     @Override

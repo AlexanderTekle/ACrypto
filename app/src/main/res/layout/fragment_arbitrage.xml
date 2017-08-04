@@ -20,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:paddingLeft="16dp"
+                android:paddingStart="16dp"
                 app:titleText="Choose a Coin"
                 android:theme="@style/SpinnerStyle"/>
 
@@ -29,7 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
                 app:titleText="Choose From Currency"
                 android:theme="@style/SpinnerStyle" />
 
@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
                 app:titleText="Choose To Currency"
                 android:theme="@style/SpinnerStyle" />
 

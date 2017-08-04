@@ -38,6 +38,7 @@ public class SearchableSpinner extends AppCompatSpinner implements SearchableIte
     public SearchableSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
         this._context = context;
+        setTextAlignment(TEXT_ALIGNMENT_VIEW_START);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SearchableSpinner);
         hint = a.getString(R.styleable.SearchableSpinner_hintText);
         title = a.getString(R.styleable.SearchableSpinner_titleText);
