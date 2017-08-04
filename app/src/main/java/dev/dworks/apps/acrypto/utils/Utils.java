@@ -103,6 +103,9 @@ public class Utils {
     @Retention(RetentionPolicy.SOURCE)
     public @interface Visibility {}
 
+    // delay to launch nav drawer item, to allow close animation to play
+    public static final int NAVDRAWER_LAUNCH_DELAY = 250;
+
     // cache
     public static final int IMAGE_SIZE_BIG = 100;
     public static final int IMAGE_SIZE = 50;

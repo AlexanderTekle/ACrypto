@@ -37,6 +37,7 @@ import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
 import static dev.dworks.apps.acrypto.news.NewsAdapter.AD_POSITION;
 import static dev.dworks.apps.acrypto.utils.Utils.NATIVE_APP_UNIT_ID;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
@@ -63,6 +64,7 @@ public class NewsFragment extends RecyclerFragment
         final FragmentTransaction ft = fm.beginTransaction();
         final NewsFragment fragment = new NewsFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }

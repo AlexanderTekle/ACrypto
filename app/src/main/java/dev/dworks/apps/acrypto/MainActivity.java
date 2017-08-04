@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -59,6 +60,7 @@ import static dev.dworks.apps.acrypto.utils.NotificationUtils.getAlertName;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationType;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationUrl;
 import static dev.dworks.apps.acrypto.utils.Utils.INTERSTITIAL_APP_UNIT_ID;
+import static dev.dworks.apps.acrypto.utils.Utils.NAVDRAWER_LAUNCH_DELAY;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -260,9 +262,16 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_charts:
             case R.id.nav_portfolio:
             case R.id.nav_news:
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
                 PreferenceUtils.set(getApplicationContext(), LAST_FRAGMENT_ID, lastFragmentId);
                 item.setChecked(true);
-                showLastFragment(lastFragmentId);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showLastFragment(lastFragmentId);;
+                    }
+                }, NAVDRAWER_LAUNCH_DELAY);
                 return true;
 
             case R.id.nav_settings:
@@ -388,20 +397,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showLastFragment(int lastFragmentId){
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
         AnalyticsManager.setCurrentScreen(this, TAG);
         switch (lastFragmentId) {
             case R.id.nav_home:
 
-                drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
                 showHome(null);
                 AnalyticsManager.logEvent("view_home");
                 break;
             case R.id.nav_coins:
 
-                drawer.closeDrawers();
                 spinner.setVisibility(View.VISIBLE);
                 CoinFragment.show(getSupportFragmentManager(), SettingsActivity.getCurrencyList());
                 AnalyticsManager.logEvent("view_coins");
@@ -409,7 +414,6 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_arbitrage:
 
-                drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
                 ArbitrageFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_arbitrage");
@@ -417,7 +421,6 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_alerts:
 
-                drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
                 AlertFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_alerts");
@@ -425,7 +428,6 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_subscription:
 
-                drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
                 SubscriptionFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_subscription");
@@ -433,7 +435,6 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_charts:
 
-                drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
                 Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
                 AnalyticsManager.logEvent("view_charts");
@@ -441,7 +442,6 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_portfolio:
 
-                drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
                 PortfolioFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_portfolio");
@@ -449,13 +449,14 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.nav_news:
 
-                drawer.closeDrawers();
                 spinner.setVisibility(View.GONE);
                 NewsFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_news");
                 break;
             default:
+                spinner.setVisibility(View.GONE);
                 showHome(null);
+                AnalyticsManager.logEvent("view_home");
                 break;
         }
     }

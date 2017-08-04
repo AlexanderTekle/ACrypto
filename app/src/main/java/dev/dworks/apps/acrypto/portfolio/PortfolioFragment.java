@@ -32,6 +32,8 @@ import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.LockableViewPager;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
+
 /**
  * Created by HaKr on 18/07/17.
  */
@@ -51,6 +53,7 @@ public class PortfolioFragment extends ActionBarFragment {
         final FragmentTransaction ft = fm.beginTransaction();
         final PortfolioFragment fragment = new PortfolioFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }

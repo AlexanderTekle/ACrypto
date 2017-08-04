@@ -33,6 +33,7 @@ import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_LIST_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_CURRENCY;
@@ -59,6 +60,7 @@ public class CoinFragment extends RecyclerFragment
         final FragmentTransaction ft = fm.beginTransaction();
         final CoinFragment fragment = new CoinFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }

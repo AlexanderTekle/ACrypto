@@ -71,6 +71,7 @@ import dev.dworks.apps.acrypto.view.BarChart;
 import dev.dworks.apps.acrypto.view.LineChart;
 import dev.dworks.apps.acrypto.view.SearchableSpinner;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.entity.Exchanges.NO_EXCHANGES;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
@@ -144,6 +145,7 @@ public class HomeFragment extends ActionBarFragment
         final FragmentTransaction ft = fm.beginTransaction();
         final HomeFragment fragment = new HomeFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }

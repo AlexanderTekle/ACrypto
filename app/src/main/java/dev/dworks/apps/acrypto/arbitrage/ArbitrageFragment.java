@@ -31,6 +31,7 @@ import dev.dworks.apps.acrypto.view.LockableViewPager;
 import dev.dworks.apps.acrypto.view.SearchableSpinner;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageCoinsUrl;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageFromUrl;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageToUrl;
@@ -52,6 +53,7 @@ public class ArbitrageFragment extends ActionBarFragment implements AdapterView.
         final FragmentTransaction ft = fm.beginTransaction();
         final ArbitrageFragment fragment = new ArbitrageFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
