@@ -50,7 +50,7 @@ public class NewsFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
         Response.Listener<News>, Response.ErrorListener {
 
-    private static final int NATIVE_EXPRESS_AD_HEIGHT = 230;
+    private static final int NATIVE_EXPRESS_AD_HEIGHT = 250;
 
     private static final String TAG = "News";
     private static final int START_POSITION = AD_POSITION;
