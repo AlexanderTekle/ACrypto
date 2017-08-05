@@ -81,6 +81,7 @@ public class PortfolioFragment extends ActionBarFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setSubscriptionDependant(true);
         setHasOptionsMenu(true);
     }
 

@@ -11,6 +11,11 @@
       "type": 1
     },
     {
+      "title": "Get Arbitrage Alerts",
+      "description": "Get notified when arbitrage opportunities in real time",
+      "type": 1
+    },
+    {
       "title": "Maintain Portfolio",
       "description": "All your coins in one place with profit/loss in real time",
       "type": 1

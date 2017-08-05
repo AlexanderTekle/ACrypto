@@ -71,6 +71,7 @@ public class AlertFragment extends ActionBarFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setSubscriptionDependant(true);
     }
 
     @Override

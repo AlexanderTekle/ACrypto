@@ -31,8 +31,9 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
     private Button mSubscribe;
     private TextView mReason;
     private String paidReason;
-    private LocalBurst broadcast;
+    protected LocalBurst broadcast;
     private SwipeRefreshLayout swipeContainer;
+    private boolean subscriptionDependant = false;
 
     protected AppCompatActivity getActionBarActivity() {
         return mActivity;
@@ -123,14 +124,17 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
     public void onResume() {
         super.onResume();
         showProOverlay();
-        broadcast.on(BILLING_ACTION, this);
-        broadcast.on(LocalBurst.DEFAULT_ACTION, this);
+        if (subscriptionDependant) {
+            broadcast.on(BILLING_ACTION, this);
+            broadcast.on(LocalBurst.DEFAULT_ACTION, this);
+        }
     }
 
     @Override
     public void onDestroy() {
-        App.getInstance().releaseBillingProcessor();
-        broadcast.removeListeners(this);
+        if (subscriptionDependant) {
+            broadcast.removeListeners(this);
+        }
         super.onDestroy();
     }
 
@@ -182,6 +186,10 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
 
     @Override
     public void onBroadcast(String s, Bundle bundle) {
+        onSubscriptionStatus();
+    }
+
+    public void onSubscriptionStatus(){
         showProOverlay();
     }
 
@@ -190,5 +198,9 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
             return;
         }
         swipeContainer.setRefreshing(false);
+    }
+
+    public void setSubscriptionDependant(boolean subscriptionDependant) {
+        this.subscriptionDependant = subscriptionDependant;
     }
 }

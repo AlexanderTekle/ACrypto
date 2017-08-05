@@ -75,6 +75,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setSubscriptionDependant(true);
         paidReason = getString(R.string.paid_reason);
     }
 
@@ -102,7 +103,6 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     public void onResume() {
         super.onResume();
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
-        updateViews();
     }
 
     @Override
@@ -184,5 +184,10 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
                 AnalyticsManager.logEvent("view_subscription_reason", bundle);
                 break;
         }
+    }
+
+    @Override
+    public void onSubscriptionStatus() {
+        updateViews();
     }
 }

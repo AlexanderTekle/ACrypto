@@ -35,6 +35,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
     static final int TYPE_AD = 2;
+    private boolean mShowAds;
 
     public NewsAdapter(Context context,
                        RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
@@ -43,13 +44,16 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         scale = context.getResources().getDisplayMetrics().density;
     }
 
-    public void setData(List<Object> contents) {
+    public void setData(List<Object> contents, boolean showAds) {
         this.mData = contents;
+        this.mShowAds = showAds;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return ( position % AD_POSITION == 0 && position != 0) ? TYPE_AD : TYPE_CELL;
+        return mShowAds ?
+                ( position % AD_POSITION == 0 && position != 0) ? TYPE_AD : TYPE_CELL
+                : TYPE_CELL;
     }
 
     @Override

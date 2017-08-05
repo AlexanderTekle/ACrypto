@@ -27,6 +27,7 @@ import com.google.android.gms.ads.NativeExpressAdView;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.News;
@@ -182,14 +183,18 @@ public class NewsFragment extends RecyclerFragment
         mAdapter.clear();
         if(null != news) {
             mItems.addAll(news.getData());
-            addNativeExpressAds();
-            setUpAndLoadNativeExpressAds();
-            mAdapter.setData(mItems);
+            boolean showAds = showAds();
+            if(showAds) {
+                addNativeExpressAds();
+                setUpAndLoadNativeExpressAds();
+            }
+            mAdapter.setData(mItems, showAds);
             setEmptyText("");
         } else {
             setEmptyText("No Data");
         }
         setListShown(true);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -330,5 +335,9 @@ public class NewsFragment extends RecyclerFragment
         });
 
         adView.loadAd(new AdRequest.Builder().build());
+    }
+
+    private boolean showAds(){
+        return !App.getInstance().isSubscribedMonthly();
     }
 }

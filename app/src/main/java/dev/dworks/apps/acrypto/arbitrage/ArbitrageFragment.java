@@ -69,6 +69,7 @@ public class ArbitrageFragment extends ActionBarFragment implements AdapterView.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         showAppFeedback(getActivity(), true);
+        setSubscriptionDependant(true);
         setHasOptionsMenu(true);
     }
 
