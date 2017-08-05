@@ -100,6 +100,8 @@ public class AlertPriceDetailFragment extends ActionBarFragment
     private View mPriceProgress;
     private TextView mMessage;
     private boolean canLoadValue = true;
+    private TextView mNotes;
+    private String notes;
 
     public static void show(FragmentManager fm, AlertPrice alertPrice, String refKey) {
         final Bundle args = new Bundle();
@@ -161,6 +163,7 @@ public class AlertPriceDetailFragment extends ActionBarFragment
         mIcon = (ImageView) view.findViewById(R.id.icon);
         mCurrentValue = (MoneyTextView) view.findViewById(R.id.currentValue);
         mMessage = (TextView) view.findViewById(R.id.message);
+        mNotes = (TextView) view.findViewById(R.id.notes);
         setSpinners();
 
         if(null != mAlertPrice) {
@@ -173,10 +176,11 @@ public class AlertPriceDetailFragment extends ActionBarFragment
             condition = mAlertPrice.condition;
             frequency = mAlertPrice.frequency;
             status = mAlertPrice.status;
+            notes = mAlertPrice.notes;
 
             canLoadValue = TextUtils.isEmpty(refKey);
             loadValue(true);
-
+            mNotes.setText(notes);
             mFrequencySpinner.setSelection(getFrequency());
             mConditionSpinner.setSelection(getCondition());
         }
@@ -429,7 +433,7 @@ public class AlertPriceDetailFragment extends ActionBarFragment
         setEditingEnabled(false);
         AlertPrice alertPrice = new AlertPrice(getName(), getCurrentCurrencyFromSymbol(),
                 getCurrentCurrencyToSymbol(), status, getCondition(), getFrequency(),
-                "value", getValue());
+                "value", getNotes(), getValue());
         DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
                 .child("/user_alerts/price").child(FirebaseHelper.getCurrentUid());
 
@@ -522,6 +526,10 @@ public class AlertPriceDetailFragment extends ActionBarFragment
         return list;
     }
 
+    public String getNotes() {
+        return mNotes.getText().toString();
+    }
+
     private void setEditingEnabled(boolean enabled) {
         mConditionSpinner.setEnabled(enabled);
         mFrequencySpinner.setEnabled(enabled);
@@ -529,6 +537,7 @@ public class AlertPriceDetailFragment extends ActionBarFragment
         mCurrencyToSpinner.setEnabled(enabled);
         mExchangeSpinner.setEnabled(enabled);
         mValue.setEnabled(enabled);
+        mNotes.setEnabled(enabled);
         mProgress.setVisibility(enabled ? GONE : View.VISIBLE);
     }
 

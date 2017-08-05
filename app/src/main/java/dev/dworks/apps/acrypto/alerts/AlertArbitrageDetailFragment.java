@@ -123,6 +123,8 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
     private double currentValueOne;
     private double currentValueTwo;
     private double mConversionRate;
+    private TextView mNotes;
+    private String notes;
 
     public static void show(FragmentManager fm, AlertArbitrage alertArbitrage, String refKey) {
         final Bundle args = new Bundle();
@@ -192,6 +194,7 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
         mSymbolTwo = (TextView) view.findViewById(R.id.toSymbol);
         mIcon = (ImageView) view.findViewById(R.id.icon);
         mCurrentValue = (MoneyTextView) view.findViewById(R.id.currentValue);
+        mNotes = (TextView) view.findViewById(R.id.notes);
         setSpinners();
 
         if(null != mAlertArbitrage) {
@@ -211,10 +214,11 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
             condition = mAlertArbitrage.condition;
             frequency = mAlertArbitrage.frequency;
             status = mAlertArbitrage.status;
+            notes = mAlertArbitrage.notes;
 
             canLoadValue = TextUtils.isEmpty(refKey);
             loadValue(true);
-
+            mNotes.setText(notes);
             mFrequencySpinner.setSelection(getFrequency());
             mConditionSpinner.setSelection(getCondition());
         }
@@ -577,7 +581,7 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
                 getCurrencySymbol(getCurrentCurrencyOne()),
                 getCurrencySymbol(getCurrentCurrencyTwo()),
                 status, getCondition(), getFrequency(),
-                "percentage", getValue());
+                "percentage", getNotes(), getValue());
         DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
                 .child("/user_alerts/arbitrage").child(FirebaseHelper.getCurrentUid());
 
@@ -668,6 +672,10 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
         return list;
     }
 
+    public String getNotes() {
+        return mNotes.getText().toString();
+    }
+
     private void setEditingEnabled(boolean enabled) {
         mConditionSpinner.setEnabled(enabled);
         mFrequencySpinner.setEnabled(enabled);
@@ -677,6 +685,7 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
         mExchangeOneSpinner.setEnabled(enabled);
         mExchangeTwoSpinner.setEnabled(enabled);
         mValue.setEnabled(enabled);
+        mNotes.setEnabled(enabled);
         mProgress.setVisibility(enabled ? GONE : View.VISIBLE);
     }
 

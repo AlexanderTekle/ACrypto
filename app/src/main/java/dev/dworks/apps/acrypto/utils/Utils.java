@@ -704,7 +704,7 @@ public class Utils {
     public static String getDisplayPercentageSimple(double valueOne, double valueTwo){
         valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
-        if(value == 0){
+        if(value == 0 || (valueOne == 0 && valueTwo ==0)){
             return " - ";
         }
         boolean roundoff = false;
@@ -720,7 +720,7 @@ public class Utils {
     public static String getDisplayPercentageRounded(double valueOne, double valueTwo){
         valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
-        if(value == 0){
+        if(value == 0 || (valueOne == 0 && valueTwo ==0)){
             return " - ";
         }
         return String.valueOf(Math.round(Math.abs(value))) +  "% " + (value > 0 ? "▲" : "▼");
@@ -729,7 +729,7 @@ public class Utils {
     public static String getDisplayPercentage(double valueOne, double valueTwo){
         valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
-        if(value == 0){
+        if(value == 0 || (valueOne == 0 && valueTwo ==0)){
             return " - ";
         }
         return String.format("%.2f", Math.abs(value)) +  "% " + (value > 0 ? "▲" : "▼");
@@ -738,7 +738,7 @@ public class Utils {
     public static String getDisplayShortPercentage(double valueOne, double valueTwo){
         valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
-        if(value == 0){
+        if(value == 0 || (valueOne == 0 && valueTwo ==0)){
             return " - ";
         }
         return String.format("%.2f", Math.abs(value)) +  "%";

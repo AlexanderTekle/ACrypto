@@ -24,7 +24,7 @@ public class AlertArbitrage implements Serializable{
     }
 
     public AlertArbitrage(String name, String fromCoin, String fromSymbol, String toSymbol, int status,
-                          String condition, String frequency, String type, double value){
+                          String condition, String frequency, String type, String notes, double value){
         this.name = name;
         this.fromCoin = fromCoin;
         this.fromSymbol = fromSymbol;
@@ -34,6 +34,7 @@ public class AlertArbitrage implements Serializable{
         this.frequency = frequency;
         this.type = type;
         this.value = value;
+        this.notes = notes;
         this.nameStatusIndex = getNameStatusIndex();
     }
 

@@ -232,6 +232,36 @@
                     </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="16dp"
+                        android:tint="@color/accent_grey"
+                        app:srcCompat="@drawable/ic_notes" />
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:paddingStart="16dp">
+
+                        <EditText
+                            android:id="@+id/notes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/notes"
+                            android:inputType="textLongMessage"
+                            android:textAppearance="?android:attr/textAppearanceSmall" />
+                    </android.support.design.widget.TextInputLayout>
+                </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
 

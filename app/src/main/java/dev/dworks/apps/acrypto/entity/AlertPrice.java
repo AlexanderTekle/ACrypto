@@ -23,7 +23,7 @@ public class AlertPrice implements Serializable{
     }
 
     public AlertPrice(String name, String fromSymbol, String toSymbol, int status,
-                      String condition, String frequency, String type, double value){
+                      String condition, String frequency, String type, String notes, double value){
         this.name = name;
         this.fromSymbol = fromSymbol;
         this.toSymbol = toSymbol;
@@ -32,6 +32,7 @@ public class AlertPrice implements Serializable{
         this.frequency = frequency;
         this.type = type;
         this.value = value;
+        this.notes = notes;
         this.nameStatusIndex = getNameStatusIndex();
     }
 

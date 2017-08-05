@@ -358,11 +358,12 @@ public class HomeFragment extends ActionBarFragment
         mChartProgress.setVisibility(View.VISIBLE);
         mChart.highlightValue(null);
         mBarChart.highlightValue(null);
-        diffValue = -1;
-        currentValue = 0;
-        setDefaultValues();
 
         if(refreshAll) {
+            retry = false;
+            diffValue = -1;
+            currentValue = 0;
+            setDefaultValues();
             mChart.setNoDataText(null);
             mChart.clear();
             mChart.invalidate();
