@@ -359,6 +359,8 @@ public class HomeFragment extends ActionBarFragment
         mChart.highlightValue(null);
         mBarChart.highlightValue(null);
         diffValue = -1;
+        currentValue = 0;
+        setDefaultValues();
 
         if(refreshAll) {
             mChart.setNoDataText(null);

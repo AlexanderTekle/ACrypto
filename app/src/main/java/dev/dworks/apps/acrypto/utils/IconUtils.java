@@ -62,11 +62,11 @@ public class IconUtils {
     public static Drawable getDrawable(Context context, String name) {
         int resId = context.getResources().getIdentifier(name,
                 "drawable", context.getPackageName());
-        return getDrawable(context, resId == 0 ? R.drawable.ic_stat_notify : resId);
+        return getDrawable(context, resId == 0 ? R.drawable.ic_info : resId);
     }
 
     public static int getDrawableResource(Context context, String name) {
-        final int defaultResId = R.drawable.ic_stat_notify;
+        final int defaultResId = R.drawable.ic_info;
         if(TextUtils.isEmpty(name)){
             return defaultResId;
         }
