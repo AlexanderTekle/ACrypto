@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity
         Utils.OnFragmentInteractionListener, LocalBurst.OnBroadcastListener {
 
     public static final int SETTINGS = 47;
+    public static final int RESULT_SYNC_MASTER = 7;
     public static final int LOGIN = 619;
     public static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
@@ -337,6 +338,8 @@ public class MainActivity extends AppCompatActivity
                     updateUserDetails();
                     refreshData();
                     App.getInstance().reloadSubscription();
+                } else if (resultCode == RESULT_SYNC_MASTER){
+                    recreate();
                 }
             } else if(requestCode == LOGIN){
                 if(resultCode == RESULT_FIRST_USER){

@@ -35,6 +35,8 @@
     Sell it for a price of ~<b>%3$s</b> <br/> Get a %4$s  of ]]></string>
 
     <string name="pref_title_build_version">Build version</string>
+    <string name="pref_sync_title">Sync Data</string>
+    <string name="pref_sync_description">Sync latest cryptocurrencies</string>
     <string name="pref_title_logout">Logout</string>
     <string name="pref_currency_title">Native Currency</string>
     <string name="pref_currency_description">your currency</string>

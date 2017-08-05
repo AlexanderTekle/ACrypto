@@ -1,6 +1,12 @@
 package dev.dworks.apps.acrypto.misc;
 
+import android.content.Context;
 import android.support.v4.util.ArrayMap;
+
+import com.android.volley.Cache;
+
+import dev.dworks.apps.acrypto.App;
+import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 
 /**
  * Created by HaKr on 15/05/17.
@@ -52,5 +58,18 @@ public class UrlConstant {
 
         return UrlManager.with(UrlConstant.COINS_API)
                 .setDefaultParams(params).getUrl();
+    }
+
+    public static void syncMasterData(Context context){
+        Cache cache = VolleyPlusHelper.with(context).getRequestQueue().getCache();
+        cache.remove(COINS_API);
+        cache.remove(CURRENCY_API);
+        cache.remove(COINS_LIST_API);
+        cache.remove(COINS_IGNORE_API);
+        cache.remove(SYMBOLS_API);
+        cache.remove(getArbitrageCoinsUrl());
+        cache.remove(getArbitrageFromUrl());
+        cache.remove(getArbitrageToUrl());
+        App.getInstance().synMasterData();
     }
 }

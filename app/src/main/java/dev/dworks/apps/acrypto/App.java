@@ -67,14 +67,19 @@ public class App extends AppFlavour {
 		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 		LocalBurst.initialize(getApplicationContext());
+		synMasterData();
+
+		FirebaseHelper.checkInstanceIdValidity();
+		checkForAppUpdates();
+	}
+
+	public void synMasterData() {
+		cleanupMasterData();
 		loadDefaultData();
 		loadCoinSymbols();
 		loadCurrencyList();
 		loadCoinDetails();
 		loadCoinIgnore();
-
-		FirebaseHelper.checkInstanceIdValidity();
-		checkForAppUpdates();
 	}
 
 	private void checkForAppUpdates() {
@@ -242,6 +247,13 @@ public class App extends AppFlavour {
 			return new ArrayList<>();
 		}
 		return currencyChars;
+	}
+
+	public void cleanupMasterData(){
+		coinsIgnore = null;
+		symbols = null;
+		currencyStrings = null;
+		currencyChars = null;
 	}
 
 	@Override

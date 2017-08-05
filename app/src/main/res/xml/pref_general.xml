@@ -8,9 +8,6 @@
             android:persistent="true"
             android:summary="%s"
             android:title="@string/pref_currency_title" />
-        <Preference
-            android:key="logout"
-            android:title="@string/pref_title_logout" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="notifications"
@@ -22,10 +19,14 @@
             android:title="Get notified of the latest news" />
     </PreferenceCategory>
     <PreferenceCategory
-        android:key="about"
-        android:title="About">
+        android:key="sync"
+        android:title="Sync">
         <Preference
-            android:key="build_version"
-            android:title="@string/pref_title_build_version" />
+            android:key="syncData"
+            android:summary="@string/pref_sync_description"
+            android:title="@string/pref_sync_title" />
     </PreferenceCategory>
+    <Preference
+        android:key="logout"
+        android:title="@string/pref_title_logout" />
 </PreferenceScreen>
