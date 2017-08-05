@@ -535,7 +535,7 @@ public class Utils {
     }
 
     public static void setPriceValue(MoneyTextView textView, double value, String symbol){
-        textView.setDecimalFormat(getMoneyFormat(symbol));
+        textView.setDecimalFormat(getMoneyFormat(value, symbol));
         textView.setAmount((float) Math.abs(value));
         textView.setSymbol(symbol);
     }
@@ -584,9 +584,11 @@ public class Utils {
         return decimalFormat;
     }
 
-    public static DecimalFormat getMoneyFormat(String symbol){
+    public static DecimalFormat getMoneyFormat(double value, String symbol){
         String precisionFormat = "###,##0.###";
-
+        if(value < 1){
+            precisionFormat = "###,##0.######";
+        }
         if("Ƀ".compareTo(symbol) == 0){
             precisionFormat = "###,##0.00000000";
         } else if("Ξ".compareTo(symbol) == 0){
@@ -778,7 +780,7 @@ public class Utils {
     }
 
     public static String getFormattedNumber(double value, String symbol){
-        DecimalFormat decimalFormat = getMoneyFormat(symbol);
+        DecimalFormat decimalFormat = getMoneyFormat(value, symbol);
         return decimalFormat.format(value);
     }
 

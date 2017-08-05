@@ -299,6 +299,7 @@ public class CoinChartFragment extends ActionBarFragment
         mBarChart.highlightValue(null);
 
         mPrice = null;
+        retry = false;
         String url = getChartUrl();
         GsonRequest<Prices> request = new GsonRequest<>(url,
                 Prices.class,
@@ -421,6 +422,7 @@ public class CoinChartFragment extends ActionBarFragment
     private void loadData(Prices response) {
         mControls.setVisibility(View.VISIBLE);
         mVolume.setVisibility(View.VISIBLE);
+        mValue.setVisibility(View.VISIBLE);
         mChartProgress.setVisibility(View.GONE);
         if(null == response) {
             retry = false;
@@ -446,7 +448,8 @@ public class CoinChartFragment extends ActionBarFragment
             return;
         }
 
-        mControls.setVisibility(View.VISIBLE);
+        mValue.setVisibility(View.GONE);
+        mControls.setVisibility(View.GONE);
         mVolume.setVisibility(View.GONE);
         mEmpty.setVisibility(View.VISIBLE);
         mEmpty.setText(message);
