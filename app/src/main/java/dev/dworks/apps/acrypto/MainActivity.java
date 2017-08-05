@@ -46,10 +46,12 @@ import dev.dworks.apps.acrypto.news.NewsFragment;
 import dev.dworks.apps.acrypto.portfolio.PortfolioFragment;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.subscription.SubscriptionFragment;
+import dev.dworks.apps.acrypto.utils.NotificationUtils;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
 import dev.dworks.apps.acrypto.view.SimpleSpinner;
+import okhttp3.internal.Util;
 
 import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
@@ -116,6 +118,9 @@ public class MainActivity extends AppCompatActivity
 
         initAd();
         checkLatestVersion();
+        if(Utils.hasO()) {
+            NotificationUtils.createNotificationChannels(this);
+        }
     }
 
     private void checkLatestVersion() {

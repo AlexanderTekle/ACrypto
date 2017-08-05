@@ -123,5 +123,7 @@
     <string name="rating_descripion">If you like ACrypto, leave a positive rating on Play Store</string>
     <string name="rate">Rate</string>
     <string name="support">Support</string>
+    <string name="default_notification_channel_id" translatable="false">info_channel</string>
+    <string name="default_notification_channel_name" translatable="true">Info</string>
 
 </resources>

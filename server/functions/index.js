@@ -479,6 +479,7 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
       body: getPriceAlertBody(currentPrice, alertPrice, toSymbol, condition, exchange),
       sound: 'default',
       icon: 'ic_alerts',
+      android_channel_id: "alerts_channel",
       tag: comboKey
     },
     data: {
@@ -488,6 +489,7 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
       sound: 'default',
       icon: 'ic_alerts',
       type: "alert",
+      android_channel_id: "alerts_channel",
       tag: comboKey
     }
   };
@@ -743,6 +745,7 @@ function sendNewsAlerts() {
           body: content,
           sound: 'default',
           icon: 'ic_news',
+          android_channel_id: "news_channel",
           tag: topic
         },
         data: {
@@ -752,6 +755,7 @@ function sendNewsAlerts() {
           sound: 'default',
           icon: 'ic_news',
           type: "url",
+          android_channel_id: "news_channel",
           tag: topic
         }
       };
@@ -933,6 +937,7 @@ function sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurre
       body: getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency),
       sound: 'default',
       icon: 'ic_alerts',
+      android_channel_id: "alerts_channel",
       tag: comboKey
     },
     data: {
@@ -942,6 +947,7 @@ function sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurre
       sound: 'default',
       icon: 'ic_alerts',
       type: "alert",
+      android_channel_id: "alerts_channel",
       tag: comboKey
     }
   };
