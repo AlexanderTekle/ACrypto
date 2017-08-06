@@ -37,10 +37,10 @@
     "order": 7,
     "symbol": "XEM"
   },
-  "IOTA": {
+  "IOT": {
     "name": "IOTA",
     "order": 8,
-    "symbol": "IOTA"
+    "symbol": "IOT"
   },
   "XMR": {
     "name": "Monero",

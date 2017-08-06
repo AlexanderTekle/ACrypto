@@ -1,6 +1,11 @@
 {
   "subscriptions": [
     {
+      "title": "Advanced Charts",
+      "description": "View your favourite coins in candle stick charts with MACD, RSI, KDJ, BOLL",
+      "type": 1
+    },
+    {
       "title": "Price Arbitrage",
       "description": "Find out arbitrage between different currencies and exchanges where you can buy",
       "type": 1

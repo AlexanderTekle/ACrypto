@@ -15,6 +15,10 @@
             android:icon="@drawable/ic_news"
             android:title="@string/news" />
         <item
+            android:id="@+id/nav_charts"
+            android:icon="@drawable/ic_charts"
+            android:title="@string/charts" />
+        <item
             android:id="@+id/nav_arbitrage"
             android:icon="@drawable/ic_arbitrage"
             android:title="@string/arbitrage" />
@@ -22,11 +26,6 @@
             android:id="@+id/nav_alerts"
             android:icon="@drawable/ic_alerts"
             android:title="@string/alerts" />
-        <item
-            android:id="@+id/nav_charts"
-            android:icon="@drawable/ic_charts"
-            android:title="@string/charts"
-            android:visible="false" />
         <item
             android:id="@+id/nav_portfolio"
             android:icon="@drawable/ic_portfolio"

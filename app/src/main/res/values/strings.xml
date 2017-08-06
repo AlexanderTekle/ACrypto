@@ -55,8 +55,10 @@
     <string name="subscribe_description">
         Support our app and subscribe to ACrypto PRO.\n\n
         As part of PRO subscription you will get these features:\n
-        * Get Alerts\n
+        * Advanced Charts\n
         * See Arbitrage\n
+        * Get Price Alerts\n
+        * Get Arbitrage Alerts\n
         * Maintain Portfolio\n
         * No Advertisements\n
     </string>

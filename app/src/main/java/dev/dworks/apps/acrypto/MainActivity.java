@@ -32,6 +32,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
+import dev.dworks.apps.acrypto.charts.ChartsFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
 import dev.dworks.apps.acrypto.entity.CoinsList;
 import dev.dworks.apps.acrypto.home.HomeFragment;
@@ -168,6 +169,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setCheckedItem(lastFragmentId);
 
         View header = navigationView.getHeaderView(0);
+
         mName = (TextView) header.findViewById(R.id.name);
         mPicture = (BezelImageView) header.findViewById(R.id.picture);
         mPicture.setDefaultImageResId(R.drawable.ic_person);
@@ -444,7 +446,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_charts:
 
                 spinner.setVisibility(View.GONE);
-                Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
+                ChartsFragment.show(getSupportFragmentManager(), null);
                 AnalyticsManager.logEvent("view_charts");
                 break;
 
