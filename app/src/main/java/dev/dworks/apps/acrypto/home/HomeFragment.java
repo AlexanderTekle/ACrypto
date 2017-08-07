@@ -370,6 +370,7 @@ public class HomeFragment extends ActionBarFragment
             mBarChart.setNoDataText(null);
             mBarChart.clear();
             mBarChart.invalidate();
+            mExchangeSpinner.clear();
             fetchCurrencyFromData();
             fetchCurrencyToData();
             fetchExchangeData();
