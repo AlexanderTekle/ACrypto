@@ -93,5 +93,6 @@
   "SIGT" : true,
   "KPL" : true,
   "LINDA" : true,
-  "TER" : true
+  "TER" : true,
+  "ANS" : true
 }
