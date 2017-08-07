@@ -9,6 +9,7 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -24,7 +25,6 @@ import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Cache;
 import com.android.volley.Response;
@@ -58,9 +58,12 @@ import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.CandleIntervalProvider;
 import dev.dworks.apps.acrypto.view.InteractiveChartLayout;
 import dev.dworks.apps.acrypto.view.InteractiveKLineView;
 import dev.dworks.apps.acrypto.view.SearchableSpinner;
+import needle.Needle;
+import needle.UiRelatedTask;
 
 import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
@@ -70,12 +73,9 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_NAME;
-import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
-import static dev.dworks.apps.acrypto.utils.Utils.getValueDifferenceColor;
-import static dev.dworks.apps.acrypto.utils.Utils.setDateTimeValue;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 /**
@@ -84,7 +84,8 @@ import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class ChartsFragment extends ActionBarFragment
         implements Response.Listener<Prices>, Response.ErrorListener,
-        RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener, KLineHandler {
+        RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener, KLineHandler,
+        MenuItem.OnMenuItemClickListener {
 
     private static final String TAG = "Charts";
     private Utils.OnFragmentInteractionListener mListener;
@@ -105,9 +106,19 @@ public class ChartsFragment extends ActionBarFragment
     public static final int TIMESERIES_YEAR = 6;
     public static final int TIMESERIES_ALL = 7;
 
+    // candlestick constants
+    public static final int CANDLESTICK_5M = 1;
+    public static final int CANDLESTICK_15M = 2;
+    public static final int CANDLESTICK_30M = 3;
+    public static final int CANDLESTICK_1H = 4;
+    public static final int CANDLESTICK_2H = 5;
+    public static final int CANDLESTICK_4H = 6;
+    public static final int CANDLESTICK_1D = 7;
+
     private int currentTimestamp = TIMESTAMP_DAYS;
     private int currentTimeseries = TIMESERIES_DAY;
     private String timeDifference = "Since";
+    private int currentCandelStick = CANDLESTICK_5M;
 
     private InteractiveChartLayout mInteractiveChart;
     private InteractiveKLineView kLineView;
@@ -418,7 +429,6 @@ public class ChartsFragment extends ActionBarFragment
     }
 
     private void loadData(Prices response) {
-        mChartProgress.setVisibility(View.GONE);
         if(null == response) {
             retry = false;
             setEmptyData("No data available");
@@ -442,6 +452,9 @@ public class ChartsFragment extends ActionBarFragment
         if(null != mPrice){
             return;
         }
+        kLineView.setEntrySet(new EntrySet());
+        kLineView.notifyDataSetChanged();
+        kLineView.refreshComplete();
     }
 
     @Override
@@ -473,8 +486,25 @@ public class ChartsFragment extends ActionBarFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.home, menu);
+        inflater.inflate(R.menu.charts, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        MenuItem candleMenu = menu.findItem(R.id.action_candle);
+        CandleIntervalProvider provider = (CandleIntervalProvider) MenuItemCompat.getActionProvider(candleMenu);
+        provider.setTimeSeries(currentTimeseries);
+        provider.setParentMenuItem(candleMenu);
+        provider.setOnMenuItemClickListener(this);
+        if(currentTimeseries >= TIMESERIES_YEAR){
+            candleMenu.setTitle("1D");
+        } else if(currentTimeseries >= TIMESERIES_WEEK){
+            candleMenu.setTitle("1H");
+        } else {
+            candleMenu.setTitle("5M");
+        }
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -500,20 +530,32 @@ public class ChartsFragment extends ActionBarFragment
         return super.onOptionsItemSelected(item);
     }
 
-    private void showData(Prices response) {
+    private void showData(final Prices response) {
+        Needle.onBackgroundThread().execute(new UiRelatedTask<EntrySet>() {
 
-        EntrySet data = new EntrySet();
-        for (Prices.Price price : response.price){
-            Entry entry = new Entry((float) price.open, (float) price.high, (float) price.low,
-                    (float) price.close, (int) price.volumefrom,
-                    getDateTime((long) getMillisFromTimestamp(price.time)));
-            data.addEntry(entry);
-        }
+            @Override
+            protected EntrySet doWork() {
+                EntrySet data = new EntrySet();
+                for (Prices.Price price : response.price){
+                    Entry entry = new Entry((float) price.open, (float) price.high, (float) price.low,
+                            (float) price.close, (int) price.volumefrom,
+                            getDateTime((long) getMillisFromTimestamp(price.time)));
+                    data.addEntry(entry);
+                }
 
-        data.computeStockIndex();
-        kLineView.setEntrySet(data);
-        kLineView.notifyDataSetChanged();
-        kLineView.refreshComplete();
+                data.computeStockIndex();
+                return data;
+            }
+
+            @Override
+            protected void thenDoUiRelatedWork(EntrySet data) {
+                mChartProgress.setVisibility(View.GONE);
+                mInteractiveChart.getKLineView().setEntrySet(data);
+                mInteractiveChart.getKLineView().notifyDataSetChanged();
+                mInteractiveChart.getKLineView().refreshComplete();
+            }
+        });
+
     }
 
     public long getMillisFromTimestamp(long timestamp){
@@ -557,11 +599,19 @@ public class ChartsFragment extends ActionBarFragment
                 type = "year5";
                 break;
         }
+        if(currentTimeseries >= TIMESERIES_YEAR){
+            currentCandelStick = CANDLESTICK_1D;
+        } else if(currentTimeseries >= TIMESERIES_WEEK){
+            currentCandelStick = CANDLESTICK_1H;
+        } else {
+            currentCandelStick = CANDLESTICK_5M;
+        }
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
         bundle.putString("currency", getCurrentCurrencyName());
         AnalyticsManager.logEvent("price_filter", bundle);
         fetchData(false);
+        getActionBarActivity().supportInvalidateOptionsMenu();
     }
 
     public String getDateTime(long value){
@@ -593,68 +643,148 @@ public class ChartsFragment extends ActionBarFragment
         return params;
     }
 
-
+    //1H - 5M, 15M, 30M, 1H, 2H, 4H, 1D
+    //1D - 5M, 15M, 30M, 1H, 2H, 4H, 1D
+    //1W - 1H, 2H, 4H, 1D
+    //30D - 1H, 2H, 4H, 1D
+    //1Y - 1D
+    //5Y - 1D
     public String getUrl(){
+        int muliplier = 1;
         String url = "https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=24&aggregate=3&e=Coinbase";
         switch (currentTimeseries){
-            case TIMESERIES_MINUTE:
-                url = UrlManager.with(UrlConstant.HISTORY_MINUTE_URL)
-                        .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "10")
-                        .setParam("aggregate", "1").getUrl();
-                currentTimestamp = TIMESTAMP_TIME;
-                timeDifference = "a minute ago";
-                break;
             case TIMESERIES_HOUR:
-                url = UrlManager.with(UrlConstant.HISTORY_MINUTE_URL)
-                        .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "60")
-                        .setParam("aggregate", "1").getUrl();
+                muliplier = 1;
                 currentTimestamp = TIMESTAMP_TIME;
                 timeDifference = "an hour ago";
                 break;
             case TIMESERIES_DAY:
-                url = UrlManager.with(UrlConstant.HISTORY_MINUTE_URL)
-                        .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "144")
-                        .setParam("aggregate", "10").getUrl();
+                muliplier = 24;
                 currentTimestamp = TIMESTAMP_TIME;
                 timeDifference = "yesterday";
                 break;
             case TIMESERIES_WEEK:
-                url = UrlManager.with(UrlConstant.HISTORY_HOUR_URL)
-                        .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "168")
-                        .setParam("aggregate", "1").getUrl();
+                muliplier = 24*7;
                 currentTimestamp = TIMESTAMP_DAYS;
                 timeDifference = "last week";
                 break;
             case TIMESERIES_MONTH:
-                url = UrlManager.with(UrlConstant.HISTORY_HOUR_URL)
-                        .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "120")
-                        .setParam("aggregate", "6").getUrl();
+                muliplier = 24*7*30;
                 currentTimestamp = TIMESTAMP_DATE;
                 timeDifference = "last month";
                 break;
             case TIMESERIES_YEAR:
-                url = UrlManager.with(UrlConstant.HISTORY_DAY_URL)
-                        .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "365")
-                        .setParam("aggregate", "1").getUrl();
+                muliplier = 24*7*30*12;
                 currentTimestamp = TIMESTAMP_MONTH;
                 timeDifference = "last year";
                 break;
             case TIMESERIES_ALL:
-                url = UrlManager.with(UrlConstant.HISTORY_DAY_URL)
-                        .setDefaultParams(getDefaultParams())
-                        .setParam("limit", "1825")
-                        .setParam("aggregate", "1").getUrl();
+                muliplier = 24*7*30*12*5;
                 timeDifference = "5 years";
                 break;
         }
 
+        url = UrlManager.with(getCandelsizeUrl())
+                .setDefaultParams(getDefaultParams())
+                .setParam("limit", String.valueOf(getCandelsizeLimitCorrected(muliplier)))
+                .setParam("aggregate", String.valueOf(getCandlesizeAggregate()))
+                .getUrl();
         return url;
+    }
+
+    public int getCandlesizeAggregate(){
+        int aggregateValue = 1;
+        switch (currentCandelStick){
+            case CANDLESTICK_5M:
+                aggregateValue = 5;
+                break;
+            case CANDLESTICK_15M:
+                aggregateValue = 15;
+                break;
+            case CANDLESTICK_30M:
+                aggregateValue = 30;
+                break;
+            case CANDLESTICK_1H:
+                aggregateValue = 1;
+                break;
+            case CANDLESTICK_2H:
+                aggregateValue = 2;
+                break;
+            case CANDLESTICK_4H:
+                aggregateValue = 4;
+                break;
+            case CANDLESTICK_1D:
+                aggregateValue = 1;
+                break;
+        }
+
+        return aggregateValue;
+    }
+
+    public String getCandelsizeUrl(){
+        String url = UrlConstant.HISTORY_MINUTE_URL;
+        switch (currentCandelStick){
+            case CANDLESTICK_5M:
+            case CANDLESTICK_15M:
+            case CANDLESTICK_30M:
+                url = UrlConstant.HISTORY_MINUTE_URL;
+                break;
+            case CANDLESTICK_1H:
+            case CANDLESTICK_2H:
+            case CANDLESTICK_4H:
+                url = UrlConstant.HISTORY_HOUR_URL;
+                break;
+            case CANDLESTICK_1D:
+                url = UrlConstant.HISTORY_DAY_URL;
+                break;
+        }
+
+        return url;
+    }
+
+    public int getCandelsizeLimitCorrected(int muliplier){
+        int limit = getCandlesizeLimit()*muliplier;
+        if(limit < 60){
+            limit = 60;
+        }
+        return limit;
+    }
+
+    public int getCandlesizeLimit(){
+        int limitValue   = 1;
+        switch (currentCandelStick){
+            case CANDLESTICK_5M:
+                limitValue = 20;
+                break;
+            case CANDLESTICK_15M:
+                limitValue = 4;
+                break;
+            case CANDLESTICK_30M:
+                limitValue = 2;
+                break;
+            case CANDLESTICK_1H:
+                limitValue = 1;
+                break;
+            case CANDLESTICK_2H:
+                limitValue = 12;
+                break;
+            case CANDLESTICK_4H:
+                limitValue = 6;
+                break;
+            case CANDLESTICK_1D:
+                limitValue = 1;
+                break;
+        }
+
+        return limitValue;
+    }
+
+    boolean isNotMinutes(){
+        return currentTimeseries >= TIMESERIES_WEEK;
+    }
+
+    boolean isNotDays(){
+        return currentTimeseries >= TIMESERIES_YEAR;
     }
 
     private void showLastUpdate(){
@@ -861,5 +991,38 @@ public class ChartsFragment extends ActionBarFragment
         }
 
         return spanString;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        int id = menuItem.getItemId();
+        switch (id){
+            case Menu.FIRST + 1:
+                currentCandelStick = CANDLESTICK_5M;
+                break;
+            case Menu.FIRST + 2:
+                currentCandelStick = CANDLESTICK_15M;
+                break;
+            case Menu.FIRST + 3:
+                currentCandelStick = CANDLESTICK_30M;
+                break;
+            case Menu.FIRST + 4:
+                currentCandelStick = CANDLESTICK_1H;
+                break;
+            case Menu.FIRST + 5:
+                currentCandelStick = CANDLESTICK_2H;
+                break;
+            case Menu.FIRST + 6:
+                currentCandelStick = CANDLESTICK_4H;
+                break;
+            case Menu.FIRST + 7:
+                currentCandelStick = CANDLESTICK_1D;
+                break;
+        }
+        Bundle bundle = new Bundle();
+        bundle.putString("currency", getCurrentCurrencyName());
+        AnalyticsManager.logEvent("candle_filter", bundle);
+        fetchData(false);
+        return true;
     }
 }
