@@ -52,7 +52,6 @@ import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
 import dev.dworks.apps.acrypto.view.SimpleSpinner;
-import okhttp3.internal.Util;
 
 import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;

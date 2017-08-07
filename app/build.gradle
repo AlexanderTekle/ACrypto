@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
@@ -36,7 +38,9 @@ android {
                     'proguard/proguard-project.pro'
         }
     }
-
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
     flavorDimensions "release"
     productFlavors {
         google {
@@ -62,6 +66,12 @@ ext {
 }
 
 dependencies {
+    googleCompile "com.google.firebase:firebase-crash:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-messaging:${gmsVersion}"
+    googleCompile "com.google.firebase:firebase-auth:${gmsVersion}"
+    googleCompile 'com.anjlab.android.iab.v3:library:1.0.42'
+    amazonCompile fileTree(include: ['*.jar'], dir: 'libs')
+    amazonCompile 'com.github.eggheadgames:android-in-app-payments:1.2.8'
     compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile "com.android.support:cardview-v7:${supportLibVersion}"
     compile "com.android.support:design:${supportLibVersion}"
@@ -82,12 +92,8 @@ dependencies {
     compile 'de.psdev.licensesdialog:licensesdialog:1.8.2'
     compile 'org.jsoup:jsoup:1.10.3'
     compile 'com.wordplat:ikvStockChart:0.1.5'
-    googleCompile "com.google.firebase:firebase-crash:${gmsVersion}"
-    googleCompile "com.google.firebase:firebase-messaging:${gmsVersion}"
-    googleCompile "com.google.firebase:firebase-auth:${gmsVersion}"
-    googleCompile 'com.anjlab.android.iab.v3:library:1.0.42'
-    amazonCompile fileTree(include: ['*.jar'], dir: 'libs')
-    amazonCompile 'com.github.eggheadgames:android-in-app-payments:1.2.8'
+    //Kotlin dependencies
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 def props = new Properties()
