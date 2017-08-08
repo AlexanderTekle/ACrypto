@@ -12,6 +12,10 @@ public class PreferenceUtils {
 		return PreferenceManager.getDefaultSharedPreferences(ctx).getBoolean(key, false);
 	}
 
+	public static Boolean getBooleanPrefs(String key) {
+		return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext()).getBoolean(key, false);
+	}
+
 	public static String getStringPrefs(Context ctx, String key) {
 		return PreferenceManager.getDefaultSharedPreferences(ctx).getString(key, "");
 	}

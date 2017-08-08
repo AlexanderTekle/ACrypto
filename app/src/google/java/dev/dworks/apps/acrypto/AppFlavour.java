@@ -3,6 +3,8 @@ package dev.dworks.apps.acrypto;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
@@ -29,6 +31,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 public abstract class AppFlavour extends Application implements BillingProcessor.IBillingHandler {
 	private static final String TRAIL_STATUS = "trail_status";
+	private static final String SUBSCRIBED_MONTHLY = "subscribed_monthly";
 	public static final String SUBSCRIPTION_MONTHLY_ID = getSubscriptionMain() + ".subs.m1";
 	public static final String BILLING_ACTION = "BillingInitialized";
 	private static final String INITIAL_SUBSCRIPTION_COMPLETED = "intial_subscription_completed";
@@ -81,7 +84,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	}
 
 	public boolean isSubscribedMonthly() {
-		return isSubscribedMonthly;
+		return PreferenceUtils.getBooleanPrefs(SUBSCRIBED_MONTHLY)|| isSubscribedMonthly;
 	}
 
 	public boolean isAutoRenewing() {
@@ -129,6 +132,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				isSubscriptionActive = isSubscribedMonthly && autoRenewing;
 				selfHack();
 				FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
+				PreferenceUtils.set(SUBSCRIBED_MONTHLY, isSubscribedMonthly);
 				return null;
 			}
 
@@ -214,5 +218,15 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	public void updateInstanceId(){
 		String instanceId = FirebaseInstanceId.getInstance().getToken();
 		FirebaseHelper.updateInstanceId(instanceId);
+	}
+
+	public void unSubscribe(Activity activity, String subscriptionId) {
+		try {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse("https://play.google.com/store/account"));
+			activity.startActivity(intent);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

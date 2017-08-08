@@ -1,6 +1,8 @@
 package dev.dworks.apps.acrypto.common;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -202,5 +204,9 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
 
     public void setSubscriptionDependant(boolean subscriptionDependant) {
         this.subscriptionDependant = subscriptionDependant;
+    }
+
+    public void unSubscribe(){
+        App.getInstance().unSubscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
     }
 }

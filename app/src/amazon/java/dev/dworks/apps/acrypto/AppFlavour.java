@@ -177,4 +177,12 @@ public abstract class AppFlavour extends Application implements SubscriptionServ
 
 		}
 	}
+
+	public void unSubscribe(Activity activity, String subscriptionId) {
+		try {
+			IAPManager.unsubscribe(activity, productId, 0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

@@ -9,6 +9,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -123,6 +126,28 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.subscription, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_unsubscribe).setVisible(isSubscriptionActive());
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_unsubscribe:
+                unSubscribe();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         ActionBar actionBar = getActionBarActivity().getSupportActionBar();
@@ -153,7 +178,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
             });
             return;
         }
-        boolean isActive = App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn();
+        boolean isActive = isSubscriptionActive();
         mSubscribe.setVisibility(Utils.getVisibility(!isActive));
         if(isActive) {
             mReason.setText("Subscribed");
@@ -165,6 +190,11 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
             mReason.setOnClickListener(this);
         }
         mTrailStatus.setVisibility(Utils.getVisibility(App.getInstance().getTrailStatus()));
+        getActionBarActivity().supportInvalidateOptionsMenu();
+    }
+
+    private boolean isSubscriptionActive(){
+        return App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn();
     }
 
     @Override
