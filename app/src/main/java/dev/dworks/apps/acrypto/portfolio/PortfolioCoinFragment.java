@@ -65,6 +65,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     private Portfolio mPortfolio;
     private ArraySet<String> mPairs = new ArraySet<>();
     private ArrayMap<String, PortfolioCoin> mCoins = new ArrayMap<>();
+    private boolean mDaataLoaded;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -126,6 +127,18 @@ public class PortfolioCoinFragment extends RecyclerFragment
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        showList();
+    }
+
+    @Override
+    public void onStop() {
+        unregisterDataObserver();
+        super.onStop();
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
@@ -145,16 +158,17 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        if (null == mAdapter) {
-            mAdapter = new PortfolioCoinAdapter(getActivity(), getQuery(), this, this);
-        }
-        mAdapter.setBaseImageUrl(Coins.BASE_URL);
-        mAdapter.registerAdapterDataObserver(dataObserver);
-        setListAdapter(mAdapter);
-        setListShown(false);
     }
 
+    private void showList() {
+        if (null == mAdapter) {
+            mAdapter = new PortfolioCoinAdapter(getActivity(), getQuery(), mPortfolio, this, this);
+        }
+        mAdapter.setBaseImageUrl(Coins.BASE_URL);
+        registerDataObserver();
+        setListAdapter(mAdapter);
+        setListShown(mDaataLoaded);
+    }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
@@ -183,14 +197,15 @@ public class PortfolioCoinFragment extends RecyclerFragment
         int itemCount = mAdapter.getItemCount();
         setEmptyText(itemCount == 1 ? "No Coins" : "");
         if(itemCount > 1) {
-            mAdapter.updateHeaderData(mCoins, mPortfolio);
+            mAdapter.updateHeaderData(mCoins);
             mAdapter.setCachedUrl(getUrl());
             fetchPairsData();
         } else {
             setListShown(true);
-            mAdapter.updateHeaderData(mCoins, mPortfolio);
+            mAdapter.updateHeaderData(mCoins);
             mAdapter.setCachedUrl("");
         }
+        mDaataLoaded = true;
     }
 
     @Override
@@ -225,7 +240,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onDestroyView() {
         if (mAdapter != null) {
-            mAdapter.unregisterAdapterDataObserver(dataObserver);
             getListView().setAdapter(null);
         }
         super.onDestroyView();
@@ -266,6 +280,18 @@ public class PortfolioCoinFragment extends RecyclerFragment
         bundle.putString(BUNDLE_REF_KEY, refKey);
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    private void registerDataObserver() {
+        try {
+            mAdapter.registerAdapterDataObserver(dataObserver);
+        } catch (Exception ignored){}
+    }
+
+    private void unregisterDataObserver() {
+        try {
+            mAdapter.unregisterAdapterDataObserver(dataObserver);
+        } catch (Exception ignored){}
     }
 
     private  AdapterDataObserver dataObserver = new AdapterDataObserver() {
@@ -351,6 +377,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
 
     @Override
     public void onRefreshData() {
+        mDaataLoaded = false;
         removeUrlCache();
         fetchPairsData();
         AnalyticsManager.logEvent("portfolio_refreshed");

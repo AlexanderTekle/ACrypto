@@ -100,6 +100,7 @@ public class PortfolioFragment extends ActionBarFragment {
         mViewPager = (LockableViewPager) view.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setSwipeable(true);
+        mViewPager.setOffscreenPageLimit(0);
         mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
 
@@ -231,5 +232,11 @@ public class PortfolioFragment extends ActionBarFragment {
         public CharSequence getPageTitle(int position) {
             return portfolios.get(position).name;
         }
+    }
+
+    @Override
+    public void onSubscriptionStatus() {
+        super.onSubscriptionStatus();
+        getActionBarActivity().supportInvalidateOptionsMenu();
     }
 }

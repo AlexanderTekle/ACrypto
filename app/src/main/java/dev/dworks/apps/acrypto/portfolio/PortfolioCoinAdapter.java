@@ -55,13 +55,14 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
     private ArrayMap<String, PortfolioCoin> mCoins;
     private String cachedUrl = "";
 
-    public PortfolioCoinAdapter(Context context, Query ref,
+    public PortfolioCoinAdapter(Context context, Query ref, Portfolio portfolio,
                                 OnItemClickListener onItemClickListener,
                                 RecyclerFragment.onDataChangeListener onDataChangeListener) {
         super(PortfolioCoin.class, R.layout.item_list_alert_price, RecyclerView.ViewHolder.class, ref);
         this.onItemClickListener = onItemClickListener;
         this.onDataChangeListener = onDataChangeListener;
         this.context = context;
+        mPortfolio = portfolio;
         appInstance = App.getInstance();
     }
 
@@ -153,9 +154,8 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
         }
     }
 
-    public void updateHeaderData(ArrayMap<String, PortfolioCoin> coins, Portfolio portfolio) {
+    public void updateHeaderData(ArrayMap<String, PortfolioCoin> coins) {
         this.mCoins = coins;
-        mPortfolio = portfolio;
     }
 
     public void setCachedUrl(String url) {
@@ -182,6 +182,7 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
         }
 
         public void updateData(){
+            String symbol = mPortfolio.currency;
             double totalcost = 0;
             double totalholdings = 0;
             if(null != mCoins && !mCoins.isEmpty()){
@@ -192,9 +193,9 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
                 }
             }
             double diff = totalholdings - totalcost;
-            Utils.setTotalPriceValue(cost, totalcost, getCurrencySymbol(mPortfolio.currency));
-            Utils.setTotalPriceValue(holdings, totalholdings, getCurrencySymbol(mPortfolio.currency));
-            Utils.setTotalPriceValue(profit, diff, getCurrencySymbol(mPortfolio.currency));
+            Utils.setTotalPriceValue(cost, totalcost, getCurrencySymbol(symbol));
+            Utils.setTotalPriceValue(holdings, totalholdings, getCurrencySymbol(symbol));
+            Utils.setTotalPriceValue(profit, diff, getCurrencySymbol(symbol));
             if(totalcost == 0 && totalholdings == 0){
                 profitChange.setText("-");
             } else {
@@ -229,6 +230,8 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
         public final MoneyTextView currentPrice;
         public final MoneyTextView profit;
         public final MoneyTextView price;
+        public final MoneyTextView currentHolding;
+        public final MoneyTextView currentAcquisition;
         public final TextView currentPriceChange;
         public final TextView profitChange;
         private int mPosition;
@@ -250,6 +253,14 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
             profit.setDecimalFormat(getMoneyFormat(true));
             price = (MoneyTextView) v.findViewById(R.id.price);
             price.setDecimalFormat(getMoneyFormat(true));
+            currentHolding = (MoneyTextView) v.findViewById(R.id.currentHolding);
+            if(null != currentHolding) {
+                currentHolding.setDecimalFormat(getMoneyFormat(true));
+            }
+            currentAcquisition = (MoneyTextView) v.findViewById(R.id.currentAcquisition);
+            if(null != currentAcquisition) {
+                currentAcquisition.setDecimalFormat(getMoneyFormat(true));
+            }
             currentPriceChange = (TextView) v.findViewById(R.id.current_price_change);
             profitChange = (TextView) v.findViewById(R.id.profit_change);
         }
@@ -262,6 +273,12 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
             setIcon(portfolioCoin.coin);
             Utils.setPriceValue(price, portfolioCoin.getUnitPrice(), getCurrencySymbol(portfolioCoin.currency));
             setPrices(portfolioCoin, appInstance.getCachedCoinPair(portfolioCoin.getKey()));
+            if(null != currentHolding){
+                Utils.setPriceValue(currentHolding, portfolioCoin.getTotalHoldings(), getCurrencySymbol(portfolioCoin.currency));
+            }
+            if(null != currentAcquisition){
+                Utils.setPriceValue(currentAcquisition, portfolioCoin.getTotalAmount(), getCurrencySymbol(portfolioCoin.currency));
+            }
         }
 
         private void setIcon(String symbol) {
