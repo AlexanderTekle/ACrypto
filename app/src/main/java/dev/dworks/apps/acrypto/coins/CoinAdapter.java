@@ -31,10 +31,9 @@ import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
  * Created by HaKr on 16/05/17.
  */
 
-public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> implements Filterable{
+public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> {
 
-    ArrayList<String> mData;
-    ArrayList<String> mOrigData;
+    ArrayList<Coins.CoinDetail> mData;
 
     final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
     static final int TYPE_HEADER = 0;
@@ -57,9 +56,8 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
         return this;
     }
 
-    public void setData(ArrayList<String> contents){
+    public void setData(ArrayList<Coins.CoinDetail> contents){
         this.mData = contents;
-        this.mOrigData = contents;
     }
 
     @Override
@@ -96,57 +94,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
         }
     }
 
-    @Override
-    public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence prefix) {
-                FilterResults results = new FilterResults();
-                ArrayList<String> filteredList = new ArrayList<>();
-                if (null == prefix || prefix.length() == 0) {
-                    filteredList.addAll(mOrigData);
-                } else {
-                    String prefixString = prefix.toString().toLowerCase().trim();
-                    final int count = mOrigData.size();
-
-                    for (int i = 0; i < count; i++) {
-                        final String value = mOrigData.get(i);
-                        final String valueText = value.toLowerCase();
-
-                        // First match against the whole, non-splitted value
-                        if (valueText.contains(prefixString)) {
-                            filteredList.add(value);
-                        } else {
-                            final String[] words = prefixString.split("\\s+");
-                            for (String word : words){
-                                if (valueText.contains(word)) {
-                                    filteredList.add(value);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                results.values = filteredList;
-                results.count = filteredList.size();
-                return results;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (results != null && results.count > 0) {
-                    mData.clear();
-                    mData.addAll((ArrayList<String>) results.values);
-                } else {
-                    mData.clear();
-                }
-                notifyDataSetChanged();
-
-            }
-        };
-    }
-
-    public String getItem(int position){
+    public Coins.CoinDetail getItem(int position){
         return mData.get(position);
     }
 
@@ -185,7 +133,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
 
         public void setData(int position){
             mPosition = position;
-            Coins.CoinDetail item = Coins.getCoin(mData.get(position));
+            Coins.CoinDetail item = mData.get(position);
             String url = "";
             try {
                 final CoinDetailSample.CoinDetail coinDetail = getCoin(item.fromSym);

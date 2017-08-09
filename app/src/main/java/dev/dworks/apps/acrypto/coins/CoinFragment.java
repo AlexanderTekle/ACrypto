@@ -19,17 +19,25 @@ import android.view.ViewGroup;
 import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.common.CoinsDeserializer;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
+import dev.dworks.apps.acrypto.entity.CoinPairs;
+import dev.dworks.apps.acrypto.entity.CoinPairsDeserializer;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
+import dev.dworks.apps.acrypto.network.StringRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -46,7 +54,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class CoinFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
-        Response.Listener<Coins>, Response.ErrorListener{
+        Response.Listener<String>, Response.ErrorListener{
 
     private static final String TAG = "Coins";
     private Utils.OnFragmentInteractionListener mListener;
@@ -121,10 +129,8 @@ public class CoinFragment extends RecyclerFragment
         String url = getUrl();
 
         mCoins = null;
-        GsonRequest<Coins> request = new GsonRequest<>(
+        StringRequest request = new StringRequest(
                 url,
-                Coins.class,
-                "",
                 this,
                 this);
         request.setCacheMinutes(5, 60);
@@ -163,8 +169,18 @@ public class CoinFragment extends RecyclerFragment
     }
 
     @Override
-    public void onResponse(Coins response) {
-        loadData(response);
+    public void onResponse(String response) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        JsonDeserializer<Coins> deserializer = new CoinsDeserializer();
+        gsonBuilder.registerTypeAdapter(Coins.class, deserializer);
+
+        Gson customGson = gsonBuilder.create();
+        Coins coins = null;
+        try {
+            coins = customGson.fromJson(response, Coins.class);
+        } catch (Exception e) {
+        }
+        loadData(coins);
     }
 
     public void setEmptyData(String mesasge){
@@ -184,21 +200,21 @@ public class CoinFragment extends RecyclerFragment
 
     private void loadData(Coins coins) {
         // TODO this is not something i'm proud of
-        ArrayList<String> ignoreList = new ArrayList<>();
-        for (String coin : coins.data) {
+        ArrayList<Coins.CoinDetail> ignoreList = new ArrayList<>();
+        for (Coins.CoinDetail coin : coins.list) {
             for (String key : getIgnoreCurrencies()) {
-                if(coin.contains(key)){
+                if(coin.fromSym.equals(key)){
                     ignoreList.add(coin);
                 }
             }
         }
-        coins.data.removeAll(ignoreList);
+        coins.list.removeAll(ignoreList);
         mCoins = coins;
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.setCurrencySymbol(getCurrencySymbol(mCurrency));
         mAdapter.clear();
         if(null != mCoins) {
-            mAdapter.setData(mCoins.data);
+            mAdapter.setData(mCoins.list);
         }
         setEmptyText("");
         if(null == mCoins || TextUtils.isEmpty(mCoins.response)){
@@ -270,7 +286,7 @@ public class CoinFragment extends RecyclerFragment
         if(position >= mAdapter.getItemCount() ){
             return;
         }
-        Coins.CoinDetail item = Coins.getCoin(mAdapter.getItem(position));
+        Coins.CoinDetail item = mAdapter.getItem(position);
         Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
         intent.putExtra(BUNDLE_COIN, item);
         startActivity(intent);

@@ -27,25 +27,18 @@ import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
  * Created by HaKr on 16/05/17.
  */
 
-public class CoinExcahngeAdapter extends RecyclerView.Adapter<CoinExcahngeAdapter.ViewHolder> implements Filterable{
+public class CoinExcahngeAdapter extends RecyclerView.Adapter<CoinExcahngeAdapter.ViewHolder>{
 
     ArrayList<Coins.CoinDetail> mData;
-    ArrayList<Coins.CoinDetail> mOrigData;
 
     final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
-    private String mBaseImageUrl;
     private String mCurrencySymbol;
 
     public CoinExcahngeAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
-    }
-
-    public CoinExcahngeAdapter setBaseImageUrl(String baseImageUrl) {
-        this.mBaseImageUrl = baseImageUrl;
-        return this;
     }
 
     public CoinExcahngeAdapter setCurrencySymbol(String currencySymbol) {
@@ -55,7 +48,6 @@ public class CoinExcahngeAdapter extends RecyclerView.Adapter<CoinExcahngeAdapte
 
     public void setData(ArrayList<Coins.CoinDetail> contents){
         this.mData = contents;
-        this.mOrigData = contents;
     }
 
     @Override
@@ -90,56 +82,6 @@ public class CoinExcahngeAdapter extends RecyclerView.Adapter<CoinExcahngeAdapte
                 holder.setData(position);
                 break;
         }
-    }
-
-    @Override
-    public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence prefix) {
-                FilterResults results = new FilterResults();
-                ArrayList<Coins.CoinDetail> filteredList = new ArrayList<>();
-                if (null == prefix || prefix.length() == 0) {
-                    filteredList.addAll(mOrigData);
-                } else {
-                    String prefixString = prefix.toString().toLowerCase().trim();
-                    final int count = mOrigData.size();
-
-                    for (int i = 0; i < count; i++) {
-                        final Coins.CoinDetail value = mOrigData.get(i);
-                        final String valueText = value.toString().toLowerCase();
-
-                        // First match against the whole, non-splitted value
-                        if (valueText.contains(prefixString)) {
-                            filteredList.add(value);
-                        } else {
-                            final String[] words = prefixString.split("\\s+");
-                            for (String word : words){
-                                if (valueText.contains(word)) {
-                                    filteredList.add(value);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                results.values = filteredList;
-                results.count = filteredList.size();
-                return results;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (results != null && results.count > 0) {
-                    mData.clear();
-                    mData.addAll((ArrayList<Coins.CoinDetail>) results.values);
-                } else {
-                    mData.clear();
-                }
-                notifyDataSetChanged();
-
-            }
-        };
     }
 
     public Coins.CoinDetail getItem(int position){

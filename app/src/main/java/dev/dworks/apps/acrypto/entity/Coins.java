@@ -16,6 +16,7 @@ public class Coins extends BaseEntity {
     @SerializedName("Data")
     @Expose
     public ArrayList<String> data = null;
+    public ArrayList<CoinDetail> list = null;
     public ArrayList<CoinDetails.Coin> coins = new ArrayList<>();
 
     public static class CoinDetail implements Serializable {

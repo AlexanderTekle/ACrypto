@@ -176,7 +176,6 @@ public class CoinExchangeFragment extends RecyclerFragment
 
     private void loadData(CoinDetails coins) {
         mCoinDetails = coins;
-        mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.setCurrencySymbol(getCurrencySymbol(getCurrency()));
         mAdapter.clear();
         String empty = "";
