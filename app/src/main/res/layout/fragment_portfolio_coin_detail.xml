@@ -257,7 +257,7 @@
                         android:minWidth="200dp"
                         android:layout_marginStart="16dp"
                         android:text="@string/sell_portfolio"
-                        android:visibility="visible" />
+                        android:visibility="gone" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

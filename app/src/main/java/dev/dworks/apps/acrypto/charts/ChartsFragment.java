@@ -492,7 +492,9 @@ public class ChartsFragment extends ActionBarFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.charts, menu);
+        if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
+            inflater.inflate(R.menu.charts, menu);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 

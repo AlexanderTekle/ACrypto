@@ -127,7 +127,7 @@ public class NewsFragment extends RecyclerFragment
                 News.class,
                 this,
                 this);
-        request.setCacheMinutes(60, 60);
+        request.setCacheMinutes(4*60, 4*60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).addToRequestQueue(request, TAG);
     }
