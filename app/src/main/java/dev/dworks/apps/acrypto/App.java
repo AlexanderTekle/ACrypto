@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.StrictMode;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
 import android.text.TextUtils;
@@ -63,7 +64,11 @@ public class App extends AppFlavour {
 		super.onCreate();
 		sInstance = this;
 		VolleyLog.DEBUG = false;
-
+		super.onCreate();
+		if(BuildConfig.DEBUG) {
+			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
+			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+		}
 		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 		LocalBurst.initialize(getApplicationContext());

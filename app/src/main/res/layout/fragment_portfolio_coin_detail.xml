@@ -61,12 +61,12 @@
                         android:id="@+id/currencyFromSpinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:layout_marginTop="10dp"
                         android:paddingStart="@dimen/activity_margin"
-                        app:titleText="Choose a Coin"
-                        android:theme="@style/SpinnerStyle" />
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose a Coin" />
 
                     <android.support.design.widget.TextInputLayout
                         android:layout_width="0dp"
@@ -93,8 +93,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginEnd="16dp">
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginTop="10dp">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -118,12 +118,12 @@
                         android:id="@+id/currencyToSpinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:layout_weight="1"
                         android:maxLines="1"
                         android:paddingStart="@dimen/activity_margin"
-                        android:layout_marginTop="10dp"
-                        app:titleText="Choose a Currency"
-                        android:theme="@style/SpinnerStyle" />
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose a Currency" />
 
 
                     <android.support.design.widget.TextInputLayout
@@ -183,8 +183,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:visibility="gone"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <ImageView
                         android:layout_width="@dimen/icon_size"
@@ -201,8 +201,8 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:paddingStart="@dimen/activity_margin"
-                        app:titleText="Choose an Exchange"
-                        android:theme="@style/SpinnerStyle" />
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose an Exchange" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -235,6 +235,30 @@
                     </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="20dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_marginEnd="16dp"
+                        android:tint="@color/accent_grey"
+                        android:visibility="invisible"
+                        app:srcCompat="@drawable/ic_notes" />
+
+                    <Button
+                        android:id="@+id/sellPortfolio"
+                        style="@style/FirebaseUI.Button.AccountChooser"
+                        android:layout_width="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="200dp"
+                        android:layout_marginStart="16dp"
+                        android:text="@string/sell_portfolio"
+                        android:visibility="visible" />
+                </LinearLayout>
             </LinearLayout>
         </ScrollView>
 

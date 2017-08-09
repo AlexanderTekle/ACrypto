@@ -3,21 +3,20 @@ package dev.dworks.apps.acrypto.portfolio;
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.android.volley.Cache;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
-
-import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
@@ -27,13 +26,12 @@ import dev.dworks.apps.acrypto.entity.CoinDetailSample;
 import dev.dworks.apps.acrypto.entity.CoinPairs;
 import dev.dworks.apps.acrypto.entity.Portfolio;
 import dev.dworks.apps.acrypto.entity.PortfolioCoin;
+import dev.dworks.apps.acrypto.entity.PortfolioCoinHeader;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
-import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.ImageView;
 
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
-import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageSimple;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getValueDifferenceColor;
@@ -45,15 +43,16 @@ import static dev.dworks.apps.acrypto.utils.Utils.getValueDifferenceColor;
 public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin, RecyclerView.ViewHolder> {
 
     private final Context context;
-    final OnItemClickListener onItemClickListener;
-    final RecyclerFragment.onDataChangeListener onDataChangeListener;
-    static final int TYPE_HEADER = 0;
-    static final int TYPE_CELL = 1;
+    private final OnItemClickListener onItemClickListener;
+    private final RecyclerFragment.onDataChangeListener onDataChangeListener;
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_CELL = 1;
     private String mBaseImageUrl;
     private App appInstance;
     private Portfolio mPortfolio;
-    private ArrayMap<String, PortfolioCoin> mCoins;
+    private ArrayMap<String, PortfolioCoin> mCoins = new ArrayMap<>();
     private String cachedUrl = "";
+    private PortfolioCoinHeader header;
 
     public PortfolioCoinAdapter(Context context, Query ref, Portfolio portfolio,
                                 OnItemClickListener onItemClickListener,
@@ -69,16 +68,16 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
     @Override
     protected void populateViewHolder(RecyclerView.ViewHolder holder,
                                       PortfolioCoin portfolioCoin, int position) {
-        if (isPositionHeader(position)){
-            ((PortfolioCoinAdapter.HeaderViewHolder)holder).updateData();
+        if (isPositionHeader(position)) {
+            ((PortfolioCoinAdapter.HeaderViewHolder) holder).updateData();
         } else {
-            ((PortfolioCoinAdapter.ViewHolder)holder).setData(portfolioCoin, position);
+            ((PortfolioCoinAdapter.ViewHolder) holder).setData(portfolioCoin, position);
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if(isPositionHeader (position)) {
+        if (isPositionHeader(position)) {
             return TYPE_HEADER;
         }
         return TYPE_CELL;
@@ -95,7 +94,7 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
 
     @Override
     public PortfolioCoin getItem(int position) {
-        if(position == 0){
+        if (position == 0) {
             return null;
         }
         return super.getItem(position - 1);
@@ -106,7 +105,7 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
         View view;
 
         switch (viewType) {
-            case TYPE_HEADER : {
+            case TYPE_HEADER: {
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.item_list_portfolio_header, parent, false);
                 return new HeaderViewHolder(view) {
@@ -131,9 +130,11 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
     public void onChildChanged(EventType type, DataSnapshot snapshot, int index, int oldIndex) {
         super.onChildChanged(type, snapshot, index, oldIndex);
 
-        if(type == EventType.REMOVED){
+        if(type == EventType.ADDED || type == EventType.CHANGED){
+            mCoins.put(snapshot.getKey(), snapshot.getValue(PortfolioCoin.class));
+        }
+        else if (type == EventType.REMOVED) {
             mCoins.remove(snapshot.getKey());
-            notifyDataSetChanged();
         }
     }
 
@@ -154,69 +155,31 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
         }
     }
 
-    public void updateHeaderData(ArrayMap<String, PortfolioCoin> coins) {
-        this.mCoins = coins;
-    }
-
-    public void setCachedUrl(String url) {
+    public void updateHeaderData(String url) {
         cachedUrl = url;
+        header = new PortfolioCoinHeader(mPortfolio.currency, mCoins);
     }
 
     public class HeaderViewHolder extends RecyclerView.ViewHolder {
-        public final MoneyTextView cost;
-        public final MoneyTextView holdings;
-        public final MoneyTextView profit;
-        public final TextView profitChange;
-        public final TextView lastUpdated;
+        public final ViewPager viewPager;
+        private final TextView lastUpdated;
+        private PortfolioCoinHeaderAdapter adapter;
 
-        public HeaderViewHolder (View v) {
-            super (v);
-            cost = (MoneyTextView) v.findViewById(R.id.cost);
-            cost.setDecimalFormat(getMoneyFormat(true));
-            holdings = (MoneyTextView) v.findViewById(R.id.holdings);
-            holdings.setDecimalFormat(getMoneyFormat(true));
-            profit = (MoneyTextView) v.findViewById(R.id.profit);
-            profit.setDecimalFormat(getMoneyFormat(true));
-            profitChange = (TextView) v.findViewById(R.id.profit_change);
+        public HeaderViewHolder(View v) {
+            super(v);
+            viewPager = (ViewPager) v.findViewById(R.id.viewpager);
             lastUpdated = (TextView) v.findViewById(R.id.lastupdated);
+            adapter = new PortfolioCoinHeaderAdapter();
+            viewPager.setAdapter(adapter);
         }
 
-        public void updateData(){
-            String symbol = mPortfolio.currency;
-            double totalcost = 0;
-            double totalholdings = 0;
-            if(null != mCoins && !mCoins.isEmpty()){
-                for (Map.Entry<String, PortfolioCoin> entry : mCoins.entrySet()){
-                    PortfolioCoin coin = entry.getValue();
-                    totalcost += coin.getTotalConvertedAmount();
-                    totalholdings += coin.getTotalConvertedHoldings();
-                }
+        public void updateData() {
+            if(null == header){
+                return;
             }
-            double diff = totalholdings - totalcost;
-            Utils.setTotalPriceValue(cost, totalcost, getCurrencySymbol(symbol));
-            Utils.setTotalPriceValue(holdings, totalholdings, getCurrencySymbol(symbol));
-            Utils.setTotalPriceValue(profit, diff, getCurrencySymbol(symbol));
-            if(totalcost == 0 && totalholdings == 0){
-                profitChange.setText("-");
-            } else {
-                profitChange.setText(getDisplayPercentageSimple(totalcost, totalholdings));
-            }
-            profitChange.setTextColor(
-                    ContextCompat.getColor(profit.getContext(), getPercentDifferenceColor(diff)));
-            updateTimestamp();
-        }
-
-        public void updateTimestamp(){
-            Cache cache = VolleyPlusHelper.with(context).getRequestQueue().getCache();
-            Cache.Entry entry = cache.get(cachedUrl);
-            if(null != entry) {
-                long lastUpdatedTime = entry.serverDate;
-                lastUpdated.setVisibility(0 == lastUpdatedTime ? View.INVISIBLE : View.VISIBLE);
-                lastUpdated.setText(TimeUtils.getTimeAgo(lastUpdatedTime));
-            } else {
-                lastUpdated.setVisibility(View.INVISIBLE);
-                lastUpdated.setText("");
-            }
+            header.calculate();
+            adapter.setData(header);
+            PortfolioCoinHeader.showLastUpdated(context, lastUpdated, cachedUrl);
         }
     }
 
@@ -254,11 +217,11 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
             price = (MoneyTextView) v.findViewById(R.id.price);
             price.setDecimalFormat(getMoneyFormat(true));
             currentHolding = (MoneyTextView) v.findViewById(R.id.currentHolding);
-            if(null != currentHolding) {
+            if (null != currentHolding) {
                 currentHolding.setDecimalFormat(getMoneyFormat(true));
             }
             currentAcquisition = (MoneyTextView) v.findViewById(R.id.currentAcquisition);
-            if(null != currentAcquisition) {
+            if (null != currentAcquisition) {
                 currentAcquisition.setDecimalFormat(getMoneyFormat(true));
             }
             currentPriceChange = (TextView) v.findViewById(R.id.current_price_change);
@@ -267,18 +230,22 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
 
         public void setData(PortfolioCoin portfolioCoin, int position) {
             mPosition = position;
-            name.setText(portfolioCoin.coin);
+            name.setText(portfolioCoin.getCoinName());
             String totalValue = String.valueOf(portfolioCoin.amount);
             value.setText(totalValue);
             setIcon(portfolioCoin.coin);
             Utils.setPriceValue(price, portfolioCoin.getUnitPrice(), getCurrencySymbol(portfolioCoin.currency));
             setPrices(portfolioCoin, appInstance.getCachedCoinPair(portfolioCoin.getKey()));
-            if(null != currentHolding){
-                Utils.setPriceValue(currentHolding, portfolioCoin.getTotalHoldings(), getCurrencySymbol(portfolioCoin.currency));
+            if (null != currentHolding) {
+                Utils.setPriceValue(currentHolding,
+                        portfolioCoin.isSellType() ? portfolioCoin.getTotalAmountSold() : portfolioCoin.getTotalHoldings(),
+                        getCurrencySymbol(portfolioCoin.currency));
             }
-            if(null != currentAcquisition){
+            if (null != currentAcquisition) {
                 Utils.setPriceValue(currentAcquisition, portfolioCoin.getTotalAmount(), getCurrencySymbol(portfolioCoin.currency));
             }
+
+            currentPriceChange.setVisibility(Utils.getVisibility(!portfolioCoin.isSellType()));
         }
 
         private void setIcon(String symbol) {
@@ -304,6 +271,19 @@ public class PortfolioCoinAdapter extends FirebaseRecyclerAdapter<PortfolioCoin,
         private void setPrices(PortfolioCoin coin, CoinPairs.CoinPair coinPair) {
             currentPrice.setVisibility(View.INVISIBLE);
             profit.setVisibility(View.INVISIBLE);
+            if (coin.isSellType()) {
+                Utils.setPriceValue(currentPrice, coin.priceSold, getCurrencySymbol(coin.currency));
+                currentPriceChange.setText("");
+                double profitValue = coin.getTotalProfit();
+                Utils.setTotalPriceValue(profit, profitValue, getCurrencySymbol(coin.currency));
+                profitChange.setText(coin.getProfitChange());
+                profitChange.setTextColor(
+                        ContextCompat.getColor(profitChange.getContext(),
+                                getPercentDifferenceColor(profitValue)));
+                currentPrice.setVisibility(View.VISIBLE);
+                profit.setVisibility(View.VISIBLE);
+                return;
+            }
             if (coinPair != null) {
                 double currentPriceValue = coinPair.getCurrentPrice();
                 double openPriceValue = coinPair.get24HPrice();

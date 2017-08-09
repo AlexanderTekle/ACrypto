@@ -2,12 +2,15 @@ package dev.dworks.apps.acrypto.portfolio;
 
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -99,7 +102,7 @@ public class PortfolioFragment extends ActionBarFragment {
 
         mViewPager = (LockableViewPager) view.findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setSwipeable(true);
+        mViewPager.setSwipeable(false);
         mViewPager.setOffscreenPageLimit(0);
         mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -108,6 +111,12 @@ public class PortfolioFragment extends ActionBarFragment {
         mTabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
         mEmpty = (TextView)view.findViewById(R.id.internalEmpty);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        getActionBarActivity().supportInvalidateOptionsMenu();
     }
 
     @Override
@@ -129,8 +138,19 @@ public class PortfolioFragment extends ActionBarFragment {
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mListener = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadPortfolio();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
         FirebaseHelper.getFirebaseDatabaseReference()
                 .child("portfolios").child(FirebaseHelper.getCurrentUid()).removeEventListener(valueEventListener);
     }
@@ -143,7 +163,6 @@ public class PortfolioFragment extends ActionBarFragment {
             actionBar.setTitle(TAG);
             actionBar.setSubtitle(null);
         }
-        loadPortfolio();
     }
 
     private void loadPortfolio() {
@@ -183,10 +202,12 @@ public class PortfolioFragment extends ActionBarFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
-            inflater.inflate(R.menu.portfolio, menu);
-        }
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -204,7 +225,7 @@ public class PortfolioFragment extends ActionBarFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
         ArrayList<Portfolio> portfolios = new ArrayList<>();
 
         public SectionsPagerAdapter(FragmentManager fm) {

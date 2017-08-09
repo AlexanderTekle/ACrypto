@@ -77,7 +77,9 @@ public class SearchableSpinner extends AppCompatSpinner implements SearchableIte
             }
             // Change end.
 
-            showListDialog();
+            if(isEnabled()) {
+                showListDialog();
+            }
         }
         return true;
     }

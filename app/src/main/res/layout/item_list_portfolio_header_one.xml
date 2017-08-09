@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/holdings"
+                    android:textAlignment="viewStart"
+                    android:textAllCaps="true"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="10sp" />
+
+                <org.fabiomsr.moneytextview.MoneyTextView
+                    android:id="@+id/holdings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:amount="0"
+                    app:baseTextColor="@android:color/black"
+                    app:baseTextSize="@dimen/portfolio_header_text_size"
+                    app:decimalDigitsTextSize="@dimen/portfolio_header_text_size"
+                    app:decimalSeparator="."
+                    app:includeDecimalSeparator="true"
+                    app:symbol="$"
+                    app:symbolGravity="start|top"
+                    app:symbolTextSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/currency"
+                    android:textAlignment="viewStart"
+                    android:textAllCaps="true"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/currency"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="16sp"
+                    tools:text="USD" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profit_loss"
+                    android:textAllCaps="true"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <org.fabiomsr.moneytextview.MoneyTextView
+                        android:id="@+id/profit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:amount="0"
+                        app:baseTextColor="@android:color/black"
+                        app:baseTextSize="@dimen/portfolio_header_text_size"
+                        app:decimalDigitsTextSize="@dimen/portfolio_header_text_size"
+                        app:decimalSeparator="."
+                        app:includeDecimalSeparator="true"
+                        app:symbol="$"
+                        app:symbolGravity="start|top"
+                        app:symbolTextSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/profit_change"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:paddingStart="5dp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp"
+                        android:layout_gravity="bottom"
+                        android:textStyle="bold"
+                        tools:text="3.45%" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end|top"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profit_loss_24h"
+                    android:textAllCaps="true"
+                    android:textColor="?android:attr/textColorSecondary"
+                    android:textSize="10sp" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <org.fabiomsr.moneytextview.MoneyTextView
+                        android:id="@+id/profit24H"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:amount="0"
+                        app:baseTextColor="@android:color/black"
+                        app:baseTextSize="@dimen/portfolio_header_text_size"
+                        app:decimalDigitsTextSize="@dimen/portfolio_header_text_size"
+                        app:decimalSeparator="."
+                        app:includeDecimalSeparator="true"
+                        app:symbol="$"
+                        app:symbolGravity="start|top"
+                        app:symbolTextSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/profitChange24H"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:paddingStart="5dp"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="14sp"
+                        android:layout_gravity="bottom"
+                        android:textStyle="bold"
+                        tools:text="3.45%" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

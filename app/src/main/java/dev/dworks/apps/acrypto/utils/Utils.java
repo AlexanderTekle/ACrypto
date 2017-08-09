@@ -129,11 +129,14 @@ public class Utils {
     //Portfolio
     public static final String BUNDLE_PORTFOLIO = "bundle_portfolio";
     public static final String BUNDLE_PORTFOLIO_COIN = "bundle_portfolio_coin";
+    public static final String BUNDLE_PORTFOLIO_COIN_FROM = "bundle_portfolio_coin_from";
 
     //Alert
     public static final String BUNDLE_ALERT_TYPE = "bundle_alert_type";
     public static final String BUNDLE_ALERT = "bundle_alert";
     public static final String BUNDLE_REF_KEY = "bundle_ref_key";
+    public static final String BUNDLE_BUY_REF_KEY = "bundle_buy_ref_key";
+    public static final String BUNDLE_TYPE = "bundle_type";
 
     //Coins
     public static final String BUNDLE_CURRENCY = "bundle_currency";

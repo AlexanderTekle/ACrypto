@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,7 +36,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
@@ -73,18 +76,24 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DE
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_SECOND_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_BUY_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_PORTFOLIO;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_PORTFOLIO_COIN;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_PORTFOLIO_COIN_FROM;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_TYPE;
 import static dev.dworks.apps.acrypto.utils.Utils.REQUIRED;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.setDecimalValue;
 
 public class PortfolioCoinDetailFragment extends ActionBarFragment
         implements DatePickerDialog.OnDateSetListener, View.OnClickListener,
-        AdapterView.OnItemSelectedListener, View.OnTouchListener {
+        AdapterView.OnItemSelectedListener, View.OnTouchListener,
+        Response.Listener<String>, Response.ErrorListener{
 
     private static final String TAG = "PortfolioCoinDetails";
+    public static final String COIN_TYPE_BUY = "buy";
+    public static final String COIN_TYPE_SELL = "sell";
 
     private OnFragmentInteractionListener mListener;
     private SearchableSpinner mCurrencyFromSpinner;
@@ -105,6 +114,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     private long boughtAt;
     private String notes;
     private PortfolioCoin mPortfolioCoin;
+    private PortfolioCoin mPortfolioCoinFrom;
     private Portfolio mPortfolio;
     private String refKey;
     private TextView mBoughtAt;
@@ -112,12 +122,31 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     private Calendar calendarBoughtAt;
     private TextView mNotes;
     private double mConversionRate = 1;
+    private String type;
+    private Button mSellPortfolio;
+    private double limitAmount;
+    private double priceSold;
+    private String buyRefKey;
 
     public static void show(FragmentManager fm, Portfolio portfolio, PortfolioCoin portfolioCoin, String refKey) {
         final Bundle args = new Bundle();
         args.putSerializable(BUNDLE_PORTFOLIO, portfolio);
         args.putSerializable(BUNDLE_PORTFOLIO_COIN, portfolioCoin);
         args.putString(BUNDLE_REF_KEY, refKey);
+        args.putString(BUNDLE_TYPE, COIN_TYPE_BUY);
+        final FragmentTransaction ft = fm.beginTransaction();
+        final PortfolioCoinDetailFragment fragment = new PortfolioCoinDetailFragment();
+        fragment.setArguments(args);
+        ft.replace(R.id.container, fragment, TAG);
+        ft.commitAllowingStateLoss();
+    }
+
+    public static void showSell(FragmentManager fm, Portfolio portfolio, PortfolioCoin portfolioCoin, String refKey) {
+        final Bundle args = new Bundle();
+        args.putSerializable(BUNDLE_PORTFOLIO, portfolio);
+        args.putSerializable(BUNDLE_PORTFOLIO_COIN_FROM, portfolioCoin);
+        args.putString(BUNDLE_BUY_REF_KEY, refKey);
+        args.putString(BUNDLE_TYPE, COIN_TYPE_SELL);
         final FragmentTransaction ft = fm.beginTransaction();
         final PortfolioCoinDetailFragment fragment = new PortfolioCoinDetailFragment();
         fragment.setArguments(args);
@@ -144,7 +173,10 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
 
         mPortfolio = (Portfolio)getArguments().getSerializable(BUNDLE_PORTFOLIO);
         mPortfolioCoin = (PortfolioCoin) getArguments().getSerializable(BUNDLE_PORTFOLIO_COIN);
+        mPortfolioCoinFrom = (PortfolioCoin) getArguments().getSerializable(BUNDLE_PORTFOLIO_COIN_FROM);
         refKey = getArguments().getString(BUNDLE_REF_KEY);
+        buyRefKey = getArguments().getString(BUNDLE_BUY_REF_KEY);
+        type = getArguments().getString(BUNDLE_TYPE);
         setHasOptionsMenu(true);
     }
 
@@ -157,12 +189,6 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.detail_toolbar);
-        toolbar.setTitle((!isEdit() ? "Add" : "Edit") + " Portfolio Coin");
-        toolbar.setSubtitle(mPortfolio.name);
-        toolbar.setNavigationIcon(R.drawable.ic_close);
-
-        getActionBarActivity().setSupportActionBar(toolbar);
 
         mProgress = view.findViewById(R.id.progress);
         mCurrencyFromSpinner = (SearchableSpinner) view.findViewById(R.id.currencyFromSpinner);
@@ -175,6 +201,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         mBoughtAt = (TextView) view.findViewById(R.id.boughtAt);
         mNotes = (TextView) view.findViewById(R.id.notes);
         mIcon = (ImageView) view.findViewById(R.id.icon);
+        mSellPortfolio = (Button) view.findViewById(R.id.sellPortfolio);
         setupViews();
 
         calendarBoughtAt = Calendar.getInstance();
@@ -182,24 +209,44 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         curencyTo = mPortfolio.currency;
         curencyFrom = curencyTo.equals(CURRENCY_FROM_DEFAULT) ? CURRENCY_FROM_SECOND_DEFAULT : CURRENCY_FROM_DEFAULT;
 
-        if(null != mPortfolioCoin) {
+        if(isEdit()) {
+            type = mPortfolioCoin.type;
             curencyFrom = mPortfolioCoin.coin;
             curencyTo = mPortfolioCoin.currency;
             currencyExchange = mPortfolioCoin.exchange;
             price = mPortfolioCoin.price;
+            priceSold = mPortfolioCoin.priceSold;
             amount = mPortfolioCoin.amount;
             priceType = mPortfolioCoin.priceType;
             boughtAt = mPortfolioCoin.boughtAt;
             notes = mPortfolioCoin.notes;
 
             mAmount.setText(String.valueOf(amount));
-            setDecimalValue(mPrice, price, Utils.getCurrencySymbol(curencyTo));
+            setDecimalValue(mPrice, isSellType() ? priceSold : price, Utils.getCurrencySymbol(curencyTo));
             mNotes.setText(notes);
             mPriceTypeSpinner.setSelection(getPriceType());
             if(boughtAt != 0) {
                 calendarBoughtAt.setTimeInMillis(mPortfolioCoin.boughtAt);
             }
+
+            mSellPortfolio.setVisibility(Utils.getVisibility(!isSellType()));
+        } else {
+            if(isSellType()){
+                curencyFrom = mPortfolioCoinFrom.coin;
+                curencyTo = mPortfolioCoinFrom.currency;
+                currencyExchange = mPortfolioCoinFrom.exchange;
+                price = mPortfolioCoinFrom.price;
+                amount = mPortfolioCoinFrom.amount;
+                priceType = mPortfolioCoinFrom.priceType;
+                limitAmount = amount;
+
+                mAmount.setText(String.valueOf(amount));
+                setDecimalValue(mPrice, price, Utils.getCurrencySymbol(curencyTo));
+                mPriceTypeSpinner.setSelection(getPriceType());
+            }
         }
+
+        setSellTypeEditingEnabled(!isSellType());
         setBoughtAtDate(calendarBoughtAt);
         datePickerDialog = new DatePickerDialog(getActivity(), this,
                 calendarBoughtAt.get(Calendar.YEAR),
@@ -220,6 +267,16 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        Toolbar toolbar = (Toolbar) getView().findViewById(R.id.detail_toolbar);
+        if(isSellType()){
+            toolbar.setTitle((!isEdit() ? "Sell" : "Edit Sold") + " Coin");
+        } else {
+            toolbar.setTitle((!isEdit() ? "Add" : "Edit") + " Portfolio Coin");
+        }
+        toolbar.setSubtitle(mPortfolio.name);
+        toolbar.setNavigationIcon(R.drawable.ic_close);
+
+        getActionBarActivity().setSupportActionBar(toolbar);
         fetchData();
     }
 
@@ -236,6 +293,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     }
 
     private void setupViews() {
+        mSellPortfolio.setOnClickListener(this);
         mCurrencyFromSpinner.setOnItemSelectedListener(this);
         mCurrencyFromSpinner.setOnTouchListener(this);
         mCurrencyToSpinner.setOnItemSelectedListener(this);
@@ -244,7 +302,7 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         mExchangeSpinner.setOnTouchListener(this);
 
         List<String> list = Arrays.asList(getResources().getStringArray(R.array.portfolio_price_type));
-        mPriceTypeSpinner.setItems(new ArrayList(list));
+        mPriceTypeSpinner.setItems(new ArrayList<>(list));
         mPriceTypeSpinner.setOnItemSelectedListener(this);
         mPriceTypeSpinner.setOnTouchListener(this);
         mBoughtAt.setOnClickListener(new View.OnClickListener() {
@@ -260,6 +318,19 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         fetchCurrencyFromData();
         fetchCurrencyToData();
         fetchExchangeData();
+        if(isSellType() && !isEdit()){
+            fetchCurrentPriceData();
+        }
+    }
+
+    public String getUrl(){
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("fsym", getCurrentCurrencyFrom());
+        params.put("tsyms", getCurrentCurrencyTo());
+
+        String url = UrlManager.with(UrlConstant.HISTORY_PRICE_URL)
+                .setDefaultParams(params).getUrl();
+        return url;
     }
 
     private void fetchCurrencyFromData() {
@@ -336,6 +407,12 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         request.setMasterExpireCache();
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "exchange");
+    }
+
+    private void fetchCurrentPriceData() {
+        com.android.volley.request.StringRequest request = new com.android.volley.request.StringRequest(getUrl(), this,
+                this);
+        VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, "diff");
     }
 
     @Override
@@ -422,7 +499,13 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
             return;
         }
 
-        if(!Utils.isNetConnected(getActivity())){
+        if(isSellType() && !isEdit()){
+            if(getAmount() > limitAmount) {
+                mAmount.setError("Sell amount cant be greater than " + limitAmount);
+            }
+        }
+
+        if (!Utils.isNetConnected(getActivity())) {
             Utils.showNoInternetSnackBar(getActivity(), null);
             return;
         }
@@ -430,29 +513,57 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         String exchange = getCurrentExchange().equals(SELECT_EXCHANGES) ? "" : getCurrentExchange();
 
         setEditingEnabled(false);
-        PortfolioCoin coin = new PortfolioCoin(getCurrentCurrencyFrom(), getCurrentCurrencyTo(),
-                exchange, getPriceType(), getAmount(), getPrice(), getBoughtAt(), getNotes(), mConversionRate);
-        DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
-                .child("portfolio_coins")
-                .child(FirebaseHelper.getCurrentUid())
-                .child(mPortfolio.id);
+        if(isSellType() && !isEdit()){
+            String path = "/portfolio_coins/" + FirebaseHelper.getCurrentUid()+ "/" + mPortfolio.id;
+            PortfolioCoin coin = new PortfolioCoin(getCurrentCurrencyFrom(), getCurrentCurrencyTo(),
+                    exchange, getPriceType(), getAmount(), getPrice(), getPriceSold(),
+                    getBoughtAt(), getNotes(), getType(), mConversionRate);
+            DatabaseReference databaseReference = FirebaseHelper.getFirebaseDatabaseReference()
+                    .child(path).push();
 
-        DatabaseReference databaseReference;
-        if(TextUtils.isEmpty(refKey)){
-            databaseReference = reference.push();
-        } else {
-            databaseReference = reference.child(refKey);
-        }
-        databaseReference.setValue(coin, new DatabaseReference.CompletionListener() {
-            @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                setEditingEnabled(true);
-                if(null == databaseError && null != getActivity()){
-                    AnalyticsManager.logEvent(TextUtils.isEmpty(refKey) ? "portfolio_coin_added" : "portfolio_coin_edited");
-                    getActivity().finish();
+            mPortfolioCoinFrom.sell(coin.amount);
+
+            Map<String, Object> updateData = new HashMap<String, Object>();
+            updateData.put(path +"/"+ databaseReference.getKey(), coin);
+            updateData.put(path +"/"+  buyRefKey, mPortfolioCoinFrom.amount == 0 ? null : mPortfolioCoinFrom);
+
+            FirebaseHelper.getFirebaseDatabaseReference().updateChildren(updateData, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    setEditingEnabled(true);
+                    if (null == databaseError && null != getActivity()) {
+                        AnalyticsManager.logEvent(TextUtils.isEmpty(refKey) ? "portfolio_coin_added" : "portfolio_coin_edited");
+                        getActivity().finish();
+                    }
                 }
+            });
+        } else {
+            PortfolioCoin coin = new PortfolioCoin(getCurrentCurrencyFrom(), getCurrentCurrencyTo(),
+                    exchange, getPriceType(), getAmount(), getPrice(), getPriceSold(),
+                    getBoughtAt(), getNotes(), getType(), mConversionRate);
+            DatabaseReference reference = FirebaseHelper.getFirebaseDatabaseReference()
+                    .child("portfolio_coins")
+                    .child(FirebaseHelper.getCurrentUid())
+                    .child(mPortfolio.id);
+
+            DatabaseReference databaseReference;
+            if (TextUtils.isEmpty(refKey)) {
+                databaseReference = reference.push();
+            } else {
+                databaseReference = reference.child(refKey);
             }
-        });
+            databaseReference.setValue(coin, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    setEditingEnabled(true);
+                    if (null == databaseError && null != getActivity()) {
+                        AnalyticsManager.logEvent(TextUtils.isEmpty(refKey) ? "portfolio_coin_added" : "portfolio_coin_edited");
+                        getActivity().finish();
+                    }
+                }
+            });
+        }
+
     }
 
     public String getCurrentCurrencyTo(){
@@ -501,9 +612,17 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     }
 
     public double getPrice() {
+        return isSellType() ? price : getPriceValue();
+    }
+
+    public double getPriceSold() {
+        return getPriceValue();
+    }
+
+    public double getPriceValue(){
         try {
             return Double.valueOf(mPrice.getText().toString());
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             return 0;
         }
     }
@@ -553,17 +672,31 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         mAmount.setEnabled(enabled);
         mBoughtAt.setEnabled(enabled);
         mNotes.setEnabled(enabled);
+        mSellPortfolio.setEnabled(enabled);
         mProgress.setVisibility(enabled ? GONE : View.VISIBLE);
+
+        setSellTypeEditingEnabled(false);
+    }
+
+    private void setSellTypeEditingEnabled(boolean enabled) {
+        if(isSellType()){
+            mCurrencyFromSpinner.setEnabled(enabled);
+            mCurrencyToSpinner.setEnabled(enabled);
+        }
     }
 
     private void hideKeyboard() {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(getActivity().getWindow().getDecorView().getRootView().getWindowToken(), 0);
+        }
     }
 
     private void showKeyboard(EditText et) {
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(INPUT_METHOD_SERVICE);
-        imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+        if (imm != null) {
+            imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     @Override
@@ -665,6 +798,11 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     @Override
     public void onClick(View view) {
         hideKeyboard();
+        switch (view.getId()){
+            case R.id.sellPortfolio:
+                mListener.onFragmentInteraction(0, null);
+                break;
+        }
     }
 
     @Override
@@ -704,5 +842,35 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
     public boolean onTouch(View v, MotionEvent event) {
         this.onClick(v);
         return false;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean isSellType(){
+        return !TextUtils.isEmpty(getType()) && getType().equals(COIN_TYPE_SELL);
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError volleyError) {
+
+    }
+
+    @Override
+    public void onResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            double currentPrice = jsonObject.getDouble(getCurrentCurrencyTo());
+            double totalPrice = 0;
+            if(getPriceType().equals(DEFAULT_PRICE_TYPE)){
+                totalPrice = currentPrice;
+            } else {
+                totalPrice = amount * currentPrice;
+            }
+            setDecimalValue(mPrice, totalPrice, Utils.getCurrencySymbol(curencyTo));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -96,6 +96,7 @@
     <string name="holdings">Holdings</string>
     <string name="coin">Coin</string>
     <string name="profit_loss">Profit/Loss</string>
+    <string name="profit_loss_24h">24H Profit/Loss</string>
     <string name="current_bought_price">Current / Bought Price</string>
     <string name="current_value">Current Value</string>
     <string name="portfolio_warning">* The selected currency will be the default currency of this portfolio</string>
@@ -129,5 +130,9 @@
     <string name="support">Support</string>
     <string name="default_notification_channel_id" translatable="false">info_channel</string>
     <string name="default_notification_channel_name" translatable="true">Info</string>
+    <string name="sell_portfolio">Sell Portfolio</string>
+    <string name="holdings_acquisition">Holdings / Acquisition</string>
+    <string name="realized_pl">Realized P/L</string>
+    <string name="currency">Currency</string>
 
 </resources>

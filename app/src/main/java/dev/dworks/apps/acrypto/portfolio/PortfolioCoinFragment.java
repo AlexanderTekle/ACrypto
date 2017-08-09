@@ -64,7 +64,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
     private FloatingActionButton addPortfolioCoin;
     private Portfolio mPortfolio;
     private ArraySet<String> mPairs = new ArraySet<>();
-    private ArrayMap<String, PortfolioCoin> mCoins = new ArrayMap<>();
     private boolean mDaataLoaded;
 
     public static void show(FragmentManager fm) {
@@ -134,7 +133,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
 
     @Override
     public void onStop() {
-        unregisterDataObserver();
         super.onStop();
     }
 
@@ -171,6 +169,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
             inflater.inflate(R.menu.portfolio_details, menu);
         }
@@ -197,13 +196,12 @@ public class PortfolioCoinFragment extends RecyclerFragment
         int itemCount = mAdapter.getItemCount();
         setEmptyText(itemCount == 1 ? "No Coins" : "");
         if(itemCount > 1) {
-            mAdapter.updateHeaderData(mCoins);
-            mAdapter.setCachedUrl(getUrl());
+            mAdapter.updateHeaderData(getUrl());
             fetchPairsData();
         } else {
             setListShown(true);
-            mAdapter.updateHeaderData(mCoins);
-            mAdapter.setCachedUrl("");
+            mAdapter.updateHeaderData( "");
+            mAdapter.notifyDataSetChanged();
         }
         mDaataLoaded = true;
     }
@@ -240,6 +238,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onDestroyView() {
         if (mAdapter != null) {
+            unregisterDataObserver();
             getListView().setAdapter(null);
         }
         super.onDestroyView();
@@ -303,7 +302,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
             if(null == coin){
                 return;
             }
-            mCoins.put(mAdapter.getRef(end - 1).getKey(), coin);
             mPairs.add(coin.getKey());
         }
 
@@ -315,7 +313,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
             if(null == coin){
                 return;
             }
-            mCoins.put(mAdapter.getRef(end - 1).getKey(), coin);
             mPairs.add(coin.getKey());
         }
     };
