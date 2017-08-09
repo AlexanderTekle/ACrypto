@@ -134,5 +134,11 @@
     <string name="holdings_acquisition">Holdings / Acquisition</string>
     <string name="realized_pl">Realized P/L</string>
     <string name="currency">Currency</string>
+    <string name="action_sort">sort</string>
+
+    <string name="sort_default">Default</string>
+    <string name="sort_price">Price</string>
+    <string name="sort_volume_change">Volume Change</string>
+    <string name="sort_price_change">Price Change</string>
 
 </resources>

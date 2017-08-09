@@ -93,6 +93,13 @@ public class Coins extends BaseEntity {
             low24H = dataSplit[14];
             lastMarket = dataSplit[15];
         }
+
+        public Double differnce(){
+            double currentPrice = Double.parseDouble(price);
+            double prevPrice = Double.parseDouble(open24H);
+            Double difference = ((currentPrice - prevPrice)/prevPrice) * 100;
+            return difference;
+        }
     }
 
     public static CoinDetail getCoin(String data){

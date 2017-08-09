@@ -5,13 +5,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
@@ -21,6 +21,7 @@ import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.ArrayRecyclerAdapter;
 import dev.dworks.apps.acrypto.view.ImageView;
 
 import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageSimple;
@@ -31,24 +32,21 @@ import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
  * Created by HaKr on 16/05/17.
  */
 
-public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> {
-
-    ArrayList<Coins.CoinDetail> mData;
+public class CoinAdapter extends ArrayRecyclerAdapter<Coins.CoinDetail, CoinAdapter.ViewHolder> {
 
     final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
+    public static final int SORT_DEFAULT = 0;
+    public static final int SORT_PRICE = 1;
+    public static final int SORT_VOLUME_CHANGE = 2;
+    public static final int SORT_PRICE_CHANGE = 3;
+
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
-    private String mBaseImageUrl;
     private String mCurrencySymbol;
+    private ArrayList<Coins.CoinDetail> mOrigObjects;
 
     public CoinAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
-        mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
-    }
-
-    public CoinAdapter setBaseImageUrl(String baseImageUrl) {
-        this.mBaseImageUrl = baseImageUrl;
-        return this;
     }
 
     public CoinAdapter setCurrencySymbol(String currencySymbol) {
@@ -56,18 +54,9 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> {
         return this;
     }
 
-    public void setData(ArrayList<Coins.CoinDetail> contents){
-        this.mData = contents;
-    }
-
     @Override
     public int getItemViewType(int position) {
         return TYPE_CELL;
-    }
-
-    @Override
-    public int getItemCount() {
-        return mData.size();
     }
 
     @Override
@@ -94,13 +83,18 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> {
         }
     }
 
-    public Coins.CoinDetail getItem(int position){
-        return mData.get(position);
+    @Override
+    public void setData(Collection<? extends Coins.CoinDetail> collection) {
+        super.setData(collection);
+        mOrigObjects = new ArrayList<>(collection);
     }
 
-    public void clear(){
-        mData.clear();
-        notifyDataSetChanged();
+    public void sortList(int sortType){
+        if(sortType == SORT_DEFAULT){
+            setData(mOrigObjects);
+            return;
+        }
+        sort(new CoinComparator(sortType));
     }
 
     /**
@@ -133,7 +127,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> {
 
         public void setData(int position){
             mPosition = position;
-            Coins.CoinDetail item = mData.get(position);
+            Coins.CoinDetail item = getItem(position);
             String url = "";
             try {
                 final CoinDetailSample.CoinDetail coinDetail = getCoin(item.fromSym);
@@ -162,7 +156,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> {
         }
 
         private String getCoinUrl(CoinDetailSample.CoinDetail coinDetail){
-            return mBaseImageUrl + coinDetail.id + ".png";
+            return Coins.BASE_URL + coinDetail.id + ".png";
         }
 
         private void setDifference(Coins.CoinDetail item){
@@ -171,6 +165,28 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> {
             Double difference = (currentPrice - prevPrice);
             change.setText(getDisplayPercentageSimple(prevPrice, currentPrice));
             change.setTextColor(ContextCompat.getColor(change.getContext(), getPercentDifferenceColor(difference)));
+        }
+    }
+
+    public class CoinComparator implements Comparator<Coins.CoinDetail> {
+
+        private final int sortType;
+
+        public CoinComparator(int sortType){
+            this.sortType = sortType;
+        }
+
+        @Override
+        public int compare(Coins.CoinDetail t0, Coins.CoinDetail t1) {
+            switch (sortType){
+                case SORT_PRICE:
+                    return Double.valueOf(t1.price).compareTo(Double.valueOf(t0.price));
+                case SORT_VOLUME_CHANGE:
+                    return Double.valueOf(t1.volume24HTo).compareTo(Double.valueOf(t0.volume24HTo));
+                case SORT_PRICE_CHANGE:
+                    return t1.differnce().compareTo(t0.differnce());
+            }
+            return Double.valueOf(t1.fromSym).compareTo(Double.valueOf(t0.fromSym));
         }
     }
 }

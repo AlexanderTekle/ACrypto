@@ -24,24 +24,24 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.CoinsDeserializer;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
-import dev.dworks.apps.acrypto.entity.CoinPairs;
-import dev.dworks.apps.acrypto.entity.CoinPairsDeserializer;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
-import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.StringRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
 import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
+import static dev.dworks.apps.acrypto.coins.CoinAdapter.SORT_PRICE_CHANGE;
+import static dev.dworks.apps.acrypto.coins.CoinAdapter.SORT_DEFAULT;
+import static dev.dworks.apps.acrypto.coins.CoinAdapter.SORT_PRICE;
+import static dev.dworks.apps.acrypto.coins.CoinAdapter.SORT_VOLUME_CHANGE;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_LIST_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_CURRENCY;
@@ -210,7 +210,6 @@ public class CoinFragment extends RecyclerFragment
         }
         coins.list.removeAll(ignoreList);
         mCoins = coins;
-        mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.setCurrencySymbol(getCurrencySymbol(mCurrency));
         mAdapter.clear();
         if(null != mCoins) {
@@ -307,7 +306,7 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.refresh, menu);
+        inflater.inflate(R.menu.coins, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -316,6 +315,18 @@ public class CoinFragment extends RecyclerFragment
         switch (item.getItemId()){
             case R.id.action_refresh:
                 onRefreshData();
+                break;
+            case R.id.menu_sort_default:
+                mAdapter.sortList(SORT_DEFAULT);
+                break;
+            case R.id.menu_sort_price:
+                mAdapter.sortList(SORT_PRICE);
+                break;
+            case R.id.menu_sort_volume_change:
+                mAdapter.sortList(SORT_VOLUME_CHANGE);
+                break;
+            case R.id.menu_sort_price_change:
+                mAdapter.sortList(SORT_PRICE_CHANGE);
                 break;
         }
         return super.onOptionsItemSelected(item);

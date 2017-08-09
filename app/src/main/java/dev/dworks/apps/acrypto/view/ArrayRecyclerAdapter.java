@@ -16,7 +16,7 @@ public abstract class ArrayRecyclerAdapter<T, VH extends RecyclerView.ViewHolder
      * Contains the list of objects that represent the data of this ArrayAdapter.
      * The content of this list is referred to as "the array" in the documentation.
      */
-    private List<T> mObjects;
+    private ArrayList<T> mObjects;
     /**
      * Lock used to modify the content of {@link #mObjects}. Any write operation
      * performed on the array should be synchronized on this lock.
@@ -33,10 +33,10 @@ public abstract class ArrayRecyclerAdapter<T, VH extends RecyclerView.ViewHolder
     }
 
     public ArrayRecyclerAdapter(T[] objects) {
-        this(Arrays.asList(objects));
+        this(new ArrayList<>(Arrays.asList(objects)));
     }
 
-    public ArrayRecyclerAdapter(List<T> objects) {
+    public ArrayRecyclerAdapter(ArrayList<T> objects) {
         mObjects = objects;
     }
 
@@ -91,6 +91,19 @@ public abstract class ArrayRecyclerAdapter<T, VH extends RecyclerView.ViewHolder
         }
         if (mNotifyOnChange) notifyItemInserted(index);
     }
+
+    /**
+     * Adds the specified Collection at the end of the array.
+     *
+     * @param collection The Collection to add at the end of the array.
+     */
+    public void setData(Collection<? extends T>  collection){
+        synchronized (mLock) {
+            mObjects = new ArrayList<T>(collection);
+        }
+        if (mNotifyOnChange) notifyDataSetChanged();
+    }
+
     /**
      * Removes the specified object from the array.
      *
