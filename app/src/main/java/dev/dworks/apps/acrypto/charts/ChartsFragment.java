@@ -402,6 +402,9 @@ public class ChartsFragment extends ActionBarFragment
             Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(!isAdded()){
+                        return;
+                    }
                     fetchData();
                 }
             });
@@ -411,6 +414,9 @@ public class ChartsFragment extends ActionBarFragment
             Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(!isAdded()){
+                        return;
+                    }
                     fetchData(false);
                 }
             });
