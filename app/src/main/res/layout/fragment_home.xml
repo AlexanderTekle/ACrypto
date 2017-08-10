@@ -26,13 +26,13 @@
                 <dev.dworks.apps.acrypto.view.LineChart
                     android:id="@+id/linechart"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp" />
+                    android:layout_height="@dimen/line_chart_height" />
 
                 <dev.dworks.apps.acrypto.view.BarChart
                     android:id="@+id/barchart"
                     android:layout_marginTop="20dp"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp" />
+                    android:layout_height="@dimen/bar_chart_height" />
 
             </LinearLayout>
 
