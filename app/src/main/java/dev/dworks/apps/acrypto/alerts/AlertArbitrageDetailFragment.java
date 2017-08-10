@@ -77,6 +77,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DE
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.FREQUENCY_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
+import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageRounded;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
@@ -110,7 +111,6 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
     private double value;
     private int status = 1;
     private View mProgress;
-    private MoneyTextView mCurrentValue;
     private View mPriceProgress;
     private boolean canLoadValue = true;
     private TextView mSymbolOne;
@@ -193,7 +193,6 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
         mSymbolOne = (TextView) view.findViewById(R.id.fromSymbol);
         mSymbolTwo = (TextView) view.findViewById(R.id.toSymbol);
         mIcon = (ImageView) view.findViewById(R.id.icon);
-        mCurrentValue = (MoneyTextView) view.findViewById(R.id.currentValue);
         mNotes = (TextView) view.findViewById(R.id.notes);
         setSpinners();
 
@@ -628,7 +627,7 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
     }
 
     private String getCurrentExchangeTwo() {
-        return TextUtils.isEmpty(currencyExchangeOne) ? ALL_EXCHANGES : currencyExchangeOne;
+        return TextUtils.isEmpty(currencyExchangeTwo) ? ALL_EXCHANGES : currencyExchangeTwo;
     }
 
     public String getFrequency() {
@@ -725,10 +724,17 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
     }
 
     private void setEmptyData(String message) {
-        //Utils.setPriceValue(mCurrentValue, 0, getCurrentCurrencyToSymbol());
-       // mMessage.setText(message);
+        currentValueOne = 0;
+        double currentValueTwoConverted = 0;
         value = 0;
         loadValue(false);
+        setPriceValue(mValueOne, currentValueOne);
+        setPriceValue(mValueTwo, currentValueTwoConverted);
+        mTimeOne.setText(getCurrentCurrencyOneName() + " Price");
+        mTimeTwo.setText(getCurrentCurrencyTwoName() + " Price" + " in " + getCurrentCurrencyOne());
+        double diff = (currentValueTwoConverted - currentValueOne);
+        mDifferencePercentage.setText(getDisplayPercentageRounded(currentValueOne, currentValueTwoConverted));
+        mDifferencePercentage.setTextColor(ContextCompat.getColor(getActivity(), getPercentDifferenceColor(diff)));
     }
 
     @Override
@@ -755,7 +761,6 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
 
     private void loadPriceData() {
         if(mConversionRate == 0) {
-            setEmptyData("No data available");
             return;
         }
         mPriceProgress.setVisibility(GONE);
@@ -766,7 +771,7 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
         mTimeTwo.setText(getCurrentCurrencyTwoName() + " Price" + " in " + getCurrentCurrencyOne());
         double diff = (currentValueTwoConverted - currentValueOne);
         mDifferencePercentage.setText(getDisplayPercentageRounded(currentValueOne, currentValueTwoConverted));
-        mDifferencePercentage.setTextColor(ContextCompat.getColor(getActivity(), getPercentDifferenceColor(diff)));
+        mDifferencePercentage.setTextColor(getColor(this, getPercentDifferenceColor(diff)));
     }
 
     public void setPriceValue(MoneyTextView textView, double value){
@@ -795,11 +800,15 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
             case R.id.currencyOneSpinner:
                 Currencies.Currency currency = (Currencies.Currency) parent.getSelectedItem();
                 currencyOne = currency.code;
+                currencyExchangeOne = "";
+                loadSymbol();
                 fetchData();
                 break;
             case R.id.currencyTwoSpinner:
                 Currencies.Currency currency2 = (Currencies.Currency) parent.getSelectedItem();
                 currencyTwo = currency2.code;
+                currencyExchangeTwo = "";
+                loadSymbol();
                 fetchData();
                 break;
             case R.id.exchangeOneSpinner:

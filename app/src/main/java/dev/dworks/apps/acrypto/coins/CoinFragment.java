@@ -317,19 +317,26 @@ public class CoinFragment extends RecyclerFragment
                 onRefreshData();
                 break;
             case R.id.menu_sort_default:
-                mAdapter.sortList(SORT_DEFAULT);
+                sortList(SORT_DEFAULT);
                 break;
             case R.id.menu_sort_price:
-                mAdapter.sortList(SORT_PRICE);
+                sortList(SORT_PRICE);
                 break;
             case R.id.menu_sort_volume_change:
-                mAdapter.sortList(SORT_VOLUME_CHANGE);
+                sortList(SORT_VOLUME_CHANGE);
                 break;
             case R.id.menu_sort_price_change:
-                mAdapter.sortList(SORT_PRICE_CHANGE);
+                sortList(SORT_PRICE_CHANGE);
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sortList(int sortType){
+        if(null == mCoins){
+            return;
+        }
+        mAdapter.sortList(sortType);
     }
 
     private void removeUrlCache(){

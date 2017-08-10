@@ -502,6 +502,9 @@ public class ChartsFragment extends ActionBarFragment
     public void onPrepareOptionsMenu(Menu menu) {
         MenuItem candleMenu = menu.findItem(R.id.action_candle);
         CandleIntervalProvider provider = (CandleIntervalProvider) MenuItemCompat.getActionProvider(candleMenu);
+        if(null == provider){
+            return;
+        }
         provider.setTimeSeries(currentTimeseries);
         provider.setParentMenuItem(candleMenu);
         provider.setOnMenuItemClickListener(this);

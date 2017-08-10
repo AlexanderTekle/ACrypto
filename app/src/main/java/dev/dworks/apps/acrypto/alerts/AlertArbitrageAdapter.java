@@ -104,8 +104,7 @@ public class AlertArbitrageAdapter extends FirebaseRecyclerAdapter<AlertArbitrag
         private final ImageView icon;
         private final ImageView frequency;
         private final TextView value;
-        private final TextView fromPair;
-        private final TextView toPair;
+        private final TextView fromToPair;
         private final TextView condition;
         private final SwitchCompat status_switch;
         private int mPosition;
@@ -123,8 +122,7 @@ public class AlertArbitrageAdapter extends FirebaseRecyclerAdapter<AlertArbitrag
             icon = (ImageView) v.findViewById(R.id.icon);
             frequency = (ImageView) v.findViewById(R.id.frequency);
             value = (TextView) v.findViewById(R.id.value);
-            fromPair = (TextView) v.findViewById(R.id.fromPair);
-            toPair = (TextView) v.findViewById(R.id.toPair);
+            fromToPair = (TextView) v.findViewById(R.id.fromToPair);
             condition = (TextView) v.findViewById(R.id.condition);
             status_switch = (SwitchCompat) v.findViewById(R.id.status_switch);
         }
@@ -145,15 +143,13 @@ public class AlertArbitrageAdapter extends FirebaseRecyclerAdapter<AlertArbitrag
             String from = fromPairArray[1];
             String to = toPairArray[1];
             if (fromPairArray.length == 3) {
-                from = "-" + fromPairArray[2];
+                from += "-" + fromPairArray[2];
             }
 
             if (toPairArray.length == 3) {
-                to = "-"+ toPairArray[2];
+                to += "-"+ toPairArray[2];
             }
-
-            fromPair.setText(from);
-            toPair.setText(to);
+            fromToPair.setText(from + " / " + to);
 
             value.setText(priceAlert.value + "%");
             icon.setImageUrl(url, VolleyPlusHelper.with(icon.getContext()).getImageLoader());
