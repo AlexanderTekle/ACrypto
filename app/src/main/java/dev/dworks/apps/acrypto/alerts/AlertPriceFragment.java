@@ -184,6 +184,11 @@ public class AlertPriceFragment extends RecyclerFragment
     }
 
     @Override
+    protected void fetchData() {
+
+    }
+
+    @Override
     public void onClick(View view) {
         if(FirebaseHelper.isLoggedIn()) {
             openAlertDetails(null, null);

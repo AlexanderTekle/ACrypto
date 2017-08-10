@@ -173,7 +173,8 @@ public class CoinInfoFragment extends ActionBarFragment
         showLastUpdate();
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         mChartProgress.setVisibility(View.VISIBLE);
         mParentLayout.setVisibility(View.INVISIBLE);
         mEmpty.setVisibility(View.GONE);
@@ -210,27 +211,7 @@ public class CoinInfoFragment extends ActionBarFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if(!Utils.isActivityAlive(getActivity())){
-            return;
-        }
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -241,7 +222,7 @@ public class CoinInfoFragment extends ActionBarFragment
         if(mCoinDetails.isValidResponse()) {
             setData();
         } else {
-            setEmptyData("Something went wrong!");
+            setEmptyData("Cant Connect to ACrypto");
             Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -251,7 +232,8 @@ public class CoinInfoFragment extends ActionBarFragment
         }
     }
 
-    private void setEmptyData(String message){
+    @Override
+     protected void setEmptyData(String message){
         mChartProgress.setVisibility(View.GONE);
         if(null != mCoinDetails){
             return;

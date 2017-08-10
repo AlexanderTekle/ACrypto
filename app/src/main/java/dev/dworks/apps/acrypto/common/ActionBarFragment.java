@@ -26,7 +26,7 @@ import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
 import static dev.dworks.apps.acrypto.AppFlavour.BILLING_ACTION;
 
 
-public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcastListener {
+public abstract class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcastListener {
     private AppCompatActivity mActivity;
     private boolean mIsRecreated;
     private View mProLayout;
@@ -208,5 +208,46 @@ public class ActionBarFragment extends Fragment implements LocalBurst.OnBroadcas
 
     public void unSubscribe(){
         App.getInstance().unSubscribe(getActivity(), SUBSCRIPTION_MONTHLY_ID);
+    }
+
+    protected void handleError(){
+        if(!Utils.isActivityAlive(getActivity())){
+            return;
+        }
+
+        if (!Utils.isNetConnected(getActivity())) {
+            setEmptyData("No Internet");
+            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!isAdded()){
+                        return;
+                    }
+                    fetchData();
+                }
+            });
+        }
+        else{
+            setEmptyData("Cant Connect to ACrypto");
+            Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!isAdded()){
+                        return;
+                    }
+                    fetchData(false);
+                }
+            });
+        }
+    }
+
+    protected abstract void fetchData();
+
+    protected void fetchData(boolean refreshAll){
+        fetchData();
+    }
+
+    protected void setEmptyData(String message){
+
     }
 }

@@ -314,7 +314,8 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
         });
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         fetchCurrencyFromData();
         fetchCurrencyToData();
         fetchExchangeData();

@@ -105,6 +105,11 @@ public class AlertFragment extends ActionBarFragment {
     }
 
     @Override
+    protected void fetchData() {
+
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {

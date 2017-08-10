@@ -123,6 +123,11 @@ public class ArbitrageFragment extends ActionBarFragment implements AdapterView.
         refreshData();
     }
 
+    @Override
+    protected void fetchData() {
+
+    }
+
     private void setSpinners() {
         mCurrencyFromSpinner.setOnItemSelectedListener(this);
         mCurrencyOneSpinner.setOnItemSelectedListener(this);

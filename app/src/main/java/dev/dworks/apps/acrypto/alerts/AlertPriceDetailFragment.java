@@ -240,7 +240,8 @@ public class AlertPriceDetailFragment extends ActionBarFragment
         mConditionSpinner.setOnItemSelectedListener(this);
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         fetchCurrencyFromData();
         fetchCurrencyToData();
         fetchExchangeData();
@@ -566,7 +567,7 @@ public class AlertPriceDetailFragment extends ActionBarFragment
             });
         }
         else{
-            setEmptyData("Something went wrong!");
+            setEmptyData("Cant Connect to ACrypto");
             Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -576,7 +577,8 @@ public class AlertPriceDetailFragment extends ActionBarFragment
         }
     }
 
-    private void setEmptyData(String message) {
+    @Override
+    protected void setEmptyData(String message) {
         Utils.setPriceValue(mCurrentValue, 0, getCurrentCurrencyToSymbol());
         mMessage.setText(message);
         value = 0;

@@ -260,4 +260,9 @@ public class PortfolioFragment extends ActionBarFragment {
         super.onSubscriptionStatus();
         getActionBarActivity().supportInvalidateOptionsMenu();
     }
+
+    @Override
+    protected void fetchData() {
+
+    }
 }

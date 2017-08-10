@@ -254,11 +254,13 @@ public class ChartsFragment extends ActionBarFragment
         mInteractiveChart.setKLineHandler(this);
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         fetchData(true);
     }
 
-    private void fetchData(boolean refreshAll) {
+    @Override
+    protected void fetchData(boolean refreshAll) {
         String url = getUrl();
         mPrice = null;
         mChartProgress.setVisibility(View.VISIBLE);
@@ -394,33 +396,7 @@ public class ChartsFragment extends ActionBarFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if(!Utils.isActivityAlive(getActivity())){
-            return;
-        }
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(!isAdded()){
-                        return;
-                    }
-                    fetchData();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(!isAdded()){
-                        return;
-                    }
-                    fetchData(false);
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -453,7 +429,8 @@ public class ChartsFragment extends ActionBarFragment
         showData(response);
     }
 
-    private void setEmptyData(String message){
+    @Override
+    protected void setEmptyData(String message){
         mChartProgress.setVisibility(View.GONE);
         if(null != mPrice){
             return;

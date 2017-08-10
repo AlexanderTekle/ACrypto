@@ -380,4 +380,9 @@ public class PortfolioCoinFragment extends RecyclerFragment
         AnalyticsManager.logEvent("portfolio_refreshed");
         super.onRefreshData();
     }
+
+    @Override
+    protected void fetchData() {
+
+    }
 }

@@ -282,7 +282,8 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
         mConditionSpinner.setOnItemSelectedListener(this);
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         fetchCurrencyFromData();
         fetchCurrencyOneData();
         fetchCurrencyTwoData();
@@ -713,7 +714,7 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
             });
         }
         else{
-            setEmptyData("Something went wrong!");
+            setEmptyData("Cant Connect to ACrypto");
             Utils.showRetrySnackBar(getActivity(), "Couldnt fetch the latest prices", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -723,7 +724,8 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
         }
     }
 
-    private void setEmptyData(String message) {
+    @Override
+    protected void setEmptyData(String message) {
         currentValueOne = 0;
         double currentValueTwoConverted = 0;
         value = 0;

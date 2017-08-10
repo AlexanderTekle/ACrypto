@@ -240,11 +240,13 @@ public class ArbitrageChartFragment extends ActionBarFragment
         mChart.setOnTouchListener(new ChartOnTouchListener(mScrollView));
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         fetchData(true);
     }
 
-    private void fetchData(boolean refreshAll) {
+    @Override
+    protected void fetchData(boolean refreshAll) {
         String url = getUrl(false);
         mChartProgress.setVisibility(View.VISIBLE);
         mChart.highlightValue(null);
@@ -366,29 +368,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if(!Utils.isActivityAlive(getActivity())){
-            return;
-        }
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            mControls.setVisibility(View.INVISIBLE);
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            mControls.setVisibility(View.INVISIBLE);
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData(false);
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -422,7 +402,9 @@ public class ArbitrageChartFragment extends ActionBarFragment
         showData();
     }
 
-    private void setEmptyData(String message){
+    @Override
+    protected void setEmptyData(String message){
+        mControls.setVisibility(View.INVISIBLE);
         mChartProgress.setVisibility(View.GONE);
         mChart.setNoDataText(message);
         mChart.clear();

@@ -114,7 +114,8 @@ public class CoinExchangeFragment extends RecyclerFragment
         super.onResume();
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         setEmptyText("");
         setListShown(false);
         mCoinDetails = null;
@@ -140,24 +141,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     }
     @Override
     public void onErrorResponse(VolleyError error) {
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getView(), "Cant Connect to ACrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -165,6 +149,7 @@ public class CoinExchangeFragment extends RecyclerFragment
         loadData(response);
     }
 
+    @Override
     public void setEmptyData(String mesasge){
         setListShown(true);
         if(null != mCoinDetails){

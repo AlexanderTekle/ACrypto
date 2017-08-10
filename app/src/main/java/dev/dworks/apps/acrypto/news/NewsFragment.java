@@ -116,7 +116,8 @@ public class NewsFragment extends RecyclerFragment
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
     }
 
-    private void fetchDataTask() {
+    @Override
+    protected void fetchData() {
         setEmptyText("");
         setListShown(false);
         String url = getUrl();
@@ -139,24 +140,7 @@ public class NewsFragment extends RecyclerFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchDataTask();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchDataTask();
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -176,7 +160,7 @@ public class NewsFragment extends RecyclerFragment
 
     public void refreshData(String currency) {
         mAdapter.clear();
-        fetchDataTask();
+        fetchData();
     }
 
     private void loadData(News news) {
@@ -227,7 +211,7 @@ public class NewsFragment extends RecyclerFragment
             mAdapter = new NewsAdapter(getActivity(), this);
         }
         setListAdapter(mAdapter);
-        fetchDataTask();
+        fetchData();
     }
 
     @Override
@@ -271,7 +255,7 @@ public class NewsFragment extends RecyclerFragment
     @Override
     public void onRefreshData() {
         removeUrlCache();
-        fetchDataTask();
+        fetchData();
         Bundle bundle = new Bundle();
         AnalyticsManager.logEvent("news_refreshed", bundle);
         super.onRefreshData();

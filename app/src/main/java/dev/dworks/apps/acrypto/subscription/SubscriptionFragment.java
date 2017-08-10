@@ -220,4 +220,9 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     public void onSubscriptionStatus() {
         updateViews();
     }
+
+    @Override
+    protected void fetchData() {
+
+    }
 }
