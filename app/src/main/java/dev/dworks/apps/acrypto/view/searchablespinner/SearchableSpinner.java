@@ -88,16 +88,26 @@ public class SearchableSpinner extends AppCompatSpinner implements SearchableIte
         if (_context == null) {
             return;
         }
-        FragmentManager fm = null;
-        if (_context instanceof Activity) {
-            fm = ((AppCompatActivity) _context).getSupportFragmentManager();
-        } else if (_context instanceof ContextWrapper) {
-            fm = ((AppCompatActivity) ((ContextWrapper) _context).getBaseContext()).getSupportFragmentManager();
+        AppCompatActivity activity = scanForActivity(_context);
+        if(null == activity){
+            return;
         }
+        FragmentManager fm = activity.getSupportFragmentManager();
         if(null != fm) {
             _searchableListDialog = SearchableListDialog.show(fm, _items, title);
             _searchableListDialog.setOnSearchableItemClickListener(this);
         }
+    }
+
+    private static AppCompatActivity scanForActivity(Context cont) {
+        if (cont == null)
+            return null;
+        else if (cont instanceof Activity)
+            return (AppCompatActivity) cont;
+        else if (cont instanceof ContextWrapper)
+            return scanForActivity(((ContextWrapper)cont).getBaseContext());
+
+        return null;
     }
 
     @Override

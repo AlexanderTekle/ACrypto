@@ -51,6 +51,7 @@ import dev.dworks.apps.acrypto.utils.NotificationUtils;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
+import dev.dworks.apps.acrypto.view.SearchableSpinner;
 import dev.dworks.apps.acrypto.view.SimpleSpinner;
 
 import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mName;
     private View mheaderLayout;
     private BezelImageView mPicture;
-    private SimpleSpinner spinner;
+    private SearchableSpinner coinsList;
     private InterstitialAd mInterstitialAd;
     private LocalBurst broadcast;
     private NavigationView navigationView;
@@ -140,8 +141,26 @@ public class MainActivity extends AppCompatActivity
     private void initControls() {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        spinner = (SimpleSpinner) findViewById(R.id.stack);
+        coinsList = (SearchableSpinner) findViewById(R.id.coinsList);
+        coinsList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String item = parent.getItemAtPosition(position).toString();
+                SettingsActivity.setCurrencyList(item);
+                CoinFragment fragment = CoinFragment.get(getSupportFragmentManager());
+                if (null != fragment) {
+                    fragment.refreshData(item);
+                }
+                Bundle bundle = new Bundle();
+                bundle.putString("currency", item);
+                AnalyticsManager.logEvent("currency_filtered", bundle);
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         loadCoinsList();
         setSupportActionBar(toolbar);
 
@@ -189,29 +208,9 @@ public class MainActivity extends AppCompatActivity
                 CoinsList.class,
                 new Response.Listener<CoinsList>() {
                     @Override
-                    public void onResponse(CoinsList coinsList) {
-                        spinner.setItems(coinsList.coins_list, R.layout.item_spinner_dark);
-                        ((SimpleSpinner.ArrayAdapter)spinner.getAdapter()).setDropDownViewResource(R.layout.item_spinner_light);
-                        spinner.setSelection(SettingsActivity.getCurrencyList());
-                        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                String item = parent.getItemAtPosition(position).toString();
-                                SettingsActivity.setCurrencyList(item);
-                                CoinFragment fragment = CoinFragment.get(getSupportFragmentManager());
-                                if (null != fragment) {
-                                    fragment.refreshData(item);
-                                }
-                                Bundle bundle = new Bundle();
-                                bundle.putString("currency", item);
-                                AnalyticsManager.logEvent("currency_filtered", bundle);
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
+                    public void onResponse(CoinsList list) {
+                        coinsList.setItems(list.coins_list, R.layout.item_spinner_dark);
+                        coinsList.setSelection(SettingsActivity.getCurrencyList());
                     }
                 },
                 new Response.ErrorListener() {
@@ -410,60 +409,60 @@ public class MainActivity extends AppCompatActivity
         switch (lastFragmentId) {
             case R.id.nav_home:
 
-                spinner.setVisibility(View.GONE);
+                coinsList.setVisibility(View.GONE);
                 showHome(null);
                 AnalyticsManager.logEvent("view_home");
                 break;
             case R.id.nav_coins:
 
-                spinner.setVisibility(View.VISIBLE);
+                coinsList.setVisibility(View.VISIBLE);
                 CoinFragment.show(getSupportFragmentManager(), SettingsActivity.getCurrencyList());
                 AnalyticsManager.logEvent("view_coins");
                 break;
 
             case R.id.nav_arbitrage:
 
-                spinner.setVisibility(View.GONE);
+                coinsList.setVisibility(View.GONE);
                 ArbitrageFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_arbitrage");
                 break;
 
             case R.id.nav_alerts:
 
-                spinner.setVisibility(View.GONE);
+                coinsList.setVisibility(View.GONE);
                 AlertFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_alerts");
                 break;
 
             case R.id.nav_subscription:
 
-                spinner.setVisibility(View.GONE);
+                coinsList.setVisibility(View.GONE);
                 SubscriptionFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_subscription");
                 break;
 
             case R.id.nav_charts:
 
-                spinner.setVisibility(View.GONE);
+                coinsList.setVisibility(View.GONE);
                 ChartsFragment.show(getSupportFragmentManager(), null);
                 AnalyticsManager.logEvent("view_charts");
                 break;
 
             case R.id.nav_portfolio:
 
-                spinner.setVisibility(View.GONE);
+                coinsList.setVisibility(View.GONE);
                 PortfolioFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_portfolio");
                 break;
 
             case R.id.nav_news:
 
-                spinner.setVisibility(View.GONE);
+                coinsList.setVisibility(View.GONE);
                 NewsFragment.show(getSupportFragmentManager());
                 AnalyticsManager.logEvent("view_news");
                 break;
             default:
-                spinner.setVisibility(View.GONE);
+                coinsList.setVisibility(View.GONE);
                 showHome(null);
                 AnalyticsManager.logEvent("view_home");
                 break;

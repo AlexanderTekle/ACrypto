@@ -16,20 +16,21 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:elevation="8dp"
             app:contentInsetLeft="@dimen/second_keyline_default"
             app:contentInsetStart="@dimen/second_keyline_default"
+            app:elevation="8dp"
             app:subtitleTextAppearance="@style/ToolbarSubTitle"
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:titleTextAppearance="@style/ToolbarTitle">
 
-            <dev.dworks.apps.acrypto.view.SimpleSpinner
-                android:id="@+id/stack"
+            <dev.dworks.apps.acrypto.view.SearchableSpinner
+                android:id="@+id/coinsList"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:theme="@style/SpinnerStyle"
                 android:visibility="gone"
-                app:overlapAnchor="true" />
+                app:overlapAnchor="true"
+                app:titleText="Choose a Currency" />
 
         </android.support.v7.widget.Toolbar>
 
