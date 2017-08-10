@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         // TODO Remove after some time
-        if(App.APP_VERSION_CODE == 11
+        if(App.APP_VERSION_CODE == 14
                 && FirebaseHelper.isLoggedIn()
                 && !PreferenceUtils.getBooleanPrefs(App.getInstance().getBaseContext(), UPDATE_USER)){
             FirebaseHelper.updateUser();

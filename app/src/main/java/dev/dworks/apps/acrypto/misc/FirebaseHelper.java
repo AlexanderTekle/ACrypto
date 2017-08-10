@@ -11,14 +11,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
+import junit.framework.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.entity.User;
+import dev.dworks.apps.acrypto.settings.SettingsActivity;
 
 import static dev.dworks.apps.acrypto.App.APP_VERSION;
 import static dev.dworks.apps.acrypto.entity.User.USERS;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.getNewsAlertStatus;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 
 /**
@@ -94,12 +98,6 @@ public class FirebaseHelper {
         childUpdates.put("uid", uid);
         childUpdates.put("photoUrl", photoUrl);
         childUpdates.put("appVersion", APP_VERSION);
-        childUpdates.put("nativeCurrency", getUserCurrencyFrom());
-
-/*        String instanceId = FirebaseInstanceId.getInstance().getToken();
-        if (instanceId != null) {
-            childUpdates.put("instanceId", instanceId);
-        }*/
 
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
                 .child(uid).updateChildren(childUpdates);
@@ -109,15 +107,53 @@ public class FirebaseHelper {
                 .child("createdAt").setValue(ServerValue.TIMESTAMP);
 
         App.getInstance().updateInstanceId();
+
+        updateUserSettings();
     }
 
-    public static void updateUserSubscription(String productId) {
+    private static void updateUserSettings() {
+        FirebaseHelper.getFirebaseDatabaseReference("users/"+FirebaseHelper.getCurrentUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Map<String, Object> childUpdates = new HashMap<>();
+                        User user = dataSnapshot.getValue(User.class);
+                        if(TextUtils.isEmpty(user.nativeCurrency)){
+                            childUpdates.put("nativeCurrency", getUserCurrencyFrom());
+                        } else {
+                            SettingsActivity.setUserCurrencyFrom(user.nativeCurrency);
+                        }
+
+                        if(user.newsAlertStatus == -1){
+                            childUpdates.put("newsAlertStatus", getNewsAlertStatus() ? 1 : 0);
+                        } else {
+                            boolean status = user.newsAlertStatus == 1;
+                            SettingsActivity.setNewsAlertStatus(status);
+                            App.getInstance().updateNewsSubscription(status);
+                        }
+
+                        if(childUpdates.size() != 0){
+                            FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                                    .child(getCurrentUid()).updateChildren(childUpdates);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    public static void updateUserSubscription(String productId, String orderId, long orderTime) {
         if(!isLoggedIn()){
             return;
         }
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("subscriptionStatus", 1);
         childUpdates.put("subscriptionId", productId);
+        childUpdates.put("orderId", orderId);
+        childUpdates.put("orderedAt", orderTime);
         FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
                 .child(FirebaseHelper.getCurrentUid())
                 .updateChildren(childUpdates);
@@ -134,7 +170,18 @@ public class FirebaseHelper {
                 .updateChildren(childUpdates);
     }
 
-    public static void updateUserSubscription(boolean active) {
+    public static void updateNewsAlertStatus(boolean enable) {
+        if(!isLoggedIn()){
+            return;
+        }
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("newsAlertStatus", enable ? 1 : 0);
+        FirebaseHelper.getFirebaseDatabaseReference().child(USERS)
+                .child(FirebaseHelper.getCurrentUid())
+                .updateChildren(childUpdates);
+    }
+
+    public static void updateUserSubscriptionStatus(boolean active) {
         if(!isLoggedIn()){
             return;
         }

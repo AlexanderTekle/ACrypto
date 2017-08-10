@@ -14,8 +14,12 @@ public class User {
     public String instanceId;
     public int subscriptionStatus;
     public String subscriptionId;
+    public String orderId;
     public String appVersion;
     public Object createdAt;
+    public long orderedAt;
+    public String nativeCurrency;
+    public int newsAlertStatus = -1;
 
     public User() {
     }

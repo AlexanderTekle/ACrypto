@@ -154,4 +154,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     private static String getCurrencyTwoKey(){
         return KEY_CURRENCY_TWO + "_" + getCurrencyFrom();
     }
+
+    public static boolean getNewsAlertStatus() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getBoolean(KEY_NEWS_ALERT_STATUS, true);
+    }
+
+    public static void setNewsAlertStatus(boolean status) {
+        PreferenceUtils.set(KEY_NEWS_ALERT_STATUS, status);
+    }
 }

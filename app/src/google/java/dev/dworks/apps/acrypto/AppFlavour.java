@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
@@ -71,6 +70,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				&& !PreferenceUtils.getBooleanPrefs(this, INITIAL_SUBSCRIPTION_COMPLETED)) {
 			FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_NEWS_ALL);
 			PreferenceUtils.set(this, INITIAL_SUBSCRIPTION_COMPLETED, true);
+			FirebaseHelper.updateNewsAlertStatus(true);
 		}
 	}
 
@@ -131,7 +131,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				}
 				isSubscriptionActive = isSubscribedMonthly && autoRenewing;
 				selfHack();
-				FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
+				FirebaseHelper.updateUserSubscriptionStatus(isSubscribedMonthly);
 				PreferenceUtils.set(SUBSCRIBED_MONTHLY, isSubscribedMonthly);
 				return null;
 			}
@@ -155,6 +155,9 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 
 	@Override
 	public void onProductPurchased(String productId, TransactionDetails details) {
+		FirebaseHelper.updateUserSubscription(productId,
+				details.purchaseInfo.purchaseData.orderId,
+				details.purchaseInfo.purchaseData.purchaseTime.getTime());
 		reloadSubscription();
 	}
 
@@ -227,6 +230,14 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 			activity.startActivity(intent);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void updateNewsSubscription(boolean status){
+		if(status){
+			FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_NEWS_ALL);
+		} else {
+			FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC_NEWS_ALL);
 		}
 	}
 }

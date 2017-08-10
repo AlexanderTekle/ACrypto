@@ -8,7 +8,9 @@ import android.preference.PreferenceFragment;
 import com.google.android.gms.auth.api.Auth;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.SignInClient;
 
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TOPIC_NEWS_ALL;
@@ -24,17 +26,13 @@ public abstract class GeneralPreferenceFlavourFragment extends PreferenceFragmen
         addPreferencesFromResource(R.xml.pref_general);
         mSignInClient = new SignInClient(getActivity());
 
-
         CheckBoxPreference checkBoxPreference = (CheckBoxPreference) findPreference(SettingsActivity.KEY_NEWS_ALERT_STATUS);
         checkBoxPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean status = Boolean.valueOf(newValue.toString());
-                if(status){
-                    FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_NEWS_ALL);
-                } else {
-                    FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC_NEWS_ALL);
-                }
+                App.getInstance().updateNewsSubscription(status);
+                FirebaseHelper.updateNewsAlertStatus(status);
                 return true;
             }
         });
