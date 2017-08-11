@@ -31,6 +31,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -295,9 +297,10 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
 
     public String getUrl(){
         ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("list", getPairOne()+","+getPairTwo());
+        params.put("fsyms", getCurrentCurrencyFrom());
+        params.put("tsyms", getCurrentCurrencyOne() +","+ getCurrentCurrencyTwo());
 
-        return UrlManager.with(UrlConstant.SUBSPAIRS_URL)
+        return UrlManager.with(UrlConstant.HISTORY_PRICE_MULTI_URL)
                 .setDefaultParams(params).getUrl();
     }
 
@@ -741,21 +744,15 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
 
     @Override
     public void onResponse(String response) {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        JsonDeserializer<CoinPairs> deserializer = new CoinPairsDeserializer();
-        gsonBuilder.registerTypeAdapter(CoinPairs.class, deserializer);
-
-        Gson customGson = gsonBuilder.create();
         try {
-            CoinPairs coinPairs = customGson.fromJson(response, CoinPairs.class);
-            for (Map.Entry<String, CoinPairs.CoinPair> entry : coinPairs.data.entrySet()){
-                App.getInstance().putCoinPairCache(entry.getKey(), entry.getValue());
-            }
-            CoinPairs.CoinPair coinPairOne = coinPairs.data.get(getPairOne());
-            CoinPairs.CoinPair coinPairTwo = coinPairs.data.get(getPairTwo());
-            currentValueOne = coinPairOne.getCurrentPrice();
-            currentValueTwo = coinPairTwo.getCurrentPrice();
-        } catch (Exception e) {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONObject currencyFrom = jsonObject.getJSONObject(getCurrentCurrencyFrom());
+            currentValueOne = currencyFrom.getDouble(getCurrentCurrencyOne());
+            currentValueTwo = currencyFrom.getDouble(getCurrentCurrencyTwo());
+            loadValue(false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            setEmptyData("Something went wrong!");
         }
 
         loadPriceData();

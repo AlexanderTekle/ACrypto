@@ -29,6 +29,7 @@ public class UrlConstant {
     public static final String HISTORY_HOUR_URL = BASE_API_URL + "/data/histohour";
     public static final String HISTORY_DAY_URL = BASE_API_URL + "/data/histoday";
     public static final String HISTORY_PRICE_URL = BASE_API_URL + "/data/price";
+    public static final String HISTORY_PRICE_MULTI_URL = BASE_API_URL + "/data/pricemulti";
     public static final String HISTORY_PRICE_HISTORICAL_URL = BASE_API_URL + "/data/pricehistorical";
     public static final String COINLIST_URL =  BASE_URL + "/api/data/toplistvolumesnapshot/";
     //public static final String COINLIST_URL =  "https://api.coinmarketcap.com/v1/ticker/";
