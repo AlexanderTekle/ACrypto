@@ -1056,5 +1056,10 @@
     "name": "GoldCoin",
     "order": 211,
     "symbol": "GLD"
+  },
+  "SIGT": {
+    "name": "Signatum",
+    "order": 212,
+    "symbol": "SIGT"
   }
 }

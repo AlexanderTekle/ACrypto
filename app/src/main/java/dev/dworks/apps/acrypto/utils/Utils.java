@@ -440,6 +440,8 @@ public class Utils {
         builder.setCloseButtonIcon(getVector2Bitmap(activity, R.drawable.ic_back));
         builder.setStartAnimations(activity, 0, 0);
         builder.setExitAnimations(activity, 0, 0);
+        builder.addDefaultShareMenuItem();
+        builder.enableUrlBarHiding();
         CustomTabsIntent customTabsIntent = builder.build();
         customTabsIntent.intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
         try {

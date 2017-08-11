@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity
             } else {
                 handleExtras(false, extras);
             }
+        } else {
+            coinsList.setVisibility(Utils.getVisibility(lastFragmentId == R.id.nav_coins));
         }
 
         // TODO Remove after some time
