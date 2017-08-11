@@ -30,6 +30,7 @@ import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
+import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -43,9 +44,8 @@ public class App extends AppFlavour {
 	public static final String TAG = "ACrypto";
 
 	static {
-		AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 	}
-
 	public static String APP_VERSION;
     public static int APP_VERSION_CODE;
 	private static App sInstance;
@@ -229,14 +229,14 @@ public class App extends AppFlavour {
 		}
 		return current;
 	}
-	
+
 	public static synchronized App getInstance() {
 		return sInstance;
 	}
-	
+
 	@Override
 	public void onLowMemory() {
-		Runtime.getRuntime().gc(); 
+		Runtime.getRuntime().gc();
 		super.onLowMemory();
 	}
 

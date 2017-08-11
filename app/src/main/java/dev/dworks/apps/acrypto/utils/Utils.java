@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -29,6 +30,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.text.TextUtilsCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -36,6 +38,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -86,8 +89,10 @@ import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.settings.SettingsActivity;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_AUTO;
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
 import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
 
@@ -951,5 +956,34 @@ public class Utils {
         Spannable spannable = new SpannableString(text);
         spannable.setSpan(new ForegroundColorSpan(color), 0, spannable.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannable;
+    }
+
+    public static int themeAttributeToColor(Context context, int themeAttributeId) {
+        TypedValue outValue = new TypedValue();
+        Resources.Theme theme = context.getTheme();
+        boolean wasResolved =
+                theme.resolveAttribute(
+                        themeAttributeId, outValue, true);
+        if (wasResolved) {
+            return outValue.resourceId == 0
+                    ? outValue.data
+                    : ContextCompat.getColor(
+                    context, outValue.resourceId);
+        } else {
+            // fallback colour handling
+            return ContextCompat.getColor(context, android.R.color.white);
+        }
+    }
+
+    public static void changeThemeStyle(AppCompatDelegate delegate) {
+        int nightMode = Integer.valueOf(SettingsActivity.getThemeStyle());
+        delegate.setLocalNightMode(nightMode);
+        AppCompatDelegate.setDefaultNightMode(nightMode);
+    }
+
+    public static void setActivityThemeStyle(AppCompatDelegate delegate) {
+        int nightMode = Integer.valueOf(SettingsActivity.getThemeStyle());
+        delegate.setLocalNightMode(nightMode);
+        AppCompatDelegate.setDefaultNightMode(nightMode);
     }
 }

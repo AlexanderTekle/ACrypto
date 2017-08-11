@@ -39,7 +39,7 @@
                     android:singleLine="true"
                     android:text="@string/subscribe_title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textColor="?android:attr/textColorPrimaryInverse" />
+                    android:textColor="@android:color/white" />
             </LinearLayout>
 
             <LinearLayout
@@ -73,7 +73,7 @@
                         android:layout_gravity="center"
                         android:minWidth="250dp"
                         android:text="@string/subscribe_now"
-                        android:textColor="@color/accent_white"
+                        android:textColor="@android:color/white"
                         android:theme="@style/MyButton" />
 
                     <TextView
@@ -83,7 +83,7 @@
                         android:layout_gravity="center"
                         android:text="@string/paid_reason"
                         android:textAppearance="?android:attr/textAppearanceSmallInverse"
-                        android:textColor="@color/colorPrimary" />
+                        android:textColor="@color/darkColor" />
                 </LinearLayout>
             </LinearLayout>
 

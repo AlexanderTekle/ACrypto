@@ -74,16 +74,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingTop="10dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingTop="10dp">
 
                 <Button
                     android:id="@+id/subscribe"
                     android:layout_width="250dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:paddingStart="10dp"
                     android:paddingEnd="10dp"
+                    android:paddingStart="10dp"
                     android:text="@string/subscribe"
                     android:textColor="@android:color/white"
                     android:theme="@style/MyButton"
@@ -94,9 +94,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:textColor="@color/colorPrimary"
+                    android:text="@string/paid_reason"
                     android:textAppearance="?android:attr/textAppearanceSmallInverse"
-                    android:text="@string/paid_reason" />
+                    android:textColor="@color/darkColor" />
             </LinearLayout>
         </LinearLayout>
 

@@ -34,6 +34,7 @@ import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
 import dev.dworks.apps.acrypto.charts.ChartsFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
+import dev.dworks.apps.acrypto.common.ActionBarActivity;
 import dev.dworks.apps.acrypto.entity.CoinsList;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -72,12 +73,13 @@ import static dev.dworks.apps.acrypto.utils.Utils.NAVDRAWER_LAUNCH_DELAY;
  * Created by HaKr on 16/05/17.
  */
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends ActionBarActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         Utils.OnFragmentInteractionListener, LocalBurst.OnBroadcastListener {
 
     public static final int SETTINGS = 47;
     public static final int RESULT_SYNC_MASTER = 7;
+    public static final int RESULT_THEME_CHANGED = 9;
     public static final int LOGIN = 619;
     public static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
@@ -329,6 +331,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public String getTag() {
+        return TAG;
+    }
+
+    @Override
     protected void onDestroy() {
         App.getInstance().releaseBillingProcessor();
         broadcast.removeListeners(this);
@@ -343,7 +350,8 @@ public class MainActivity extends AppCompatActivity
                     updateUserDetails();
                     refreshData();
                     App.getInstance().reloadSubscription();
-                } else if (resultCode == RESULT_SYNC_MASTER){
+                } else if (resultCode == RESULT_SYNC_MASTER
+                        || resultCode == RESULT_THEME_CHANGED){
                     recreate();
                 }
             } else if(requestCode == LOGIN){

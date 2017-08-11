@@ -69,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/timeseries_1h"
-                android:textColor="@color/colorPrimaryDark" />
+                android:textColor="@color/time_series_color" />
 
             <RadioButton
                 android:id="@+id/timeseries_day"
@@ -78,7 +78,7 @@
                 android:layout_height="wrap_content"
                 android:checked="true"
                 android:text="@string/timeseries_1d"
-                android:textColor="@color/colorPrimaryDark" />
+                android:textColor="@color/time_series_color" />
 
             <RadioButton
                 android:id="@+id/timeseries_week"
@@ -86,7 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/timeseries_1w"
-                android:textColor="@color/colorPrimaryDark" />
+                android:textColor="@color/time_series_color" />
 
             <RadioButton
                 android:id="@+id/timeseries_month"
@@ -94,7 +94,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/timeseries_30d"
-                android:textColor="@color/colorPrimaryDark" />
+                android:textColor="@color/time_series_color" />
 
             <RadioButton
                 android:id="@+id/timeseries_year"
@@ -102,7 +102,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/timeseries_1y"
-                android:textColor="@color/colorPrimaryDark" />
+                android:textColor="@color/time_series_color" />
 
             <RadioButton
                 android:id="@+id/timeseries_year5"
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/timeseries_5y"
                 android:visibility="gone"
-                android:textColor="@color/colorPrimaryDark" />
+                android:textColor="@color/time_series_color" />
 
         </RadioGroup>
 

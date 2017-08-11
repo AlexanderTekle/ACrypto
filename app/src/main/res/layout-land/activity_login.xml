@@ -33,7 +33,8 @@
                 android:layout_gravity="center_horizontal"
                 android:padding="10dp"
                 android:text="@string/signin_to_acrypto"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Large.Inverse"
+                android:textColor="@android:color/white" />
         </LinearLayout>
 
         <LinearLayout

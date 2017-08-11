@@ -48,7 +48,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="bottom"
                             app:amount="0"
-                            app:baseTextColor="@android:color/black"
+                            app:baseTextColor="?android:colorForeground"
                             app:baseTextSize="25sp"
                             app:decimalDigitsTextSize="25sp"
                             app:decimalSeparator="."
@@ -87,7 +87,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:visibility="visible"
-                app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="4dp"
                 app:cardUseCompatPadding="true"
                 app:contentPadding="10dp">
@@ -171,7 +170,6 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:visibility="visible"
-                    app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="4dp"
                     app:cardUseCompatPadding="true"
                     app:contentPadding="10dp">
@@ -221,7 +219,6 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:visibility="visible"
-                    app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="4dp"
                     app:cardUseCompatPadding="true"
                     app:contentPadding="10dp">

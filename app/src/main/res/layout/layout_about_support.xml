@@ -42,7 +42,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_star"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <LinearLayout
@@ -86,7 +86,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_share"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <LinearLayout
@@ -130,7 +130,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_feedback"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <LinearLayout

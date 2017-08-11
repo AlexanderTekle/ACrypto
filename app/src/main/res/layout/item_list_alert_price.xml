@@ -49,6 +49,7 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginEnd="5dp"
                         android:maxLines="2"
+                        android:textColor="?android:textColorPrimary"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         tools:text="BTC/USD" />
 
@@ -93,7 +94,7 @@
                     android:layout_gravity="end"
                     android:paddingEnd="10dp"
                     app:amount="0"
-                    app:baseTextColor="@color/accent_black"
+                    app:baseTextColor="?android:colorForeground"
                     app:baseTextSize="18sp"
                     app:decimalDigitsTextSize="18sp"
                     app:decimalSeparator="."

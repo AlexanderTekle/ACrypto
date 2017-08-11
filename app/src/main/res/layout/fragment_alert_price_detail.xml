@@ -60,7 +60,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             app:amount="0"
-                            app:baseTextColor="@android:color/black"
+                            app:baseTextColor="?android:colorForeground"
                             app:baseTextSize="25sp"
                             app:decimalDigitsTextSize="25sp"
                             app:decimalSeparator="."

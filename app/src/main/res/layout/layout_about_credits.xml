@@ -42,7 +42,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_license"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <TextView
@@ -73,7 +73,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/cclogo"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <TextView

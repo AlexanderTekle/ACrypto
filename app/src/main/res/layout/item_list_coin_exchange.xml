@@ -33,6 +33,7 @@
                     android:layout_gravity="start"
                     android:layout_marginEnd="5dp"
                     android:textAlignment="viewStart"
+                    android:textColor="?android:textColorPrimary"
                     android:maxLines="2"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     tools:text="Coin Name" />
@@ -48,7 +49,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:maxLines="1"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?android:textColorTertiary"
                         android:textSize="14sp"
                         android:text="@string/vol_24h" />
 
@@ -58,7 +59,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         app:amount="0"
-                        app:baseTextColor="@android:color/darker_gray"
+                        app:baseTextColor="?android:colorForeground"
                         app:baseTextSize="14sp"
                         app:decimalDigitsTextSize="14sp"
                         app:decimalSeparator="."
@@ -82,7 +83,7 @@
                     android:layout_gravity="end"
                     android:paddingEnd="10dp"
                     app:amount="0"
-                    app:baseTextColor="@color/accent_black"
+                    app:baseTextColor="?android:colorForeground"
                     app:baseTextSize="18sp"
                     app:decimalDigitsTextSize="18sp"
                     app:decimalSeparator="."

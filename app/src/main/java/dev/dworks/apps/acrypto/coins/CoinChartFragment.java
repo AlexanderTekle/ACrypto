@@ -8,6 +8,7 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -233,17 +234,20 @@ public class CoinChartFragment extends ActionBarFragment
         mChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         mChart.getAxisLeft().setDrawAxisLine(true);
         mChart.getAxisLeft().setDrawZeroLine(true);
+        mChart.getAxisLeft().setTextColor(Utils.themeAttributeToColor(getActivity(),
+                android.R.attr.textColorPrimary));
         mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol());
+                return getCurrentCurrencyToSymbol() + " "
+                        + Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol());
             }
         });
 
         mChart.getXAxis().setEnabled(false);
         mChart.getXAxis().setDrawGridLines(false);
         mChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        mChart.getXAxis().setTextColor(getColor(this, R.color.colorPrimary));
+        mChart.getXAxis().setTextColor(getColor(this, R.color.chartColor));
         mChart.getXAxis().setAvoidFirstLastClipping(false);
         mChart.getXAxis().setValueFormatter(new IAxisValueFormatter() {
             @Override
@@ -273,6 +277,8 @@ public class CoinChartFragment extends ActionBarFragment
         mBarChart.getAxisLeft().setEnabled(true);
         mBarChart.getAxisLeft().setSpaceTop(40);
         mBarChart.getAxisLeft().setAxisMinimum(0);
+        mBarChart.getAxisLeft().setTextColor(Utils.themeAttributeToColor(getActivity(),
+                android.R.attr.textColorPrimary));
         mBarChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         mBarChart.getAxisLeft().setDrawAxisLine(true);
 
@@ -534,7 +540,7 @@ public class CoinChartFragment extends ActionBarFragment
         BarDataSet set2 = new BarDataSet(barEntries, "Volume");
         set2.setDrawValues(false);
         set2.setHighLightColor(getColor(this, R.color.colorAccent));
-        set2.setColor(getColor(this, R.color.colorPrimary));
+        set2.setColor(getColor(this, R.color.chartColor));
         set2.setDrawValues(false);
 
         BarData barData = new BarData(set2);

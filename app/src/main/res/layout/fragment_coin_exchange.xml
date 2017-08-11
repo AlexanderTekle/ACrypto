@@ -51,6 +51,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:textColorPrimary"
             android:textIsSelectable="false" />
     </FrameLayout>
 

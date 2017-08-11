@@ -6,6 +6,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
 import android.support.v7.app.AlertDialog;
 
 import dev.dworks.apps.acrypto.App;
@@ -19,6 +20,8 @@ import okhttp3.internal.Util;
 
 import static android.app.Activity.RESULT_FIRST_USER;
 import static dev.dworks.apps.acrypto.MainActivity.RESULT_SYNC_MASTER;
+import static dev.dworks.apps.acrypto.MainActivity.RESULT_THEME_CHANGED;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_THEME_STYLE;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.KEY_USER_CURRENCY;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 
@@ -30,6 +33,7 @@ public class GeneralPreferenceFragment extends GeneralPreferenceFlavourFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        PreferenceScreen preferenceScreen = (PreferenceScreen) findPreference("preferenceScreen");
         ListPreference preferenceCurrency = (ListPreference)findPreference(KEY_USER_CURRENCY);
         preferenceCurrency.setEntries(App.getInstance().getCurrencyCharsList().toArray(new CharSequence[0]));
         preferenceCurrency.setEntryValues(App.getInstance().getCurrencyCharsList().toArray(new CharSequence[0]));
@@ -37,7 +41,6 @@ public class GeneralPreferenceFragment extends GeneralPreferenceFlavourFragment
         preferenceCurrency.setOnPreferenceClickListener(this);
         preferenceCurrency.setOnPreferenceChangeListener(this);
 
-        PreferenceCategory preferenceCategory = (PreferenceCategory) findPreference("account");
         Preference logoutPreference = findPreference(SettingsActivity.KEY_LOGOUT);
         logoutPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -58,8 +61,13 @@ public class GeneralPreferenceFragment extends GeneralPreferenceFlavourFragment
             }
         });
 
+
+        Preference preferenceThemeStyle = findPreference(KEY_THEME_STYLE);
+        preferenceThemeStyle.setOnPreferenceChangeListener(this);
+        preferenceThemeStyle.setOnPreferenceClickListener(this);
+
         if(!FirebaseHelper.isLoggedIn()){
-            preferenceCategory.removePreference(logoutPreference);
+            preferenceScreen.removePreference(logoutPreference);
         }
     }
 
@@ -71,10 +79,17 @@ public class GeneralPreferenceFragment extends GeneralPreferenceFlavourFragment
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        FirebaseHelper.updateNativeCurrency(newValue.toString());
-        Bundle bundle = new Bundle();
-        bundle.putString("currency", newValue.toString());
-        AnalyticsManager.logEvent("currency_changed", bundle);
+        if(preference.getKey().equals(KEY_THEME_STYLE)){
+            ((SettingsActivity)getActivity()).restartActivity();
+            Bundle bundle = new Bundle();
+            bundle.putString("theme_style", String.valueOf(newValue));
+            AnalyticsManager.logEvent("theme_changed", bundle);
+        } else {
+            FirebaseHelper.updateNativeCurrency(newValue.toString());
+            Bundle bundle = new Bundle();
+            bundle.putString("currency", newValue.toString());
+            AnalyticsManager.logEvent("currency_changed", bundle);
+        }
         return true;
     }
 

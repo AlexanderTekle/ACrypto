@@ -21,6 +21,11 @@
             <dev.dworks.apps.acrypto.view.InteractiveChartLayout
                 android:id="@+id/interactivechart"
                 android:layout_width="match_parent"
+                app:xLabelColor="?android:textColorPrimary"
+                app:yLabelColor="?android:textColorPrimary"
+                app:markerBorderColor="?android:textColorPrimary"
+                app:markerTextColor="?android:textColorPrimary"
+                app:candleExtremumLableColor="?android:textColorPrimary"
                 android:layout_height="match_parent">
 
                 <TextView
@@ -30,7 +35,7 @@
                     android:layout_gravity="right"
                     android:layout_marginRight="12dp"
                     android:text="@string/ma_normal"
-                    android:textColor="#282b34"
+                    android:textColor="?android:textColorPrimary"
                     android:textSize="10dp" />
 
                 <TextView
@@ -41,7 +46,7 @@
                     android:layout_marginBottom="@dimen/stock_value_padding"
                     android:layout_marginRight="12dp"
                     android:text="@string/macd_normal"
-                    android:textColor="#282b34"
+                    android:textColor="?android:textColorPrimary"
                     android:textSize="10dp" />
 
                 <android.support.design.widget.TabLayout
@@ -49,8 +54,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/stock_index_tab_height"
                     android:layout_gravity="bottom"
-                    android:background="@android:color/white"
+                    android:background="?android:windowBackground"
                     android:layout_marginBottom="@dimen/stock_tab_padding"
+                    app:tabTextColor="?android:textColorTertiary"
+                    app:tabSelectedTextColor="?android:textColorPrimary"
                     app:tabGravity="fill"
                     app:tabMode="scrollable">
 

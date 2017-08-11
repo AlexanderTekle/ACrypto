@@ -53,7 +53,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_about"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <LinearLayout
@@ -98,7 +98,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_support"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <TextView
@@ -129,7 +129,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_twitter"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <TextView
@@ -161,7 +161,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 app:srcCompat="@drawable/ic_gplus"
-                android:tint="@color/tint_grey"
+                android:tint="@color/light_tint"
                 tools:ignore="ContentDescription,UnusedAttribute" />
 
             <TextView

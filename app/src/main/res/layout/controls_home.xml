@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:background="@android:color/white"
+        android:background="@color/home_controls_color"
         android:orientation="horizontal">
 
         <dev.dworks.apps.acrypto.view.SearchableSpinner

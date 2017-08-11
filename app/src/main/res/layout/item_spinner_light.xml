@@ -10,5 +10,6 @@
     android:maxLines="1"
     android:textDirection="anyRtl"
     android:textAlignment="viewStart"
+    android:textColor="?paddingBottomNoButtons"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
     android:textSize="14sp" />

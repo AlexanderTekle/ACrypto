@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/home_color">
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|end"
                 android:layout_margin="10dp"
-                android:textColor="@android:color/white"
+                android:textColor="?android:textColorPrimaryInverse"
                 android:textSize="12sp"
                 android:visibility="gone"
                 tools:text="5/3/17 2:45 PM" />

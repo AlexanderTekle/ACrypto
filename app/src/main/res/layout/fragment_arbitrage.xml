@@ -49,6 +49,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:elevation="10dp"
+            app:tabTextColor="?android:textColorTertiary"
+            app:tabSelectedTextColor="?android:textColorPrimary"
             app:tabGravity="fill"
             app:tabMode="scrollable">
 
