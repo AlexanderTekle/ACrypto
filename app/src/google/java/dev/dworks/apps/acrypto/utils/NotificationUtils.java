@@ -122,7 +122,7 @@ public class NotificationUtils {
     public static String getNotificationType(Bundle extras) {
         String type = "";
         if(null != extras){
-            type = extras.getString("type");
+            type = extras.getString("type", "");
         }
         return type;
     }
@@ -130,7 +130,7 @@ public class NotificationUtils {
     public static String getNotificationSubType(Bundle extras) {
         String type = "";
         if(null != extras){
-            type = extras.getString("sub_type");
+            type = extras.getString("sub_type", "");
         }
         return type;
     }

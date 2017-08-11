@@ -318,8 +318,8 @@ public class ArbitrageChartFragment extends ActionBarFragment
         setPriceValue(mValueTwo, currentValueTwo);
         mTimeOne.setText(getCurrentCurrencyOneName() + " Price");
         mTimeTwo.setText(getCurrentCurrencyTwoName() + " Price" + " in " + getCurrentCurrencyOne());
-        double diff = (currentValueTwo - currentValueOne);
-        mDifferencePercentage.setText(getDisplayPercentageRounded(currentValueOne, currentValueTwo));
+        double diff = currentValueTwo != 0 ? (currentValueTwo - currentValueOne) : 0;
+        mDifferencePercentage.setText(diff == 0 ? "-" : getDisplayPercentageRounded(currentValueOne, currentValueTwo));
         mDifferencePercentage.setTextColor(ContextCompat.getColor(getActivity(), getPercentDifferenceColor(diff)));
         String text = Utils.getString(this, R.string.artbitrage_message,
                 getCurrentCurrencyFrom(),
