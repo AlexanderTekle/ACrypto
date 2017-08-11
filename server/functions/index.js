@@ -764,7 +764,7 @@ function sendNewsAlerts() {
       // Set the message as high priority and have it expire after 24 hours.
       const options = {
         priority: "high",
-        timeToLive: 60 * 30
+        timeToLive: 60 * 60 * 2
       };
       return admin.messaging().sendToTopic(topic, payload, options).then(response => {
         logInfo("Successfully sent news alert", {newsId: newsId, topic : topic});
