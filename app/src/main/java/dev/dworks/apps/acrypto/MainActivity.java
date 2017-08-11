@@ -52,14 +52,17 @@ import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
 import dev.dworks.apps.acrypto.view.SearchableSpinner;
-import dev.dworks.apps.acrypto.view.SimpleSpinner;
 
 import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_ALERT;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_ALERT_ARBITRAGE;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_ALERT_PRICE;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_GENERIC;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_URL;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_URL_NEWS;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getAlertName;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationSubType;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationType;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationUrl;
 import static dev.dworks.apps.acrypto.utils.Utils.INTERSTITIAL_APP_UNIT_ID;
@@ -371,6 +374,7 @@ public class MainActivity extends AppCompatActivity
 
     private void handleExtras(boolean newIntent, Bundle extras) {
         String type = getNotificationType(extras);
+        String subType = getNotificationSubType(extras);
         if(TextUtils.isEmpty(type)){
             if(!newIntent){
                 showLastFragment(lastFragmentId);
@@ -379,10 +383,17 @@ public class MainActivity extends AppCompatActivity
         }
         if(type.equals(TYPE_ALERT)){
             String name = getAlertName(extras);
-            showHome(name);
-            Bundle bundle = new Bundle();
-            bundle.putString("source", "notification");
-            AnalyticsManager.logEvent("view_home", bundle);
+            if(subType.equals(TYPE_ALERT_PRICE)){
+                showHome(name);
+                Bundle bundle = new Bundle();
+                bundle.putString("source", "notification");
+                AnalyticsManager.logEvent("view_home", bundle);
+            } else if(subType.equals(TYPE_ALERT_ARBITRAGE)){
+                ArbitrageFragment.show(getSupportFragmentManager(), name);
+                Bundle bundle = new Bundle();
+                bundle.putString("source", "notification");
+                AnalyticsManager.logEvent("view_arbitrage", bundle);
+            }
         } else if(type.equals(TYPE_URL)){
             String url = getNotificationUrl(extras);
             if(!TextUtils.isEmpty(url)){
@@ -390,6 +401,9 @@ public class MainActivity extends AppCompatActivity
                 Bundle bundle = new Bundle();
                 bundle.putString("source", "notification");
                 AnalyticsManager.logEvent("view_url", bundle);
+            }
+            if(subType.equals(TYPE_URL_NEWS)){
+                NewsFragment.show(getSupportFragmentManager());
             }
         } else if (type.equals(TYPE_GENERIC)){
             //Do nothing
@@ -425,7 +439,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_arbitrage:
 
                 coinsList.setVisibility(View.GONE);
-                ArbitrageFragment.show(getSupportFragmentManager());
+                ArbitrageFragment.show(getSupportFragmentManager(), null);
                 AnalyticsManager.logEvent("view_arbitrage");
                 break;
 

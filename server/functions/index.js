@@ -489,6 +489,7 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
       sound: 'default',
       icon: 'ic_alerts',
       type: "alert",
+      sub_type: "price",
       android_channel_id: "alerts_channel",
       tag: comboKey
     }
@@ -755,6 +756,7 @@ function sendNewsAlerts() {
           sound: 'default',
           icon: 'ic_news',
           type: "url",
+          sub_type: "news",
           android_channel_id: "news_channel",
           tag: topic
         }
@@ -947,6 +949,7 @@ function sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurre
       sound: 'default',
       icon: 'ic_alerts',
       type: "alert",
+      sub_type: "arbitrage",
       android_channel_id: "alerts_channel",
       tag: comboKey
     }

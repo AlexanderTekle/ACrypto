@@ -33,8 +33,11 @@ public class NotificationUtils {
 
     public static final String TOPIC_NEWS_ALL = "news_all";
     public static final String TYPE_ALERT = "alert";
+    public static final String TYPE_ALERT_PRICE = "price";
+    public static final String TYPE_ALERT_ARBITRAGE = "arbitrage";
     public static final String TYPE_GENERIC = "generic";
     public static final String TYPE_URL = "url";
+    public static final String TYPE_URL_NEWS = "news";
     public static final String TYPE_DATA = "data";
 
     public static final String INFO_CHANNEL = "info_channel";
@@ -117,9 +120,17 @@ public class NotificationUtils {
     }
 
     public static String getNotificationType(Bundle extras) {
-        String type = null;
+        String type = "";
         if(null != extras){
             type = extras.getString("type");
+        }
+        return type;
+    }
+
+    public static String getNotificationSubType(Bundle extras) {
+        String type = "";
+        if(null != extras){
+            type = extras.getString("sub_type");
         }
         return type;
     }

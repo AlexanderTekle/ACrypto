@@ -34,8 +34,7 @@
             android:label="Settings"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".ErrorActivity"
-            android:process=":error_activity" />
+            android:name=".ErrorActivity"  />
         <activity
             android:name=".LoginActivity"
             android:label="Login"
