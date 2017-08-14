@@ -284,7 +284,8 @@ public class HomeFragment extends ActionBarFragment
         mChart.getAxisLeft().setDrawZeroLine(true);
         mChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         mChart.getAxisLeft().setDrawAxisLine(true);
-
+        mChart.getAxisLeft().setTextColor(Utils.themeAttributeToColor(getActivity(),
+                android.R.attr.textColorPrimary));
         mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
@@ -331,6 +332,8 @@ public class HomeFragment extends ActionBarFragment
         mBarChart.getAxisLeft().setDrawZeroLine(true);
         mBarChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         mBarChart.getAxisLeft().setDrawAxisLine(true);
+        mBarChart.getAxisLeft().setTextColor(Utils.themeAttributeToColor(getActivity(),
+                android.R.attr.textColorPrimary));
 
         mBarChart.getXAxis().setEnabled(false);
         mBarChart.getXAxis().setDrawGridLines(false);
@@ -396,7 +399,7 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<Coins>() {
                     @Override
                     public void onResponse(Coins coins) {
-                        mCurrencyFromSpinner.setItems(coins.coins);
+                        mCurrencyFromSpinner.setItems(coins.coins, R.layout.item_spinner_dark);
                         mCurrencyFromSpinner.setSelection(getCurrentCurrencyFrom());
                     }
                 },
@@ -419,7 +422,7 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<Currencies>() {
                     @Override
                     public void onResponse(Currencies currencies) {
-                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
+                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies), R.layout.item_spinner_dark);
                         mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
                 },
@@ -449,7 +452,7 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<Exchanges>() {
                     @Override
                     public void onResponse(Exchanges prices) {
-                        mExchangeSpinner.setItems(prices.getAllData());
+                        mExchangeSpinner.setItems(prices.getAllData(), R.layout.item_spinner_dark);
                         mExchangeSpinner.setSelection(getCurrentExchange());
                         if(prices.getAllData().size() == 1
                                 && prices.getAllData().get(0).toString().equals(NO_EXCHANGES)){
@@ -670,9 +673,9 @@ public class HomeFragment extends ActionBarFragment
         set1.setDrawValues(false);
         set1.setDrawCircles(false);
         set1.setMode(LineDataSet.Mode.LINEAR);
-        set1.setFillColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setFillColor(getColor(this, R.color.colorPrimary));
+        set1.setFillAlpha(200);
         set1.setDrawFilled(true);
-
 
         LineData data = new LineData(set1);
         mChart.getXAxis().setEnabled(true);
@@ -685,6 +688,7 @@ public class HomeFragment extends ActionBarFragment
         BarDataSet set2 = new BarDataSet(barEntries, "Volume");
         set2.setDrawValues(false);
         set2.setHighLightColor(getColor(this, R.color.colorAccent));
+        set2.setColor(getColor(this, R.color.chartColor));
         set2.setDrawValues(false);
 
         BarData barData = new BarData(set2);
