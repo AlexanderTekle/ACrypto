@@ -897,9 +897,9 @@ function sendArbitrageNotifications(comboKey, userId, fromCurrentPrice, toCurren
     // Check if there are any device tokens.
     if (!arbitrageAlertSnapshot.hasChildren()) {
       // TODO: remove the corresponding /alerts/arbitrage
-      return logInfo("Arbitrage No alerts to send", {user: userId, key : comboKey});
+      return logInfo("No alerts to send", {user: userId, key : comboKey});
     }
-    logInfo("Arbitrage Alerts fetched", {user: userId, alert_count: arbitrageAlertSnapshot.numChildren(), key : comboKey});
+    logInfo("Alerts fetched", {user: userId, alert_count: arbitrageAlertSnapshot.numChildren(), key : comboKey});
     const promises = [];
     arbitrageAlertSnapshot.forEach(function(dataSnapshot) {
         promises.push(sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurrentPrice, dataSnapshot));
@@ -993,3 +993,63 @@ function getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fro
   const diff = getArbitrageDiff(toCurrentPrice, fromCurrentPrice);
   return fromCurrency + " to " + toCurrency + " " + Math.abs(diff) + "%"+ (diff > 0 ? " profit" : " loss");
 }
+
+exports.arbitrageAlertCreate = functions.database.ref('/user_alerts/arbitrage/{uid}/{alertId}').onCreate(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const comboKey = snapshot.current.val().name;
+
+  return admin.database().ref(`/alerts/arbitrage/${comboKey}/${uid}`).set(true).then(result => {
+    logInfo("Create alert", {user: uid, key : comboKey});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'add alert'});
+  });
+});
+
+exports.arbitrageAlertDelete = functions.database.ref('/user_alerts/arbitrage/{uid}/{alertId}').onDelete(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+
+  const comboKey = snapshot.previous.val().name;
+  return admin.database().ref(`/alerts/arbitrage/${comboKey}/${uid}`).remove().then(result => {
+    logInfo("Delete alert", {user: uid, key : comboKey});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'delete alert'});
+  });
+});
+
+exports.arbitrageAlertUpdateOnName = functions.database.ref('/user_alerts/arbitrage/{uid}/{alertId}/name').onUpdate(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const name = snapshot.current.val();
+  const prevName = snapshot.previous.val();
+
+  const removePromise = admin.database().ref(`/alerts/arbitrage/${prevName}/${uid}`).remove();
+  const addPromise = admin.database().ref(`/alerts/arbitrage/${name}/${uid}`).set(true);
+  return Promise.all([removePromise, addPromise]).then(result => {
+    logInfo("Removed and Added alert", {user: uid, key : name});
+  })
+  .catch(error => {
+    return reportError(error, {user: uid, type: 'database_write', context: 'update alert'});
+  });
+});
+
+exports.arbitrageAlertUpdateOnStatus = functions.database.ref('/user_alerts/arbitrage/{uid}/{alertId}/status').onUpdate(event => {
+  const snapshot = event.data;
+  const uid = event.params.uid;
+  const alertId = event.params.alertId;
+  const status = snapshot.current.val();
+
+  return admin.database().ref(`/user_alerts/arbitrage/${uid}/${alertId}`).once('value').then(snapshot => {
+    const name = snapshot.val().name;
+    if(status == 1){
+        logInfo("Added alert on status change", {user: uid, key : name});
+        return admin.database().ref(`/alerts/arbitrage/${name}/${uid}`).set(true);
+    } else {
+        //logInfo("Removed alert on status change", {user: uid, key : name});
+        //return admin.database().ref(`/alerts/arbitrage/${name}/${uid}`).remove();
+    }
+  });
+});
