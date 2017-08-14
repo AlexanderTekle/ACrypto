@@ -575,7 +575,7 @@ function round(value, decimals) {
   return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
 }
 
-exports.createPriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onCreate(event => {
+exports.priceAlertCreate = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onCreate(event => {
   const snapshot = event.data;
   const uid = event.params.uid;
   const comboKey = snapshot.current.val().name;
@@ -588,7 +588,7 @@ exports.createPriceAlert = functions.database.ref('/user_alerts/price/{uid}/{ale
   });
 });
 
-exports.deletePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onDelete(event => {
+exports.priceAlertDelete = functions.database.ref('/user_alerts/price/{uid}/{alertId}').onDelete(event => {
   const snapshot = event.data;
   const uid = event.params.uid;
 
@@ -601,7 +601,7 @@ exports.deletePriceAlert = functions.database.ref('/user_alerts/price/{uid}/{ale
   });
 });
 
-exports.updateOnPriceAlertName = functions.database.ref('/user_alerts/price/{uid}/{alertId}/name').onUpdate(event => {
+exports.priceAlertUpdateOnName = functions.database.ref('/user_alerts/price/{uid}/{alertId}/name').onUpdate(event => {
   const snapshot = event.data;
   const uid = event.params.uid;
   const name = snapshot.current.val();
@@ -617,7 +617,7 @@ exports.updateOnPriceAlertName = functions.database.ref('/user_alerts/price/{uid
   });
 });
 
-exports.updateOnPriceAlertStatus = functions.database.ref('/user_alerts/price/{uid}/{alertId}/status').onUpdate(event => {
+exports.priceAlertUpdateOnStatus = functions.database.ref('/user_alerts/price/{uid}/{alertId}/status').onUpdate(event => {
   const snapshot = event.data;
   const uid = event.params.uid;
   const alertId = event.params.alertId;
@@ -671,7 +671,7 @@ function createFirebaseAccount(uid, displayName, email){
   });
 }
 
-exports.deletePortfolioCoins = functions.database.ref('/portfolios/{uid}/{portfolioId}').onDelete(event => {
+exports.portfolioCoinsDelete = functions.database.ref('/portfolios/{uid}/{portfolioId}').onDelete(event => {
   const uid = event.params.uid;
   const portfolioId = event.params.portfolioId;
 
