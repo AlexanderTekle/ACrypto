@@ -94,5 +94,6 @@
   "KPL" : true,
   "LINDA" : true,
   "TER" : true,
-  "ANS" : true
+  "ANS" : true,
+  "IOT*" : true
 }

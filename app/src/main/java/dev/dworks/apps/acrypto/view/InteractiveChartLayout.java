@@ -102,6 +102,8 @@ public class InteractiveChartLayout extends FrameLayout implements TabLayout.OnT
         SizeColor sizeColor = ViewUtils.getSizeColor(context, attrs, defStyleAttr);
         sizeColor.setHighlightSize(4f);
         sizeColor.setHighlightColor(ContextCompat.getColor(context, R.color.colorAccent));
+        sizeColor.setIncreasingColor(ContextCompat.getColor(context, R.color.accent_teal));
+        sizeColor.setDecreasingColor(ContextCompat.getColor(context, R.color.accent_red));
         kLineRender.setSizeColor(sizeColor);
 
         kLineView.setKLineHandler(new KLineHandler() {

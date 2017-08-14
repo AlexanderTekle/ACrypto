@@ -392,6 +392,11 @@
     "order": 78,
     "symbol": "STORJ"
   },
+  "SJCX": {
+    "name": "StorjCoin X",
+    "order": 78,
+    "symbol": "SJCX"
+  },
   "PPY": {
     "name": "Peerplays",
     "order": 79,

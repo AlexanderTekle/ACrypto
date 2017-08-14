@@ -84,7 +84,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal|end"
                     android:layout_marginTop="5dp"
-                    android:textColor="?android:attr/textColorPrimary"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="12sp"
                     tools:text="5/3/17 2:45 PM" />
             </LinearLayout>
@@ -129,7 +129,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center|start"
-                        android:textColor="?android:attr/textColorPrimary"
+                        android:textColor="?android:attr/textColorSecondary"
                         android:textSize="20sp"
                         android:visibility="gone"
                         tools:text="234" />
@@ -143,7 +143,7 @@
                     android:layout_marginTop="5dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="?android:attr/textColorPrimary"
+                    android:textColor="?android:attr/textColorTertiary"
                     android:textSize="12sp"
                     tools:text="since last week" />
             </LinearLayout>
