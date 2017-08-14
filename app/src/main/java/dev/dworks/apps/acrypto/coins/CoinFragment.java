@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,7 +29,7 @@ import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
-import dev.dworks.apps.acrypto.common.CoinsDeserializer;
+import dev.dworks.apps.acrypto.entity.CoinsDeserializer;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -292,7 +294,34 @@ public class CoinFragment extends RecyclerFragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.coins, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        setupSearch(searchItem);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void setupSearch(MenuItem searchItem) {
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String searchQuery) {
+                mAdapter.filter(searchQuery.toString().trim());
+                return true;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                mAdapter.filter(null);
+                return false;
+            }
+        });
     }
 
     @Override

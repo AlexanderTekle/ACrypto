@@ -12,5 +12,5 @@
         android:icon="@drawable/ic_refresh"
         android:orderInCategory="101"
         android:title="@string/action_refresh"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
 </menu>

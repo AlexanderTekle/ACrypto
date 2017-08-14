@@ -2,30 +2,37 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_sort"
+        android:id="@+id/action_search"
+        android:icon="@drawable/abc_ic_search_api_material"
         android:orderInCategory="100"
-        android:title="@string/action_sort"
+        android:title="@string/menu_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always|collapseActionView" />
+    <item
+        android:id="@+id/action_sort"
         android:icon="@drawable/ic_sort"
-        app:showAsAction="always" >
+        android:orderInCategory="101"
+        android:title="@string/action_sort"
+        app:showAsAction="always">
         <menu>
             <item
                 android:id="@+id/menu_sort_default"
-                android:title="@string/sort_default"/>
+                android:title="@string/sort_default" />
             <item
                 android:id="@+id/menu_sort_price"
-                android:title="@string/sort_price"/>
+                android:title="@string/sort_price" />
             <item
                 android:id="@+id/menu_sort_volume_change"
-                android:title="@string/sort_volume_change"/>
+                android:title="@string/sort_volume_change" />
             <item
                 android:id="@+id/menu_sort_price_change"
-                android:title="@string/sort_price_change"/>
+                android:title="@string/sort_price_change" />
         </menu>
     </item>
     <item
         android:id="@+id/action_refresh"
-        android:orderInCategory="101"
-        android:title="@string/action_refresh"
         android:icon="@drawable/ic_refresh"
-        app:showAsAction="always" />
+        android:orderInCategory="102"
+        android:title="@string/action_refresh"
+        app:showAsAction="never" />
 </menu>

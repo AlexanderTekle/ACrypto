@@ -1,6 +1,8 @@
 package dev.dworks.apps.acrypto.view;
 
 import android.support.v7.widget.RecyclerView;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,8 +11,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import dev.dworks.apps.acrypto.entity.Coins;
+
 public abstract class ArrayRecyclerAdapter<T, VH extends RecyclerView.ViewHolder>
-        extends RecyclerView.Adapter<VH> {
+        extends RecyclerView.Adapter<VH> implements Filterable{
 
     /**
      * Contains the list of objects that represent the data of this ArrayAdapter.
@@ -27,6 +31,8 @@ public abstract class ArrayRecyclerAdapter<T, VH extends RecyclerView.ViewHolder
      * {@link #mObjects} is modified.
      */
     private boolean mNotifyOnChange = true;
+
+    private ArrayList<T> mOrigObjects;
 
     public ArrayRecyclerAdapter() {
         this(new ArrayList<T>());
@@ -100,6 +106,7 @@ public abstract class ArrayRecyclerAdapter<T, VH extends RecyclerView.ViewHolder
     public void setData(Collection<? extends T>  collection){
         synchronized (mLock) {
             mObjects = new ArrayList<T>(collection);
+            mOrigObjects = new ArrayList<>(mObjects);
         }
         if (mNotifyOnChange) notifyDataSetChanged();
     }
@@ -136,6 +143,7 @@ public abstract class ArrayRecyclerAdapter<T, VH extends RecyclerView.ViewHolder
     public void sort(Comparator<? super T> comparator) {
         synchronized (mLock) {
             Collections.sort(mObjects, comparator);
+            mOrigObjects = new ArrayList<>(mObjects);
         }
         if (mNotifyOnChange) notifyDataSetChanged();
     }
@@ -185,5 +193,60 @@ public abstract class ArrayRecyclerAdapter<T, VH extends RecyclerView.ViewHolder
      */
     public long getItemId(int position) {
         return position;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence prefix) {
+                FilterResults results = new FilterResults();
+                ArrayList<T> filteredList = new ArrayList<>();
+                if (null == prefix || prefix.length() == 0) {
+                    filteredList.addAll(mOrigObjects);
+                } else {
+                    String prefixString = prefix.toString().toLowerCase().trim();
+                    final int count = mOrigObjects.size();
+
+                    for (int i = 0; i < count; i++) {
+                        final T value = mOrigObjects.get(i);
+                        final String valueText = value.toString().toLowerCase();
+
+                        // First match against the whole, non-splitted value
+                        if (valueText.contains(prefixString)) {
+                            filteredList.add(value);
+                        } else {
+                            final String[] words = prefixString.split("\\s+");
+                            for (String word : words){
+                                if (valueText.contains(word)) {
+                                    filteredList.add(value);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                results.values = filteredList;
+                results.count = filteredList.size();
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                if (results != null && results.count > 0) {
+                    mObjects.clear();
+                    mObjects.addAll((Collection<? extends T>) results.values);
+                } else {
+                    mObjects.clear();
+                }
+                notifyDataSetChanged();
+            }
+        };
+    }
+
+    public void filter(String query){
+        synchronized (mLock) {
+            getFilter().filter(query);
+        }
     }
 }

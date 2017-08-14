@@ -363,6 +363,7 @@ public class HomeFragment extends ActionBarFragment
 
         if(refreshAll) {
             retry = false;
+            mControls.setVisibility(View.INVISIBLE);
             diffValue = -1;
             currentValue = 0;
             setDefaultValues();

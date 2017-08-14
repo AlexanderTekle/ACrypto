@@ -21,7 +21,7 @@ public class RoundedNumberFormat extends DecimalFormat {
 
     private static final Pattern TRAILING_DECIMAL_POINT = Pattern.compile("[0-9]+\\.[KMBT]");
 
-    private static final Pattern METRIC_PREFIXED_NUMBER = Pattern.compile("\\-?[0-9]+(\\.[0-9])?[kKBT]");
+    private static final Pattern METRIC_PREFIXED_NUMBER = Pattern.compile("-?[0-9]+(\\.[0-9])?[kKBT]");
 
     @Override
     public StringBuffer format(double number, StringBuffer toAppendTo, FieldPosition pos) {

@@ -2,9 +2,12 @@ package dev.dworks.apps.acrypto.coins;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import org.fabiomsr.moneytextview.MoneyTextView;
@@ -43,7 +46,7 @@ public class CoinAdapter extends ArrayRecyclerAdapter<Coins.CoinDetail, CoinAdap
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
     private String mCurrencySymbol;
-    private ArrayList<Coins.CoinDetail> mOrigObjects;
+    private ArrayList<Coins.CoinDetail> mDefaultData;
 
     public CoinAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
@@ -86,12 +89,12 @@ public class CoinAdapter extends ArrayRecyclerAdapter<Coins.CoinDetail, CoinAdap
     @Override
     public void setData(Collection<? extends Coins.CoinDetail> collection) {
         super.setData(collection);
-        mOrigObjects = new ArrayList<>(collection);
+        mDefaultData = new ArrayList<>(collection);
     }
 
     public void sortList(int sortType){
         if(sortType == SORT_DEFAULT){
-            setData(mOrigObjects);
+            setData(mDefaultData);
             return;
         }
         sort(new CoinComparator(sortType));
@@ -129,14 +132,8 @@ public class CoinAdapter extends ArrayRecyclerAdapter<Coins.CoinDetail, CoinAdap
             mPosition = position;
             Coins.CoinDetail item = getItem(position);
             String url = "";
-            try {
-                final CoinDetailSample.CoinDetail coinDetail = getCoin(item.fromSym);
-                name.setText(coinDetail.name);
-                url = getCoinUrl(coinDetail);
-
-            } catch (Exception e){
-                name.setText(item.fromSym);
-            }
+            name.setText(item.name + " ("+item.fromSym+")");
+            url = getCoinUrl(item.id);
             imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
 
             Utils.setNumberValue(volume, Double.parseDouble(item.volume24HTo), mCurrencySymbol);
@@ -155,8 +152,8 @@ public class CoinAdapter extends ArrayRecyclerAdapter<Coins.CoinDetail, CoinAdap
             return App.getInstance().getCoinDetails().coins.get(symbol);
         }
 
-        private String getCoinUrl(CoinDetailSample.CoinDetail coinDetail){
-            return Coins.BASE_URL + coinDetail.id + ".png";
+        private String getCoinUrl(String id){
+            return TextUtils.isEmpty(id) ? "" :Coins.BASE_URL + id + ".png";
         }
 
         private void setDifference(Coins.CoinDetail item){

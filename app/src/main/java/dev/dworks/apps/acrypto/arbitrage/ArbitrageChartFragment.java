@@ -117,6 +117,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     private TextView mArbitrageSummary;
     private TextView mIcon;
     private ScrollView mScrollView;
+    private View mTimeseriesControls;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -170,6 +171,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     private void initControls(View view) {
 
         mControls = view.findViewById(R.id.controls);
+        mTimeseriesControls = view.findViewById(R.id.timeseries_controls);
         mScrollView = (ScrollView) view.findViewById(R.id.scrollView);
 
         mValueOne = (MoneyTextView) view.findViewById(R.id.valueOne);
@@ -201,6 +203,11 @@ public class ArbitrageChartFragment extends ActionBarFragment
         mPriceOne = null;
         mPriceTwo = null;
         mConversionRate = 0;
+        mControls.setVisibility(View.INVISIBLE);
+        mTimeseriesControls.setVisibility(View.INVISIBLE);
+        mArbitrageLayout.setVisibility(View.GONE);
+        mChart.clear();
+        mChart.invalidate();
     }
 
     private void initLineChart() {
@@ -397,6 +404,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
             return;
         }
         mControls.setVisibility(View.VISIBLE);
+        mTimeseriesControls.setVisibility(View.VISIBLE);
         mArbitrageLayout.setVisibility(View.VISIBLE);
         mChartProgress.setVisibility(View.GONE);
         showData();
@@ -405,11 +413,12 @@ public class ArbitrageChartFragment extends ActionBarFragment
     @Override
     protected void setEmptyData(String message){
         mControls.setVisibility(View.INVISIBLE);
+        mTimeseriesControls.setVisibility(View.INVISIBLE);
+        mArbitrageLayout.setVisibility(View.GONE);
         mChartProgress.setVisibility(View.GONE);
         mChart.setNoDataText(message);
         mChart.clear();
         mChart.invalidate();
-        mArbitrageLayout.setVisibility(View.GONE);
     }
 
     @Override

@@ -596,7 +596,7 @@ public class Utils {
 
     public static DecimalFormat getMoneyFormat(double value, String symbol){
         String precisionFormat = "###,##0.###";
-        if(value < 1){
+        if(Math.abs(value) < 1){
             precisionFormat = "###,##0.######";
         }
         if("Ƀ".compareTo(symbol) == 0){

@@ -1,4 +1,4 @@
-package dev.dworks.apps.acrypto.common;
+package dev.dworks.apps.acrypto.entity;
 
 import android.support.v4.util.ArrayMap;
 

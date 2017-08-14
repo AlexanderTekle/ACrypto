@@ -6,6 +6,8 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import dev.dworks.apps.acrypto.App;
+
 /**
  * Created by HaKr on 16/05/17.
  */
@@ -21,6 +23,8 @@ public class Coins extends BaseEntity {
 
     public static class CoinDetail implements Serializable {
 
+        public String id;
+        public String name;
         @SerializedName("TYPE")
         @Expose
         public String type;
@@ -100,9 +104,22 @@ public class Coins extends BaseEntity {
             Double difference = ((currentPrice - prevPrice)/prevPrice) * 100;
             return difference;
         }
+
+        @Override
+        public String toString() {
+            return name + fromSym;
+        }
     }
 
     public static CoinDetail getCoin(String data){
-        return new CoinDetail(data);
+        CoinDetail coin = new CoinDetail(data);
+        try {
+            final CoinDetailSample.CoinDetail coinDetail = App.getInstance().getCoinDetails().coins.get(coin.fromSym);
+            coin.name = coinDetail.name;
+            coin.id = coinDetail.id;
+        } catch (Exception e){
+            coin.name = coin.fromSym;
+        }
+        return coin;
     }
 }
