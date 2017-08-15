@@ -126,12 +126,7 @@ public class LogUtils {
 
 				message += " : " + error.networkResponse.statusCode;
 
-/*				Sentry.SentryEventBuilder sentryEventBuilder = new Sentry.SentryEventBuilder();
-				sentryEventBuilder.setMessage(message);
-				sentryEventBuilder.setExtra(map);
-				sentryEventBuilder.setTags(Sentry.getSystemTags());
-				sentryEventBuilder.setException(error);
-				Sentry.captureEvent(sentryEventBuilder);*/
+				CrashReportingManager.logError(error, true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -58,7 +58,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:paddingTop="?actionBarSize"
-                android:textColor="?android:textColorPrimary"
+                android:textColor="?android:textColorSecondary"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textIsSelectable="false" />
         </FrameLayout>

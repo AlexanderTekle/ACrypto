@@ -377,6 +377,7 @@ public class HomeFragment extends ActionBarFragment
             mBarChart.clear();
             mBarChart.invalidate();
             mExchangeSpinner.clear();
+            mExchangeSpinner.setVisibility(View.GONE);
             fetchCurrencyFromData();
             fetchCurrencyToData();
             fetchExchangeData();
@@ -452,14 +453,15 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<Exchanges>() {
                     @Override
                     public void onResponse(Exchanges prices) {
-                        mExchangeSpinner.setItems(prices.getAllData(), R.layout.item_spinner_dark);
-                        mExchangeSpinner.setSelection(getCurrentExchange());
                         if(prices.getAllData().size() == 1
                                 && prices.getAllData().get(0).toString().equals(NO_EXCHANGES)){
                             mExchangeSpinner.setEnabled(false);
                         }else {
                             mExchangeSpinner.setEnabled(true);
                         }
+                        mExchangeSpinner.setVisibility(View.VISIBLE);
+                        mExchangeSpinner.setItems(prices.getAllData(), R.layout.item_spinner_dark);
+                        mExchangeSpinner.setSelection(getCurrentExchange());
                     }
                 },
                 new Response.ErrorListener() {
@@ -665,8 +667,8 @@ public class HomeFragment extends ActionBarFragment
         set1.setLineWidth(1.75f);
         set1.setCircleRadius(2f);
         set1.setCircleHoleRadius(1f);
-        set1.setColor(getColor(this, R.color.colorPrimaryLight));
-        set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setColor(getColor(this, R.color.chartColor));
+        set1.setCircleColor(getColor(this, R.color.chartColor));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
         set1.setHighlightLineWidth(1);
 

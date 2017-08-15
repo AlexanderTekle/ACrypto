@@ -28,7 +28,7 @@
                 android:layout_marginEnd="16dp"
                 android:padding="15dp"
                 android:scaleType="centerCrop"
-                android:tint="@color/accent_teal"
+                android:tint="@color/colorAccent"
                 app:srcCompat="@drawable/ic_feature" />
 
             <LinearLayout

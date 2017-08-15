@@ -271,6 +271,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:textColor="?android:textColorSecondary"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textIsSelectable="false"
         android:visibility="gone" />

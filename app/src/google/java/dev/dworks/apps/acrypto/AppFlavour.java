@@ -16,6 +16,7 @@ import com.google.firebase.perf.FirebasePerformance;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.CrashReportingManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import needle.Needle;
@@ -61,6 +62,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
 			}
 		}
+		CrashReportingManager.enable(!BuildConfig.DEBUG);
 
 		initialMessagingSubscription();
 	}

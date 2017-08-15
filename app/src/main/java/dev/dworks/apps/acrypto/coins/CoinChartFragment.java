@@ -515,9 +515,9 @@ public class CoinChartFragment extends ActionBarFragment
         set1.setLineWidth(1.75f);
         set1.setCircleRadius(2f);
         set1.setCircleHoleRadius(1f);
-        set1.setColor(getColor(this, R.color.colorPrimaryLight));
-        set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
-        set1.setCircleColorHole(getColor(this, R.color.colorPrimaryLight));
+        set1.setColor(getColor(this, R.color.chartColor));
+        set1.setCircleColor(getColor(this, R.color.chartColor));
+        set1.setCircleColorHole(getColor(this, R.color.chartColor));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
         set1.setHighlightLineWidth(1);
 

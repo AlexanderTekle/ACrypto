@@ -24,7 +24,7 @@
             android:layout_gravity="bottom|center_horizontal"
             android:layout_margin="5dp"
             android:gravity="center"
-            app:selectedDotColor="@color/colorPrimary"
+            app:selectedDotColor="@color/navHighlightColor"
             app:unselectedDotColor="@color/accent_grey"
             app:viewPagerId="@id/viewpager" />
 
