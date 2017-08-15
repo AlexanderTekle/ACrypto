@@ -40,6 +40,10 @@ public class PreferenceUtils {
 		return PreferenceManager.getDefaultSharedPreferences(ctx).getLong(key, defaultValue);
 	}
 
+	public static long getLongPrefs(String key, int defaultValue) {
+		return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext()).getLong(key, defaultValue);
+	}
+
 	public static void set(final String key, final Object value) {
 		set(PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext()), key, value);
 	}

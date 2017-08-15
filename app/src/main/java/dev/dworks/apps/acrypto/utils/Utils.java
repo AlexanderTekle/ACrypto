@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.IntDef;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
@@ -454,6 +455,15 @@ public class Utils {
         } catch (ActivityNotFoundException ex) {
             showSnackBar(activity, "Cant Open");
         }
+    }
+
+    public static void openCustomTabUrlDelayed(final Activity activity, final String url){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                openCustomTabUrl(activity, url);
+            }
+        }, NAVDRAWER_LAUNCH_DELAY);
     }
 
     public static void openUrl(Context context, String url){

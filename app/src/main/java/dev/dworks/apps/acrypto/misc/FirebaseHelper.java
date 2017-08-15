@@ -15,21 +15,26 @@ import junit.framework.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.entity.User;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
+import dev.dworks.apps.acrypto.utils.PreferenceUtils;
+import dev.dworks.apps.acrypto.utils.TimeUtils;
 
 import static dev.dworks.apps.acrypto.App.APP_VERSION;
 import static dev.dworks.apps.acrypto.entity.User.USERS;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getNewsAlertStatus;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
+import static dev.dworks.apps.acrypto.utils.TimeUtils.MILLIS_IN_A_DAY;
 
 /**
  * Created by HaKr on 16/05/17.
  */
 
 public class FirebaseHelper {
+    private static final String USER_LAST_UPDATED = "user_last_updated";
 
     public static FirebaseUser signInAnonymously(){
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -216,6 +221,17 @@ public class FirebaseHelper {
     }
 
     public static void checkInstanceIdValidity(){
+
+        long userLastUpdated = PreferenceUtils.getLongPrefs(USER_LAST_UPDATED, -1);
+        if(userLastUpdated != -1){
+            long now = System.currentTimeMillis();
+            long dayOrd = userLastUpdated / MILLIS_IN_A_DAY;
+            long nowOrd = now / MILLIS_IN_A_DAY;
+            if (dayOrd == nowOrd) {
+                return;
+            }
+        }
+
         if(!isLoggedIn()){
             return;
         }
@@ -227,6 +243,7 @@ public class FirebaseHelper {
                 if(TextUtils.isEmpty(user.instanceId)){
                     App.getInstance().updateInstanceId();
                 }
+                PreferenceUtils.set(USER_LAST_UPDATED, System.currentTimeMillis());
             }
 
             @Override

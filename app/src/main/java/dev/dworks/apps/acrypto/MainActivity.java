@@ -282,7 +282,7 @@ public class MainActivity extends ActionBarActivity
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        showLastFragment(lastFragmentId);;
+                        showLastFragment(lastFragmentId);
                     }
                 }, NAVDRAWER_LAUNCH_DELAY);
                 return true;
@@ -404,22 +404,30 @@ public class MainActivity extends ActionBarActivity
             }
         } else if(type.equals(TYPE_URL)){
             String url = getNotificationUrl(extras);
-            if(!TextUtils.isEmpty(url)){
-                Utils.openCustomTabUrl(this, url);
-                Bundle bundle = new Bundle();
-                bundle.putString("source", "notification");
-                AnalyticsManager.logEvent("view_url", bundle);
-            }
             if(subType.equals(TYPE_URL_NEWS)){
                 NewsFragment.show(getSupportFragmentManager());
+                if(!TextUtils.isEmpty(url)){
+                    Utils.openCustomTabUrlDelayed(this, url);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("source", "notification");
+                    AnalyticsManager.logEvent("view_url", bundle);
+                }
+            } else {
+                if(!TextUtils.isEmpty(url)){
+                    Utils.openCustomTabUrl(this, url);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("source", "notification");
+                    AnalyticsManager.logEvent("view_url", bundle);
+                }
             }
+
         } else if (type.equals(TYPE_GENERIC)){
             //Do nothing
         } else {
             //Do nothing
         }
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
-        if (null == fragment) {
+        if (newIntent && null == fragment) {
             showLastFragment(lastFragmentId);
         }
     }

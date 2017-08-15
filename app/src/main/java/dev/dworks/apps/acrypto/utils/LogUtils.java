@@ -126,7 +126,8 @@ public class LogUtils {
 
 				message += " : " + error.networkResponse.statusCode;
 
-				CrashReportingManager.logError(error, true);
+				Exception exception = new Exception(message, error);
+				CrashReportingManager.logException(exception, true);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

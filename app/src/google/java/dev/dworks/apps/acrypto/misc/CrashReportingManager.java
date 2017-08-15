@@ -27,14 +27,6 @@ public class CrashReportingManager {
         }
     }
 
-    public static void logError(VolleyError e, boolean log) {
-        if(BuildConfig.DEBUG){
-            e.printStackTrace();
-        } else if(log) {
-            FirebaseCrash.report(e);
-        }
-    }
-
     public static void log(String s) {
         FirebaseCrash.log(s);
     }
