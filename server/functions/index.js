@@ -936,7 +936,7 @@ function sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurre
   const payload = {
     notification: {
       title: `${fromCoin} Arbitrage Alert`,
-      body: getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency),
+      body: getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency, toExchange, fromExchange),
       sound: 'default',
       icon: 'ic_alerts',
       android_channel_id: "alerts_channel",
@@ -944,7 +944,7 @@ function sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurre
     },
     data: {
       title: `${fromCoin} Arbitrage Alert`,
-      body: getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency),
+      body: getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency, toExchange, fromExchange),
       name: comboKey,
       sound: 'default',
       icon: 'ic_alerts',
@@ -989,9 +989,11 @@ function getArbitrageDiff(currentPrice, alertPrice) {
   return round(diff * 100, 2);
 }
 
-function getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency) {
+function getArbitrageAlertBody(toCurrentPrice, fromCurrentPrice, toCurrency, fromCurrency, toExchange, fromExchange) {
   const diff = getArbitrageDiff(toCurrentPrice, fromCurrentPrice);
-  return fromCurrency + " to " + toCurrency + " " + Math.abs(diff) + "%"+ (diff > 0 ? " profit" : " loss");
+  return fromCurrency + (fromExchange ? " on " + fromExchange : "")
+  + " to " + toCurrency + (toExchange ? " on " + toExchange : "")
+  + " has " + Math.abs(diff) + "%"+ (diff > 0 ? " profit" : " loss");
 }
 
 exports.arbitrageAlertCreate = functions.database.ref('/user_alerts/arbitrage/{uid}/{alertId}').onCreate(event => {
