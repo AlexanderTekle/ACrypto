@@ -467,6 +467,7 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
   const condition = dataSnapshot.val().condition;
   const toSymbol = dataSnapshot.val().toSymbol;
   const frequency = dataSnapshot.val().frequency;
+  const ttl = frequency == 'Onetime' ? 60 * 60 * 24 : 60 * 10;
 
   if(!priceAlertConditionCheck(currentPrice, dataSnapshot)) {
     return;
@@ -497,7 +498,7 @@ function sendAlertNotification(userId, instanceId, currentPrice, dataSnapshot) {
   // Set the message as high priority and have it expire after 24 hours.
   var options = {
     priority: "high",
-    timeToLive: 60 * 10
+    timeToLive: ttl
   };
 
   if (frequency == 'Onetime') {
@@ -927,6 +928,7 @@ function sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurre
   const fromSymbol = dataSnapshot.val().fromSymbol;
   const toSymbol = dataSnapshot.val().toSymbol;
   const frequency = dataSnapshot.val().frequency;
+  const ttl = frequency == 'Onetime' ? 60 * 60 * 24 : 60 * 10;
 
   if(!arbitrageAlertConditionCheck(fromCurrentPrice, toCurrentPrice, dataSnapshot)) {
     return;
@@ -957,7 +959,7 @@ function sendArbitrageNotification(userId, instanceId, fromCurrentPrice, toCurre
   // Set the message as high priority and have it expire after 24 hours.
   var options = {
     priority: "high",
-    timeToLive: 60 * 10
+    timeToLive: ttl
   };
 
   if (frequency == 'Onetime') {
