@@ -64,14 +64,14 @@ public class PortfolioCoinFragment extends RecyclerFragment
     private FloatingActionButton addPortfolioCoin;
     private Portfolio mPortfolio;
     private ArraySet<String> mPairs = new ArraySet<>();
-    private boolean mDaataLoaded;
 
-    public static void show(FragmentManager fm) {
+    public static void show(FragmentManager fm, Portfolio portfolio) {
         final Bundle args = new Bundle();
+        args.putSerializable(BUNDLE_PORTFOLIO, portfolio);
         final FragmentTransaction ft = fm.beginTransaction();
         final PortfolioCoinFragment fragment = new PortfolioCoinFragment();
         fragment.setArguments(args);
-        ft.replace(R.id.container, fragment, TAG);
+        ft.replace(R.id.tabContainer, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
 
@@ -128,7 +128,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onStart() {
         super.onStart();
-        showList();
     }
 
     @Override
@@ -156,6 +155,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        showList();
     }
 
     private void showList() {
@@ -165,7 +165,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
         registerDataObserver();
         setListAdapter(mAdapter);
-        setListShown(mDaataLoaded);
+        setListShown(false);
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -202,7 +202,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
             mAdapter.updateHeaderData( "");
             mAdapter.notifyDataSetChanged();
         }
-        mDaataLoaded = true;
     }
 
     @Override
@@ -373,7 +372,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
 
     @Override
     public void onRefreshData() {
-        mDaataLoaded = false;
+        setListShown(false);
         removeUrlCache();
         fetchPairsData();
         AnalyticsManager.logEvent("portfolio_refreshed");

@@ -237,7 +237,11 @@ public class PortfolioDetailFragment extends DialogFragment {
         databaseReference.setValue(portfolio, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                if(null == databaseError && null != getActivity()){
+                if(null == databaseError && null != getParentFragment()){
+                    PortfolioFragment portfolioFragment = (PortfolioFragment)getParentFragment();
+                    if(isNew()){
+                        portfolioFragment.moveToLastTab();
+                    }
                     AnalyticsManager.logEvent(isNew() ? "portfolio_added" : "portfolio_edited");
                 }
             }

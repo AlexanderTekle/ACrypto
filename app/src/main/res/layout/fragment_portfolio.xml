@@ -24,8 +24,8 @@
                 app:tabMode="scrollable" />
         </android.support.design.widget.AppBarLayout>
 
-        <dev.dworks.apps.acrypto.view.LockableViewPager
-            android:id="@+id/container"
+        <android.support.v4.app.FragmentTabHost
+            android:id="@+id/tabContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
