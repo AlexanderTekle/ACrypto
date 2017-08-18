@@ -132,7 +132,7 @@ public class CoinAdapter extends ArrayRecyclerAdapter<Coins.CoinDetail, CoinAdap
             mPosition = position;
             Coins.CoinDetail item = getItem(position);
             String url = "";
-            name.setText(item.name + " ("+item.fromSym+")");
+            name.setText(item.name + " ("+item.getFromSym()+")");
             url = getCoinUrl(item.id);
             imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
 

@@ -996,4 +996,11 @@ public class Utils {
         delegate.setLocalNightMode(nightMode);
         AppCompatDelegate.setDefaultNightMode(nightMode);
     }
+
+    public static String cleanedCoinSymbol(String symbol){
+        if(TextUtils.isEmpty(symbol)){
+            return symbol;
+        }
+        return symbol.replace("*", "");
+    }
 }

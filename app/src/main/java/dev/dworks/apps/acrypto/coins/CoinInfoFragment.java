@@ -148,8 +148,7 @@ public class CoinInfoFragment extends ActionBarFragment
     private void setLogo() {
         String url = "";
         try {
-            final CoinDetailSample.CoinDetail coinDetail = App.getInstance().getCoinDetails().coins.get(getCurrentCurrencyFrom());
-            url = Coins.BASE_URL + coinDetail.id + ".png";
+            url = Coins.BASE_URL + mCoin.id + ".png";
         } catch (Exception e){ }
         mLogo.setImageUrl(url, VolleyPlusHelper.with(mLogo.getContext()).getImageLoader());
     }
@@ -157,7 +156,7 @@ public class CoinInfoFragment extends ActionBarFragment
     private void setData() {
         Coins.CoinDetail coinDetail = mCoinDetails.data.aggregatedData;
         mMarketCap.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + formatDoubleValue(mCoinDetails.getMarketCap()));
-        mVolumeFrom.setText(Utils.getCurrencySymbol(coinDetail.fromSym) + " " + formatDoubleValue(coinDetail.volume24H));
+        mVolumeFrom.setText(Utils.getCurrencySymbol(coinDetail.getFromSym()) + " " + formatDoubleValue(coinDetail.volume24H));
         mVolumeTo.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + formatDoubleValue(coinDetail.volume24HTo));
         mValueLow.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + coinDetail.low24H);
         mValueHigh.setText(Utils.getCurrencySymbol(coinDetail.toSym) + " " + coinDetail.high24H);
@@ -194,7 +193,7 @@ public class CoinInfoFragment extends ActionBarFragment
     }
 
     public String getCurrentCurrencyFrom(){
-        return mCoin.fromSym;
+        return mCoin.getFromSym();
     }
 
     public String getCurrentCurrencyName(){

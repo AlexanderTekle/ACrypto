@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.App;
+import dev.dworks.apps.acrypto.utils.Utils;
 
 /**
  * Created by HaKr on 16/05/17.
@@ -105,6 +106,10 @@ public class Coins extends BaseEntity {
             return difference;
         }
 
+        public String getFromSym(){
+            return Utils.cleanedCoinSymbol(fromSym);
+        }
+
         @Override
         public String toString() {
             return name + fromSym;
@@ -114,11 +119,11 @@ public class Coins extends BaseEntity {
     public static CoinDetail getCoin(String data){
         CoinDetail coin = new CoinDetail(data);
         try {
-            final CoinDetailSample.CoinDetail coinDetail = App.getInstance().getCoinDetails().coins.get(coin.fromSym);
+            final CoinDetailSample.CoinDetail coinDetail = App.getInstance().getCoinDetails().coins.get(coin.getFromSym());
             coin.name = coinDetail.name;
             coin.id = coinDetail.id;
         } catch (Exception e){
-            coin.name = coin.fromSym;
+            coin.name = coin.getFromSym();
         }
         return coin;
     }
