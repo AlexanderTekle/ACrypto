@@ -1066,5 +1066,15 @@
     "name": "Signatum",
     "order": 212,
     "symbol": "SIGT"
+  },
+  "DNT": {
+    "name": "district0x",
+    "order": 213,
+    "symbol": "DNT"
+  },
+  "DENT": {
+    "name": "Dent",
+    "order": 214,
+    "symbol": "DENT"
   }
 }
