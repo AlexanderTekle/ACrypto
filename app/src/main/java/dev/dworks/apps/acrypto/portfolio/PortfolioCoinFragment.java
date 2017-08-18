@@ -169,7 +169,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        menu.clear();
         if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
             inflater.inflate(R.menu.portfolio_details, menu);
         }

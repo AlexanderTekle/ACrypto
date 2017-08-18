@@ -202,6 +202,9 @@ public class PortfolioFragment extends ActionBarFragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
+            inflater.inflate(R.menu.portfolio, menu);
+        }
         super.onCreateOptionsMenu(menu, inflater);
     }
 
