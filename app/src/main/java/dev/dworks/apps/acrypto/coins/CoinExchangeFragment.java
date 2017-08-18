@@ -114,7 +114,8 @@ public class CoinExchangeFragment extends RecyclerFragment
         super.onResume();
     }
 
-    private void fetchDataTask() {
+    @Override
+    protected void fetchData() {
         setEmptyText("");
         setListShown(false);
         mCoinDetails = null;
@@ -140,24 +141,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     }
     @Override
     public void onErrorResponse(VolleyError error) {
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchDataTask();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getView(), "Cant Connect to ACrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchDataTask();
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -165,6 +149,7 @@ public class CoinExchangeFragment extends RecyclerFragment
         loadData(response);
     }
 
+    @Override
     public void setEmptyData(String mesasge){
         setListShown(true);
         if(null != mCoinDetails){
@@ -176,7 +161,6 @@ public class CoinExchangeFragment extends RecyclerFragment
 
     private void loadData(CoinDetails coins) {
         mCoinDetails = coins;
-        mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.setCurrencySymbol(getCurrencySymbol(getCurrency()));
         mAdapter.clear();
         String empty = "";
@@ -224,7 +208,7 @@ public class CoinExchangeFragment extends RecyclerFragment
         if (null != mCoinDetails) {
             loadData(mCoinDetails);
         } else {
-            fetchDataTask();
+            fetchData();
         }
     }
 
@@ -264,10 +248,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchDataTask();
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("coins_refreshed", bundle);
+                onRefreshData();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -286,7 +267,7 @@ public class CoinExchangeFragment extends RecyclerFragment
     public void refreshData(Bundle bundle) {
         mCoin = (Coins.CoinDetail) bundle.getSerializable(BUNDLE_COIN);
         if(getUserVisibleHint()) {
-            fetchDataTask();
+            fetchData();
         }
     }
 
@@ -295,7 +276,16 @@ public class CoinExchangeFragment extends RecyclerFragment
         super.setUserVisibleHint(isVisibleToUser);
         AnalyticsManager.setCurrentScreen(getActivity(), mScreenName);
         if(isVisibleToUser){
-            fetchDataTask();
+            fetchData();
         }
+    }
+
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchData();
+        Bundle bundle = new Bundle();
+        AnalyticsManager.logEvent("coins_refreshed", bundle);
+        super.onRefreshData();
     }
 }

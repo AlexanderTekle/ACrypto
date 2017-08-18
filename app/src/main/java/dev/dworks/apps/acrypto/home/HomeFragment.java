@@ -28,8 +28,6 @@ import android.widget.TextView;
 import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -69,8 +67,11 @@ import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.TimeUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.BarChart;
+import dev.dworks.apps.acrypto.view.LineChart;
 import dev.dworks.apps.acrypto.view.SearchableSpinner;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 import static dev.dworks.apps.acrypto.entity.Exchanges.NO_EXCHANGES;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
@@ -95,7 +96,6 @@ public class HomeFragment extends ActionBarFragment
         OnChartValueSelectedListener, RadioGroup.OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "Home";
-    public static final int LIMIT_ALT = 10;
     private Utils.OnFragmentInteractionListener mListener;
 
     // time stamp constants
@@ -145,6 +145,7 @@ public class HomeFragment extends ActionBarFragment
         final FragmentTransaction ft = fm.beginTransaction();
         final HomeFragment fragment = new HomeFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
@@ -283,11 +284,15 @@ public class HomeFragment extends ActionBarFragment
         mChart.getAxisLeft().setDrawZeroLine(true);
         mChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         mChart.getAxisLeft().setDrawAxisLine(true);
-
+        mChart.getAxisLeft().setTextColor(Utils.themeAttributeToColor(getActivity(),
+                android.R.attr.textColorPrimary));
         mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol());
+                return getCurrentCurrencyToSymbol() + " "
+                        + (isTopAltCoin() ?
+                        Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol())
+                        : Utils.getFormattedNumber(value, getCurrentCurrencyToSymbol()));
             }
         });
 
@@ -327,6 +332,8 @@ public class HomeFragment extends ActionBarFragment
         mBarChart.getAxisLeft().setDrawZeroLine(true);
         mBarChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         mBarChart.getAxisLeft().setDrawAxisLine(true);
+        mBarChart.getAxisLeft().setTextColor(Utils.themeAttributeToColor(getActivity(),
+                android.R.attr.textColorPrimary));
 
         mBarChart.getXAxis().setEnabled(false);
         mBarChart.getXAxis().setDrawGridLines(false);
@@ -344,20 +351,34 @@ public class HomeFragment extends ActionBarFragment
         mBarChart.setOnTouchListener(new ChartOnTouchListener(mScrollView));
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         fetchData(true);
     }
 
-    private void fetchData(boolean refreshAll) {
+    @Override
+    protected void fetchData(boolean refreshAll) {
         String url = getUrl();
         mPrice = null;
         mChartProgress.setVisibility(View.VISIBLE);
+        mChart.setNoDataText(null);
         mChart.highlightValue(null);
         mBarChart.highlightValue(null);
-        diffValue = -1;
-
 
         if(refreshAll) {
+            retry = false;
+            mControls.setVisibility(View.INVISIBLE);
+            diffValue = -1;
+            currentValue = 0;
+            setDefaultValues();
+            mChart.setNoDataText(null);
+            mChart.clear();
+            mChart.invalidate();
+            mBarChart.setNoDataText(null);
+            mBarChart.clear();
+            mBarChart.invalidate();
+            mExchangeSpinner.clear();
+            mExchangeSpinner.setVisibility(View.GONE);
             fetchCurrencyFromData();
             fetchCurrencyToData();
             fetchExchangeData();
@@ -380,7 +401,7 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<Coins>() {
                     @Override
                     public void onResponse(Coins coins) {
-                        mCurrencyFromSpinner.setItems(coins.coins);
+                        mCurrencyFromSpinner.setItems(coins.coins, R.layout.item_spinner_dark);
                         mCurrencyFromSpinner.setSelection(getCurrentCurrencyFrom());
                     }
                 },
@@ -403,7 +424,7 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<Currencies>() {
                     @Override
                     public void onResponse(Currencies currencies) {
-                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
+                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies), R.layout.item_spinner_dark);
                         mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
                 },
@@ -433,7 +454,8 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<Exchanges>() {
                     @Override
                     public void onResponse(Exchanges prices) {
-                        mExchangeSpinner.setItems(prices.getAllData());
+                        mExchangeSpinner.setVisibility(View.VISIBLE);
+                        mExchangeSpinner.setItems(prices.getAllData(), R.layout.item_spinner_dark);
                         mExchangeSpinner.setSelection(getCurrentExchange());
                         if(prices.getAllData().size() == 1
                                 && prices.getAllData().get(0).toString().equals(NO_EXCHANGES)){
@@ -508,34 +530,13 @@ public class HomeFragment extends ActionBarFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if(!Utils.isActivityAlive(getActivity())){
-            return;
-        }
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData(false);
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
     public void onResponse(Prices response) {
         mPrice = response;
         loadData(response);
-        //showLastUpdate();
     }
 
     public synchronized Prices getPrice() {
@@ -563,7 +564,8 @@ public class HomeFragment extends ActionBarFragment
         showData(response);
     }
 
-    private void setEmptyData(String message){
+    @Override
+    public void setEmptyData(String message){
         mChartProgress.setVisibility(View.GONE);
         if(null != mPrice){
             return;
@@ -615,10 +617,7 @@ public class HomeFragment extends ActionBarFragment
         Bundle bundle = new Bundle();
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchData(false);
-                bundle.putString("currency", getCurrentCurrencyName());
-                AnalyticsManager.logEvent("price_refreshed", bundle);
+                onRefreshData();
                 break;
 
             case R.id.action_view:
@@ -659,8 +658,8 @@ public class HomeFragment extends ActionBarFragment
         }
 
         //Price Chart
-        currentValue = Double.valueOf(lastPrice.close);
-        diffValue = Double.valueOf(firstPrice.close);
+        currentValue = lastPrice.close;
+        diffValue = firstPrice.close;
         setDefaultValues();
 
         LineDataSet set1 = new LineDataSet(entries, "Price");
@@ -669,17 +668,17 @@ public class HomeFragment extends ActionBarFragment
         set1.setLineWidth(1.75f);
         set1.setCircleRadius(2f);
         set1.setCircleHoleRadius(1f);
-        set1.setColor(getColor(this, R.color.colorPrimaryLight));
-        set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setColor(getColor(this, R.color.chartColor));
+        set1.setCircleColor(getColor(this, R.color.chartColor));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
         set1.setHighlightLineWidth(1);
 
         set1.setDrawValues(false);
         set1.setDrawCircles(false);
         set1.setMode(LineDataSet.Mode.LINEAR);
-        set1.setFillColor(getColor(this, R.color.colorPrimaryLight));
+        set1.setFillColor(getColor(this, R.color.colorPrimary));
+        set1.setFillAlpha(200);
         set1.setDrawFilled(true);
-
 
         LineData data = new LineData(set1);
         mChart.getXAxis().setEnabled(true);
@@ -692,6 +691,7 @@ public class HomeFragment extends ActionBarFragment
         BarDataSet set2 = new BarDataSet(barEntries, "Volume");
         set2.setDrawValues(false);
         set2.setHighLightColor(getColor(this, R.color.colorAccent));
+        set2.setColor(getColor(this, R.color.chartColor));
         set2.setDrawValues(false);
 
         BarData barData = new BarData(set2);
@@ -943,7 +943,7 @@ public class HomeFragment extends ActionBarFragment
             case R.id.currencyToSpinner:
                 Currencies.Currency currency = (Currencies.Currency) parent.getSelectedItem();
                 SettingsActivity.setCurrencyTo(currency.code);
-                fetchData(true );
+                fetchData(true);
                 bundle.putString("currency", getCurrentCurrencyName());
                 AnalyticsManager.logEvent("currency_filtered", bundle);
                 break;
@@ -960,5 +960,15 @@ public class HomeFragment extends ActionBarFragment
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchData();
+        Bundle bundle = new Bundle();
+        bundle.putString("currency", getCurrentCurrencyName());
+        AnalyticsManager.logEvent("price_refreshed", bundle);
+        super.onRefreshData();
     }
 }

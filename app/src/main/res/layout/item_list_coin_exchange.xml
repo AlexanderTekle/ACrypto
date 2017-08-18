@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
+    android:focusable="true"
     android:foreground="?android:selectableItemBackground">
 
     <FrameLayout
@@ -22,33 +23,35 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="5dp"
+                    android:layout_gravity="start"
+                    android:layout_marginEnd="5dp"
+                    android:textAlignment="viewStart"
+                    android:textColor="?android:textColorPrimary"
                     android:maxLines="2"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     tools:text="Coin Name" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:maxLines="1"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?android:textColorTertiary"
                         android:textSize="14sp"
-                        android:text="Vol.24H: " />
+                        android:text="@string/vol_24h" />
 
                     <org.fabiomsr.moneytextview.MoneyTextView
                         android:id="@+id/volume"
@@ -56,7 +59,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         app:amount="0"
-                        app:baseTextColor="@android:color/darker_gray"
+                        app:baseTextColor="?android:colorForeground"
                         app:baseTextSize="14sp"
                         app:decimalDigitsTextSize="14sp"
                         app:decimalSeparator="."
@@ -77,10 +80,10 @@
                     android:id="@+id/price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:paddingRight="10dp"
+                    android:layout_gravity="end"
+                    android:paddingEnd="10dp"
                     app:amount="0"
-                    app:baseTextColor="@color/accent_black"
+                    app:baseTextColor="?android:colorForeground"
                     app:baseTextSize="18sp"
                     app:decimalDigitsTextSize="18sp"
                     app:decimalSeparator="."
@@ -93,9 +96,9 @@
                     android:id="@+id/change"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_marginRight="5dp"
-                    android:gravity="right"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="5dp"
+                    android:gravity="end"
                     android:maxLines="1"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/accent_green"

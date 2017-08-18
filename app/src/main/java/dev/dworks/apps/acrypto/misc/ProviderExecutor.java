@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class ProviderExecutor extends Thread implements Executor {
 
-    private static ArrayMap<String, ProviderExecutor> sExecutors = new ArrayMap<>();
+    private static final ArrayMap<String, ProviderExecutor> sExecutors = new ArrayMap<>();
 
     public static ProviderExecutor forAuthority(String authority) {
         synchronized (sExecutors) {
@@ -68,7 +68,8 @@ public class ProviderExecutor extends Thread implements Executor {
      * Execute the given task. If given task is not {@link Preemptable}, it will
      * preempt all outstanding preemptable tasks.
      */
-    public <P> void execute(AsyncTask<P, ?, ?> task, P... params) {
+    @SafeVarargs
+    public final <P> void execute(AsyncTask<P, ?, ?> task, P... params) {
         if (task instanceof Preemptable) {
             synchronized (mPreemptable) {
                 mPreemptable.add(new WeakReference<Preemptable>((Preemptable) task));

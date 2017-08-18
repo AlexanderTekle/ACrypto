@@ -10,13 +10,14 @@ import dev.dworks.apps.acrypto.utils.Utils;
 
 abstract class BaseRequest<T> extends Request<T> {
 
+	private static final int MAX_RETRIES = 1;
 	private long cacheSoftMinutes = 5;
 	private long cacheMinutes = 60;
 
 	BaseRequest(int method, String url, ErrorListener listener) {
 		super(method, url, listener);
 		setShouldCache(false);
-		setRetryPolicy(new DefaultRetryPolicy(3000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+		setRetryPolicy(new DefaultRetryPolicy(3000, MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 	}
 
 	@Override

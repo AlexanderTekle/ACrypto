@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.StrictMode;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AppCompatDelegate;
 import android.text.TextUtils;
@@ -29,6 +30,7 @@ import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusMasterHelper;
+import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 
@@ -42,9 +44,8 @@ public class App extends AppFlavour {
 	public static final String TAG = "ACrypto";
 
 	static {
-		AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
 	}
-
 	public static String APP_VERSION;
     public static int APP_VERSION_CODE;
 	private static App sInstance;
@@ -63,18 +64,27 @@ public class App extends AppFlavour {
 		super.onCreate();
 		sInstance = this;
 		VolleyLog.DEBUG = false;
-
+		super.onCreate();
+		if(BuildConfig.DEBUG) {
+			StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
+			StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+		}
 		FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 		LocalBurst.initialize(getApplicationContext());
+		synMasterData();
+
+		FirebaseHelper.checkInstanceIdValidity();
+		checkForAppUpdates();
+	}
+
+	public void synMasterData() {
+		cleanupMasterData();
 		loadDefaultData();
 		loadCoinSymbols();
 		loadCurrencyList();
 		loadCoinDetails();
 		loadCoinIgnore();
-
-		FirebaseHelper.checkInstanceIdValidity();
-		checkForAppUpdates();
 	}
 
 	private void checkForAppUpdates() {
@@ -219,14 +229,14 @@ public class App extends AppFlavour {
 		}
 		return current;
 	}
-	
+
 	public static synchronized App getInstance() {
 		return sInstance;
 	}
-	
+
 	@Override
 	public void onLowMemory() {
-		Runtime.getRuntime().gc(); 
+		Runtime.getRuntime().gc();
 		super.onLowMemory();
 	}
 
@@ -242,6 +252,13 @@ public class App extends AppFlavour {
 			return new ArrayList<>();
 		}
 		return currencyChars;
+	}
+
+	public void cleanupMasterData(){
+		coinsIgnore = null;
+		symbols = null;
+		currencyStrings = null;
+		currencyChars = null;
 	}
 
 	@Override

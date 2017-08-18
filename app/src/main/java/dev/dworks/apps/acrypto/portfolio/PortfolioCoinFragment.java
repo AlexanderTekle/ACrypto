@@ -64,14 +64,14 @@ public class PortfolioCoinFragment extends RecyclerFragment
     private FloatingActionButton addPortfolioCoin;
     private Portfolio mPortfolio;
     private ArraySet<String> mPairs = new ArraySet<>();
-    private ArrayMap<String, PortfolioCoin> mCoins = new ArrayMap<>();
 
-    public static void show(FragmentManager fm) {
+    public static void show(FragmentManager fm, Portfolio portfolio) {
         final Bundle args = new Bundle();
+        args.putSerializable(BUNDLE_PORTFOLIO, portfolio);
         final FragmentTransaction ft = fm.beginTransaction();
         final PortfolioCoinFragment fragment = new PortfolioCoinFragment();
         fragment.setArguments(args);
-        ft.replace(R.id.container, fragment, TAG);
+        ft.replace(R.id.tabContainer, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
 
@@ -126,6 +126,16 @@ public class PortfolioCoinFragment extends RecyclerFragment
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
@@ -145,16 +155,18 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        showList();
+    }
 
+    private void showList() {
         if (null == mAdapter) {
-            mAdapter = new PortfolioCoinAdapter(getActivity(), getQuery(), this, this);
+            mAdapter = new PortfolioCoinAdapter(getActivity(), getQuery(), mPortfolio, this, this);
         }
         mAdapter.setBaseImageUrl(Coins.BASE_URL);
-        mAdapter.registerAdapterDataObserver(dataObserver);
+        registerDataObserver();
         setListAdapter(mAdapter);
         setListShown(false);
     }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         if(App.getInstance().isSubscribedMonthly() || App.getInstance().getTrailStatus()) {
@@ -167,9 +179,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchPairsData();
-                AnalyticsManager.logEvent("portfolio_refreshed");
+                onRefreshData();
                 break;
 
             case R.id.action_edit_portfolio:
@@ -185,13 +195,12 @@ public class PortfolioCoinFragment extends RecyclerFragment
         int itemCount = mAdapter.getItemCount();
         setEmptyText(itemCount == 1 ? "No Coins" : "");
         if(itemCount > 1) {
-            mAdapter.updateHeaderData(mCoins, mPortfolio);
-            mAdapter.setCachedUrl(getUrl());
+            mAdapter.updateHeaderData(getUrl());
             fetchPairsData();
         } else {
             setListShown(true);
-            mAdapter.updateHeaderData(mCoins, mPortfolio);
-            mAdapter.setCachedUrl("");
+            mAdapter.updateHeaderData( "");
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -227,7 +236,7 @@ public class PortfolioCoinFragment extends RecyclerFragment
     @Override
     public void onDestroyView() {
         if (mAdapter != null) {
-            mAdapter.unregisterAdapterDataObserver(dataObserver);
+            unregisterDataObserver();
             getListView().setAdapter(null);
         }
         super.onDestroyView();
@@ -270,6 +279,18 @@ public class PortfolioCoinFragment extends RecyclerFragment
         startActivity(intent);
     }
 
+    private void registerDataObserver() {
+        try {
+            mAdapter.registerAdapterDataObserver(dataObserver);
+        } catch (Exception ignored){}
+    }
+
+    private void unregisterDataObserver() {
+        try {
+            mAdapter.unregisterAdapterDataObserver(dataObserver);
+        } catch (Exception ignored){}
+    }
+
     private  AdapterDataObserver dataObserver = new AdapterDataObserver() {
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -279,7 +300,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
             if(null == coin){
                 return;
             }
-            mCoins.put(mAdapter.getRef(end - 1).getKey(), coin);
             mPairs.add(coin.getKey());
         }
 
@@ -291,7 +311,6 @@ public class PortfolioCoinFragment extends RecyclerFragment
             if(null == coin){
                 return;
             }
-            mCoins.put(mAdapter.getRef(end - 1).getKey(), coin);
             mPairs.add(coin.getKey());
         }
     };
@@ -349,5 +368,19 @@ public class PortfolioCoinFragment extends RecyclerFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
+    }
+
+    @Override
+    public void onRefreshData() {
+        setListShown(false);
+        removeUrlCache();
+        fetchPairsData();
+        AnalyticsManager.logEvent("portfolio_refreshed");
+        super.onRefreshData();
+    }
+
+    @Override
+    protected void fetchData() {
+
     }
 }

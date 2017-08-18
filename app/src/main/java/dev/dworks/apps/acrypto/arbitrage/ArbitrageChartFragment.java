@@ -27,7 +27,6 @@ import android.widget.TextView;
 import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -56,6 +55,7 @@ import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.LineChart;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.CONVERSION_URL;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
@@ -117,6 +117,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     private TextView mArbitrageSummary;
     private TextView mIcon;
     private ScrollView mScrollView;
+    private View mTimeseriesControls;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
@@ -170,6 +171,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     private void initControls(View view) {
 
         mControls = view.findViewById(R.id.controls);
+        mTimeseriesControls = view.findViewById(R.id.timeseries_controls);
         mScrollView = (ScrollView) view.findViewById(R.id.scrollView);
 
         mValueOne = (MoneyTextView) view.findViewById(R.id.valueOne);
@@ -201,6 +203,11 @@ public class ArbitrageChartFragment extends ActionBarFragment
         mPriceOne = null;
         mPriceTwo = null;
         mConversionRate = 0;
+        mControls.setVisibility(View.INVISIBLE);
+        mTimeseriesControls.setVisibility(View.INVISIBLE);
+        mArbitrageLayout.setVisibility(View.GONE);
+        mChart.clear();
+        mChart.invalidate();
     }
 
     private void initLineChart() {
@@ -240,11 +247,13 @@ public class ArbitrageChartFragment extends ActionBarFragment
         mChart.setOnTouchListener(new ChartOnTouchListener(mScrollView));
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         fetchData(true);
     }
 
-    private void fetchData(boolean refreshAll) {
+    @Override
+    protected void fetchData(boolean refreshAll) {
         String url = getUrl(false);
         mChartProgress.setVisibility(View.VISIBLE);
         mChart.highlightValue(null);
@@ -254,7 +263,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
                 "",
                 this,
                 this);
-        request.setCacheMinutes(5, 60);
+        request.setCacheMinutes(30, 2*60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).updateToRequestQueue(request, TAG + "One");
 
@@ -316,8 +325,8 @@ public class ArbitrageChartFragment extends ActionBarFragment
         setPriceValue(mValueTwo, currentValueTwo);
         mTimeOne.setText(getCurrentCurrencyOneName() + " Price");
         mTimeTwo.setText(getCurrentCurrencyTwoName() + " Price" + " in " + getCurrentCurrencyOne());
-        double diff = (currentValueTwo - currentValueOne);
-        mDifferencePercentage.setText(getDisplayPercentageRounded(currentValueOne, currentValueTwo));
+        double diff = currentValueTwo != 0 ? (currentValueTwo - currentValueOne) : 0;
+        mDifferencePercentage.setText(diff == 0 ? "-" : getDisplayPercentageRounded(currentValueOne, currentValueTwo));
         mDifferencePercentage.setTextColor(ContextCompat.getColor(getActivity(), getPercentDifferenceColor(diff)));
         String text = Utils.getString(this, R.string.artbitrage_message,
                 getCurrentCurrencyFrom(),
@@ -356,7 +365,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
     }
 
 
-    public static String getCurrentCurrencyOneSymbol(){
+    public String getCurrentCurrencyOneSymbol(){
         return Utils.getCurrencySymbol(getCurrentCurrencyOne());
     }
 
@@ -366,29 +375,7 @@ public class ArbitrageChartFragment extends ActionBarFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if(!Utils.isActivityAlive(getActivity())){
-            return;
-        }
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            mControls.setVisibility(View.INVISIBLE);
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            mControls.setVisibility(View.INVISIBLE);
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData(false);
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -417,17 +404,21 @@ public class ArbitrageChartFragment extends ActionBarFragment
             return;
         }
         mControls.setVisibility(View.VISIBLE);
+        mTimeseriesControls.setVisibility(View.VISIBLE);
         mArbitrageLayout.setVisibility(View.VISIBLE);
         mChartProgress.setVisibility(View.GONE);
         showData();
     }
 
-    private void setEmptyData(String message){
+    @Override
+    protected void setEmptyData(String message){
+        mControls.setVisibility(View.INVISIBLE);
+        mTimeseriesControls.setVisibility(View.INVISIBLE);
+        mArbitrageLayout.setVisibility(View.GONE);
         mChartProgress.setVisibility(View.GONE);
         mChart.setNoDataText(message);
         mChart.clear();
         mChart.invalidate();
-        mArbitrageLayout.setVisibility(View.GONE);
     }
 
     @Override
@@ -491,8 +482,8 @@ public class ArbitrageChartFragment extends ActionBarFragment
             lastPriceTwo = price;
         }
 
-        currentValueOne = Double.valueOf(lastPriceOne.getClose());
-        currentValueTwo = Double.valueOf(lastPriceTwo.getClose());
+        currentValueOne = lastPriceOne.getClose();
+        currentValueTwo = lastPriceTwo.getClose();
 
         setDefaultValues();
 

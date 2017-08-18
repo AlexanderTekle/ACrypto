@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,10 +32,12 @@ import dev.dworks.apps.acrypto.view.LockableViewPager;
 import dev.dworks.apps.acrypto.view.SearchableSpinner;
 import dev.dworks.apps.acrypto.view.SmartFragmentStatePagerAdapter;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageCoinsUrl;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageFromUrl;
 import static dev.dworks.apps.acrypto.misc.UrlConstant.getArbitrageToUrl;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
+import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_NAME;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class ArbitrageFragment extends ActionBarFragment implements AdapterView.OnItemSelectedListener{
@@ -46,12 +49,16 @@ public class ArbitrageFragment extends ActionBarFragment implements AdapterView.
     private SearchableSpinner mCurrencyTwoSpinner;
     private SearchableSpinner mCurrencyFromSpinner;
     private TabLayout tabLayout;
+    private String mName;
+    private boolean showFromIntent;
 
-    public static void show(FragmentManager fm) {
+    public static void show(FragmentManager fm, String name) {
         final Bundle args = new Bundle();
+        args.putString(BUNDLE_NAME, name);
         final FragmentTransaction ft = fm.beginTransaction();
         final ArbitrageFragment fragment = new ArbitrageFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
@@ -67,7 +74,12 @@ public class ArbitrageFragment extends ActionBarFragment implements AdapterView.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         showAppFeedback(getActivity(), true);
+        setSubscriptionDependant(true);
         setHasOptionsMenu(true);
+        mName = getArguments().getString(BUNDLE_NAME);
+        if(!TextUtils.isEmpty(mName)){
+            showFromIntent = true;
+        }
     }
 
     @Override
@@ -120,12 +132,35 @@ public class ArbitrageFragment extends ActionBarFragment implements AdapterView.
         refreshData();
     }
 
+    @Override
+    protected void fetchData() {
+
+    }
+
     private void setSpinners() {
         mCurrencyFromSpinner.setOnItemSelectedListener(this);
         mCurrencyOneSpinner.setOnItemSelectedListener(this);
         mCurrencyTwoSpinner.setOnItemSelectedListener(this);
         setCurrencyFromSpinner();
         setCurrencyToSpinner();
+        if(showFromIntent()){
+            SettingsActivity.setArbitrageCurrencyFrom(getOnePairFromIntent()[0]);
+            SettingsActivity.setCurrencyOne(getOnePairFromIntent()[1]);
+            SettingsActivity.setCurrencyTwo(getTwoPairFromIntent()[1]);
+            showFromIntent = false;
+        }
+    }
+
+    private boolean showFromIntent() {
+        return !TextUtils.isEmpty(mName) && showFromIntent;
+    }
+
+    private String[] getOnePairFromIntent() {
+        return mName.split(":")[0].split("-");
+    }
+
+    private String[] getTwoPairFromIntent() {
+        return mName.split(":")[1].split("-");
     }
 
     private void setCurrencyFromSpinner() {

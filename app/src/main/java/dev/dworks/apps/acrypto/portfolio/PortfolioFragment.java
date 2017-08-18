@@ -2,12 +2,13 @@ package dev.dworks.apps.acrypto.portfolio;
 
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -30,27 +32,33 @@ import dev.dworks.apps.acrypto.entity.Portfolio;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
-import dev.dworks.apps.acrypto.view.LockableViewPager;
+
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
+import static dev.dworks.apps.acrypto.utils.Utils.NAVDRAWER_LAUNCH_DELAY;
 
 /**
  * Created by HaKr on 18/07/17.
  */
 
-public class PortfolioFragment extends ActionBarFragment {
+public class PortfolioFragment extends ActionBarFragment implements TabLayout.OnTabSelectedListener {
 
     private static final String TAG = "Portfolio";
     public static final String DEFAULT_PRICE_TYPE = "Per Unit";
+    private static final String LAST_SELECTED_TAB = "last_selected_tab";
+
     private Utils.OnFragmentInteractionListener mListener;
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private LockableViewPager mViewPager;
     private TextView mEmpty;
     private TabLayout mTabLayout;
+    private FrameLayout mTabContainer;
+    private ArrayList<Portfolio> portfolios = new ArrayList<>();
+    private int lastSelectedTab = 0;
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
         final FragmentTransaction ft = fm.beginTransaction();
         final PortfolioFragment fragment = new PortfolioFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
@@ -78,7 +86,11 @@ public class PortfolioFragment extends ActionBarFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setSubscriptionDependant(true);
         setHasOptionsMenu(true);
+        if(null != savedInstanceState) {
+            lastSelectedTab = savedInstanceState.getInt(LAST_SELECTED_TAB);
+        }
     }
 
     @Override
@@ -91,18 +103,29 @@ public class PortfolioFragment extends ActionBarFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
-
-        mViewPager = (LockableViewPager) view.findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setSwipeable(true);
+        mTabContainer = (FrameLayout) view.findViewById(R.id.tabContainer);
         mTabLayout = (TabLayout) view.findViewById(R.id.tabs);
-        mTabLayout.setupWithViewPager(mViewPager);
+        mTabLayout.setOnTabSelectedListener(this);
+        mEmpty = (TextView) view.findViewById(R.id.internalEmpty);
+    }
 
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
-        mTabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+    private void setCurrentTabFragment(int position, boolean showSelected){
+        if(showSelected) {
+            TabLayout.Tab curretTab = mTabLayout.getTabAt(position);
+            if (null != curretTab) {
+                curretTab.select();
+            }
+        }
+        Portfolio portfolio = portfolios.get(position);
+        Bundle bundle = new Bundle();
+        AnalyticsManager.logEvent("portfolio_details_viewed", bundle);
+        PortfolioCoinFragment.show(getChildFragmentManager(), portfolio);
+    }
 
-        mEmpty = (TextView)view.findViewById(R.id.internalEmpty);
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        getActionBarActivity().supportInvalidateOptionsMenu();
     }
 
     @Override
@@ -124,8 +147,19 @@ public class PortfolioFragment extends ActionBarFragment {
 
     @Override
     public void onDetach() {
-        super.onDetach();
         mListener = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadPortfolio();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
         FirebaseHelper.getFirebaseDatabaseReference()
                 .child("portfolios").child(FirebaseHelper.getCurrentUid()).removeEventListener(valueEventListener);
     }
@@ -138,7 +172,6 @@ public class PortfolioFragment extends ActionBarFragment {
             actionBar.setTitle(TAG);
             actionBar.setSubtitle(null);
         }
-        loadPortfolio();
     }
 
     private void loadPortfolio() {
@@ -150,15 +183,24 @@ public class PortfolioFragment extends ActionBarFragment {
     private ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            ArrayList<Portfolio> portfolios = new ArrayList<Portfolio>();
+            ArrayList<Portfolio> list = new ArrayList<>();
             for (DataSnapshot childSnapshot : dataSnapshot.getChildren()){
                 Portfolio portfolio = childSnapshot.getValue(Portfolio.class);
-                portfolios.add(portfolio);
+                list.add(portfolio);
             }
-
+            portfolios = new ArrayList<>(list);
             if(!portfolios.isEmpty()) {
                 showContent(true);
-                mSectionsPagerAdapter.setData(portfolios);
+                mTabLayout.setTabsFromPagerAdapter(new SectionsPagerAdapter(portfolios));
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(lastSelectedTab >= portfolios.size()){
+                            lastSelectedTab = portfolios.size() - 1;
+                        }
+                        setCurrentTabFragment(lastSelectedTab, true);
+                    }
+                }, NAVDRAWER_LAUNCH_DELAY);
             } else {
                 showContent(false);
             }
@@ -173,7 +215,7 @@ public class PortfolioFragment extends ActionBarFragment {
     private void showContent(boolean show) {
         mEmpty.setVisibility(Utils.getVisibility(!show));
         mTabLayout.setVisibility(Utils.getVisibility(show));
-        mViewPager.setVisibility(Utils.getVisibility(show));
+        mTabContainer.setVisibility(Utils.getVisibility(show));
     }
 
     @Override
@@ -182,6 +224,11 @@ public class PortfolioFragment extends ActionBarFragment {
             inflater.inflate(R.menu.portfolio, menu);
         }
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -199,23 +246,38 @@ public class PortfolioFragment extends ActionBarFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putInt(LAST_SELECTED_TAB, lastSelectedTab);
+        super.onSaveInstanceState(outState);
+    }
+
+    public void moveToLastTab() {
+        int lastTabPosition = portfolios.size() - 1;
+        setCurrentTabFragment(lastTabPosition, true);
+    }
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        lastSelectedTab = tab.getPosition();
+        setCurrentTabFragment(lastSelectedTab, false);
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
+    }
+
+    public class SectionsPagerAdapter extends PagerAdapter {
         ArrayList<Portfolio> portfolios = new ArrayList<>();
 
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        public void setData(ArrayList<Portfolio>  data){
+        public SectionsPagerAdapter(ArrayList<Portfolio> data) {
             portfolios = data;
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            Bundle bundle = new Bundle();
-            AnalyticsManager.logEvent("portfolio_details_viewed", bundle);
-            return PortfolioCoinFragment.newInstance(portfolios.get(position));
         }
 
         @Override
@@ -224,8 +286,24 @@ public class PortfolioFragment extends ActionBarFragment {
         }
 
         @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @Override
         public CharSequence getPageTitle(int position) {
             return portfolios.get(position).name;
         }
+    }
+
+    @Override
+    public void onSubscriptionStatus() {
+        super.onSubscriptionStatus();
+        getActionBarActivity().supportInvalidateOptionsMenu();
+    }
+
+    @Override
+    protected void fetchData() {
+
     }
 }

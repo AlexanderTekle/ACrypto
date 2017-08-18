@@ -52,7 +52,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         android:layout_marginTop="10dp"
                         app:srcCompat="@drawable/ic_menu_coins"
                         tools:src="@drawable/ic_menu_coins" />
@@ -61,18 +61,17 @@
                         android:id="@+id/currencyFromSpinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:layout_marginTop="10dp"
-                        android:paddingLeft="@dimen/activity_margin"
-                        app:titleText="Choose a Coin"
-                        android:theme="@style/SpinnerStyle" />
+                        android:paddingStart="@dimen/activity_margin"
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose a Coin" />
 
                     <android.support.design.widget.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:paddingLeft="@dimen/grid_item_padding"
                         android:paddingStart="@dimen/grid_item_padding">
 
                         <EditText
@@ -80,7 +79,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:ems="10"
-                            android:hint="Amount"
+                            android:hint="@string/amount"
                             android:inputType="numberDecimal" />
                     </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
@@ -94,8 +93,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginRight="16dp">
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginTop="10dp">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -119,19 +118,18 @@
                         android:id="@+id/currencyToSpinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:paddingLeft="@dimen/activity_margin"
-                        android:layout_marginTop="10dp"
-                        app:titleText="Choose a Currency"
-                        android:theme="@style/SpinnerStyle" />
+                        android:paddingStart="@dimen/activity_margin"
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose a Currency" />
 
 
                     <android.support.design.widget.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:paddingLeft="@dimen/grid_item_padding"
                         android:paddingStart="@dimen/grid_item_padding">
 
                         <EditText
@@ -139,7 +137,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:ems="10"
-                            android:hint="Price"
+                            android:hint="@string/price"
                             android:inputType="numberDecimal" />
                     </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
@@ -154,7 +152,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_time" />
 
@@ -166,7 +164,7 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:paddingLeft="22dp"
+                        android:paddingStart="22dp"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textSize="14sp"
                         tools:text="24/4/2017" />
@@ -176,7 +174,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:maxLines="1"
-                        android:paddingLeft="@dimen/activity_margin"
+                        android:paddingStart="@dimen/activity_margin"
                         android:theme="@style/SpinnerStyle" />
 
                 </LinearLayout>
@@ -185,25 +183,26 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:visibility="gone"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <ImageView
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         android:tint="@color/accent_grey"
-                        app:srcCompat="@drawable/ic_exchange" />
+                        app:srcCompat="@drawable/ic_exchange"
+                        tools:ignore="ContentDescription" />
 
                     <dev.dworks.apps.acrypto.view.SearchableSpinner
                         android:id="@+id/exchangeSpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:maxLines="1"
-                        android:paddingLeft="@dimen/activity_margin"
-                        app:titleText="Choose an Exchange"
-                        android:theme="@style/SpinnerStyle" />
+                        android:paddingStart="@dimen/activity_margin"
+                        android:theme="@style/SpinnerStyle"
+                        app:titleText="Choose an Exchange" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -216,7 +215,7 @@
                         android:layout_width="@dimen/icon_size"
                         android:layout_height="@dimen/icon_size"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         android:tint="@color/accent_grey"
                         app:srcCompat="@drawable/ic_notes" />
 
@@ -224,18 +223,43 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:paddingLeft="16dp">
+                        android:paddingStart="16dp">
 
                         <EditText
                             android:id="@+id/notes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Notes"
+                            android:hint="@string/notes"
                             android:inputType="textLongMessage"
                             android:textAppearance="?android:attr/textAppearanceSmall" />
                     </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="20dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size"
+                        android:layout_height="@dimen/icon_size"
+                        android:layout_marginEnd="16dp"
+                        android:tint="@color/accent_grey"
+                        android:visibility="invisible"
+                        app:srcCompat="@drawable/ic_notes" />
+
+                    <Button
+                        android:id="@+id/sellPortfolio"
+                        style="@style/FirebaseUI.Button.AccountChooser"
+                        android:layout_width="wrap_content"
+                        android:gravity="center"
+                        android:minWidth="200dp"
+                        android:layout_marginStart="16dp"
+                        android:textColor="@android:color/white"
+                        android:text="@string/sell_portfolio"
+                        android:visibility="gone" />
+                </LinearLayout>
             </LinearLayout>
         </ScrollView>
 

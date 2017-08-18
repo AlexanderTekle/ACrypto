@@ -38,7 +38,7 @@
                             android:id="@+id/logo"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:layout_marginRight="10dp"
+                            android:layout_marginEnd="10dp"
                             android:scaleType="centerCrop"
                             app:srcCompat="@drawable/ic_coins" />
 
@@ -48,7 +48,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="bottom"
                             app:amount="0"
-                            app:baseTextColor="@android:color/black"
+                            app:baseTextColor="?android:colorForeground"
                             app:baseTextSize="25sp"
                             app:decimalDigitsTextSize="25sp"
                             app:decimalSeparator="."
@@ -63,7 +63,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
-                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
                         android:paddingBottom="5dp"
                         android:textColor="?android:attr/textColorSecondary"
                         android:textSize="16sp"
@@ -87,7 +87,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:visibility="visible"
-                app:cardBackgroundColor="@android:color/white"
                 app:cardCornerRadius="4dp"
                 app:cardUseCompatPadding="true"
                 app:contentPadding="10dp">
@@ -96,7 +95,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -110,7 +110,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="5dp"
-                            android:text="Market Cap."
+                            android:text="@string/market_cap"
                             android:textColor="?android:attr/textColorSecondary"
                             android:textSize="12sp" />
 
@@ -139,7 +139,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="5dp"
-                            android:text="Open Price 24H"
+                            android:text="@string/open_price_24h"
                             android:textColor="?android:attr/textColorSecondary"
                             android:textSize="12sp" />
 
@@ -170,7 +170,6 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:visibility="visible"
-                    app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="4dp"
                     app:cardUseCompatPadding="true"
                     app:contentPadding="10dp">
@@ -186,7 +185,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="5dp"
-                            android:text="Volume 24H"
+                            android:text="@string/volume_24h"
                             android:textColor="?android:attr/textColorSecondary"
                             android:textSize="12sp" />
 
@@ -220,7 +219,6 @@
                     android:layout_margin="5dp"
                     android:layout_weight="1"
                     android:visibility="visible"
-                    app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="4dp"
                     app:cardUseCompatPadding="true"
                     app:contentPadding="10dp">
@@ -236,7 +234,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:layout_marginTop="5dp"
-                            android:text="Price 24H"
+                            android:text="@string/price_24h"
                             android:textColor="?android:attr/textColorSecondary"
                             android:textSize="12sp" />
 
@@ -273,6 +271,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:textColor="?android:textColorSecondary"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textIsSelectable="false"
         android:visibility="gone" />

@@ -1,6 +1,12 @@
 package dev.dworks.apps.acrypto.misc;
 
+import android.content.Context;
 import android.support.v4.util.ArrayMap;
+
+import com.android.volley.Cache;
+
+import dev.dworks.apps.acrypto.App;
+import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 
 /**
  * Created by HaKr on 15/05/17.
@@ -23,6 +29,7 @@ public class UrlConstant {
     public static final String HISTORY_HOUR_URL = BASE_API_URL + "/data/histohour";
     public static final String HISTORY_DAY_URL = BASE_API_URL + "/data/histoday";
     public static final String HISTORY_PRICE_URL = BASE_API_URL + "/data/price";
+    public static final String HISTORY_PRICE_MULTI_URL = BASE_API_URL + "/data/pricemulti";
     public static final String HISTORY_PRICE_HISTORICAL_URL = BASE_API_URL + "/data/pricehistorical";
     public static final String COINLIST_URL =  BASE_URL + "/api/data/toplistvolumesnapshot/";
     //public static final String COINLIST_URL =  "https://api.coinmarketcap.com/v1/ticker/";
@@ -52,5 +59,18 @@ public class UrlConstant {
 
         return UrlManager.with(UrlConstant.COINS_API)
                 .setDefaultParams(params).getUrl();
+    }
+
+    public static void syncMasterData(Context context){
+        Cache cache = VolleyPlusHelper.with(context).getRequestQueue().getCache();
+        cache.remove(COINS_API);
+        cache.remove(CURRENCY_API);
+        cache.remove(COINS_LIST_API);
+        cache.remove(COINS_IGNORE_API);
+        cache.remove(SYMBOLS_API);
+        cache.remove(getArbitrageCoinsUrl());
+        cache.remove(getArbitrageFromUrl());
+        cache.remove(getArbitrageToUrl());
+        App.getInstance().synMasterData();
     }
 }

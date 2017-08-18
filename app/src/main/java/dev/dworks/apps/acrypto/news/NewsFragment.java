@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,7 +19,15 @@ import android.view.ViewGroup;
 import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.NativeExpressAdView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.News;
@@ -28,6 +38,9 @@ import dev.dworks.apps.acrypto.network.MasterGsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
+import static dev.dworks.apps.acrypto.news.NewsAdapter.AD_POSITION;
+import static dev.dworks.apps.acrypto.utils.Utils.NATIVE_APP_UNIT_ID;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 /**
@@ -38,16 +51,21 @@ public class NewsFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
         Response.Listener<News>, Response.ErrorListener {
 
+    private static final int NATIVE_EXPRESS_AD_HEIGHT = 250;
+
     private static final String TAG = "News";
+    private static final int START_POSITION = AD_POSITION;
     private Utils.OnFragmentInteractionListener mListener;
     private NewsAdapter mAdapter;
     private News mNews;
+    private List<Object> mItems = new ArrayList<>();
 
     public static void show(FragmentManager fm) {
         final Bundle args = new Bundle();
         final FragmentTransaction ft = fm.beginTransaction();
         final NewsFragment fragment = new NewsFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
@@ -98,7 +116,8 @@ public class NewsFragment extends RecyclerFragment
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
     }
 
-    private void fetchDataTask() {
+    @Override
+    protected void fetchData() {
         setEmptyText("");
         setListShown(false);
         String url = getUrl();
@@ -109,7 +128,7 @@ public class NewsFragment extends RecyclerFragment
                 News.class,
                 this,
                 this);
-        request.setCacheMinutes(60, 60);
+        request.setCacheMinutes(4*60, 4*60);
         request.setShouldCache(true);
         VolleyPlusHelper.with(getActivity()).addToRequestQueue(request, TAG);
     }
@@ -121,24 +140,7 @@ public class NewsFragment extends RecyclerFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchDataTask();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchDataTask();
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -158,18 +160,27 @@ public class NewsFragment extends RecyclerFragment
 
     public void refreshData(String currency) {
         mAdapter.clear();
-        fetchDataTask();
+        fetchData();
     }
 
     private void loadData(News news) {
         mAdapter.clear();
         if(null != news) {
-            mAdapter.setData(news.getData());
+            mItems.addAll(news.getData());
+            boolean showAds = showAds();
+            if(showAds) {
+                addNativeExpressAds();
+                try {
+                    setUpAndLoadNativeExpressAds();
+                }catch (Exception ignore){}
+            }
+            mAdapter.setData(mItems, showAds);
             setEmptyText("");
         } else {
             setEmptyText("No Data");
         }
         setListShown(true);
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -202,12 +213,12 @@ public class NewsFragment extends RecyclerFragment
             mAdapter = new NewsAdapter(getActivity(), this);
         }
         setListAdapter(mAdapter);
-        fetchDataTask();
+        fetchData();
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        News.NewsData item = mAdapter.getItem(position);
+        News.NewsData item = (News.NewsData) mAdapter.getItem(position);
         Utils.openCustomTabUrl(getActivity(), item.link);
         AnalyticsManager.logEvent("view_news_details");
     }
@@ -232,10 +243,7 @@ public class NewsFragment extends RecyclerFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchDataTask();
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("news_refreshed", bundle);
+                onRefreshData();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -244,5 +252,78 @@ public class NewsFragment extends RecyclerFragment
     private void removeUrlCache(){
         Cache cache = VolleyPlusHelper.with(getActivity()).getRequestQueue().getCache();
         cache.remove(getUrl());
+    }
+
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchData();
+        Bundle bundle = new Bundle();
+        AnalyticsManager.logEvent("news_refreshed", bundle);
+        super.onRefreshData();
+    }
+
+    private void addNativeExpressAds() {
+        for (int i = START_POSITION; i <= mItems.size(); i += AD_POSITION) {
+            final NativeExpressAdView adView = new NativeExpressAdView(getActivity());
+            mItems.add(i, adView);
+        }
+    }
+
+    private void setUpAndLoadNativeExpressAds() {
+        getListView().post(new Runnable() {
+            @Override
+            public void run() {
+                final float scale = getResources().getDisplayMetrics().density;
+                final CardView cardView = (CardView) getListView().findViewById(R.id.cardView);
+                final int adWidth = cardView.getWidth() - cardView.getPaddingLeft()
+                        - cardView.getPaddingRight();
+                int width = (int) (adWidth / scale);
+                for (int i = START_POSITION; i <= mItems.size(); i += AD_POSITION) {
+                    final NativeExpressAdView adView =
+                            (NativeExpressAdView) mItems.get(i);
+                    AdSize adSize = new AdSize(width, NATIVE_EXPRESS_AD_HEIGHT);
+                    adView.setAdSize(adSize);
+                    adView.setAdUnitId(NATIVE_APP_UNIT_ID);
+                }
+
+                loadNativeExpressAd(START_POSITION);
+            }
+        });
+    }
+
+    private void loadNativeExpressAd(final int index) {
+
+        if (index >= mItems.size()) {
+            return;
+        }
+
+        Object item = mItems.get(index);
+        if (!(item instanceof NativeExpressAdView)) {
+            throw new ClassCastException("Expected item at index " + index + " to be a Native"
+                    + " Express ad.");
+        }
+
+        final NativeExpressAdView adView = (NativeExpressAdView) item;
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                loadNativeExpressAd(index + AD_POSITION);
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                Log.e(TAG, "The previous Native Express ad failed to load. Attempting to"
+                        + " load the next Native Express ad in the items list.");
+                loadNativeExpressAd(index + AD_POSITION);
+            }
+        });
+
+        adView.loadAd(new AdRequest.Builder().build());
+    }
+
+    private boolean showAds(){
+        return !App.getInstance().isSubscribedMonthly();
     }
 }

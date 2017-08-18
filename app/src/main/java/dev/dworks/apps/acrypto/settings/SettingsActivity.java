@@ -10,6 +10,7 @@ import dev.dworks.apps.acrypto.common.AppCompatPreferenceActivity;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 
+import static dev.dworks.apps.acrypto.MainActivity.RESULT_THEME_CHANGED;
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
@@ -35,6 +36,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String KEY_ARBITRAGE_CURRENCY_FROM = "arbitrage_currency_from";
     public static final String KEY_EXCHANGE = "exchange";
     public static final String KEY_NEWS_ALERT_STATUS = "newsAlertStatus";
+    public static final String KEY_THEME_STYLE = "themeStyle";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    @Override
+    public String getTag() {
+        return TAG;
     }
 
     @Override
@@ -153,5 +160,24 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private static String getCurrencyTwoKey(){
         return KEY_CURRENCY_TWO + "_" + getCurrencyFrom();
+    }
+
+    public static boolean getNewsAlertStatus() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getBoolean(KEY_NEWS_ALERT_STATUS, true);
+    }
+
+    public static void setNewsAlertStatus(boolean status) {
+        PreferenceUtils.set(KEY_NEWS_ALERT_STATUS, status);
+    }
+
+    public static String getThemeStyle() {
+        return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext())
+                .getString(KEY_THEME_STYLE, "1");
+    }
+
+    protected void restartActivity() {
+        setResult(RESULT_THEME_CHANGED);
+        recreate();
     }
 }

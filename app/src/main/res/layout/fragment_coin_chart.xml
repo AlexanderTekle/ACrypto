@@ -21,10 +21,10 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <com.github.mikephil.charting.charts.LineChart
+                <dev.dworks.apps.acrypto.view.LineChart
                     android:id="@+id/linechart"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp" />
+                    android:layout_height="@dimen/line_chart_height" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -36,16 +36,16 @@
                         android:id="@+id/volume"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="16dp"
-                        android:textColor="@color/colorPrimary"
+                        android:paddingStart="16dp"
+                        android:textColor="@color/chartColor"
                         android:textSize="20sp"
                         android:visibility="visible"
                         tools:text="Vol: 234" />
 
-                    <com.github.mikephil.charting.charts.BarChart
+                    <dev.dworks.apps.acrypto.view.BarChart
                         android:id="@+id/barchart"
                         android:layout_width="match_parent"
-                        android:layout_height="120dp"
+                        android:layout_height="@dimen/bar_chart_height"
                         android:layout_gravity="center"
                         android:paddingTop="10dp" />
                 </LinearLayout>
@@ -59,6 +59,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:textColorSecondary"
         android:textIsSelectable="false"
         android:visibility="gone" />
 

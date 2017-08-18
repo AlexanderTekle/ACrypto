@@ -20,7 +20,7 @@ import android.widget.TextView;
 import dev.dworks.apps.acrypto.R;
 
 
-public class RecyclerFragment extends ActionBarFragment {
+public abstract class RecyclerFragment extends ActionBarFragment {
 	private Adapter<RecyclerView.ViewHolder> mAdapter;
 	private LayoutManager mLayoutManager;
     private CharSequence mEmptyText;

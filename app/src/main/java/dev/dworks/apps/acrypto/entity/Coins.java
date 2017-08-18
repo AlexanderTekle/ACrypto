@@ -6,20 +6,26 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import dev.dworks.apps.acrypto.App;
+import dev.dworks.apps.acrypto.utils.Utils;
+
 /**
  * Created by HaKr on 16/05/17.
  */
 
-public class Coins extends BaseEntity implements Serializable{
+public class Coins extends BaseEntity {
     public static final String BASE_URL = "https://files.coinmarketcap.com/static/img/coins/64x64/"; //bitcoin.png
 
     @SerializedName("Data")
     @Expose
     public ArrayList<String> data = null;
+    public ArrayList<CoinDetail> list = null;
     public ArrayList<CoinDetails.Coin> coins = new ArrayList<>();
 
     public static class CoinDetail implements Serializable {
 
+        public String id;
+        public String name;
         @SerializedName("TYPE")
         @Expose
         public String type;
@@ -92,9 +98,33 @@ public class Coins extends BaseEntity implements Serializable{
             low24H = dataSplit[14];
             lastMarket = dataSplit[15];
         }
+
+        public Double differnce(){
+            double currentPrice = Double.parseDouble(price);
+            double prevPrice = Double.parseDouble(open24H);
+            Double difference = ((currentPrice - prevPrice)/prevPrice) * 100;
+            return difference;
+        }
+
+        public String getFromSym(){
+            return Utils.cleanedCoinSymbol(fromSym);
+        }
+
+        @Override
+        public String toString() {
+            return name + fromSym;
+        }
     }
 
     public static CoinDetail getCoin(String data){
-        return new CoinDetail(data);
+        CoinDetail coin = new CoinDetail(data);
+        try {
+            final CoinDetailSample.CoinDetail coinDetail = App.getInstance().getCoinDetails().coins.get(coin.getFromSym());
+            coin.name = coinDetail.name;
+            coin.id = coinDetail.id;
+        } catch (Exception e){
+            coin.name = coin.getFromSym();
+        }
+        return coin;
     }
 }

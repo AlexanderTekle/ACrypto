@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
-        android:background="@android:color/white"
+        android:background="@color/colorPrimaryDark"
         android:orientation="horizontal">
 
         <dev.dworks.apps.acrypto.view.SearchableSpinner
@@ -19,28 +19,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:paddingLeft="10dp"
-            app:titleText="Choose a Coin"
-            android:theme="@style/SpinnerStyle"/>
+            android:paddingStart="10dp"
+            android:theme="@style/SpinnerStyle"
+            app:titleText="Choose a Coin" />
 
         <dev.dworks.apps.acrypto.view.SearchableSpinner
             android:id="@+id/currencyToSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:paddingLeft="10dp"
-            app:titleText="Choose a Currency"
-            android:theme="@style/SpinnerStyle" />
+            android:paddingStart="10dp"
+            android:theme="@style/SpinnerStyle"
+            app:titleText="Choose a Currency" />
 
         <dev.dworks.apps.acrypto.view.SearchableSpinner
             android:id="@+id/exchangeSpinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:maxLines="1"
             android:minWidth="130dp"
-            app:titleText="Choose an Exchange"
-            android:theme="@style/SpinnerStyle" />
+            android:theme="@style/SpinnerStyle"
+            app:titleText="Choose an Exchange" />
     </LinearLayout>
 
     <LinearLayout
@@ -61,15 +61,15 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingRight="20dp">
+                android:paddingEnd="20dp">
 
                 <org.fabiomsr.moneytextview.MoneyTextView
                     android:id="@+id/value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center|right"
+                    android:layout_gravity="center|end"
                     app:amount="0"
-                    app:baseTextColor="@android:color/white"
+                    app:baseTextColor="?android:colorForeground"
                     app:baseTextSize="22sp"
                     app:decimalDigitsTextSize="22sp"
                     app:decimalSeparator="."
@@ -82,9 +82,9 @@
                     android:id="@+id/time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|right"
+                    android:layout_gravity="center_horizontal|end"
                     android:layout_marginTop="5dp"
-                    android:textColor="@android:color/white"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:textSize="12sp"
                     tools:text="5/3/17 2:45 PM" />
             </LinearLayout>
@@ -92,7 +92,7 @@
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="@drawable/rectangle_white" />
+                android:background="@drawable/rectangle_dark" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -100,7 +100,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingLeft="20dp">
+                android:paddingStart="20dp">
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -112,10 +112,10 @@
                         android:id="@+id/valueChange"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center|left"
+                        android:layout_gravity="center|start"
                         android:visibility="visible"
                         app:amount="0"
-                        app:baseTextColor="@android:color/white"
+                        app:baseTextColor="?android:colorForeground"
                         app:baseTextSize="22sp"
                         app:decimalDigitsTextSize="22sp"
                         app:decimalSeparator="."
@@ -128,8 +128,8 @@
                         android:id="@+id/volume"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center|left"
-                        android:textColor="@android:color/white"
+                        android:layout_gravity="center|start"
+                        android:textColor="?android:attr/textColorPrimary"
                         android:textSize="20sp"
                         android:visibility="gone"
                         tools:text="234" />
@@ -139,11 +139,11 @@
                     android:id="@+id/timeDuration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|left"
+                    android:layout_gravity="center_horizontal|start"
                     android:layout_marginTop="5dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:textColor="@android:color/white"
+                    android:textColor="?android:attr/textColorTertiary"
                     android:textSize="12sp"
                     tools:text="since last week" />
             </LinearLayout>
@@ -159,9 +159,9 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
                 android:layout_weight="1"
-                android:background="@drawable/rectangle_white" />
+                android:background="@drawable/rectangle_dark" />
 
             <RadioGroup
                 android:id="@+id/timeseries"
@@ -175,15 +175,16 @@
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10M" />
-
+                    android:text="@string/timeseries_10m"
+                    android:textColor="@color/time_series_color" />
 
                 <RadioButton
                     android:id="@+id/timeseries_hour"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1H" />
+                    android:text="@string/timeseries_1h"
+                    android:textColor="@color/time_series_color" />
 
                 <RadioButton
                     android:id="@+id/timeseries_day"
@@ -191,44 +192,49 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
-                    android:text="1D" />
+                    android:text="@string/timeseries_1d"
+                    android:textColor="@color/time_series_color" />
 
                 <RadioButton
                     android:id="@+id/timeseries_week"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1W" />
+                    android:text="@string/timeseries_1w"
+                    android:textColor="@color/time_series_color" />
 
                 <RadioButton
                     android:id="@+id/timeseries_month"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="30D" />
+                    android:text="@string/timeseries_30d"
+                    android:textColor="@color/time_series_color" />
 
                 <RadioButton
                     android:id="@+id/timeseries_year"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1Y" />
+                    android:text="@string/timeseries_1y"
+                    android:textColor="@color/time_series_color" />
 
                 <RadioButton
                     android:id="@+id/timeseries_year5"
                     style="@style/RadioButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="5Y" />
+                    android:text="@string/timeseries_5y"
+                    android:textColor="@color/time_series_color" />
 
             </RadioGroup>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_weight="1"
-                android:background="@drawable/rectangle_white" />
+                android:background="@drawable/rectangle_dark" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

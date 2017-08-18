@@ -42,7 +42,7 @@ public class NotificationUtils {
                 PendingIntent.FLAG_ONE_SHOT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_stat_notify)
+                .setSmallIcon(R.drawable.ic_info)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setAutoCancel(true)
@@ -81,5 +81,9 @@ public class NotificationUtils {
             type = extras.getString("type");
         }
         return type;
+    }
+
+    public static void createNotificationChannels(Context context) {
+
     }
 }

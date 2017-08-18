@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,20 +21,29 @@ import android.view.ViewGroup;
 import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 
 import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
+import dev.dworks.apps.acrypto.entity.CoinsDeserializer;
 import dev.dworks.apps.acrypto.common.RecyclerFragment;
 import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.UrlConstant;
 import dev.dworks.apps.acrypto.misc.UrlManager;
-import dev.dworks.apps.acrypto.network.GsonRequest;
+import dev.dworks.apps.acrypto.network.StringRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
+import static dev.dworks.apps.acrypto.coins.CoinAdapter.SORT_PRICE_CHANGE;
+import static dev.dworks.apps.acrypto.coins.CoinAdapter.SORT_DEFAULT;
+import static dev.dworks.apps.acrypto.coins.CoinAdapter.SORT_PRICE;
+import static dev.dworks.apps.acrypto.coins.CoinAdapter.SORT_VOLUME_CHANGE;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_LIST_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_CURRENCY;
@@ -45,7 +56,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
 
 public class CoinFragment extends RecyclerFragment
         implements RecyclerFragment.RecyclerItemClickListener.OnItemClickListener,
-        Response.Listener<Coins>, Response.ErrorListener{
+        Response.Listener<String>, Response.ErrorListener{
 
     private static final String TAG = "Coins";
     private Utils.OnFragmentInteractionListener mListener;
@@ -59,6 +70,7 @@ public class CoinFragment extends RecyclerFragment
         final FragmentTransaction ft = fm.beginTransaction();
         final CoinFragment fragment = new CoinFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
@@ -113,16 +125,15 @@ public class CoinFragment extends RecyclerFragment
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
     }
 
-    private void fetchDataTask() {
+    @Override
+    protected void fetchData() {
         setEmptyText("");
         setListShown(false);
         String url = getUrl();
 
         mCoins = null;
-        GsonRequest<Coins> request = new GsonRequest<>(
+        StringRequest request = new StringRequest(
                 url,
-                Coins.class,
-                "",
                 this,
                 this);
         request.setCacheMinutes(5, 60);
@@ -140,31 +151,25 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchDataTask();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to ACrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchDataTask();
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
-    public void onResponse(Coins response) {
-        loadData(response);
+    public void onResponse(String response) {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        JsonDeserializer<Coins> deserializer = new CoinsDeserializer();
+        gsonBuilder.registerTypeAdapter(Coins.class, deserializer);
+
+        Gson customGson = gsonBuilder.create();
+        Coins coins = null;
+        try {
+            coins = customGson.fromJson(response, Coins.class);
+        } catch (Exception e) {
+        }
+        loadData(coins);
     }
 
+    @Override
     public void setEmptyData(String mesasge){
         setListShown(true);
         if(null != mCoins){
@@ -177,26 +182,25 @@ public class CoinFragment extends RecyclerFragment
     public void refreshData(String currency) {
         mCurrency = currency;
         mAdapter.clear();
-        fetchDataTask();
+        fetchData();
     }
 
     private void loadData(Coins coins) {
         // TODO this is not something i'm proud of
-        ArrayList<String> ignoreList = new ArrayList<>();
-        for (String coin : coins.data) {
+        ArrayList<Coins.CoinDetail> ignoreList = new ArrayList<>();
+        for (Coins.CoinDetail coin : coins.list) {
             for (String key : getIgnoreCurrencies()) {
-                if(coin.contains(key)){
+                if(coin.fromSym.equals(key)){
                     ignoreList.add(coin);
                 }
             }
         }
-        coins.data.removeAll(ignoreList);
+        coins.list.removeAll(ignoreList);
         mCoins = coins;
-        mAdapter.setBaseImageUrl(Coins.BASE_URL);
         mAdapter.setCurrencySymbol(getCurrencySymbol(mCurrency));
         mAdapter.clear();
         if(null != mCoins) {
-            mAdapter.setData(mCoins.data);
+            mAdapter.setData(mCoins.list);
         }
         setEmptyText("");
         if(null == mCoins || TextUtils.isEmpty(mCoins.response)){
@@ -253,7 +257,7 @@ public class CoinFragment extends RecyclerFragment
         if (null != mCoins) {
             loadData(mCoins);
         } else {
-            fetchDataTask();
+            fetchData();
         }
     }
 
@@ -268,7 +272,7 @@ public class CoinFragment extends RecyclerFragment
         if(position >= mAdapter.getItemCount() ){
             return;
         }
-        Coins.CoinDetail item = Coins.getCoin(mAdapter.getItem(position));
+        Coins.CoinDetail item = mAdapter.getItem(position);
         Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
         intent.putExtra(BUNDLE_COIN, item);
         startActivity(intent);
@@ -289,21 +293,64 @@ public class CoinFragment extends RecyclerFragment
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.refresh, menu);
+        inflater.inflate(R.menu.coins, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        setupSearch(searchItem);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void setupSearch(MenuItem searchItem) {
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String searchQuery) {
+                mAdapter.filter(searchQuery.toString().trim());
+                return true;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                mAdapter.filter(null);
+                return false;
+            }
+        });
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_refresh:
-                removeUrlCache();
-                fetchDataTask();
-                Bundle bundle = new Bundle();
-                AnalyticsManager.logEvent("coins_refreshed", bundle);
+                onRefreshData();
+                break;
+            case R.id.menu_sort_default:
+                sortList(SORT_DEFAULT);
+                break;
+            case R.id.menu_sort_price:
+                sortList(SORT_PRICE);
+                break;
+            case R.id.menu_sort_volume_change:
+                sortList(SORT_VOLUME_CHANGE);
+                break;
+            case R.id.menu_sort_price_change:
+                sortList(SORT_PRICE_CHANGE);
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void sortList(int sortType){
+        if(null == mCoins){
+            return;
+        }
+        mAdapter.sortList(sortType);
     }
 
     private void removeUrlCache(){
@@ -311,4 +358,12 @@ public class CoinFragment extends RecyclerFragment
         cache.remove(getUrl());
     }
 
+    @Override
+    public void onRefreshData() {
+        removeUrlCache();
+        fetchData();
+        Bundle bundle = new Bundle();
+        AnalyticsManager.logEvent("coins_refreshed", bundle);
+        super.onRefreshData();
+    }
 }

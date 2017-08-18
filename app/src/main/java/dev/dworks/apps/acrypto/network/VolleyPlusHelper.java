@@ -46,6 +46,7 @@ public class VolleyPlusHelper {
     private final Context mContext;
     private RequestTickle mRequestTickle;
     private SimpleImageLoader mImageLoader;
+    private SimpleImageLoader mImageBGLoader;
     private RequestQueue mRequestQueue;
     private String mUrl;
     private int mPlaceHolder;
@@ -111,7 +112,7 @@ public class VolleyPlusHelper {
 
             mImageLoader = new SimpleImageLoader(mContext, cacheParams);
             mImageLoader.setDefaultDrawables(drawables);
-            mImageLoader.setMaxImageSize(hasMoreHeap() ? SCALE_DOWN_SIZE_SMALL: IMAGE_SIZE_BIG);
+            mImageLoader.setMaxImageSize(hasMoreHeap() ? IMAGE_SIZE_BIG: IMAGE_SIZE);
             mImageLoader.setFadeInImage(mCrossfade);
             mImageLoader.setContetResolver(mContext.getContentResolver());
         }
@@ -120,7 +121,7 @@ public class VolleyPlusHelper {
     }
 
     public SimpleImageLoader getNewsImageLoader(){
-        if(null == mImageLoader){
+        if(null == mImageBGLoader){
             ImageCacheParams cacheParams = new ImageCacheParams(mContext,
                     TextUtils.isEmpty(mCacheDir) ? IMAGE_BG_CACHE_DIR :  mCacheDir);
             cacheParams.setMemCacheSizePercent(0.5f);
@@ -129,14 +130,14 @@ public class VolleyPlusHelper {
             drawables.add(AppCompatDrawableManager.get().getDrawable(mContext,
                     mPlaceHolder == 0 ? R.drawable.ic_coins : mPlaceHolder));
 
-            mImageLoader = new SimpleImageLoader(mContext, cacheParams);
-            mImageLoader.setDefaultDrawables(drawables);
-            mImageLoader.setMaxImageSize(hasMoreHeap() ? IMAGE_SIZE_BIG: IMAGE_SIZE);
-            mImageLoader.setFadeInImage(mCrossfade);
-            mImageLoader.setContetResolver(mContext.getContentResolver());
+            mImageBGLoader = new SimpleImageLoader(mContext, cacheParams);
+            mImageBGLoader.setDefaultDrawables(drawables);
+            mImageBGLoader.setMaxImageSize(hasMoreHeap() ? SCALE_DOWN_SIZE_SMALL: IMAGE_SIZE_BIG);
+            mImageBGLoader.setFadeInImage(mCrossfade);
+            mImageBGLoader.setContetResolver(mContext.getContentResolver());
         }
 
-        return mImageLoader;
+        return mImageBGLoader;
     }
 
     public RequestTickle getRequestTickle() {

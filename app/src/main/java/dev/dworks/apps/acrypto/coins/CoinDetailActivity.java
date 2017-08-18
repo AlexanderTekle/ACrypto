@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -21,6 +22,7 @@ import dev.dworks.apps.acrypto.view.LockableViewPager;
 
 import static dev.dworks.apps.acrypto.misc.UrlConstant.BASE_URL;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
+import static dev.dworks.apps.acrypto.utils.Utils.cleanedCoinSymbol;
 
 public class CoinDetailActivity extends AppCompatActivity implements Utils.OnFragmentInteractionListener {
 
@@ -42,11 +44,11 @@ public class CoinDetailActivity extends AppCompatActivity implements Utils.OnFra
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             try {
-                final CoinDetailSample.CoinDetail coinDetail = App.getInstance().getCoinDetails().coins.get(mCoin.fromSym);
+                final CoinDetailSample.CoinDetail coinDetail = App.getInstance().getCoinDetails().coins.get(mCoin.getFromSym());
                 actionBar.setTitle(coinDetail.name + " - " +mCoin.toSym);
 
             } catch (Exception e){
-                actionBar.setTitle(mCoin.fromSym + " - " +mCoin.toSym);
+                actionBar.setTitle(mCoin.getFromSym() + " - " +mCoin.toSym);
             }
             actionBar.setSubtitle(null);
         }
@@ -83,10 +85,10 @@ public class CoinDetailActivity extends AppCompatActivity implements Utils.OnFra
 
             case R.id.action_more:
                 Bundle bundle = new Bundle();
-                String url = BASE_URL + "/coins/" + mCoin.fromSym.toLowerCase()
+                String url = BASE_URL + "/coins/" + mCoin.getFromSym().toLowerCase()
                         + "/overview/" + mCoin.toSym.toLowerCase();
                 Utils.openCustomTabUrl(this, url);
-                bundle.putString("currency", mCoin.fromSym);
+                bundle.putString("currency", mCoin.getFromSym());
                 AnalyticsManager.logEvent("view_coin_more_details", bundle);
                 break;
         }
@@ -107,7 +109,7 @@ public class CoinDetailActivity extends AppCompatActivity implements Utils.OnFra
         @Override
         public Fragment getItem(int position) {
             Bundle bundle = new Bundle();
-            bundle.putString("currency", mCoin.fromSym + "/" +mCoin.toSym);
+            bundle.putString("currency", mCoin.getFromSym() + "/" +mCoin.toSym);
             switch (position){
                 case 1:
                     bundle.putString("type", "exchanges");

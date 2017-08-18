@@ -12,6 +12,10 @@ public class PreferenceUtils {
 		return PreferenceManager.getDefaultSharedPreferences(ctx).getBoolean(key, false);
 	}
 
+	public static Boolean getBooleanPrefs(String key) {
+		return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext()).getBoolean(key, false);
+	}
+
 	public static String getStringPrefs(Context ctx, String key) {
 		return PreferenceManager.getDefaultSharedPreferences(ctx).getString(key, "");
 	}
@@ -34,6 +38,10 @@ public class PreferenceUtils {
 
 	public static long getLongPrefs(Context ctx, String key, int defaultValue) {
 		return PreferenceManager.getDefaultSharedPreferences(ctx).getLong(key, defaultValue);
+	}
+
+	public static long getLongPrefs(String key, int defaultValue) {
+		return PreferenceManager.getDefaultSharedPreferences(App.getInstance().getBaseContext()).getLong(key, defaultValue);
 	}
 
 	public static void set(final String key, final Object value) {

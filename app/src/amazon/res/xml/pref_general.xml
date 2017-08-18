@@ -1,0 +1,35 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="account"
+        android:title="Account">
+        <ListPreference
+            android:key="user_currency"
+            android:persistent="true"
+            android:summary="%s"
+            android:title="@string/pref_currency_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="sync"
+        android:title="Sync">
+        <Preference
+            android:key="syncData"
+            android:summary="@string/pref_sync_description"
+            android:title="@string/pref_sync_title" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="theme"
+        android:title="Theme">
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/theme_style_names"
+            android:entryValues="@array/theme_style_values"
+            android:key="themeStyle"
+            android:persistent="true"
+            android:summary="%s"
+            android:title="@string/pref_theme_style_title" />
+    </PreferenceCategory>
+    <Preference
+        android:key="logout"
+        android:title="@string/pref_title_logout" />
+</PreferenceScreen>

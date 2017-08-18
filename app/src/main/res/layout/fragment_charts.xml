@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include layout="@layout/controls_charts" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <dev.dworks.apps.acrypto.view.InteractiveChartLayout
+                android:id="@+id/interactivechart"
+                android:layout_width="match_parent"
+                app:xLabelColor="?android:textColorPrimary"
+                app:yLabelColor="?android:textColorPrimary"
+                app:markerBorderColor="?android:textColorPrimary"
+                app:markerTextColor="?android:textColorPrimary"
+                app:candleExtremumLableColor="?android:textColorPrimary"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/maValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_marginRight="12dp"
+                    android:text="@string/ma_normal"
+                    android:textColor="?android:textColorPrimary"
+                    android:textSize="10dp" />
+
+                <TextView
+                    android:id="@+id/stockIndexValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|bottom"
+                    android:layout_marginBottom="@dimen/stock_value_padding"
+                    android:layout_marginRight="12dp"
+                    android:text="@string/macd_normal"
+                    android:textColor="?android:textColorPrimary"
+                    android:textSize="10dp" />
+
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/tabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/stock_index_tab_height"
+                    android:layout_gravity="bottom"
+                    android:background="?android:windowBackground"
+                    android:layout_marginBottom="@dimen/stock_tab_padding"
+                    app:tabTextColor="?android:textColorTertiary"
+                    app:tabSelectedTextColor="?android:textColorPrimary"
+                    app:tabGravity="fill"
+                    app:tabMode="scrollable">
+
+                    <android.support.design.widget.TabItem
+                        android:id="@+id/volumeTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Volume" />
+
+                    <android.support.design.widget.TabItem
+                        android:id="@+id/macdTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MACD" />
+
+                    <android.support.design.widget.TabItem
+                        android:id="@+id/rsiTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="RSI" />
+
+                    <android.support.design.widget.TabItem
+                        android:id="@+id/kdjTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="KDJ" />
+
+                    <android.support.design.widget.TabItem
+                        android:id="@+id/bollTab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="BOLL" />
+
+
+                </android.support.design.widget.TabLayout>
+
+            </dev.dworks.apps.acrypto.view.InteractiveChartLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/lastupdated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|end"
+            android:layout_margin="10dp"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="5/3/17 2:45 PM" />
+
+    </LinearLayout>
+
+    <dev.dworks.apps.acrypto.view.MaterialProgressBar
+        android:id="@+id/chartprogress"
+        style="@style/MaterialProgress"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <include
+        layout="@layout/layout_pro"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="match_parent" />
+</FrameLayout>

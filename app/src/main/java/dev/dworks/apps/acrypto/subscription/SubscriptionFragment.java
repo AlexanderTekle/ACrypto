@@ -9,6 +9,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,6 +27,8 @@ import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.SimpleDividerItemDecoration;
+
+import static android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE;
 
 /**
  * Created by HaKr on 08/07/17.
@@ -44,6 +49,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
         final FragmentTransaction ft = fm.beginTransaction();
         final SubscriptionFragment fragment = new SubscriptionFragment();
         fragment.setArguments(args);
+        ft.setTransition(TRANSIT_FRAGMENT_FADE);
         ft.replace(R.id.container, fragment, TAG);
         ft.commitAllowingStateLoss();
     }
@@ -72,6 +78,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setSubscriptionDependant(true);
         paidReason = getString(R.string.paid_reason);
     }
 
@@ -99,7 +106,6 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     public void onResume() {
         super.onResume();
         AnalyticsManager.setCurrentScreen(getActivity(), TAG);
-        updateViews();
     }
 
     @Override
@@ -117,6 +123,28 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.subscription, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.action_unsubscribe).setVisible(isSubscriptionActive());
+        super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_unsubscribe:
+                unSubscribe();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -150,7 +178,7 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
             });
             return;
         }
-        boolean isActive = App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn();
+        boolean isActive = isSubscriptionActive();
         mSubscribe.setVisibility(Utils.getVisibility(!isActive));
         if(isActive) {
             mReason.setText("Subscribed");
@@ -162,6 +190,11 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
             mReason.setOnClickListener(this);
         }
         mTrailStatus.setVisibility(Utils.getVisibility(App.getInstance().getTrailStatus()));
+        getActionBarActivity().supportInvalidateOptionsMenu();
+    }
+
+    private boolean isSubscriptionActive(){
+        return App.getInstance().isSubscriptionActive() && FirebaseHelper.isLoggedIn();
     }
 
     @Override
@@ -181,5 +214,15 @@ public class SubscriptionFragment extends ActionBarFragment implements View.OnCl
                 AnalyticsManager.logEvent("view_subscription_reason", bundle);
                 break;
         }
+    }
+
+    @Override
+    public void onSubscriptionStatus() {
+        updateViews();
+    }
+
+    @Override
+    protected void fetchData() {
+
     }
 }

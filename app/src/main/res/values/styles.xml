@@ -78,8 +78,7 @@
         <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="ThemeOverlay.AppCompat.NavTheme">
+        <item name="colorPrimary">@color/navHighlightColor</item>
     </style>
-
 </resources>

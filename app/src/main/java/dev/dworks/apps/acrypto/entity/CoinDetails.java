@@ -25,7 +25,7 @@ public class CoinDetails extends BaseEntity {
         }
     }
 
-    public static class Coin implements Serializable{
+    public static class Coin implements Serializable {
         @SerializedName("code")
         @Expose
         public String code;

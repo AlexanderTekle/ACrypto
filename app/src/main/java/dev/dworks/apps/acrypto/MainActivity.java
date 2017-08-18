@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -31,7 +32,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 import dev.dworks.apps.acrypto.alerts.AlertFragment;
 import dev.dworks.apps.acrypto.arbitrage.ArbitrageFragment;
+import dev.dworks.apps.acrypto.charts.ChartsFragment;
 import dev.dworks.apps.acrypto.coins.CoinFragment;
+import dev.dworks.apps.acrypto.common.ActionBarActivity;
 import dev.dworks.apps.acrypto.entity.CoinsList;
 import dev.dworks.apps.acrypto.home.HomeFragment;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
@@ -45,39 +48,49 @@ import dev.dworks.apps.acrypto.news.NewsFragment;
 import dev.dworks.apps.acrypto.portfolio.PortfolioFragment;
 import dev.dworks.apps.acrypto.settings.SettingsActivity;
 import dev.dworks.apps.acrypto.subscription.SubscriptionFragment;
+import dev.dworks.apps.acrypto.utils.NotificationUtils;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
 import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.BezelImageView;
-import dev.dworks.apps.acrypto.view.SimpleSpinner;
+import dev.dworks.apps.acrypto.view.SearchableSpinner;
 
 import static dev.dworks.apps.acrypto.App.BILLING_ACTION;
 import static dev.dworks.apps.acrypto.misc.AnalyticsManager.setProperty;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_ALERT;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_ALERT_ARBITRAGE;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_ALERT_PRICE;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_GENERIC;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_URL;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.TYPE_URL_NEWS;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getAlertName;
+import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationSubType;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationType;
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.getNotificationUrl;
+import static dev.dworks.apps.acrypto.utils.Utils.INTERSTITIAL_APP_UNIT_ID;
+import static dev.dworks.apps.acrypto.utils.Utils.NAVDRAWER_LAUNCH_DELAY;
 
 /**
  * Created by HaKr on 16/05/17.
  */
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends ActionBarActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         Utils.OnFragmentInteractionListener, LocalBurst.OnBroadcastListener {
 
     public static final int SETTINGS = 47;
+    public static final int RESULT_SYNC_MASTER = 7;
+    public static final int RESULT_THEME_CHANGED = 9;
     public static final int LOGIN = 619;
     public static final int REQUEST_INVITE = 99;
     private static final String TAG = "Main";
     private static final String UPDATE_USER = "update_user";
+    private static final String LAST_FRAGMENT_ID = "last_fragment_id";
 
-    private int currentPositionId;
+    private int lastFragmentId;
     private TextView mName;
     private View mheaderLayout;
     private BezelImageView mPicture;
-    private SimpleSpinner spinner;
+    private SearchableSpinner coinsList;
     private InterstitialAd mInterstitialAd;
     private LocalBurst broadcast;
     private NavigationView navigationView;
@@ -87,23 +100,25 @@ public class MainActivity extends AppCompatActivity
         setTheme(R.style.AppTheme_NoActionBar);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if(TextUtils.isEmpty(getNotificationType(extras))){
-                showHome(null);
-            } else {
-                handleExtras(false, extras);
-            }
-        }
-
         FirebaseHelper.signInAnonymously();
         App.getInstance().initializeBilling();
         App.getInstance().fetchTrailStatus();
         broadcast = LocalBurst.getInstance();
         initControls();
+        lastFragmentId = PreferenceUtils.getIntegerPrefs(getApplicationContext(), LAST_FRAGMENT_ID);
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(TextUtils.isEmpty(getNotificationType(extras))){
+                showLastFragment(lastFragmentId);
+            } else {
+                handleExtras(false, extras);
+            }
+        } else {
+            coinsList.setVisibility(Utils.getVisibility(lastFragmentId == R.id.nav_coins));
+        }
 
         // TODO Remove after some time
-        if(App.APP_VERSION_CODE == 11
+        if(App.APP_VERSION_CODE == 14
                 && FirebaseHelper.isLoggedIn()
                 && !PreferenceUtils.getBooleanPrefs(App.getInstance().getBaseContext(), UPDATE_USER)){
             FirebaseHelper.updateUser();
@@ -112,6 +127,9 @@ public class MainActivity extends AppCompatActivity
 
         initAd();
         checkLatestVersion();
+        if(Utils.hasO()) {
+            NotificationUtils.createNotificationChannels(this);
+        }
     }
 
     private void checkLatestVersion() {
@@ -130,8 +148,26 @@ public class MainActivity extends AppCompatActivity
     private void initControls() {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        spinner = (SimpleSpinner) findViewById(R.id.stack);
+        coinsList = (SearchableSpinner) findViewById(R.id.coinsList);
+        coinsList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String item = parent.getItemAtPosition(position).toString();
+                SettingsActivity.setCurrencyList(item);
+                CoinFragment fragment = CoinFragment.get(getSupportFragmentManager());
+                if (null != fragment) {
+                    fragment.refreshData(item);
+                }
+                Bundle bundle = new Bundle();
+                bundle.putString("currency", item);
+                AnalyticsManager.logEvent("currency_filtered", bundle);
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         loadCoinsList();
         setSupportActionBar(toolbar);
 
@@ -154,10 +190,11 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         updateNavigation();
 
-        currentPositionId = R.id.nav_home;
-        navigationView.setCheckedItem(currentPositionId);
+        lastFragmentId = R.id.nav_home;
+        navigationView.setCheckedItem(lastFragmentId);
 
         View header = navigationView.getHeaderView(0);
+
         mName = (TextView) header.findViewById(R.id.name);
         mPicture = (BezelImageView) header.findViewById(R.id.picture);
         mPicture.setDefaultImageResId(R.drawable.ic_person);
@@ -178,29 +215,9 @@ public class MainActivity extends AppCompatActivity
                 CoinsList.class,
                 new Response.Listener<CoinsList>() {
                     @Override
-                    public void onResponse(CoinsList coinsList) {
-                        spinner.setItems(coinsList.coins_list, R.layout.item_spinner_dark);
-                        ((SimpleSpinner.ArrayAdapter)spinner.getAdapter()).setDropDownViewResource(R.layout.item_spinner_light);
-                        spinner.setSelection(SettingsActivity.getCurrencyList());
-                        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                String item = parent.getItemAtPosition(position).toString();
-                                SettingsActivity.setCurrencyList(item);
-                                CoinFragment fragment = CoinFragment.get(getSupportFragmentManager());
-                                if (null != fragment) {
-                                    fragment.refreshData(item);
-                                }
-                                Bundle bundle = new Bundle();
-                                bundle.putString("currency", item);
-                                AnalyticsManager.logEvent("currency_filtered", bundle);
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> parent) {
-
-                            }
-                        });
+                    public void onResponse(CoinsList list) {
+                        coinsList.setItems(list.coins_list, R.layout.item_spinner_dark);
+                        coinsList.setSelection(SettingsActivity.getCurrencyList());
                     }
                 },
                 new Response.ErrorListener() {
@@ -247,78 +264,27 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        currentPositionId = item.getItemId();
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        lastFragmentId = item.getItemId();
         AnalyticsManager.setCurrentScreen(this, TAG);
         switch (item.getItemId()) {
             case R.id.nav_home:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                HomeFragment.show(getSupportFragmentManager(), "");
-                AnalyticsManager.logEvent("view_home");
-                return true;
             case R.id.nav_coins:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.VISIBLE);
-                CoinFragment.show(getSupportFragmentManager(), SettingsActivity.getCurrencyList());
-                AnalyticsManager.logEvent("view_coins");
-                return true;
-
             case R.id.nav_arbitrage:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                ArbitrageFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_arbitrage");
-                return true;
-
             case R.id.nav_alerts:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                AlertFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_alerts");
-                return true;
-
             case R.id.nav_subscription:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                SubscriptionFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_subscription");
-                return true;
-
             case R.id.nav_charts:
-
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                Toast.makeText(this, "Coming Soon!", Toast.LENGTH_SHORT).show();
-                AnalyticsManager.logEvent("view_charts");
-                return true;
-
             case R.id.nav_portfolio:
-
-                item.setChecked(true);
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                PortfolioFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_portfolio");
-                return true;
-
             case R.id.nav_news:
-
-                drawer.closeDrawers();
-                spinner.setVisibility(View.GONE);
-                NewsFragment.show(getSupportFragmentManager());
-                AnalyticsManager.logEvent("view_news");
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+                PreferenceUtils.set(getApplicationContext(), LAST_FRAGMENT_ID, lastFragmentId);
+                item.setChecked(true);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        showLastFragment(lastFragmentId);
+                    }
+                }, NAVDRAWER_LAUNCH_DELAY);
                 return true;
 
             case R.id.nav_settings:
@@ -365,6 +331,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public String getTag() {
+        return TAG;
+    }
+
+    @Override
     protected void onDestroy() {
         App.getInstance().releaseBillingProcessor();
         broadcast.removeListeners(this);
@@ -379,6 +350,9 @@ public class MainActivity extends AppCompatActivity
                     updateUserDetails();
                     refreshData();
                     App.getInstance().reloadSubscription();
+                } else if (resultCode == RESULT_SYNC_MASTER
+                        || resultCode == RESULT_THEME_CHANGED){
+                    recreate();
                 }
             } else if(requestCode == LOGIN){
                 if(resultCode == RESULT_FIRST_USER){
@@ -408,34 +382,53 @@ public class MainActivity extends AppCompatActivity
 
     private void handleExtras(boolean newIntent, Bundle extras) {
         String type = getNotificationType(extras);
+        String subType = getNotificationSubType(extras);
         if(TextUtils.isEmpty(type)){
             if(!newIntent){
-                showHome(null);
+                showLastFragment(lastFragmentId);
             }
             return;
         }
         if(type.equals(TYPE_ALERT)){
             String name = getAlertName(extras);
-            showHome(name);
-            Bundle bundle = new Bundle();
-            bundle.putString("source", "notification");
-            AnalyticsManager.logEvent("view_home", bundle);
-        } else if(type.equals(TYPE_URL)){
-            String url = getNotificationUrl(extras);
-            if(!TextUtils.isEmpty(url)){
-                Utils.openCustomTabUrl(this, url);
+            if(subType.equals(TYPE_ALERT_PRICE)){
+                showHome(name);
                 Bundle bundle = new Bundle();
                 bundle.putString("source", "notification");
-                AnalyticsManager.logEvent("view_url", bundle);
+                AnalyticsManager.logEvent("view_home", bundle);
+            } else if(subType.equals(TYPE_ALERT_ARBITRAGE)){
+                ArbitrageFragment.show(getSupportFragmentManager(), name);
+                Bundle bundle = new Bundle();
+                bundle.putString("source", "notification");
+                AnalyticsManager.logEvent("view_arbitrage", bundle);
             }
+        } else if(type.equals(TYPE_URL)){
+            String url = getNotificationUrl(extras);
+            if(subType.equals(TYPE_URL_NEWS)){
+                NewsFragment.show(getSupportFragmentManager());
+                if(!TextUtils.isEmpty(url)){
+                    Utils.openCustomTabUrlDelayed(this, url);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("source", "notification");
+                    AnalyticsManager.logEvent("view_url", bundle);
+                }
+            } else {
+                if(!TextUtils.isEmpty(url)){
+                    Utils.openCustomTabUrl(this, url);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("source", "notification");
+                    AnalyticsManager.logEvent("view_url", bundle);
+                }
+            }
+
         } else if (type.equals(TYPE_GENERIC)){
             //Do nothing
         } else {
             //Do nothing
         }
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
-        if (null == fragment) {
-            showHome(null);
+        if (newIntent && null == fragment) {
+            showLastFragment(lastFragmentId);
         }
     }
 
@@ -443,9 +436,74 @@ public class MainActivity extends AppCompatActivity
         HomeFragment.show(getSupportFragmentManager(), name);
     }
 
+    private void showLastFragment(int lastFragmentId){
+        AnalyticsManager.setCurrentScreen(this, TAG);
+        switch (lastFragmentId) {
+            case R.id.nav_home:
+
+                coinsList.setVisibility(View.GONE);
+                showHome(null);
+                AnalyticsManager.logEvent("view_home");
+                break;
+            case R.id.nav_coins:
+
+                coinsList.setVisibility(View.VISIBLE);
+                CoinFragment.show(getSupportFragmentManager(), SettingsActivity.getCurrencyList());
+                AnalyticsManager.logEvent("view_coins");
+                break;
+
+            case R.id.nav_arbitrage:
+
+                coinsList.setVisibility(View.GONE);
+                ArbitrageFragment.show(getSupportFragmentManager(), null);
+                AnalyticsManager.logEvent("view_arbitrage");
+                break;
+
+            case R.id.nav_alerts:
+
+                coinsList.setVisibility(View.GONE);
+                AlertFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_alerts");
+                break;
+
+            case R.id.nav_subscription:
+
+                coinsList.setVisibility(View.GONE);
+                SubscriptionFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_subscription");
+                break;
+
+            case R.id.nav_charts:
+
+                coinsList.setVisibility(View.GONE);
+                ChartsFragment.show(getSupportFragmentManager(), null);
+                AnalyticsManager.logEvent("view_charts");
+                break;
+
+            case R.id.nav_portfolio:
+
+                coinsList.setVisibility(View.GONE);
+                PortfolioFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_portfolio");
+                break;
+
+            case R.id.nav_news:
+
+                coinsList.setVisibility(View.GONE);
+                NewsFragment.show(getSupportFragmentManager());
+                AnalyticsManager.logEvent("view_news");
+                break;
+            default:
+                coinsList.setVisibility(View.GONE);
+                showHome(null);
+                AnalyticsManager.logEvent("view_home");
+                break;
+        }
+    }
+
     private void initAd() {
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-6407484780907805/5183261278");
+        mInterstitialAd.setAdUnitId(INTERSTITIAL_APP_UNIT_ID);
         mInterstitialAd.setAdListener(new AdListener() {
             @Override
             public void onAdClosed() {

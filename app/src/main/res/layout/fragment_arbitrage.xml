@@ -5,7 +5,6 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/main_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -21,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:paddingLeft="16dp"
+                android:paddingStart="16dp"
                 app:titleText="Choose a Coin"
                 android:theme="@style/SpinnerStyle"/>
 
@@ -30,7 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
                 app:titleText="Choose From Currency"
                 android:theme="@style/SpinnerStyle" />
 
@@ -39,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
-                android:paddingLeft="10dp"
+                android:paddingStart="10dp"
                 app:titleText="Choose To Currency"
                 android:theme="@style/SpinnerStyle" />
 
@@ -50,23 +49,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:elevation="10dp"
+            app:tabTextColor="?android:textColorTertiary"
+            app:tabSelectedTextColor="?android:textColorPrimary"
             app:tabGravity="fill"
             app:tabMode="scrollable">
 
             <android.support.design.widget.TabItem
-                android:id="@+id/tabItem1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_text_3" />
 
             <android.support.design.widget.TabItem
-                android:id="@+id/tabItem2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_text_2" />
 
             <android.support.design.widget.TabItem
-                android:id="@+id/tabItem3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tab_text_2" />

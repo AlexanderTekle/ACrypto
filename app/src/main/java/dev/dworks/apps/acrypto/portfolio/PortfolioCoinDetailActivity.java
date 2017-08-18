@@ -37,6 +37,13 @@ public class PortfolioCoinDetailActivity extends AppCompatActivity implements Ut
 
     @Override
     public void onFragmentInteraction(int type, Bundle bundle) {
+        showSell();
+    }
 
+    public void showSell(){
+        PortfolioCoinDetailFragment.showSell(getSupportFragmentManager(),
+                (Portfolio) getIntent().getSerializableExtra(BUNDLE_PORTFOLIO),
+                (PortfolioCoin) getIntent().getSerializableExtra(BUNDLE_PORTFOLIO_COIN),
+                getIntent().getStringExtra(BUNDLE_REF_KEY));
     }
 }

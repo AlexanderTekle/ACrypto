@@ -2,6 +2,7 @@ package dev.dworks.apps.acrypto.coins;
 
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,8 @@ import android.widget.TextView;
 import org.fabiomsr.moneytextview.MoneyTextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
@@ -21,6 +24,7 @@ import dev.dworks.apps.acrypto.entity.Coins;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.ArrayRecyclerAdapter;
 import dev.dworks.apps.acrypto.view.ImageView;
 
 import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageSimple;
@@ -31,25 +35,21 @@ import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
  * Created by HaKr on 16/05/17.
  */
 
-public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> implements Filterable{
-
-    ArrayList<String> mData;
-    ArrayList<String> mOrigData;
+public class CoinAdapter extends ArrayRecyclerAdapter<Coins.CoinDetail, CoinAdapter.ViewHolder> {
 
     final RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener;
+    public static final int SORT_DEFAULT = 0;
+    public static final int SORT_PRICE = 1;
+    public static final int SORT_VOLUME_CHANGE = 2;
+    public static final int SORT_PRICE_CHANGE = 3;
+
     static final int TYPE_HEADER = 0;
     static final int TYPE_CELL = 1;
-    private String mBaseImageUrl;
     private String mCurrencySymbol;
+    private ArrayList<Coins.CoinDetail> mDefaultData;
 
     public CoinAdapter(RecyclerFragment.RecyclerItemClickListener.OnItemClickListener onItemClickListener) {
-        mData = new ArrayList<>();
         this.onItemClickListener = onItemClickListener;
-    }
-
-    public CoinAdapter setBaseImageUrl(String baseImageUrl) {
-        this.mBaseImageUrl = baseImageUrl;
-        return this;
     }
 
     public CoinAdapter setCurrencySymbol(String currencySymbol) {
@@ -57,19 +57,9 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
         return this;
     }
 
-    public void setData(ArrayList<String> contents){
-        this.mData = contents;
-        this.mOrigData = contents;
-    }
-
     @Override
     public int getItemViewType(int position) {
         return TYPE_CELL;
-    }
-
-    @Override
-    public int getItemCount() {
-        return mData.size();
     }
 
     @Override
@@ -97,62 +87,17 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
     }
 
     @Override
-    public Filter getFilter() {
-        return new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence prefix) {
-                FilterResults results = new FilterResults();
-                ArrayList<String> filteredList = new ArrayList<>();
-                if (null == prefix || prefix.length() == 0) {
-                    filteredList.addAll(mOrigData);
-                } else {
-                    String prefixString = prefix.toString().toLowerCase().trim();
-                    final int count = mOrigData.size();
-
-                    for (int i = 0; i < count; i++) {
-                        final String value = mOrigData.get(i);
-                        final String valueText = value.toString().toLowerCase();
-
-                        // First match against the whole, non-splitted value
-                        if (valueText.contains(prefixString)) {
-                            filteredList.add(value);
-                        } else {
-                            final String[] words = prefixString.split("\\s+");
-                            for (String word : words){
-                                if (valueText.contains(word)) {
-                                    filteredList.add(value);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-                results.values = filteredList;
-                results.count = filteredList.size();
-                return results;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (results != null && results.count > 0) {
-                    mData.clear();
-                    mData.addAll((ArrayList<String>) results.values);
-                } else {
-                    mData.clear();
-                }
-                notifyDataSetChanged();
-
-            }
-        };
+    public void setData(Collection<? extends Coins.CoinDetail> collection) {
+        super.setData(collection);
+        mDefaultData = new ArrayList<>(collection);
     }
 
-    public String getItem(int position){
-        return mData.get(position);
-    }
-
-    public void clear(){
-        mData.clear();
-        notifyDataSetChanged();
+    public void sortList(int sortType){
+        if(sortType == SORT_DEFAULT){
+            setData(mDefaultData);
+            return;
+        }
+        sort(new CoinComparator(sortType));
     }
 
     /**
@@ -185,16 +130,10 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
 
         public void setData(int position){
             mPosition = position;
-            Coins.CoinDetail item = Coins.getCoin(mData.get(position));
+            Coins.CoinDetail item = getItem(position);
             String url = "";
-            try {
-                final CoinDetailSample.CoinDetail coinDetail = getCoin(item.fromSym);
-                name.setText(coinDetail.name);
-                url = getCoinUrl(coinDetail);
-
-            } catch (Exception e){
-                name.setText(item.fromSym);
-            }
+            name.setText(item.name + " ("+item.getFromSym()+")");
+            url = getCoinUrl(item.id);
             imageView.setImageUrl(url, VolleyPlusHelper.with(imageView.getContext()).getImageLoader());
 
             Utils.setNumberValue(volume, Double.parseDouble(item.volume24HTo), mCurrencySymbol);
@@ -213,8 +152,8 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             return App.getInstance().getCoinDetails().coins.get(symbol);
         }
 
-        private String getCoinUrl(CoinDetailSample.CoinDetail coinDetail){
-            return mBaseImageUrl + coinDetail.id + ".png";
+        private String getCoinUrl(String id){
+            return TextUtils.isEmpty(id) ? "" :Coins.BASE_URL + id + ".png";
         }
 
         private void setDifference(Coins.CoinDetail item){
@@ -223,6 +162,28 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.ViewHolder> im
             Double difference = (currentPrice - prevPrice);
             change.setText(getDisplayPercentageSimple(prevPrice, currentPrice));
             change.setTextColor(ContextCompat.getColor(change.getContext(), getPercentDifferenceColor(difference)));
+        }
+    }
+
+    public class CoinComparator implements Comparator<Coins.CoinDetail> {
+
+        private final int sortType;
+
+        public CoinComparator(int sortType){
+            this.sortType = sortType;
+        }
+
+        @Override
+        public int compare(Coins.CoinDetail t0, Coins.CoinDetail t1) {
+            switch (sortType){
+                case SORT_PRICE:
+                    return Double.valueOf(t1.price).compareTo(Double.valueOf(t0.price));
+                case SORT_VOLUME_CHANGE:
+                    return Double.valueOf(t1.volume24HTo).compareTo(Double.valueOf(t0.volume24HTo));
+                case SORT_PRICE_CHANGE:
+                    return t1.differnce().compareTo(t0.differnce());
+            }
+            return Double.valueOf(t1.fromSym).compareTo(Double.valueOf(t0.fromSym));
         }
     }
 }

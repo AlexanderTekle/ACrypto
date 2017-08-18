@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -17,6 +17,88 @@
 
             <include layout="@layout/controls_arbitrage_chart" />
 
+            <LinearLayout
+                android:id="@+id/timeseries_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/rectangle_dark" />
+
+                <RadioGroup
+                    android:id="@+id/timeseries"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/timeseries_minute"
+                        style="@style/RadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/timeseries_10m"
+                        android:textColor="@color/time_series_color" />
+
+
+                    <RadioButton
+                        android:id="@+id/timeseries_hour"
+                        style="@style/RadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/timeseries_1h"
+                        android:textColor="@color/time_series_color" />
+
+                    <RadioButton
+                        android:id="@+id/timeseries_day"
+                        style="@style/RadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:text="@string/timeseries_1d"
+                        android:textColor="@color/time_series_color" />
+
+                    <RadioButton
+                        android:id="@+id/timeseries_week"
+                        style="@style/RadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/timeseries_1w"
+                        android:textColor="@color/time_series_color" />
+
+                    <RadioButton
+                        android:id="@+id/timeseries_month"
+                        style="@style/RadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/timeseries_30d"
+                        android:textColor="@color/time_series_color" />
+
+                    <RadioButton
+                        android:id="@+id/timeseries_year"
+                        style="@style/RadioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/timeseries_1y"
+                        android:textColor="@color/time_series_color" />
+
+                </RadioGroup>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/rectangle_dark" />
+            </LinearLayout>
+
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -27,10 +109,10 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <com.github.mikephil.charting.charts.LineChart
+                    <dev.dworks.apps.acrypto.view.LineChart
                         android:id="@+id/linechart"
                         android:layout_width="match_parent"
-                        android:layout_height="200dp" />
+                        android:layout_height="@dimen/line_chart_height" />
 
                 </LinearLayout>
 
@@ -78,10 +160,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="$"
-                            android:textStyle="bold"
+                            android:text="@string/dollar_symbol"
+                            android:textColor="@android:color/white"
                             android:textSize="20sp"
-                            android:textColor="?android:attr/textColorPrimaryInverse" />
+                            android:textStyle="bold" />
                     </FrameLayout>
 
                     <TextView
@@ -90,11 +172,11 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:ellipsize="end"
-                        android:paddingLeft="10dp"
+                        android:paddingStart="10dp"
                         android:text="@string/artbitrage_message"
                         android:textAlignment="viewStart"
                         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                        android:textColor="?android:attr/textColorPrimaryInverse" />
+                        android:textColor="@android:color/white" />
 
                 </LinearLayout>
             </android.support.v7.widget.CardView>
@@ -103,7 +185,7 @@
                 android:id="@+id/lastupdated"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|right"
+                android:layout_gravity="center_horizontal|end"
                 android:layout_margin="10dp"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"

@@ -36,21 +36,15 @@
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
-        <name>Material Spinner</name>
-        <url>https://github.com/jaredrummler/MaterialSpinner</url>
-        <copyright>Copyright (C) 2016 Jared Rummler</copyright>
+        <name>Searchable Spinner</name>
+        <url>https://github.com/pedrofsn/SearchableSpinner</url>
+        <copyright>Copyright 2015-2016 Mitesh Pithadiya</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
         <name>App Updater</name>
         <url>https://github.com/javiersantos/AppUpdater</url>
         <copyright>Copyright 2016 Javier Santos</copyright>
-        <license>Apache Software License 2.0</license>
-    </notice>
-    <notice>
-        <name>Licenses Dialog</name>
-        <url>https://github.com/PSDev/LicensesDialog</url>
-        <copyright>Copyright 2013-2017 Philip Schiffer</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
     <notice>
@@ -69,6 +63,18 @@
         <name>Android In-App Billing v3 Library</name>
         <url>https://github.com/anjlab/android-inapp-billing-v3</url>
         <copyright>Copyright 2014 AnjLab</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>IKV Stock Chart</name>
+        <url>https://github.com/wordplat/ikvStockChart</url>
+        <copyright>Copyright (C) 2017 WordPlat</copyright>
+        <license>Apache Software License 2.0</license>
+    </notice>
+    <notice>
+        <name>Material ViewPagerIndicator</name>
+        <url>https://github.com/ronaldsmartin/Material-ViewPagerIndicator</url>
+        <copyright>Copyright 2016 Ronald Martin</copyright>
         <license>Apache Software License 2.0</license>
     </notice>
 </notices>

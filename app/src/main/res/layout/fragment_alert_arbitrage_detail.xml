@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/detail_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:contentInsetLeft="@dimen/second_keyline_default"
+                app:contentInsetStart="@dimen/second_keyline_default"
+                app:elevation="8dp"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:subtitleTextAppearance="@style/ToolbarSubTitle"
+                app:theme="?attr/actionBarTheme"
+                app:titleTextAppearance="@style/ToolbarTitle" />
+        </android.support.design.widget.AppBarLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <include layout="@layout/controls_arbitrage_chart" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/rectangle_dark" />
+                    </LinearLayout>
+
+                    <dev.dworks.apps.acrypto.view.MaterialProgressBar
+                        android:id="@+id/priceprogress"
+                        style="@style/MaterialProgress.Small"
+                        android:layout_gravity="center"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/activity_margin"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <dev.dworks.apps.acrypto.view.ImageView
+                            android:id="@+id/icon"
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="16dp"
+                            app:srcCompat="@drawable/ic_menu_coins"
+                            tools:src="@drawable/ic_menu_coins" />
+
+                        <dev.dworks.apps.acrypto.view.SearchableSpinner
+                            android:id="@+id/currencyFromSpinner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:maxLines="1"
+                            android:paddingStart="16dp"
+                            android:theme="@style/SpinnerStyle"
+                            app:titleText="Choose a Coin" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="16dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/circular_background_grey"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/fromSymbol"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:textColor="?android:attr/textColorPrimaryInverse"
+                                android:textSize="12sp"
+                                tools:text="$" />
+
+                        </FrameLayout>
+
+                        <dev.dworks.apps.acrypto.view.SearchableSpinner
+                            android:id="@+id/currencyOneSpinner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:maxLines="1"
+                            android:paddingStart="@dimen/activity_margin"
+                            android:theme="@style/SpinnerStyle"
+                            app:titleText="Choose a Currency" />
+
+
+                        <dev.dworks.apps.acrypto.view.SearchableSpinner
+                            android:id="@+id/exchangeOneSpinner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.4"
+                            android:maxLines="1"
+                            android:paddingStart="10dp"
+                            android:theme="@style/SpinnerStyle"
+                            app:titleText="Choose an Exchange" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="16dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:background="@drawable/circular_background_grey"
+                                android:contentDescription="@null" />
+
+                            <TextView
+                                android:id="@+id/toSymbol"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:textColor="?android:attr/textColorPrimaryInverse"
+                                android:textSize="12sp"
+                                tools:text="$" />
+
+                        </FrameLayout>
+
+                        <dev.dworks.apps.acrypto.view.SearchableSpinner
+                            android:id="@+id/currencyTwoSpinner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:maxLines="1"
+                            android:paddingStart="@dimen/activity_margin"
+                            android:theme="@style/SpinnerStyle"
+                            app:titleText="Choose a Currency" />
+
+
+                        <dev.dworks.apps.acrypto.view.SearchableSpinner
+                            android:id="@+id/exchangeTwoSpinner"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.4"
+                            android:maxLines="1"
+                            android:paddingStart="10dp"
+                            android:theme="@style/SpinnerStyle"
+                            app:titleText="Choose an Exchange" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="16dp"
+                            android:tint="@color/accent_grey"
+                            app:srcCompat="@drawable/ic_frequency" />
+
+                        <dev.dworks.apps.acrypto.view.SimpleSpinner
+                            android:id="@+id/frequencySpinner"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="@dimen/activity_margin"
+                            android:theme="@style/SpinnerStyle" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="16dp"
+                            android:layout_marginTop="10dp"
+                            android:tint="@color/accent_grey"
+                            app:srcCompat="@drawable/ic_paid" />
+
+                        <dev.dworks.apps.acrypto.view.SimpleSpinner
+                            android:id="@+id/conditionSpinner"
+                            android:layout_width="100dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:maxLines="1"
+                            android:paddingStart="@dimen/activity_margin"
+                            android:theme="@style/SpinnerStyle" />
+
+                        <android.support.design.widget.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="@dimen/grid_item_padding">
+
+                            <EditText
+                                android:id="@+id/value"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:hint="@string/percentage"
+                                android:inputType="numberDecimal" />
+                        </android.support.design.widget.TextInputLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:textSize="18sp"
+                            tools:text="%" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="@dimen/icon_size"
+                            android:layout_height="@dimen/icon_size"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="16dp"
+                            android:tint="@color/accent_grey"
+                            app:srcCompat="@drawable/ic_notes" />
+
+                        <android.support.design.widget.TextInputLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:paddingStart="16dp">
+
+                            <EditText
+                                android:id="@+id/notes"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/notes"
+                                android:inputType="textLongMessage"
+                                android:textAppearance="?android:attr/textAppearanceSmall" />
+                        </android.support.design.widget.TextInputLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+    </LinearLayout>
+
+    <dev.dworks.apps.acrypto.view.MaterialProgressBar
+        android:id="@+id/progress"
+        style="@style/MaterialProgress"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+</FrameLayout>

@@ -2,8 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark">
+    android:layout_height="match_parent" >
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -23,16 +22,16 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
-                <com.github.mikephil.charting.charts.LineChart
+                <dev.dworks.apps.acrypto.view.LineChart
                     android:id="@+id/linechart"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp" />
+                    android:layout_height="@dimen/line_chart_height" />
 
-                <com.github.mikephil.charting.charts.BarChart
+                <dev.dworks.apps.acrypto.view.BarChart
                     android:id="@+id/barchart"
                     android:layout_marginTop="20dp"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp" />
+                    android:layout_height="@dimen/bar_chart_height" />
 
             </LinearLayout>
 
@@ -40,9 +39,9 @@
                 android:id="@+id/lastupdated"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|right"
+                android:layout_gravity="center_horizontal|end"
                 android:layout_margin="10dp"
-                android:textColor="@android:color/white"
+                android:textColor="?android:textColorPrimaryInverse"
                 android:textSize="12sp"
                 android:visibility="gone"
                 tools:text="5/3/17 2:45 PM" />

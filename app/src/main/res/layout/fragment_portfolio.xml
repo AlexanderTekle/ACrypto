@@ -10,9 +10,9 @@
         android:orientation="vertical">
 
         <android.support.design.widget.AppBarLayout
-            android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryDark"
             android:theme="@style/AppTheme.AppBarOverlay">
 
             <android.support.design.widget.TabLayout
@@ -24,8 +24,8 @@
                 app:tabMode="scrollable" />
         </android.support.design.widget.AppBarLayout>
 
-        <dev.dworks.apps.acrypto.view.LockableViewPager
-            android:id="@+id/container"
+        <android.support.v4.app.FragmentTabHost
+            android:id="@+id/tabContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>
@@ -35,7 +35,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:text="Add Portfolio"
+        android:text="@string/add_portfolio"
+        android:textColor="?android:textColorSecondary"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textIsSelectable="false"
         android:visibility="gone" />

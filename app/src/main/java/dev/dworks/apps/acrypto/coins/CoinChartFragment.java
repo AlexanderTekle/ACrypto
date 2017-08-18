@@ -8,6 +8,7 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -26,8 +27,6 @@ import android.widget.TextView;
 import com.android.volley.Cache;
 import com.android.volley.Response;
 import com.android.volley.error.VolleyError;
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -60,6 +59,8 @@ import dev.dworks.apps.acrypto.misc.UrlManager;
 import dev.dworks.apps.acrypto.network.GsonRequest;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
 import dev.dworks.apps.acrypto.utils.Utils;
+import dev.dworks.apps.acrypto.view.BarChart;
+import dev.dworks.apps.acrypto.view.LineChart;
 import dev.dworks.apps.acrypto.view.SearchableSpinner;
 
 import static dev.dworks.apps.acrypto.entity.Exchanges.ALL_EXCHANGES;
@@ -233,17 +234,20 @@ public class CoinChartFragment extends ActionBarFragment
         mChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         mChart.getAxisLeft().setDrawAxisLine(true);
         mChart.getAxisLeft().setDrawZeroLine(true);
+        mChart.getAxisLeft().setTextColor(Utils.themeAttributeToColor(getActivity(),
+                android.R.attr.textColorPrimary));
         mChart.getAxisLeft().setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return getCurrentCurrencyToSymbol() + " " + Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol());
+                return getCurrentCurrencyToSymbol() + " "
+                        + Utils.getFormattedInteger(value, getCurrentCurrencyToSymbol());
             }
         });
 
         mChart.getXAxis().setEnabled(false);
         mChart.getXAxis().setDrawGridLines(false);
         mChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        mChart.getXAxis().setTextColor(getColor(this, R.color.colorPrimary));
+        mChart.getXAxis().setTextColor(getColor(this, R.color.chartColor));
         mChart.getXAxis().setAvoidFirstLastClipping(false);
         mChart.getXAxis().setValueFormatter(new IAxisValueFormatter() {
             @Override
@@ -273,6 +277,8 @@ public class CoinChartFragment extends ActionBarFragment
         mBarChart.getAxisLeft().setEnabled(true);
         mBarChart.getAxisLeft().setSpaceTop(40);
         mBarChart.getAxisLeft().setAxisMinimum(0);
+        mBarChart.getAxisLeft().setTextColor(Utils.themeAttributeToColor(getActivity(),
+                android.R.attr.textColorPrimary));
         mBarChart.getAxisLeft().setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
         mBarChart.getAxisLeft().setDrawAxisLine(true);
 
@@ -291,7 +297,8 @@ public class CoinChartFragment extends ActionBarFragment
         mBarChart.setOnTouchListener(new ChartOnTouchListener(mScrollView));
     }
 
-    private void fetchData() {
+    @Override
+    protected void fetchData() {
         mChartProgress.setVisibility(View.VISIBLE);
         mControls.setVisibility(View.INVISIBLE);
         mEmpty.setVisibility(View.GONE);
@@ -299,6 +306,7 @@ public class CoinChartFragment extends ActionBarFragment
         mBarChart.highlightValue(null);
 
         mPrice = null;
+        retry = false;
         String url = getChartUrl();
         GsonRequest<Prices> request = new GsonRequest<>(url,
                 Prices.class,
@@ -385,27 +393,7 @@ public class CoinChartFragment extends ActionBarFragment
 
     @Override
     public void onErrorResponse(VolleyError error) {
-        if(!Utils.isActivityAlive(getActivity())){
-            return;
-        }
-        if (!Utils.isNetConnected(getActivity())) {
-            setEmptyData("No Internet");
-            Utils.showNoInternetSnackBar(getActivity(), new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
-        else{
-            setEmptyData("Something went wrong!");
-            Utils.showRetrySnackBar(getActivity(), "Cant Connect to Acrypto", new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fetchData();
-                }
-            });
-        }
+        handleError();
     }
 
     @Override
@@ -421,6 +409,7 @@ public class CoinChartFragment extends ActionBarFragment
     private void loadData(Prices response) {
         mControls.setVisibility(View.VISIBLE);
         mVolume.setVisibility(View.VISIBLE);
+        mValue.setVisibility(View.VISIBLE);
         mChartProgress.setVisibility(View.GONE);
         if(null == response) {
             retry = false;
@@ -440,13 +429,15 @@ public class CoinChartFragment extends ActionBarFragment
         showData(response);
     }
 
-    private void setEmptyData(String message){
+    @Override
+    protected void setEmptyData(String message){
         mChartProgress.setVisibility(View.GONE);
         if(null != mPrice){
             return;
         }
 
-        mControls.setVisibility(View.VISIBLE);
+        mValue.setVisibility(View.GONE);
+        mControls.setVisibility(View.GONE);
         mVolume.setVisibility(View.GONE);
         mEmpty.setVisibility(View.VISIBLE);
         mEmpty.setText(message);
@@ -524,9 +515,9 @@ public class CoinChartFragment extends ActionBarFragment
         set1.setLineWidth(1.75f);
         set1.setCircleRadius(2f);
         set1.setCircleHoleRadius(1f);
-        set1.setColor(getColor(this, R.color.colorPrimaryLight));
-        set1.setCircleColor(getColor(this, R.color.colorPrimaryLight));
-        set1.setCircleColorHole(getColor(this, R.color.colorPrimaryLight));
+        set1.setColor(getColor(this, R.color.chartColor));
+        set1.setCircleColor(getColor(this, R.color.chartColor));
+        set1.setCircleColorHole(getColor(this, R.color.chartColor));
         set1.setHighLightColor(getColor(this, R.color.colorAccent));
         set1.setHighlightLineWidth(1);
 
@@ -549,7 +540,7 @@ public class CoinChartFragment extends ActionBarFragment
         BarDataSet set2 = new BarDataSet(barEntries, "Volume");
         set2.setDrawValues(false);
         set2.setHighLightColor(getColor(this, R.color.colorAccent));
-        set2.setColor(getColor(this, R.color.colorPrimary));
+        set2.setColor(getColor(this, R.color.chartColor));
         set2.setDrawValues(false);
 
         BarData barData = new BarData(set2);

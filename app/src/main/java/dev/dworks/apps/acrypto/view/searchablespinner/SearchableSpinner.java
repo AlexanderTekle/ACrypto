@@ -3,8 +3,8 @@ package dev.dworks.apps.acrypto.view.searchablespinner;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.DialogInterface;
 import android.content.res.TypedArray;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.text.TextUtils;
@@ -38,6 +38,7 @@ public class SearchableSpinner extends AppCompatSpinner implements SearchableIte
     public SearchableSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
         this._context = context;
+        setTextAlignment(TEXT_ALIGNMENT_VIEW_START);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.SearchableSpinner);
         hint = a.getString(R.styleable.SearchableSpinner_hintText);
         title = a.getString(R.styleable.SearchableSpinner_titleText);
@@ -53,9 +54,6 @@ public class SearchableSpinner extends AppCompatSpinner implements SearchableIte
 
     private void init() {
         _items = new ArrayList();
-        _searchableListDialog = SearchableListDialog.newInstance(_items);
-        _searchableListDialog.setOnSearchableItemClickListener(this);
-        _searchableListDialog.setTitle(title);
 
         _arrayAdapter = (ArrayAdapter) getAdapter();
         if (!TextUtils.isEmpty(hint)) {
@@ -79,9 +77,37 @@ public class SearchableSpinner extends AppCompatSpinner implements SearchableIte
             }
             // Change end.
 
-            _searchableListDialog.show(scanForActivity(_context).getSupportFragmentManager(), "TAG");
+            if(isEnabled()) {
+                showListDialog();
+            }
         }
         return true;
+    }
+
+    private void showListDialog() {
+        if (_context == null) {
+            return;
+        }
+        AppCompatActivity activity = scanForActivity(_context);
+        if(null == activity){
+            return;
+        }
+        FragmentManager fm = activity.getSupportFragmentManager();
+        if(null != fm) {
+            _searchableListDialog = SearchableListDialog.show(fm, _items, title);
+            _searchableListDialog.setOnSearchableItemClickListener(this);
+        }
+    }
+
+    private static AppCompatActivity scanForActivity(Context cont) {
+        if (cont == null)
+            return null;
+        else if (cont instanceof Activity)
+            return (AppCompatActivity) cont;
+        else if (cont instanceof ContextWrapper)
+            return scanForActivity(((ContextWrapper)cont).getBaseContext());
+
+        return null;
     }
 
     @Override
@@ -118,34 +144,6 @@ public class SearchableSpinner extends AppCompatSpinner implements SearchableIte
             _isDirty = true;
             setAdapter(_arrayAdapter);
             setSelection(position);
-        }
-    }
-
-    public void setTitle(String strTitle) {
-        _searchableListDialog.setTitle(strTitle);
-    }
-
-    public void setPositiveButton(String strPositiveButtonText) {
-        _searchableListDialog.setPositiveButton(strPositiveButtonText);
-    }
-
-    public void setPositiveButton(String strPositiveButtonText, DialogInterface.OnClickListener onClickListener) {
-        _searchableListDialog.setPositiveButton(strPositiveButtonText, onClickListener);
-    }
-
-    public void setOnSearchTextChangedListener(OnSearchTextChanged onSearchTextChanged) {
-        _searchableListDialog.setOnSearchTextChangedListener(onSearchTextChanged);
-    }
-
-    private AppCompatActivity scanForActivity(Context cont) {
-        if (cont == null) {
-            return null;
-        } else if (cont instanceof Activity) {
-            return (AppCompatActivity) cont;
-        } else if (cont instanceof ContextWrapper) {
-            return scanForActivity(((ContextWrapper) cont).getBaseContext());
-        } else {
-            return null;
         }
     }
 

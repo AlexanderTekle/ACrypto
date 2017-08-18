@@ -57,6 +57,14 @@ public class SearchableSpinner extends dev.dworks.apps.acrypto.view.searchablesp
         adapter.updateAll(items);
     }
 
+    public void clear(){
+        ArrayAdapter adapter = (ArrayAdapter) getAdapter();
+        if(null != adapter){
+            adapter.clear();
+            adapter.notifyDataSetChanged();
+        }
+    }
+
     public void setSelection(String value){
         int index = 0;
         SpinnerAdapter adapter = getAdapter();

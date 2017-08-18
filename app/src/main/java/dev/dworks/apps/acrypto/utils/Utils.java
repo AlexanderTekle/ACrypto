@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,6 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.IntDef;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.Snackbar;
@@ -29,6 +31,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.text.TextUtilsCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDelegate;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -36,6 +39,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -86,8 +90,10 @@ import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.misc.RoundedNumberFormat;
 import dev.dworks.apps.acrypto.network.VolleyPlusHelper;
+import dev.dworks.apps.acrypto.settings.SettingsActivity;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_AUTO;
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
 import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
 
@@ -102,6 +108,9 @@ public class Utils {
     @IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Visibility {}
+
+    // delay to launch nav drawer item, to allow close animation to play
+    public static final int NAVDRAWER_LAUNCH_DELAY = 250;
 
     // cache
     public static final int IMAGE_SIZE_BIG = 100;
@@ -126,10 +135,14 @@ public class Utils {
     //Portfolio
     public static final String BUNDLE_PORTFOLIO = "bundle_portfolio";
     public static final String BUNDLE_PORTFOLIO_COIN = "bundle_portfolio_coin";
+    public static final String BUNDLE_PORTFOLIO_COIN_FROM = "bundle_portfolio_coin_from";
 
     //Alert
+    public static final String BUNDLE_ALERT_TYPE = "bundle_alert_type";
     public static final String BUNDLE_ALERT = "bundle_alert";
     public static final String BUNDLE_REF_KEY = "bundle_ref_key";
+    public static final String BUNDLE_BUY_REF_KEY = "bundle_buy_ref_key";
+    public static final String BUNDLE_TYPE = "bundle_type";
 
     //Coins
     public static final String BUNDLE_CURRENCY = "bundle_currency";
@@ -143,6 +156,9 @@ public class Utils {
     public static final String APP_UPDATE_AVAILABLE = "app_update_available";
 
     public static final String INDICATIVE_IMAGES_MSG_SHOWN = "indicative_images_msg_shown";
+
+    public static final String INTERSTITIAL_APP_UNIT_ID = "ca-app-pub-6407484780907805/5183261278";
+    public static final String NATIVE_APP_UNIT_ID = "ca-app-pub-6407484780907805/1075754433";
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(int type, Bundle bundle);
@@ -186,6 +202,10 @@ public class Utils {
     }
     public static boolean hasNougat() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+    }
+
+    public static boolean hasO() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 
     public static boolean hasMoreHeap(){
@@ -347,9 +367,9 @@ public class Utils {
 
     private static String bytesToHexString(byte[] bytes) {
         // http://stackoverflow.com/questions/332079
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < bytes.length; i++) {
-            String hex = Integer.toHexString(0xFF & bytes[i]);
+        StringBuilder sb = new StringBuilder();
+        for (byte aByte : bytes) {
+            String hex = Integer.toHexString(0xFF & aByte);
             if (hex.length() == 1) {
                 sb.append('0');
             }
@@ -426,6 +446,8 @@ public class Utils {
         builder.setCloseButtonIcon(getVector2Bitmap(activity, R.drawable.ic_back));
         builder.setStartAnimations(activity, 0, 0);
         builder.setExitAnimations(activity, 0, 0);
+        builder.addDefaultShareMenuItem();
+        builder.enableUrlBarHiding();
         CustomTabsIntent customTabsIntent = builder.build();
         customTabsIntent.intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
         try {
@@ -433,6 +455,15 @@ public class Utils {
         } catch (ActivityNotFoundException ex) {
             showSnackBar(activity, "Cant Open");
         }
+    }
+
+    public static void openCustomTabUrlDelayed(final Activity activity, final String url){
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                openCustomTabUrl(activity, url);
+            }
+        }, NAVDRAWER_LAUNCH_DELAY);
     }
 
     public static void openUrl(Context context, String url){
@@ -524,7 +555,7 @@ public class Utils {
     }
 
     public static void setPriceValue(MoneyTextView textView, double value, String symbol){
-        textView.setDecimalFormat(getMoneyFormat(symbol));
+        textView.setDecimalFormat(getMoneyFormat(value, symbol));
         textView.setAmount((float) Math.abs(value));
         textView.setSymbol(symbol);
     }
@@ -557,8 +588,11 @@ public class Utils {
         return decimalFormat;
     }
 
-    public static DecimalFormat getIntegerFormat(String symbol){
+    public static DecimalFormat getIntegerFormat(double value, String symbol){
         String precisionFormat = "###,##0";
+        if(Math.abs(value) < 1){
+            precisionFormat = "###,##0.###";
+        }
 
         if("Ƀ".compareTo(symbol) == 0){
             precisionFormat = "###,##0.00000000";
@@ -570,10 +604,11 @@ public class Utils {
         return decimalFormat;
     }
 
-
-    public static DecimalFormat getMoneyFormat(String symbol){
+    public static DecimalFormat getMoneyFormat(double value, String symbol){
         String precisionFormat = "###,##0.###";
-
+        if(Math.abs(value) < 1){
+            precisionFormat = "###,##0.######";
+        }
         if("Ƀ".compareTo(symbol) == 0){
             precisionFormat = "###,##0.00000000";
         } else if("Ξ".compareTo(symbol) == 0){
@@ -691,7 +726,7 @@ public class Utils {
     public static String getDisplayPercentageSimple(double valueOne, double valueTwo){
         valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
-        if(value == 0){
+        if(value == 0 || (valueOne == 0 && valueTwo ==0)){
             return " - ";
         }
         boolean roundoff = false;
@@ -707,7 +742,7 @@ public class Utils {
     public static String getDisplayPercentageRounded(double valueOne, double valueTwo){
         valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
-        if(value == 0){
+        if(value == 0 || (valueOne == 0 && valueTwo ==0)){
             return " - ";
         }
         return String.valueOf(Math.round(Math.abs(value))) +  "% " + (value > 0 ? "▲" : "▼");
@@ -716,10 +751,19 @@ public class Utils {
     public static String getDisplayPercentage(double valueOne, double valueTwo){
         valueOne = valueOne == 0 ? 1 : valueOne;
         double value = ((valueTwo - valueOne)/valueOne) * 100;
-        if(value == 0){
+        if(value == 0 || (valueOne == 0 && valueTwo ==0)){
             return " - ";
         }
         return String.format("%.2f", Math.abs(value)) +  "% " + (value > 0 ? "▲" : "▼");
+    }
+
+    public static String getDisplayShortPercentage(double valueOne, double valueTwo){
+        valueOne = valueOne == 0 ? 1 : valueOne;
+        double value = ((valueTwo - valueOne)/valueOne) * 100;
+        if(value == 0 || (valueOne == 0 && valueTwo ==0)){
+            return " - ";
+        }
+        return String.format("%.2f", Math.abs(value)) +  "%";
     }
 
     public static String getCurrencySymbol(String currencyTo){
@@ -751,12 +795,12 @@ public class Utils {
     }
 
     public static String getFormattedInteger(double value, String symbol){
-        DecimalFormat decimalFormat = getIntegerFormat(symbol);
+        DecimalFormat decimalFormat = getIntegerFormat(value, symbol);
         return decimalFormat.format(value);
     }
 
     public static String getFormattedNumber(double value, String symbol){
-        DecimalFormat decimalFormat = getMoneyFormat(symbol);
+        DecimalFormat decimalFormat = getMoneyFormat(value, symbol);
         return decimalFormat.format(value);
     }
 
@@ -922,5 +966,41 @@ public class Utils {
         Spannable spannable = new SpannableString(text);
         spannable.setSpan(new ForegroundColorSpan(color), 0, spannable.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannable;
+    }
+
+    public static int themeAttributeToColor(Context context, int themeAttributeId) {
+        TypedValue outValue = new TypedValue();
+        Resources.Theme theme = context.getTheme();
+        boolean wasResolved =
+                theme.resolveAttribute(
+                        themeAttributeId, outValue, true);
+        if (wasResolved) {
+            return outValue.resourceId == 0
+                    ? outValue.data
+                    : ContextCompat.getColor(
+                    context, outValue.resourceId);
+        } else {
+            // fallback colour handling
+            return ContextCompat.getColor(context, android.R.color.white);
+        }
+    }
+
+    public static void changeThemeStyle(AppCompatDelegate delegate) {
+        int nightMode = Integer.valueOf(SettingsActivity.getThemeStyle());
+        delegate.setLocalNightMode(nightMode);
+        AppCompatDelegate.setDefaultNightMode(nightMode);
+    }
+
+    public static void setActivityThemeStyle(AppCompatDelegate delegate) {
+        int nightMode = Integer.valueOf(SettingsActivity.getThemeStyle());
+        delegate.setLocalNightMode(nightMode);
+        AppCompatDelegate.setDefaultNightMode(nightMode);
+    }
+
+    public static String cleanedCoinSymbol(String symbol){
+        if(TextUtils.isEmpty(symbol)){
+            return symbol;
+        }
+        return symbol.replace("*", "");
     }
 }

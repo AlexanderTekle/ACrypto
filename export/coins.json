@@ -37,10 +37,10 @@
     "order": 7,
     "symbol": "XEM"
   },
-  "IOTA": {
+  "IOT": {
     "name": "IOTA",
     "order": 8,
-    "symbol": "IOTA"
+    "symbol": "IOT"
   },
   "XMR": {
     "name": "Monero",
@@ -62,10 +62,10 @@
     "order": 12,
     "symbol": "BTS"
   },
-  "ANS": {
-    "name": "AntShares",
+  "NEO": {
+    "name": "NEO",
     "order": 13,
-    "symbol": "ANS"
+    "symbol": "NEO"
   },
   "BCC": {
     "name": "BitConnect",
@@ -391,6 +391,11 @@
     "name": "Storj",
     "order": 78,
     "symbol": "STORJ"
+  },
+  "SJCX": {
+    "name": "StorjCoin X",
+    "order": 78,
+    "symbol": "SJCX"
   },
   "PPY": {
     "name": "Peerplays",
@@ -1046,5 +1051,30 @@
     "name": "ZClassic",
     "order": 209,
     "symbol": "ZCL"
+  },
+  "BCH": {
+    "name": "Bitcoin Cash",
+    "order": 210,
+    "symbol": "BCH"
+  },
+  "GLD": {
+    "name": "GoldCoin",
+    "order": 211,
+    "symbol": "GLD"
+  },
+  "SIGT": {
+    "name": "Signatum",
+    "order": 212,
+    "symbol": "SIGT"
+  },
+  "DNT": {
+    "name": "district0x",
+    "order": 213,
+    "symbol": "DNT"
+  },
+  "DENT": {
+    "name": "Dent",
+    "order": 214,
+    "symbol": "DENT"
   }
 }

@@ -1,0 +1,10 @@
+<resources>
+    <color name="light_tint">#f1efef</color>
+    <color name="light_shade">#70FFFFFF</color>
+    <color name="time_series_color">@android:color/white</color>
+    <color name="home_color">#33343B</color>
+    <color name="home_controls_color">@color/colorPrimaryDark</color>
+    <color name="navHighlightColor">@color/colorPrimaryLight</color>
+    <color name="chartColor">@color/colorPrimaryLight</color>
+    <color name="darkColor">@android:color/white</color>
+</resources>

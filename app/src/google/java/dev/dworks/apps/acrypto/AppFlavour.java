@@ -3,25 +3,24 @@ package dev.dworks.apps.acrypto;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+import android.net.Uri;
 import android.widget.Toast;
 
 import com.anjlab.android.iab.v3.BillingProcessor;
 import com.anjlab.android.iab.v3.SkuDetails;
 import com.anjlab.android.iab.v3.TransactionDetails;
 import com.github.lykmapipo.localburst.LocalBurst;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.perf.FirebasePerformance;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import cat.ereza.customactivityoncrash.config.CaocConfig;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.misc.CrashReportingManager;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
 import dev.dworks.apps.acrypto.utils.PreferenceUtils;
+import needle.Needle;
+import needle.UiRelatedTask;
 
 import static dev.dworks.apps.acrypto.utils.NotificationUtils.TOPIC_NEWS_ALL;
 import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
@@ -32,18 +31,16 @@ import static dev.dworks.apps.acrypto.utils.Utils.isGPSAvailable;
 
 public abstract class AppFlavour extends Application implements BillingProcessor.IBillingHandler {
 	private static final String TRAIL_STATUS = "trail_status";
+	private static final String SUBSCRIBED_MONTHLY = "subscribed_monthly";
 	public static final String SUBSCRIPTION_MONTHLY_ID = getSubscriptionMain() + ".subs.m1";
 	public static final String BILLING_ACTION = "BillingInitialized";
 	private static final String INITIAL_SUBSCRIPTION_COMPLETED = "intial_subscription_completed";
 
-	public boolean isSubsUpdateSupported;
-	public boolean isOneTimePurchaseSupported;
 	private BillingProcessor bp;
 	private boolean isSubscribedMonthly;
 	private boolean autoRenewing;
 	private boolean isSubscriptionActive;
 	private SkuDetails skuDetails;
-	private FirebaseRemoteConfig mFirebaseRemoteConfig;
 	public abstract String getLocaleCurrency();
 
 	@Override
@@ -65,13 +62,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				FirebasePerformance.getInstance().setPerformanceCollectionEnabled(true);
 			}
 		}
-
-		mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-		FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-				.setDeveloperModeEnabled(BuildConfig.DEBUG)
-				.build();
-		mFirebaseRemoteConfig.setConfigSettings(configSettings);
-		mFirebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
+		CrashReportingManager.enable(!BuildConfig.DEBUG);
 
 		initialMessagingSubscription();
 	}
@@ -81,27 +72,13 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 				&& !PreferenceUtils.getBooleanPrefs(this, INITIAL_SUBSCRIPTION_COMPLETED)) {
 			FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_NEWS_ALL);
 			PreferenceUtils.set(this, INITIAL_SUBSCRIPTION_COMPLETED, true);
+			FirebaseHelper.updateNewsAlertStatus(true);
 		}
 	}
 
-	public void setOneTimePurchaseSupported(boolean oneTimePurchaseSupported) {
-		isOneTimePurchaseSupported = oneTimePurchaseSupported;
-	}
-
-	public void setSubsUpdateSupported(boolean subsUpdateSupported) {
-		isSubsUpdateSupported = subsUpdateSupported;
-	}
 
 	public void initializeBilling() {
 		getBillingProcessor();
-	}
-
-	public boolean isOneTimePurchaseSupported() {
-		return isOneTimePurchaseSupported;
-	}
-
-	public boolean isSubsUpdateSupported() {
-		return isSubsUpdateSupported;
 	}
 
 	public boolean isSubscriptionActive() {
@@ -109,7 +86,7 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	}
 
 	public boolean isSubscribedMonthly() {
-		return isSubscribedMonthly;
+		return PreferenceUtils.getBooleanPrefs(SUBSCRIBED_MONTHLY)|| isSubscribedMonthly;
 	}
 
 	public boolean isAutoRenewing() {
@@ -131,29 +108,41 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 
 	@Override
 	public void onBillingInitialized() {
-		if(!isBillingSupported() || null == bp){
+		if(!isBillingSupported() || null == bp
+				|| (bp != null && !bp.isInitialized())){
 			return;
 		}
-		setOneTimePurchaseSupported(bp.isOneTimePurchaseSupported());
-		setSubsUpdateSupported(bp.isSubscriptionUpdateSupported());
 		bp.loadOwnedPurchasesFromGoogle();
 		reloadSubscription();
 	}
 
 	public void reloadSubscription() {
-		if(!isBillingSupported() || null == bp){
+		if(!isBillingSupported() || null == bp
+				|| (bp != null && !bp.isInitialized())){
 			return;
 		}
-		skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
-		isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
-		if (isSubscribedMonthly) {
-			TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
-			autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
-		}
-		isSubscriptionActive = isSubscribedMonthly && autoRenewing;
-		selfHack();
-		LocalBurst.getInstance().emit(BILLING_ACTION);
-		FirebaseHelper.updateUserSubscription(isSubscribedMonthly);
+
+		Needle.onBackgroundThread().execute(new UiRelatedTask<Void>() {
+			@Override
+			protected Void doWork() {
+				skuDetails = getBillingProcessor().getSubscriptionListingDetails(SUBSCRIPTION_MONTHLY_ID);
+				isSubscribedMonthly = getBillingProcessor().isSubscribed(SUBSCRIPTION_MONTHLY_ID);
+				if (isSubscribedMonthly) {
+					TransactionDetails transactionDetails = getBillingProcessor().getSubscriptionTransactionDetails(SUBSCRIPTION_MONTHLY_ID);
+					autoRenewing = transactionDetails.purchaseInfo.purchaseData.autoRenewing;
+				}
+				isSubscriptionActive = isSubscribedMonthly && autoRenewing;
+				selfHack();
+				FirebaseHelper.updateUserSubscriptionStatus(isSubscribedMonthly);
+				PreferenceUtils.set(SUBSCRIBED_MONTHLY, isSubscribedMonthly);
+				return null;
+			}
+
+			@Override
+			protected void thenDoUiRelatedWork(Void result) {
+				LocalBurst.getInstance().emit(BILLING_ACTION);
+			}
+		});
 	}
 
 	private void selfHack() {
@@ -168,6 +157,9 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 
 	@Override
 	public void onProductPurchased(String productId, TransactionDetails details) {
+		FirebaseHelper.updateUserSubscription(productId,
+				details.purchaseInfo.purchaseData.orderId,
+				details.purchaseInfo.purchaseData.purchaseTime.getTime());
 		reloadSubscription();
 	}
 
@@ -194,12 +186,8 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 		return bp;
 	}
 
-	public boolean handleActivityResult(int requestCode, int resultCode, Intent data){
-		if(null != bp){
-			return bp.handleActivityResult(requestCode, resultCode, data);
-		} else {
-			return false;
-		}
+	public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
+		return null != bp && bp.handleActivityResult(requestCode, resultCode, data);
 	}
 
 	public void releaseBillingProcessor() {
@@ -213,23 +201,10 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	}
 
 	public void fetchTrailStatus() {
-		long cacheExpiration = 24*3600; // 1 hour in seconds.
-		if (mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()) {
-			cacheExpiration = 0;
-		}
-		mFirebaseRemoteConfig.fetch(cacheExpiration)
-				.addOnCompleteListener(new OnCompleteListener<Void>() {
-					@Override
-					public void onComplete(@NonNull Task<Void> task) {
-						if (task.isSuccessful()) {
-							mFirebaseRemoteConfig.activateFetched();
-						}
-					}
-				});
 	}
 
 	public boolean getTrailStatus(){
-		return mFirebaseRemoteConfig.getBoolean(TRAIL_STATUS);
+		return false;
 	}
 
 	public void subscribe(Activity activity, String productId){
@@ -248,5 +223,23 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 	public void updateInstanceId(){
 		String instanceId = FirebaseInstanceId.getInstance().getToken();
 		FirebaseHelper.updateInstanceId(instanceId);
+	}
+
+	public void unSubscribe(Activity activity, String subscriptionId) {
+		try {
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse("https://play.google.com/store/account"));
+			activity.startActivity(intent);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void updateNewsSubscription(boolean status){
+		if(status){
+			FirebaseMessaging.getInstance().subscribeToTopic(TOPIC_NEWS_ALL);
+		} else {
+			FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC_NEWS_ALL);
+		}
 	}
 }

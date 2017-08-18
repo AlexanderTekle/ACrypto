@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#1158B3</color>
     <color name="colorPrimaryDark">#0a448e</color>
-    <color name="colorPrimaryLight">#59c7fa</color>
+    <color name="colorPrimaryLight">#31D9FF</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorAccentSecondary">#EF6C00</color>
     <color name="colorAccentTeritiary">#FF5722</color>
@@ -52,5 +52,13 @@
     <color name="item_doc_grid_protect_background">#88000000</color>
     <color name="item_doc_grid_protect_background_light">#0a000000</color>
     <color name="pro_background">#ce424242</color>
-    <color name="tint_grey">#5e5d5d</color>
+
+    <color name="light_tint">#5e5d5d</color>
+    <color name="light_shade">#70000000</color>
+    <color name="time_series_color">@color/colorPrimaryDark</color>
+    <color name="home_color">@color/colorPrimaryDark</color>
+    <color name="home_controls_color">@android:color/white</color>
+    <color name="navHighlightColor">@color/colorPrimary</color>
+    <color name="chartColor">@color/colorPrimary</color>
+    <color name="darkColor">@color/colorPrimaryDark</color>
 </resources>

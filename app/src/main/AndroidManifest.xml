@@ -18,7 +18,7 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.Splash">
+            android:theme="@style/AppTheme.NoActionBar.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -34,8 +34,7 @@
             android:label="Settings"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".ErrorActivity"
-            android:process=":error_activity" />
+            android:name=".ErrorActivity"  />
         <activity
             android:name=".LoginActivity"
             android:label="Login"

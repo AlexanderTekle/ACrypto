@@ -17,6 +17,7 @@
 package dev.dworks.apps.acrypto.common;
 
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.support.annotation.LayoutRes;
@@ -28,22 +29,46 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import dev.dworks.apps.acrypto.misc.AnalyticsManager;
+import dev.dworks.apps.acrypto.utils.Utils;
+
+
 /**
- * A {@link PreferenceActivity} which implements and proxies the necessary calls
+ * A {@link android.preference.PreferenceActivity} which implements and proxies the necessary calls
  * to be used with AppCompat.
  *
  * This technique can be used with an {@link android.app.Activity} class, not just
- * {@link PreferenceActivity}.
+ * {@link android.preference.PreferenceActivity}.
  */
 public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
 
     private AppCompatDelegate mDelegate;
+    private int mThemeId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Utils.setActivityThemeStyle(getDelegate());
         getDelegate().installViewFactory();
         getDelegate().onCreate(savedInstanceState);
+        if (mDelegate.applyDayNight() && mThemeId != 0) {
+            // If DayNight has been applied, we need to re-apply the theme for
+            // the changes to take effect. On API 23+, we should bypass
+            // setTheme(), which will no-op if the theme ID is identical to the
+            // current theme ID.
+            if (Build.VERSION.SDK_INT >= 23) {
+                onApplyThemeResource(getTheme(), mThemeId, false);
+            } else {
+                setTheme(mThemeId);
+            }
+        }
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void setTheme(int resid) {
+        super.setTheme(resid);
+        // Keep hold of the theme id so that we can re-set it later if needed
+        mThemeId = resid;
     }
 
     @Override
@@ -125,4 +150,12 @@ public abstract class AppCompatPreferenceActivity extends PreferenceActivity {
         }
         return mDelegate;
     }
+
+    @Override
+    public void recreate() {
+        Utils.changeThemeStyle(getDelegate());
+        super.recreate();
+    }
+
+    public abstract String getTag();
 }
