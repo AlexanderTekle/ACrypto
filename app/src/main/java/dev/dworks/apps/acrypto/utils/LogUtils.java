@@ -109,19 +109,10 @@ public class LogUtils {
 	public static void sendFailureLog(VolleyError error, String url, int method, Map<String, String> params) {
 		try {
 			if (null != error && null != error.networkResponse) {
-				ArrayMap<String, String> map = new ArrayMap<>();
-				map.put("Request_url", url);
-				if (null != params) {
-					map.put("Request_params", getEncodedUrlParams(params));
-					if (null != error.networkResponse.data) {
-						map.put("Response", VolleyTickle.parseResponse(error.networkResponse));
-					}
-				}
-
 				String message = getMethodName(method);
 				Uri uri = Uri.parse(url);
-				if (null != uri && uri.getPathSegments().size() >= 3) {
-					message += " " + uri.getPathSegments().get(2);
+				if (null != uri) {
+					message += uri.getPath();
 				}
 
 				message += " : " + error.networkResponse.statusCode;
