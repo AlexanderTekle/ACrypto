@@ -2,7 +2,6 @@ package dev.dworks.apps.acrypto.charts;
 
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
@@ -41,7 +40,6 @@ import java.util.ArrayList;
 
 import dev.dworks.apps.acrypto.App;
 import dev.dworks.apps.acrypto.R;
-import dev.dworks.apps.acrypto.coins.CoinDetailActivity;
 import dev.dworks.apps.acrypto.common.ActionBarFragment;
 import dev.dworks.apps.acrypto.entity.CoinDetails;
 import dev.dworks.apps.acrypto.entity.Coins;
@@ -71,7 +69,6 @@ import static dev.dworks.apps.acrypto.entity.Exchanges.NO_EXCHANGES;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey;
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
-import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_COIN;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_NAME;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
@@ -118,7 +115,7 @@ public class ChartsFragment extends ActionBarFragment
     private int currentTimestamp = TIMESTAMP_DAYS;
     private int currentTimeseries = TIMESERIES_DAY;
     private String timeDifference = "Since";
-    private int currentCandelStick = CANDLESTICK_5M;
+    private int currentCandleStick = CANDLESTICK_5M;
 
     private InteractiveChartLayout mInteractiveChart;
     private InteractiveKLineView kLineView;
@@ -497,22 +494,9 @@ public class ChartsFragment extends ActionBarFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Bundle bundle = new Bundle();
         switch (item.getItemId()){
             case R.id.action_refresh:
                 onRefreshData();
-                break;
-
-            case R.id.action_view:
-                Coins.CoinDetail coinDetail = new Coins.CoinDetail();
-                coinDetail.fromSym = getCurrentCurrencyFrom();
-                coinDetail.toSym = getCurrentCurrencyTo();
-                Intent intent = new Intent(getActivity(), CoinDetailActivity.class);
-                intent.putExtra(BUNDLE_COIN, coinDetail);
-                startActivity(intent);
-
-                bundle.putString("currency", getCurrentCurrencyName());
-                AnalyticsManager.logEvent("view_coin_details", bundle);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -588,14 +572,15 @@ public class ChartsFragment extends ActionBarFragment
                 break;
         }
         if(currentTimeseries >= TIMESERIES_YEAR){
-            currentCandelStick = CANDLESTICK_1D;
+            currentCandleStick = CANDLESTICK_1D;
         } else if(currentTimeseries >= TIMESERIES_WEEK){
-            currentCandelStick = CANDLESTICK_1H;
+            currentCandleStick = CANDLESTICK_1H;
         } else {
-            currentCandelStick = CANDLESTICK_5M;
+            currentCandleStick = CANDLESTICK_5M;
         }
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
+        bundle.putString("candle", String.valueOf(currentCandleStick));
         bundle.putString("currency", getCurrentCurrencyName());
         AnalyticsManager.logEvent("price_filter", bundle);
         fetchData(false);
@@ -682,7 +667,7 @@ public class ChartsFragment extends ActionBarFragment
 
     public int getCandlesizeAggregate(){
         int aggregateValue = 1;
-        switch (currentCandelStick){
+        switch (currentCandleStick){
             case CANDLESTICK_5M:
                 aggregateValue = 5;
                 break;
@@ -711,7 +696,7 @@ public class ChartsFragment extends ActionBarFragment
 
     public String getCandelsizeUrl(){
         String url = UrlConstant.HISTORY_MINUTE_URL;
-        switch (currentCandelStick){
+        switch (currentCandleStick){
             case CANDLESTICK_5M:
             case CANDLESTICK_15M:
             case CANDLESTICK_30M:
@@ -740,7 +725,7 @@ public class ChartsFragment extends ActionBarFragment
 
     public int getCandlesizeLimit(){
         int limitValue   = 1;
-        switch (currentCandelStick){
+        switch (currentCandleStick){
             case CANDLESTICK_5M:
                 limitValue = 20;
                 break;
@@ -986,25 +971,25 @@ public class ChartsFragment extends ActionBarFragment
         int id = menuItem.getItemId();
         switch (id){
             case Menu.FIRST + 1:
-                currentCandelStick = CANDLESTICK_5M;
+                currentCandleStick = CANDLESTICK_5M;
                 break;
             case Menu.FIRST + 2:
-                currentCandelStick = CANDLESTICK_15M;
+                currentCandleStick = CANDLESTICK_15M;
                 break;
             case Menu.FIRST + 3:
-                currentCandelStick = CANDLESTICK_30M;
+                currentCandleStick = CANDLESTICK_30M;
                 break;
             case Menu.FIRST + 4:
-                currentCandelStick = CANDLESTICK_1H;
+                currentCandleStick = CANDLESTICK_1H;
                 break;
             case Menu.FIRST + 5:
-                currentCandelStick = CANDLESTICK_2H;
+                currentCandleStick = CANDLESTICK_2H;
                 break;
             case Menu.FIRST + 6:
-                currentCandelStick = CANDLESTICK_4H;
+                currentCandleStick = CANDLESTICK_4H;
                 break;
             case Menu.FIRST + 7:
-                currentCandelStick = CANDLESTICK_1D;
+                currentCandleStick = CANDLESTICK_1D;
                 break;
         }
         Bundle bundle = new Bundle();

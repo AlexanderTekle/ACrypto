@@ -170,7 +170,9 @@ public class NewsFragment extends RecyclerFragment
             boolean showAds = showAds();
             if(showAds) {
                 addNativeExpressAds();
-                setUpAndLoadNativeExpressAds();
+                try {
+                    setUpAndLoadNativeExpressAds();
+                }catch (Exception ignore){}
             }
             mAdapter.setData(mItems, showAds);
             setEmptyText("");

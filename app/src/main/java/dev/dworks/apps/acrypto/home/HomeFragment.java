@@ -361,6 +361,7 @@ public class HomeFragment extends ActionBarFragment
         String url = getUrl();
         mPrice = null;
         mChartProgress.setVisibility(View.VISIBLE);
+        mChart.setNoDataText(null);
         mChart.highlightValue(null);
         mBarChart.highlightValue(null);
 
@@ -453,15 +454,15 @@ public class HomeFragment extends ActionBarFragment
                 new Response.Listener<Exchanges>() {
                     @Override
                     public void onResponse(Exchanges prices) {
+                        mExchangeSpinner.setVisibility(View.VISIBLE);
+                        mExchangeSpinner.setItems(prices.getAllData(), R.layout.item_spinner_dark);
+                        mExchangeSpinner.setSelection(getCurrentExchange());
                         if(prices.getAllData().size() == 1
                                 && prices.getAllData().get(0).toString().equals(NO_EXCHANGES)){
                             mExchangeSpinner.setEnabled(false);
                         }else {
                             mExchangeSpinner.setEnabled(true);
                         }
-                        mExchangeSpinner.setVisibility(View.VISIBLE);
-                        mExchangeSpinner.setItems(prices.getAllData(), R.layout.item_spinner_dark);
-                        mExchangeSpinner.setSelection(getCurrentExchange());
                     }
                 },
                 new Response.ErrorListener() {
