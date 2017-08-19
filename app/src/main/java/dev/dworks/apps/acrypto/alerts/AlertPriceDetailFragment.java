@@ -69,6 +69,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyF
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
+import static dev.dworks.apps.acrypto.utils.Utils.getCurrencyToList;
 import static dev.dworks.apps.acrypto.utils.Utils.getDecimalFormat;
 
 public class AlertPriceDetailFragment extends ActionBarFragment
@@ -297,7 +298,8 @@ public class AlertPriceDetailFragment extends ActionBarFragment
                 new Response.Listener<Currencies>() {
                     @Override
                     public void onResponse(Currencies currencies) {
-                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
+                        mCurrencyToSpinner.setItems(getCurrencyToList(getCurrentCurrencyFrom(),
+                                currencies.currencies));
                         mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
                 },
@@ -509,22 +511,6 @@ public class AlertPriceDetailFragment extends ActionBarFragment
         return getCurrentCurrencyFrom() + "-"+  getCurrentCurrencyTo() + "-"
                 + (getCurrentExchange().equals(ALL_EXCHANGES)
                 || getCurrentExchange().equals(NO_EXCHANGES) ? "" : getCurrentExchange());
-    }
-
-    private ArrayList<Currencies.Currency> getCurrencyToList(ArrayList<Currencies.Currency> currencies) {
-        ArrayList<Currencies.Currency> list = new ArrayList<>();
-        if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
-            if(isTopAltCoin()){
-                list.addAll(currencies);
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
-            } else {
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
-                list.addAll(currencies);
-            }
-        } else {
-            list.addAll(currencies);
-        }
-        return list;
     }
 
     public String getNotes() {

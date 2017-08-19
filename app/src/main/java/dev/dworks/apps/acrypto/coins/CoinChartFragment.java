@@ -203,18 +203,6 @@ public class CoinChartFragment extends ActionBarFragment
         mExchangeSpinner.setOnItemSelectedListener(this);
     }
 
-    private ArrayList<String> getCurrencyToList() {
-        ArrayList<String> currencies = new ArrayList<>(App.getInstance().getCurrencyToList());
-        ArrayList<String> list = new ArrayList<>();
-        if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
-            list.add(CURRENCY_FROM_DEFAULT);
-            list.addAll(currencies);
-        } else {
-            list.addAll(currencies);
-        }
-        return list;
-    }
-
     private void initLineChart() {
 
         mChart.setOnChartValueSelectedListener(this);

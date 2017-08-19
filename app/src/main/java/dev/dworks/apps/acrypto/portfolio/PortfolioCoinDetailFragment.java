@@ -84,6 +84,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_TYPE;
 import static dev.dworks.apps.acrypto.utils.Utils.REQUIRED;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
+import static dev.dworks.apps.acrypto.utils.Utils.getCurrencyToList;
 import static dev.dworks.apps.acrypto.utils.Utils.setDecimalValue;
 
 public class PortfolioCoinDetailFragment extends ActionBarFragment
@@ -365,7 +366,8 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
                 new Response.Listener<Currencies>() {
                     @Override
                     public void onResponse(Currencies currencies) {
-                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies));
+                        mCurrencyToSpinner.setItems(getCurrencyToList(getCurrentCurrencyFrom(),
+                                currencies.currencies));
                         mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
                 },
@@ -638,28 +640,16 @@ public class PortfolioCoinDetailFragment extends ActionBarFragment
 
     private ArrayList<CoinDetails.Coin> getCurrencyFromList(ArrayList<CoinDetails.Coin> coins) {
         ArrayList<CoinDetails.Coin> list = new ArrayList<>();
-        if(!getCurrentCurrencyTo().equals(CURRENCY_FROM_DEFAULT)){
-            list.addAll(coins);
-        } else {
+        if(getCurrentCurrencyTo().equals(CURRENCY_FROM_DEFAULT)){
             list.addAll(coins);
             list.remove(0); //TODO you gotta be kidding!!!
             //list.remove(new CoinDetails.Coin(CURRENCY_FROM_DEFAULT));
-        }
-        return list;
-    }
-
-    private ArrayList<Currencies.Currency> getCurrencyToList(ArrayList<Currencies.Currency> currencies) {
-        ArrayList<Currencies.Currency> list = new ArrayList<>();
-        if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
-            if(isTopAltCoin()){
-                list.addAll(currencies);
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
-            } else {
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
-                list.addAll(currencies);
-            }
+        } else if(getCurrentCurrencyTo().equals(CURRENCY_FROM_SECOND_DEFAULT)){
+            list.addAll(coins);
+            list.remove(1); //TODO you gotta be kidding!!!
+            //list.remove(new CoinDetails.Coin(CURRENCY_FROM_DEFAULT));
         } else {
-            list.addAll(currencies);
+            list.addAll(coins);
         }
         return list;
     }

@@ -81,6 +81,7 @@ import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_ALERT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_REF_KEY;
 import static dev.dworks.apps.acrypto.utils.Utils.getColor;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
+import static dev.dworks.apps.acrypto.utils.Utils.getCurrencyToList;
 import static dev.dworks.apps.acrypto.utils.Utils.getDisplayPercentageRounded;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.getPercentDifferenceColor;
@@ -409,7 +410,8 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
                 new Response.Listener<Currencies>() {
                     @Override
                     public void onResponse(Currencies currencies) {
-                        mCurrencyTwoSpinner.setItems(getCurrencyToList(currencies.currencies));
+                        mCurrencyTwoSpinner.setItems(getCurrencyToList(getCurrentCurrencyFrom(),
+                                currencies.currencies));
                         mCurrencyTwoSpinner.setSelection(getCurrentCurrencyTwo());
                     }
                 },
@@ -657,22 +659,6 @@ public class AlertArbitrageDetailFragment extends ActionBarFragment
                 + ":" + getCurrentCurrencyFrom() + "-"+  getCurrentCurrencyTwo() + "-"
                 + (getCurrentExchangeTwo().equals(ALL_EXCHANGES)
                 || getCurrentExchangeTwo().equals(NO_EXCHANGES) ? "" : getCurrentExchangeTwo());
-    }
-
-    private ArrayList<Currencies.Currency> getCurrencyToList(ArrayList<Currencies.Currency> currencies) {
-        ArrayList<Currencies.Currency> list = new ArrayList<>();
-        if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
-            if(isTopAltCoin()){
-                list.addAll(currencies);
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
-            } else {
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
-                list.addAll(currencies);
-            }
-        } else {
-            list.addAll(currencies);
-        }
-        return list;
     }
 
     public String getNotes() {

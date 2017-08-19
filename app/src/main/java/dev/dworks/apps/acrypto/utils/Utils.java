@@ -85,6 +85,7 @@ import dev.dworks.apps.acrypto.LoginActivity;
 import dev.dworks.apps.acrypto.MainActivity;
 import dev.dworks.apps.acrypto.R;
 import dev.dworks.apps.acrypto.entity.CoinDetailSample;
+import dev.dworks.apps.acrypto.entity.Currencies;
 import dev.dworks.apps.acrypto.misc.AnalyticsManager;
 import dev.dworks.apps.acrypto.misc.AppFeedback;
 import dev.dworks.apps.acrypto.misc.FirebaseHelper;
@@ -96,6 +97,8 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_AUTO;
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
 import static dev.dworks.apps.acrypto.App.SUBSCRIPTION_MONTHLY_ID;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_SECOND_DEFAULT;
 
 /**
  * Created by HaKr on 20-Sep-14.
@@ -1002,5 +1005,32 @@ public class Utils {
             return symbol;
         }
         return symbol.replace("*", "");
+    }
+
+    public static boolean isTopAltCoin(String symbol){
+        return App.getInstance().getDefaultData().coins_top.contains(symbol);
+    }
+
+    public static ArrayList<Currencies.Currency> getCurrencyToList(String symbol,
+                                                                   ArrayList<Currencies.Currency> currencies) {
+        ArrayList<Currencies.Currency> list = new ArrayList<>();
+        if(symbol.equals(CURRENCY_FROM_DEFAULT)){
+            list.addAll(currencies);
+            list.add(new Currencies.Currency(CURRENCY_FROM_SECOND_DEFAULT));
+        } else if(symbol.equals(CURRENCY_FROM_SECOND_DEFAULT)){
+            list.addAll(currencies);
+            list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+        } else {
+            if(isTopAltCoin(symbol)){
+                list.addAll(currencies);
+                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+                list.add(new Currencies.Currency(CURRENCY_FROM_SECOND_DEFAULT));
+            } else {
+                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+                list.add(new Currencies.Currency(CURRENCY_FROM_SECOND_DEFAULT));
+                list.addAll(currencies);
+            }
+        }
+        return list;
     }
 }

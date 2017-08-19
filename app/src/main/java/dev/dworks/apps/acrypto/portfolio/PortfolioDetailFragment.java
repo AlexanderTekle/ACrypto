@@ -53,6 +53,7 @@ import dev.dworks.apps.acrypto.utils.Utils;
 import dev.dworks.apps.acrypto.view.SearchableSpinner;
 
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_DEFAULT;
+import static dev.dworks.apps.acrypto.settings.SettingsActivity.CURRENCY_FROM_SECOND_DEFAULT;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_PORTFOLIO;
 import static dev.dworks.apps.acrypto.utils.Utils.REQUIRED;
 
@@ -190,6 +191,7 @@ public class PortfolioDetailFragment extends DialogFragment {
                     @Override
                     public void onResponse(Currencies currencies) {
                         currencies.currencies.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
+                        currencies.currencies.add(new Currencies.Currency(CURRENCY_FROM_SECOND_DEFAULT));
                         mCurrencyToSpinner.setItems(currencies.currencies);
                         mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
@@ -238,8 +240,8 @@ public class PortfolioDetailFragment extends DialogFragment {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(null == databaseError && null != getParentFragment()){
-                    PortfolioFragment portfolioFragment = (PortfolioFragment)getParentFragment();
                     if(isNew()){
+                        PortfolioFragment portfolioFragment = (PortfolioFragment)getParentFragment();
                         portfolioFragment.moveToLastTab();
                     }
                     AnalyticsManager.logEvent(isNew() ? "portfolio_added" : "portfolio_edited");

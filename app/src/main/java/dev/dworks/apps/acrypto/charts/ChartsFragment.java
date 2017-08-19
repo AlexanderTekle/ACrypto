@@ -71,6 +71,7 @@ import static dev.dworks.apps.acrypto.settings.SettingsActivity.getCurrencyToKey
 import static dev.dworks.apps.acrypto.settings.SettingsActivity.getUserCurrencyFrom;
 import static dev.dworks.apps.acrypto.utils.Utils.BUNDLE_NAME;
 import static dev.dworks.apps.acrypto.utils.Utils.getCurrencySymbol;
+import static dev.dworks.apps.acrypto.utils.Utils.getCurrencyToList;
 import static dev.dworks.apps.acrypto.utils.Utils.getFormattedTime;
 import static dev.dworks.apps.acrypto.utils.Utils.getMoneyFormat;
 import static dev.dworks.apps.acrypto.utils.Utils.showAppFeedback;
@@ -228,22 +229,6 @@ public class ChartsFragment extends ActionBarFragment
         return mName.split("-");
     }
 
-    private ArrayList<Currencies.Currency> getCurrencyToList(ArrayList<Currencies.Currency> currencies) {
-        ArrayList<Currencies.Currency> list = new ArrayList<>();
-        if(!getCurrentCurrencyFrom().equals(CURRENCY_FROM_DEFAULT)){
-            if(isTopAltCoin()){
-                list.addAll(currencies);
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
-            } else {
-                list.add(new Currencies.Currency(CURRENCY_FROM_DEFAULT));
-                list.addAll(currencies);
-            }
-        } else {
-            list.addAll(currencies);
-        }
-        return list;
-    }
-
     private void initLineChart() {
         kLineView = mInteractiveChart.getKLineView();
         kLineView.setEnableLeftRefresh(false);
@@ -311,7 +296,7 @@ public class ChartsFragment extends ActionBarFragment
                 new Response.Listener<Currencies>() {
                     @Override
                     public void onResponse(Currencies currencies) {
-                        mCurrencyToSpinner.setItems(getCurrencyToList(currencies.currencies), R.layout.item_spinner_dark);
+                        mCurrencyToSpinner.setItems(getCurrencyToList(getCurrentCurrencyFrom(), currencies.currencies), R.layout.item_spinner_dark);
                         mCurrencyToSpinner.setSelection(getCurrentCurrencyTo());
                     }
                 },
