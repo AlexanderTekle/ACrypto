@@ -169,10 +169,10 @@ public class NewsFragment extends RecyclerFragment
             mItems.addAll(news.getData());
             boolean showAds = showAds();
             if(showAds) {
-                addNativeExpressAds();
                 try {
+                    addNativeExpressAds();
                     setUpAndLoadNativeExpressAds();
-                }catch (Exception ignore){}
+                } catch (Exception ignore){}
             }
             mAdapter.setData(mItems, showAds);
             setEmptyText("");
@@ -274,20 +274,22 @@ public class NewsFragment extends RecyclerFragment
         getListView().post(new Runnable() {
             @Override
             public void run() {
-                final float scale = getResources().getDisplayMetrics().density;
-                final CardView cardView = (CardView) getListView().findViewById(R.id.cardView);
-                final int adWidth = cardView.getWidth() - cardView.getPaddingLeft()
-                        - cardView.getPaddingRight();
-                int width = (int) (adWidth / scale);
-                for (int i = START_POSITION; i <= mItems.size(); i += AD_POSITION) {
-                    final NativeExpressAdView adView =
-                            (NativeExpressAdView) mItems.get(i);
-                    AdSize adSize = new AdSize(width, NATIVE_EXPRESS_AD_HEIGHT);
-                    adView.setAdSize(adSize);
-                    adView.setAdUnitId(NATIVE_APP_UNIT_ID);
-                }
+                try {
+                    final float scale = getResources().getDisplayMetrics().density;
+                    final CardView cardView = (CardView) getListView().findViewById(R.id.cardView);
+                    final int adWidth = cardView.getWidth() - cardView.getPaddingLeft()
+                            - cardView.getPaddingRight();
+                    int width = (int) (adWidth / scale);
+                    for (int i = START_POSITION; i <= mItems.size(); i += AD_POSITION) {
+                        final NativeExpressAdView adView =
+                                (NativeExpressAdView) mItems.get(i);
+                        AdSize adSize = new AdSize(width, NATIVE_EXPRESS_AD_HEIGHT);
+                        adView.setAdSize(adSize);
+                        adView.setAdUnitId(NATIVE_APP_UNIT_ID);
+                    }
 
-                loadNativeExpressAd(START_POSITION);
+                    loadNativeExpressAd(START_POSITION);
+                }catch (Exception ignore){}
             }
         });
     }

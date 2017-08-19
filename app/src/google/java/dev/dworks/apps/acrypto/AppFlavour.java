@@ -101,6 +101,10 @@ public abstract class AppFlavour extends Application implements BillingProcessor
 		if(null == skuDetails){
 			return "Subscribe";
 		}
+
+		if(skuDetails.haveTrialPeriod){
+			return "Start FREE Trail";
+		}
 		return "Subscribe "
 				+ skuDetails.priceText + "/"
 				+ " Monthly";
