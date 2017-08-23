@@ -1,9 +1,3 @@
-Acrypto - Another crypto currency tracker
-==================================
-
-**ACrypto** is another crypto currency bitcoin ticker 
-
-Acrypto is a Bitcoin / Altcoin price checker using which you can track the latest prices , monitor and check prices from more than 50 bitcoin, ethereum and other altcoin exchanges and markets in top currencies around the world. You can use this app for bitcoin mining, buy coins for trading and investing. A bitcoin price ticker which is simple and elegant with material design and its called ACrypto
 
 Developed By
 ============
